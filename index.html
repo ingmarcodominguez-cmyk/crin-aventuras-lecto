@@ -995,7 +995,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v93</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v94</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1138,9 +1138,19 @@
         </div>
 
         <div class="custom-section">
-          <div class="custom-title">Elige tu Traje de Héroe</div>
-          <div class="options-grid">
+          <div class="custom-title">Elige tu Traje de Heroína / Héroe</div>
+          <div class="options-grid" style="grid-template-columns: repeat(4, 1fr); gap: 8px;">
+            <div class="opt-card" onclick="setAvatar('👧')">👧</div>
+            <div class="opt-card" onclick="setAvatar('👩‍🚀')">👩‍🚀</div>
+            <div class="opt-card" onclick="setAvatar('👸')">👸</div>
+            <div class="opt-card" onclick="setAvatar('🦸‍♀️')">🦸‍♀️</div>
+            <div class="opt-card" onclick="setAvatar('🧙‍♀️')">🧙‍♀️</div>
+            <div class="opt-card" onclick="setAvatar('🧚‍♀️')">🧚‍♀️</div>
+            <div class="opt-card" onclick="setAvatar('🧝‍♀️')">🧝‍♀️</div>
+            <div class="opt-card" onclick="setAvatar('👩‍🎨')">👩‍🎨</div>
+            <div class="opt-card" onclick="setAvatar('👦')">👦</div>
             <div class="opt-card selected" onclick="setAvatar('🧑‍🚀')">🧑‍🚀</div>
+            <div class="opt-card" onclick="setAvatar('🤴')">🤴</div>
             <div class="opt-card" onclick="setAvatar('🦸‍♂️')">🦸‍♂️</div>
             <div class="opt-card" onclick="setAvatar('🧙‍♂️')">🧙‍♂️</div>
             <div class="opt-card" onclick="setAvatar('🤠')">🤠</div>
@@ -1149,11 +1159,13 @@
 
         <div class="custom-section">
           <div class="custom-title">Tu Mascota Acompañante</div>
-          <div class="options-grid">
+          <div class="options-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">
             <div class="opt-card selected" onclick="setPet('🐶')">🐶</div>
             <div class="opt-card" onclick="setPet('🐱')">🐱</div>
+            <div class="opt-card" onclick="setPet('🦊')">🦊</div>
+            <div class="opt-card" onclick="setPet('🐰')">🐰</div>
+            <div class="opt-card" onclick="setPet('🦄')">🦄</div>
             <div class="opt-card" onclick="setPet('🐉')">🐉</div>
-            <div class="opt-card locked" onclick="alert('Completa 5 misiones para desbloquear este unicornio 🦄')">🦄</div>
           </div>
         </div>
       </div>
@@ -1195,7 +1207,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v93</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v94</span>
         </div>
         
         <div class="panel-card">
@@ -1862,12 +1874,15 @@
 
     function formatTextWithStudentName(text) {
       if (!text) return '';
-      const currentName = (studentName && studentName.trim()) ? studentName.trim() : 'Aventurero';
+      const currentName = (studentName && studentName.trim() && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName.trim() : 'nuestra figura exploradora';
       return text
-        .replace(/\bSanti\b/gi, currentName)
-        .replace(/\{nombre\}/gi, currentName)
-        .replace(/\{alumno\}/gi, currentName)
-        .replace(/\{estudiante\}/gi, currentName);
+        .replace(/\bSanti\b/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestro/a aventurero/a')
+        .replace(/\{nombre\}/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestro/a aventurero/a')
+        .replace(/\{alumno\}/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestro/a estudiante')
+        .replace(/\{estudiante\}/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestro/a estudiante')
+        .replace(/\bnuestro explorador\b/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestra figura exploradora')
+        .replace(/\bnuestro héroe\b/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestra figura aventurera')
+        .replace(/\bnuestro aventurero\b/gi, (studentName && studentName.trim()) ? studentName.trim() : 'nuestra figura aventurera');
     }
 
     function playStoryChapterNarration(item, onFinish) {
@@ -3007,7 +3022,7 @@
           const v = chapterIdx % 2;
           if (v === 0) {
             title = `📜 Cap.: La Gema ${clean}`;
-            narration = `Continuando nuestro paseo por el bosque mágico, nuestro héroe encontró una valiosa gema de color ${lower}.`;
+            narration = `Continuando nuestro paseo por el bosque mágico, {nombre} encontró una valiosa gema de color ${lower}.`;
           } else {
             title = `📜 Cap.: El Sendero ${clean}`;
             narration = `El camino se tiñó con un resplandor maravilloso, iluminado por destellos de color ${lower}.`;
@@ -3016,7 +3031,7 @@
       } else if (category === 'animal') {
         if (gender === 'f') {
           const templates = [
-            { t: `📜 Cap.: La Hermosa ${clean}`, n: `Cerca del estanque del bosque, nuestro explorador encontró una simpática ${lower} que saltaba alegremente para guiarnos.` },
+            { t: `📜 Cap.: La Hermosa ${clean}`, n: `Cerca del estanque del bosque, {nombre} encontró una simpática ${lower} que saltaba alegremente para guiarnos.` },
             { t: `📜 Cap.: La Ágil ${clean}`, n: `Siguiendo el murmullo del viento, apareció una veloz ${lower} que nos acompañó con gran agilidad.` },
             { t: `📜 Cap.: La Leal ${clean}`, n: `Entre las flores de la pradera, descubrimos una hermosa ${lower} lista para sumarse a la aventura.` }
           ];
@@ -3034,14 +3049,14 @@
       } else if (category === 'food_meal') {
         if (gender === 'f') {
           const templates = [
-            { t: `📜 Cap.: La Deliciosa ${clean}`, n: `Al caer el atardecer, nuestro explorador disfrutó de una sabrosa ${lower} para recargar energías.` },
+            { t: `📜 Cap.: La Deliciosa ${clean}`, n: `Al caer el atardecer, {nombre} disfrutó de una sabrosa ${lower} para recargar energías.` },
             { t: `📜 Cap.: La Dulce ${clean}`, n: `En el huerto del castillo, los duendes compartieron una rica ${lower} repleta de frescura.` }
           ];
           const chosen = templates[chapterIdx % templates.length];
           title = chosen.t; narration = chosen.n;
         } else {
           const templates = [
-            { t: `📜 Cap.: El Delicioso ${clean}`, n: `Al caer el atardecer, nuestro explorador disfrutó de un sabroso ${lower} para recargar energías.` },
+            { t: `📜 Cap.: El Delicioso ${clean}`, n: `Al caer el atardecer, {nombre} disfrutó de un sabroso ${lower} para recargar energías.` },
             { t: `📜 Cap.: El Jugoso ${clean}`, n: `En el huerto del castillo, los duendes compartieron un rico ${lower} repleto de frescura.` }
           ];
           const chosen = templates[chapterIdx % templates.length];
@@ -3067,14 +3082,14 @@
         if (gender === 'f') {
           const templates = [
             { t: `📜 Cap.: La Cómoda ${clean}`, n: `En la sala secreta del castillo, hallamos una bonita ${lower} lista para descansar.` },
-            { t: `📜 Cap.: La Mágica ${clean}`, n: `Nuestro explorador preparó una suave ${lower} para pasar una noche tranquila.` }
+            { t: `📜 Cap.: La Mágica ${clean}`, n: `Con mucho entusiasmo, {nombre} preparó una suave ${lower} para pasar una noche tranquila.` }
           ];
           const chosen = templates[chapterIdx % templates.length];
           title = chosen.t; narration = chosen.n;
         } else {
           const templates = [
             { t: `📜 Cap.: El Cómodo ${clean}`, n: `En la sala secreta del castillo, hallamos un bonito ${lower} listo para descansar.` },
-            { t: `📜 Cap.: El Mágico ${clean}`, n: `Nuestro explorador preparó un suave ${lower} para pasar una noche tranquila.` }
+            { t: `📜 Cap.: El Mágico ${clean}`, n: `Con mucho entusiasmo, {nombre} preparó un suave ${lower} para pasar una noche tranquila.` }
           ];
           const chosen = templates[chapterIdx % templates.length];
           title = chosen.t; narration = chosen.n;
@@ -4033,7 +4048,7 @@
         modal.style.display = 'flex';
         setTimeout(() => { if (input) input.focus(); }, 150);
       } else {
-        const entered = prompt('🧑‍🚀 Ingresa tu nombre para comenzar la aventura:', currentVal);
+        const entered = prompt('🌟 Ingresa tu nombre para comenzar la aventura:', currentVal);
         if (entered !== null && entered.trim()) {
           studentName = entered.trim();
           saveTherapistToLocalStorage();
@@ -4058,6 +4073,18 @@
 
       buildActiveDatasets();
       if (gameState.currentMode) loadCurrentWord(true);
+    }
+
+    function logoutStudent() {
+      studentName = '';
+      try {
+        localStorage.removeItem('crin_student_name');
+      } catch(e) {}
+      updateStudentNameUI();
+      const input = document.getElementById('modal-student-name-input');
+      if (input) input.value = '';
+      alert('🚪 Sesión de niño/a cerrada. ¡Por favor ingresa el nombre del nuevo explorador o exploradora!');
+      openStudentNameModal();
     }
 
     function updateStudentNameUI() {
@@ -4605,17 +4632,34 @@
     }
   </script>
   <!-- MODAL INDEPENDIENTE DE SELECCIÓN DE NOMBRE DE ALUMNO / NIÑO -->
-  <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 99999;">
-    <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 3px solid #4A90E2; max-width: 380px; width: 90%; margin: auto; padding: 22px; border-radius: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-      <div style="font-size: 55px; margin-bottom: 4px;">🧑‍🚀</div>
-      <h2 style="font-size: 22px; color: #4A90E2; margin-bottom: 4px;">¡Hola Explorador/a!</h2>
-      <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">Ingresa tu nombre para personalizar tu aventura:</p>
+  <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 2147483647;">
+    <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 3px solid #4A90E2; max-width: 400px; width: 92%; margin: auto; padding: 20px; border-radius: 24px; text-align: center; box-shadow: 0 10px 35px rgba(0,0,0,0.4); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 90vh; overflow-y: auto;">
+      <div style="font-size: 48px; margin-bottom: 2px;" id="modal-avatar-preview">👧</div>
+      <h2 style="font-size: 20px; color: #4A90E2; margin-bottom: 2px;">¡Hola Explorador/a! 🌟</h2>
+      <p style="font-size: 12px; color: #64748B; margin-bottom: 10px;">Ingresa tu nombre para comenzar tu aventura:</p>
       
-      <input type="text" id="modal-student-name-input" class="input-text" placeholder="Ej: Sofía, Mateo, Lucas..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 12px; border: 2px solid #4A90E2; border-radius: 14px; margin-bottom: 16px; width: 100%; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') confirmStudentNameFromModal()" />
+      <input type="text" id="modal-student-name-input" class="input-text" placeholder="Ej: Sofía, Emma, Mateo, Lucas..." style="font-size: 16px; text-align: center; font-weight: bold; padding: 10px; border: 2px solid #4A90E2; border-radius: 14px; margin-bottom: 12px; width: 100%; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') confirmStudentNameFromModal()" />
       
-      <div style="display: flex; gap: 8px;">
-        <button onclick="confirmStudentNameFromModal()" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(46,204,113,0.3);">
+      <div style="font-size: 12px; font-weight: bold; color: #475569; margin-bottom: 6px;">Elige tu Personaje:</div>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 14px;">
+        <button onclick="setAvatar('👧')" style="font-size: 20px; background: #FCE4EC; border: 1px solid #F48FB1; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">👧</button>
+        <button onclick="setAvatar('👩‍🚀')" style="font-size: 20px; background: #E8EAF6; border: 1px solid #9FA8DA; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">👩‍🚀</button>
+        <button onclick="setAvatar('👸')" style="font-size: 20px; background: #FFF8E1; border: 1px solid #FFE082; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">👸</button>
+        <button onclick="setAvatar('🦸‍♀️')" style="font-size: 20px; background: #EDE7F6; border: 1px solid #B39DDB; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🦸‍♀️</button>
+        <button onclick="setAvatar('🧙‍♀️')" style="font-size: 20px; background: #F3E5F5; border: 1px solid #CE93D8; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🧙‍♀️</button>
+        <button onclick="setAvatar('🧚‍♀️')" style="font-size: 20px; background: #E8F5E9; border: 1px solid #A5D6A7; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🧚‍♀️</button>
+        <button onclick="setAvatar('👦')" style="font-size: 20px; background: #E3F2FD; border: 1px solid #90CAF9; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">👦</button>
+        <button onclick="setAvatar('🧑‍🚀')" style="font-size: 20px; background: #E0F7FA; border: 1px solid #80DEEA; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🧑‍🚀</button>
+        <button onclick="setAvatar('🤴')" style="font-size: 20px; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🤴</button>
+        <button onclick="setAvatar('🦸‍♂️')" style="font-size: 20px; background: #FFEBEE; border: 1px solid #EF9A9A; border-radius: 10px; width: 38px; height: 38px; cursor: pointer;">🦸‍♂️</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button onclick="confirmStudentNameFromModal()" style="width: 100%; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(46,204,113,0.3);">
           🚀 ¡Ingresar y Comenzar!
+        </button>
+        <button onclick="logoutStudent()" style="width: 100%; background: #F1F5F9; border: 1px solid #CBD5E1; color: #64748B; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer;">
+          🚪 Cerrar Sesión / Cambiar Niño
         </button>
       </div>
     </div>
