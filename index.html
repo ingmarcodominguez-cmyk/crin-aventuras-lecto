@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
@@ -3184,28 +3187,21 @@
       const currentValue = activeTaskPackId;
       select.innerHTML = '';
 
-      const stdGroup = document.createElement('optgroup');
-      stdGroup.label = '📚 Tareas Predefinidas del Sistema';
-
       Object.keys(allTaskPacks).forEach(key => {
         const pack = allTaskPacks[key];
         const opt = document.createElement('option');
         opt.value = pack.id;
         opt.innerText = pack.name;
-        stdGroup.appendChild(opt);
+        select.appendChild(opt);
       });
-      select.appendChild(stdGroup);
 
       if (savedTasksBank && savedTasksBank.length > 0) {
-        const bankGroup = document.createElement('optgroup');
-        bankGroup.label = '🗂️ Banco de Tareas Guardadas';
         savedTasksBank.forEach(task => {
           const opt = document.createElement('option');
           opt.value = 'bank_' + task.id;
-          opt.innerText = `🗂️ Tarea: ${task.wordsSummary}`;
-          bankGroup.appendChild(opt);
+          opt.innerText = `🗂️ Tarea Guardada: ${task.wordsSummary}`;
+          select.appendChild(opt);
         });
-        select.appendChild(bankGroup);
       }
 
       select.value = currentValue;
