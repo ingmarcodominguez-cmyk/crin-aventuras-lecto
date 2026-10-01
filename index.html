@@ -3222,7 +3222,6 @@
     }
 
     function updateActiveTaskPackUI() {
-      populateTaskSelectOptions();
       const select = document.getElementById('active-task-select');
       if (select) select.value = activeTaskPackId;
 
@@ -3749,6 +3748,7 @@
 
       saveTherapistToLocalStorage();
       renderCustomWordTags();
+      populateTaskSelectOptions();
       renderSavedTasksBank();
       changeActiveTaskPack('custom');
 
@@ -3780,6 +3780,7 @@
       if (confirm('¿Deseas eliminar esta tarea del Banco de Tareas Guardadas?')) {
         savedTasksBank = savedTasksBank.filter(t => t.id !== taskId);
         saveTherapistToLocalStorage();
+        populateTaskSelectOptions();
         renderSavedTasksBank();
       }
     }
@@ -4025,6 +4026,7 @@
           activeTaskPackId = savedPack;
         }
 
+        populateTaskSelectOptions();
         updateActiveTaskPackUI();
         buildActiveDatasets();
 
