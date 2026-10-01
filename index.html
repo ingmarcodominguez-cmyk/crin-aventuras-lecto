@@ -1,0 +1,4499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CRIN Aventuras de Lectoescritura</title>
+  
+  <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
+  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+
+  <style>
+    :root {
+      --primary: #4A90E2;
+      --primary-dark: #357ABD;
+      --secondary: #FF9F43;
+      --accent: #2ECC71;
+      --purple: #9B59B6;
+      --pink: #FF6B81;
+      --bg: #F4F7FC;
+      --card-bg: #FFFFFF;
+      --text: #2C3E50;
+      --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+    html, body {
+      height: 100%;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: #1a1a2e;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Mobile Container Frame */
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      height: 100%;
+      height: 100dvh;
+      max-height: 932px;
+      background: var(--bg);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+
+    @media (min-width: 500px) {
+      .app-container {
+        height: 90vh;
+        border-radius: 36px;
+        border: 12px solid #2d2d44;
+      }
+    }
+
+    /* 📱 ADAPTACIÓN RESPONSIVA Y COMPACTA PARA PANTALLAS DE TELÉFONO */
+    @media (max-width: 600px), (max-height: 750px) {
+      html, body {
+        height: 100% !important;
+        height: 100dvh !important;
+      }
+      .app-container {
+        border: none !important;
+        border-radius: 0 !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        width: 100vw !important;
+        max-height: none !important;
+      }
+      .header {
+        padding: 4px 8px !important;
+        flex-shrink: 0 !important;
+      }
+      .header h1 {
+        font-size: 13px !important;
+      }
+      .avatar-mini {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
+      }
+      .stat-badge {
+        padding: 2px 5px !important;
+        font-size: 10px !important;
+      }
+      .view-content {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+      .screen {
+        padding: 6px !important;
+      }
+      .map-container {
+        padding: 6px 4px !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        overflow-y: auto !important;
+      }
+      .world-node {
+        padding: 8px 10px !important;
+        border-radius: 14px !important;
+        gap: 8px !important;
+      }
+      .node-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 18px !important;
+        border-radius: 10px !important;
+      }
+      .node-details h3 {
+        font-size: 12px !important;
+        margin-bottom: 1px !important;
+      }
+      .node-details p {
+        font-size: 10px !important;
+      }
+      .adventure-stage-wrap {
+        height: clamp(120px, 20vh, 160px) !important;
+        min-height: 120px !important;
+        margin-bottom: 4px !important;
+      }
+      .story-banner {
+        padding: 4px 8px !important;
+        margin-bottom: 4px !important;
+      }
+      .story-banner .story-icon {
+        font-size: 16px !important;
+      }
+      .story-banner .story-text {
+        font-size: 10px !important;
+      }
+      .challenge-card {
+        padding: 4px 6px !important;
+      }
+      .big-picto-card {
+        width: clamp(70px, 16vw, 90px) !important;
+        height: clamp(50px, 10vh, 70px) !important;
+      }
+      .big-picto-emoji {
+        font-size: clamp(30px, 5vh, 42px) !important;
+      }
+      .sentence-box {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+        margin-bottom: 4px !important;
+      }
+      .slot {
+        min-width: 32px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+        border-radius: 8px !important;
+      }
+      .nav-bar {
+        flex-shrink: 0 !important;
+        height: 48px !important;
+        background: #FFFFFF !important;
+        border-top: 1px solid #CBD5E1 !important;
+      }
+      .nav-btn {
+        font-size: 8px !important;
+      }
+      .nav-btn .icon {
+        font-size: 16px !important;
+      }
+    }
+
+    /* Header Bar */
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-mini {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #FFEAA7;
+      border: 2px solid white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .stats {
+      display: flex;
+      gap: 12px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .stat-badge {
+      background: rgba(255,255,255,0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Main View Area */
+    .view-content {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      padding: 16px;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      height: 65px;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid #E2E8F0;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+      z-index: 10;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: #94A3B8;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 20%;
+    }
+
+    .nav-btn .icon {
+      font-size: 22px;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    /* SCREEN 1: MAPA DE AVENTURA */
+    .map-container {
+      background: linear-gradient(180deg, #81ECEC 0%, #74B9FF 50%, #A29BFE 100%);
+      border-radius: 20px;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px 10px;
+    }
+
+    .world-node {
+      background: white;
+      border-radius: 24px;
+      padding: 14px 20px;
+      width: 90%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .world-node:active {
+      transform: scale(0.97);
+    }
+
+    .node-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .node-details h3 {
+      font-size: 16px;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .node-details p {
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    .node-stars {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      font-size: 14px;
+      color: #FFD700;
+    }
+
+    /* 🎮 SCREEN 2: JUEGO ESTILO VIDEOJUEGO (2D RUNNER / PLATAFORMA 3D) */
+    .game-screen-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #F8FAFC;
+      overflow-y: auto;
+    }
+
+    .adventure-stage-wrap {
+      position: relative;
+      width: 100%;
+      height: clamp(170px, 26vh, 260px);
+      min-height: 170px;
+      flex-shrink: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      margin-bottom: 8px;
+      background: #74B9FF;
+    }
+
+    .story-banner {
+      background: linear-gradient(135deg, #FFF9E6, #FFEAA7);
+      border: 2px solid #FDCB6E;
+      border-radius: 16px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(253, 203, 110, 0.25);
+      animation: fadeInBanner 0.4s ease-out;
+      flex-shrink: 0;
+    }
+
+    @keyframes fadeInBanner {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .story-banner .story-icon {
+      font-size: 26px;
+    }
+
+    .story-banner .story-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2D3436;
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .btn-listen-story {
+      background: #FF9F43;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 6px rgba(255, 159, 67, 0.3);
+      flex-shrink: 0;
+    }
+
+    .btn-listen-story:active {
+      transform: scale(0.95);
+    }
+
+    .btn-fullscreen {
+      background: #F1F5F9;
+      border: 2px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #475569;
+      cursor: pointer;
+    }
+
+    .btn-fullscreen:active {
+      transform: scale(0.95);
+    }
+
+    .narration-lock-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 25;
+      font-weight: bold;
+      font-size: 13px;
+      color: #E67E22;
+      gap: 4px;
+      border: 2px dashed #F39C12;
+      box-shadow: 0 4px 15px rgba(243, 156, 18, 0.15);
+      animation: pulseLock 1.2s infinite alternate;
+      transition: opacity 0.3s ease;
+    }
+
+    @keyframes pulseLock {
+      from { transform: scale(0.99); border-color: #F39C12; }
+      to { transform: scale(1.01); border-color: #E67E22; }
+    }
+
+    .encounter-bubble {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: white;
+      border: 2px solid #FF9F43;
+      border-radius: 14px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #2D3436;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      animation: bounceBubble 1s infinite alternate;
+      z-index: 10;
+    }
+
+    @keyframes bounceBubble {
+      from { transform: translateY(0); }
+      to { transform: translateY(-5px); }
+    }
+
+    .adventure-stage {
+      height: 160px;
+      background: linear-gradient(180deg, #74B9FF 0%, #A8E6CF 80%, #55EFC4 100%);
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1);
+      margin-bottom: 8px;
+      transition: background 0.8s ease;
+    }
+
+    .stage-clouds {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      width: 200%;
+      font-size: 26px;
+      opacity: 0.7;
+      animation: moveClouds 20s linear infinite;
+    }
+
+    @keyframes moveClouds {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .stage-ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 28px;
+      background: linear-gradient(180deg, #2ED573, #26AF5F);
+      border-top: 4px solid #1E8449;
+    }
+
+    .hero-sprite {
+      position: absolute;
+      bottom: 20px;
+      left: 30px;
+      font-size: 45px;
+      transition: all 0.5s ease-in-out;
+      z-index: 5;
+    }
+
+    .hero-sprite.walking {
+      animation: heroWalk 0.4s infinite alternate;
+    }
+
+    .hero-sprite.jumping {
+      animation: heroJump 0.8s ease-in-out;
+    }
+
+    @keyframes heroWalk {
+      from { transform: translateY(0) rotate(-4deg); }
+      to { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    @keyframes heroJump {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-50px) scale(1.2) rotate(15deg); }
+      100% { transform: translateY(0) scale(1) rotate(0deg); }
+    }
+
+    .pet-sprite {
+      position: absolute;
+      bottom: 20px;
+      left: 0px;
+      font-size: 26px;
+      transition: all 0.5s ease-in-out;
+    }
+
+    .obstacle-sprite {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      font-size: 42px;
+      transition: all 0.4s ease-in-out;
+      z-index: 4;
+    }
+
+    .obstacle-sprite.solved {
+      transform: scale(1.4) translateY(-20px);
+      opacity: 0;
+    }
+
+    /* UI DE RETO Y TECLAS */
+    .challenge-card {
+      background: white;
+      border-radius: 20px;
+      padding: 10px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      min-height: min-content;
+    }
+
+    /* 🌟 HOLOGRAMA / PICTOGRAMA GIGANTE PARA ALTA VISIBILIDAD */
+    .big-picto-card {
+      width: clamp(95px, 20vw, 130px);
+      height: clamp(75px, 14vh, 105px);
+      background: linear-gradient(135deg, #FFFFFF, #F1F5F9);
+      border: 3px solid var(--primary);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(74,144,226,0.18);
+      transition: transform 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+
+    .big-picto-card:active, .big-picto-card.speaking {
+      transform: scale(1.05);
+      border-color: var(--secondary);
+      box-shadow: 0 0 25px rgba(255,159,67,0.5);
+    }
+
+    .big-picto-emoji {
+      font-size: clamp(44px, 8vh, 65px);
+      line-height: 1;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    }
+
+    .speaker-badge-sub {
+      position: absolute;
+      bottom: 4px;
+      background: var(--primary);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sentence-box {
+      font-size: 15px;
+      font-weight: bold;
+      color: #2C3E50;
+      background: #F1F5F9;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .word-slots {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .slot {
+      min-width: 44px;
+      height: 50px;
+      padding: 0 8px;
+      border: 3px dashed #CBD5E1;
+      border-radius: 14px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text);
+      background: #F8FAFC;
+      transition: all 0.3s;
+    }
+
+    .slot.filled {
+      border-style: solid;
+      border-color: var(--primary);
+      background: #EBF5FF;
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+
+    .slot.filled:hover {
+      box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+    }
+
+    .slot.correct {
+      border-color: var(--accent);
+      background: #E8F8F0;
+      color: #27AE60;
+    }
+
+    @keyframes errorShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .slot.wrong {
+      border-color: #FF6B6B !important;
+      background: #FFE3E3 !important;
+      color: #C0392B !important;
+      animation: errorShake 0.4s ease-in-out;
+    }
+
+    .action-btn {
+      background: #F1F5F9;
+      border: 2px solid #CBD5E1;
+      border-radius: 12px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #475569;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.95);
+      background: #E2E8F0;
+    }
+
+    .btn-erase {
+      color: #E74C3C;
+      border-color: #FADBD8;
+      background: #FDEDEC;
+    }
+
+    .slot.syllable-slot {
+      min-width: 75px;
+      font-size: 24px;
+      background: #FFF7ED;
+      border-color: #FFB86C;
+    }
+
+    .letters-pool {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .letter-btn {
+      min-width: 46px;
+      height: 52px;
+      padding: 0 8px;
+      background: linear-gradient(180deg, #FFFFFF, #F1F5F9);
+      border: 2px solid #CBD5E1;
+      border-bottom: 5px solid #94A3B8;
+      border-radius: 14px;
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      transition: transform 0.1s;
+    }
+
+    .letter-btn:active {
+      transform: translateY(3px);
+    }
+
+    .syllable-btn {
+      min-width: 80px;
+      height: 56px;
+      background: linear-gradient(180deg, #FF9F43, #EE5253);
+      border: 2px solid #FF7979;
+      border-bottom: 5px solid #C0392B;
+      color: white;
+      font-size: 24px;
+      border-radius: 18px;
+    }
+
+    /* SCREEN 3: AVATAR CUSTOMIZER */
+    .avatar-stage {
+      background: linear-gradient(135deg, #FFEAA7, #FAB1A0);
+      border-radius: 20px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .avatar-big {
+      font-size: 110px;
+      position: relative;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+    }
+
+    .pet-companion {
+      position: absolute;
+      bottom: -10px;
+      right: -20px;
+      font-size: 45px;
+    }
+
+    .custom-section {
+      margin-top: 20px;
+    }
+
+    .custom-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #475569;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .opt-card {
+      background: white;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .opt-card.selected {
+      border-color: var(--primary);
+      background: #EBF5FF;
+    }
+
+    .opt-card.locked::after {
+      content: "🔒";
+      font-size: 14px;
+      position: absolute;
+      top: 4px;
+      right: 4px;
+    }
+
+    /* SCREEN 4: PREMIOS Y ÁLBUM */
+    .stickers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .sticker-slot {
+      aspect-ratio: 1;
+      background: white;
+      border: 2px dashed #CBD5E1;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      position: relative;
+    }
+
+    .sticker-slot.unlocked {
+      border-style: solid;
+      border-color: #FFD700;
+      background: #FFFDF0;
+      box-shadow: 0 4px 10px rgba(255,215,0,0.2);
+    }
+
+    .sticker-label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #64748B;
+      margin-top: 4px;
+    }
+
+    /* SCREEN 5: PANEL TERAPEUTA / PADRES */
+    .panel-card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #475569;
+    }
+
+    .input-text {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #E2E8F0;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(74,144,226,0.3);
+    }
+
+    .btn-primary:active {
+      background: var(--primary-dark);
+    }
+
+    /* MODAL DE VICTORIA */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-card {
+      background: white;
+      width: 85%;
+      border-radius: 28px;
+      padding: 24px;
+      text-align: center;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .win-stars {
+      font-size: 40px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header Bar -->
+    <div class="header">
+      <div class="user-info" onclick="openStudentNameModal()" style="cursor: pointer;" title="Toca para cambiar el nombre del niño/a">
+        <div class="avatar-mini" id="header-avatar-btn">🧑‍🚀</div>
+        <div>
+          <div style="font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px;" id="user-name">Santi ✏️</div>
+          <div style="font-size: 11px; opacity: 0.9;">Centro CRIN</div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat-badge">⭐ <span id="star-count">12</span></div>
+        <div class="stat-badge">🪙 <span id="coin-count">45</span></div>
+        <button class="stat-badge" style="background: rgba(255,255,255,0.25); border: none; color: white; cursor: pointer; padding: 4px 8px; font-size: 14px; font-weight: bold;" onclick="toggleAppFullscreen()" title="Pantalla Completa">⛶</button>
+      </div>
+    </div>
+
+    <!-- View Content Area -->
+    <div class="view-content">
+
+      <!-- SCREEN 1: MAPA DE AVENTURA -->
+      <div id="screen-map" class="screen active">
+        <div class="map-container">
+
+          <!-- SELECTOR DE TAREA SEMANAL -->
+          <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
+            <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+              <span>🎯 Seleccionar Tarea Activa:</span>
+              <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
+            </div>
+            <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+              <option value="task1">📍 Tarea 1: ZAPATO, MARIPOSA, PELOTA, MAMA</option>
+              <option value="task2">🌿 Tarea 2: VERDE, BLANCO, RANA, PATO</option>
+              <option value="task3">🌙 Tarea 3: LANA, LENTA, LINDA, LOMA, LUNA</option>
+              <option value="custom">⭐ Tarea Semanal Personalizada (Panel CRIN)</option>
+            </select>
+            <div id="active-task-words-info" style="font-size: 11px; margin-top: 6px; opacity: 0.95; font-weight: 500;">
+              ✨ Palabras: 👞 ZAPATO • 🦋 MARIPOSA • ⚽ PELOTA • 👩 MAMA
+            </div>
+          </div>
+
+          <!-- MUNDO 1: CUENTO NARRADO (DESTACADO) -->
+          <div class="world-node" style="border: 3px solid #FFD700; background: linear-gradient(135deg, #FFFFFF, #FFFBEB);" onclick="startQuest('story')">
+            <div class="node-icon" style="background: linear-gradient(135deg, #FF9F43, #FF6B81);">📖</div>
+            <div class="node-details">
+              <h3 style="color: #D35400;">📖 El Cuento Mágico del Bosque</h3>
+              <p style="font-weight: bold; color: #E67E22;">¡Cuento Narrado Interactivo 3D!</p>
+            </div>
+            <div class="node-stars">⭐👑⭐</div>
+          </div>
+
+          <!-- Mundo 2 -->
+          <div class="world-node" onclick="startQuest('syllable')">
+            <div class="node-icon" style="background: #FF9F43;">🌋</div>
+            <div class="node-details">
+              <h3>Cueva de las Sílabas</h3>
+              <p>Desafíos de Rompecabezas Silábico</p>
+            </div>
+            <div class="node-stars">⭐⭐☆</div>
+          </div>
+
+          <!-- Mundo 3 -->
+          <div class="world-node" onclick="startQuest('global')">
+            <div class="node-icon" style="background: #2ECC71;">🌳</div>
+            <div class="node-details">
+              <h3>Bosque de las Letras</h3>
+              <p>Desafíos de Palabras Globales</p>
+            </div>
+            <div class="node-stars">⭐⭐⭐</div>
+          </div>
+
+          <!-- Mundo 4 -->
+          <div class="world-node" onclick="startQuest('homework')">
+            <div class="node-icon" style="background: #9B59B6;">🏰</div>
+            <div class="node-details">
+              <h3>Castillo Tarea CRIN</h3>
+              <p>Desafíos de Frases y Apoyo Escolar</p>
+            </div>
+            <div class="node-stars">⭐☆☆</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎮 SCREEN 2: JUEGO ESTILO VIDEOJUEGO DE AVENTURA 2D -->
+      <div id="screen-game" class="screen">
+        <div class="game-screen-container">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <button onclick="switchScreen('map')" style="background:none; border:none; font-size:16px; font-weight:bold; color:#64748B; cursor:pointer;">⬅️ Salir</button>
+            <div style="text-align: center;">
+              <div id="quest-mode-title" style="font-size: 13px; font-weight: bold; color: var(--primary);">📖 El Cuento Mágico del Bosque</div>
+              <div id="quest-category" style="font-size: 11px; font-weight: 600; color: #64748B;">Desafío 1/4</div>
+            </div>
+            <button class="btn-fullscreen" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+          </div>
+
+          <!-- 📜 BANNER PERGAMINO NARRADOR DE CUENTO -->
+          <div class="story-banner" id="story-banner-card" style="display: none;">
+            <span class="story-icon">📜</span>
+            <span class="story-text" id="story-text-content">Había una vez un valiente explorador que caminaba por un bosque mágico...</span>
+            <button class="btn-listen-story" onclick="speakCurrentStoryNarration()">
+              <span>🔊 Oír Cuento</span>
+            </button>
+          </div>
+
+          <!-- 🏃 ESCENARIO 3D EN PERSPECTIVA (ÚNICAMENTE EN EL CUENTO MÁGICO) -->
+          <div class="adventure-stage-wrap" id="stage-3d-wrap">
+            <canvas id="game-stage-canvas" style="width: 100%; height: 100%; display: block; cursor: pointer;"></canvas>
+            <div class="encounter-bubble" id="encounter-bubble" style="display: none; position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; background: white; border: 3px solid #FF9F43; border-radius: 16px; padding: 8px 18px; font-size: 14px; font-weight: bold; color: #2D3436; box-shadow: 0 6px 20px rgba(0,0,0,0.25); text-align: center; white-space: nowrap;">✨ ¿Qué encontró Santi?</div>
+          </div>
+
+          <!-- 🎨 ESCENARIO 2D LIMPIO CON OBJETO / ILUSTRACIÓN GRANDE (PARA LETRAS, SÍLABAS Y CASTILLO) -->
+          <div id="stage-2d-display" style="display: none; width: 100%; height: 180px; background: linear-gradient(135deg, #74B9FF 0%, #A8E6CF 100%); border-radius: 20px; margin-bottom: 12px; align-items: center; justify-content: center; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 4px solid white; cursor: pointer;" onclick="speakCurrentTarget()">
+            <div style="font-size: 85px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));" id="stage-2d-emoji">💎</div>
+            <div style="position: absolute; bottom: 10px; background: rgba(255,255,255,0.9); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #2D3436; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">🔊 Toca para escuchar la palabra</div>
+          </div>
+
+          <!-- 🧩 TARJETA DE DESAFÍO CON PICTOGRAMA GIGANTE -->
+          <div class="challenge-card">
+            
+            <div class="sentence-box" id="sentence-box" style="display: none;">
+              El <span style="color: var(--primary); text-decoration: underline;">___</span> ladra en el jardín.
+            </div>
+
+            <!-- 🌟 GRAPHIC / PICTOGRAMA GIGANTE PARA ALTA VISIBILIDAD DE LA PALABRA -->
+            <div class="big-picto-card" id="big-picto-box" onclick="speakCurrentTarget()">
+              <span class="big-picto-emoji" id="picto-emoji">🐶</span>
+              <div class="speaker-badge-sub">🔊 Toca para escuchar</div>
+            </div>
+
+            <!-- Espacios para Letras o Sílabas -->
+            <div class="word-slots" id="word-slots"></div>
+
+            <!-- Botón de Borrar / Deshacer -->
+            <div style="display: flex; justify-content: center; margin: 4px 0 8px 0;">
+              <button class="action-btn btn-erase" onclick="eraseLastSlot()">
+                <span>⌫ Borrar última</span>
+              </button>
+            </div>
+
+            <!-- Teclas de letras o sílabas para elegir con Capa de Bloqueo mientras Narra -->
+            <div class="letters-pool-wrap" style="position: relative; width: 100%;">
+              <div class="narration-lock-overlay" id="narration-lock-overlay" style="display: none;">
+                <span style="font-size: 22px;">🎧</span>
+                <span>Escuchando el cuento...</span>
+              </div>
+              <div class="letters-pool" id="letters-pool"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SCREEN 3: AVATAR CUSTOMIZER -->
+      <div id="screen-avatar" class="screen">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">Mi Personaje de Aventura</h2>
+        <div class="avatar-stage">
+          <div class="avatar-big" id="avatar-display">
+            🧑‍🚀
+            <div class="pet-companion" id="pet-display">🐶</div>
+          </div>
+        </div>
+
+        <div class="custom-section">
+          <div class="custom-title">Elige tu Traje de Héroe</div>
+          <div class="options-grid">
+            <div class="opt-card selected" onclick="setAvatar('🧑‍🚀')">🧑‍🚀</div>
+            <div class="opt-card" onclick="setAvatar('🦸‍♂️')">🦸‍♂️</div>
+            <div class="opt-card" onclick="setAvatar('🧙‍♂️')">🧙‍♂️</div>
+            <div class="opt-card" onclick="setAvatar('🤠')">🤠</div>
+          </div>
+        </div>
+
+        <div class="custom-section">
+          <div class="custom-title">Tu Mascota Acompañante</div>
+          <div class="options-grid">
+            <div class="opt-card selected" onclick="setPet('🐶')">🐶</div>
+            <div class="opt-card" onclick="setPet('🐱')">🐱</div>
+            <div class="opt-card" onclick="setPet('🐉')">🐉</div>
+            <div class="opt-card locked" onclick="alert('Completa 5 misiones para desbloquear este unicornio 🦄')">🦄</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 4: PREMIOS Y ÁLBUM -->
+      <div id="screen-rewards" class="screen">
+        <h2 style="font-size: 18px; margin-bottom: 8px;">Álbum de Cromos CRIN</h2>
+        <p style="font-size: 12px; color: #64748B; margin-bottom: 12px;">¡Supera desafíos para ganar nuevos stickers!</p>
+        
+        <div class="stickers-grid">
+          <div class="sticker-slot unlocked">
+            <span>🦁</span>
+            <span class="sticker-label">León</span>
+          </div>
+          <div class="sticker-slot unlocked">
+            <span>🚀</span>
+            <span class="sticker-label">Cohete</span>
+          </div>
+          <div class="sticker-slot unlocked">
+            <span>🎨</span>
+            <span class="sticker-label">Arte</span>
+          </div>
+          <div class="sticker-slot">
+            <span>❓</span>
+            <span class="sticker-label">Bloqueado</span>
+          </div>
+          <div class="sticker-slot">
+            <span>❓</span>
+            <span class="sticker-label">Bloqueado</span>
+          </div>
+          <div class="sticker-slot">
+            <span>❓</span>
+            <span class="sticker-label">Bloqueado</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 5: PANEL TERAPEUTA / PADRES -->
+      <div id="screen-therapist" class="screen">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">⚙️ Panel Terapeuta / Padres</h2>
+        
+        <div class="panel-card">
+          <div class="form-group">
+            <label>Nombre del Alumno/a:</label>
+            <input type="text" id="student-name-input" class="input-text" value="Santi" placeholder="Ej: Santi, Sofía, Mateo" />
+          </div>
+          <div class="form-group" style="margin-top: 10px;">
+            <label style="font-weight: bold; color: var(--primary);">📝 Crear Nueva Tarea Semanal (4 Palabras):</label>
+            <input type="text" id="new-word-input" class="input-text" placeholder="Ej: LANA, LENTA, LINDA, LOMA" />
+            <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">💡 Escribe las palabras separadas por coma. El sistema construirá el borrador completo para tu validación.</span>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn-primary" onclick="generateTeacherDraft()" style="flex: 1; font-size: 12px; padding: 10px 8px; background: linear-gradient(135deg, #FF9F43, #EE5253);">
+              ✨ Generar Borrador Lista
+            </button>
+            <button class="btn-primary" onclick="startGuidedDictationWizard()" style="flex: 1; font-size: 12px; padding: 10px 8px; background: linear-gradient(135deg, #10B981, #059669);">
+              🎙️ Dictar Paso a Paso por Voz
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE REVISIÓN Y VALIDACIÓN DEL DOCENTE (PASO 1, PASO 2 Y WIZARD) -->
+        <div id="teacher-draft-section" class="panel-card" style="display: none; border: 2px solid #FF9F43; background: #FFFDF9; margin-top: 12px;">
+          
+          <!-- PASO 1: REVISIÓN DE FRASES DEL CASTILLO -->
+          <div id="draft-step-1">
+            <div style="font-weight: bold; font-size: 14px; color: #D35400; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <span>🏰 Paso 1: Validar / Dictar Frases por Voz (Castillo CRIN)</span>
+              <button onclick="startGuidedDictationWizard()" style="background: #E8F8F5; border: 1px solid #10B981; color: #0E6251; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                🎙️ Ver Modo Paso a Paso
+              </button>
+            </div>
+            <p style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
+              Revisa, edita o habla por micrófono para dictar tus frases. Usa <strong>___</strong> para indicar la palabra oculta.
+            </p>
+            <div id="draft-sentences-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            
+            <button class="btn-primary" onclick="proceedToStep2Story()" style="width: 100%; margin-top: 14px; background: #2ECC71;">
+              ✅ Validar Frases y Pasar al Cuento ➡️
+            </button>
+          </div>
+
+          <!-- PASO 2: REVISIÓN Y COHERENCIA DEL CUENTO MÁGICO -->
+          <div id="draft-step-2" style="display: none;">
+            <div style="font-weight: bold; font-size: 14px; color: #8E44AD; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <span>📖 Paso 2: Validar / Dictar El Cuento Mágico</span>
+              <button onclick="startGuidedDictationWizard()" style="background: #F4ECF7; border: 1px solid #8E44AD; color: #512E5F; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                🎙️ Ver Modo Paso a Paso
+              </button>
+            </div>
+            <p style="font-size: 12px; color: #64748B; margin-bottom: 12px;">
+              Lee o dicta la historia narrada de cada capítulo usando el micrófono o escribiendo.
+            </p>
+            <div id="draft-story-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <button onclick="backToStep1Sentences()" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 8px 12px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; color: #475569;">
+                ⬅️ Volver a Frases
+              </button>
+              <button class="btn-primary" onclick="finalizeTeacherTask()" style="flex: 1; background: linear-gradient(135deg, #9B59B6, #8E44AD);">
+                🚀 Aprobar y Activar Tarea Semanal
+              </button>
+            </div>
+          </div>
+
+          <!-- PASO WIZARD: DICTADO GUIADO PASO A PASO POR VOZ O TECLADO -->
+          <div id="draft-step-wizard" style="display: none;">
+            <div id="wizard-content-container"></div>
+          </div>
+
+        </div>
+
+        <div class="panel-card" style="margin-top: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <label style="font-weight: bold; font-size: 13px; color: var(--dark);">📚 Palabras Semanales Activas:</label>
+            <button onclick="clearCustomWords()" style="background: #FDEDEC; color: #E74C3C; border: 1px solid #FADBD8; border-radius: 8px; padding: 2px 8px; font-size: 11px; font-weight: bold; cursor: pointer;">🗑️ Vaciar Lista</button>
+          </div>
+          <div id="custom-words-tags" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+            <!-- Tags de palabras cargadas -->
+          </div>
+        </div>
+
+        <div class="panel-card" style="margin-top: 12px; border: 1px solid #CBD5E1; background: #FFFFFF;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <label style="font-weight: bold; font-size: 13px; color: #1E293B;">🗂️ Banco de Tareas Guardadas (Historial):</label>
+            <div style="display: flex; gap: 4px;">
+              <button onclick="exportTasksBank()" style="background: #E0F2FE; color: #0284C7; border: 1px solid #BAE6FD; border-radius: 6px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer;">📥 Exportar</button>
+              <button onclick="importTasksBank()" style="background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; border-radius: 6px; padding: 2px 6px; font-size: 10px; font-weight: bold; cursor: pointer;">📤 Importar</button>
+            </div>
+          </div>
+          <div id="saved-tasks-bank-list" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <!-- Renderizado dinámico de tareas guardadas -->
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3 style="font-size: 14px; margin-bottom: 8px;">Adaptación Sensorial</h3>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+            <input type="checkbox" id="dyslexic-font" onchange="toggleFont()" /> Usar tipografía adaptada (Alta legibilidad)
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+      <button class="nav-btn active" onclick="switchScreen('map')">
+        <span class="icon">🗺️</span>
+        <span>Aventura</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('avatar')">
+        <span class="icon">👕</span>
+        <span>Héroe</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('rewards')">
+        <span class="icon">🏆</span>
+        <span>Premios</span>
+      </button>
+      <button class="nav-btn" onclick="switchScreen('therapist')">
+        <span class="icon">⚙️</span>
+        <span>CRIN</span>
+      </button>
+    </div>
+
+    <!-- MODAL DE VICTORIA -->
+    <div class="modal-overlay" id="win-modal">
+      <div class="modal-card">
+        <h2 style="color: var(--accent); font-size: 24px;">¡CAMINO DESBLOQUEADO! 🏃💨</h2>
+        <p style="color: #64748B; font-size: 14px; margin-top: 5px;" id="win-message">¡Tu héroe avanzó al siguiente nivel!</p>
+        <div class="win-stars">⭐⭐⭐</div>
+        <p style="font-weight: bold; color: var(--secondary);">+10 Estrellas | +5 Monedas 🪙</p>
+        <button class="btn-primary" style="margin-top: 15px;" onclick="nextQuest()">¡Avanzar en el Mapa! 🚀</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- DICCIONARIO FONÉTICO Y NORMAS DE PRONUNCIACIÓN ---
+    const phoneticMap = {
+      'CA': 'Ca', 'CE': 'Se', 'CI': 'Si', 'CO': 'Co', 'CU': 'Ku',
+      'BA': 'Ba', 'BE': 'Be', 'BI': 'Bi', 'BO': 'Bo', 'BU': 'Bu',
+      'DA': 'Da', 'DE': 'De', 'DI': 'Di', 'DO': 'Do', 'DU': 'Du',
+      'FA': 'Fa', 'FE': 'Fe', 'FI': 'Fi', 'FO': 'Fo', 'FU': 'Fu',
+      'GA': 'Ga', 'GE': 'Je', 'GI': 'Ji', 'GO': 'Go', 'GU': 'Gu',
+      'LA': 'La', 'LE': 'Le', 'LI': 'Li', 'LO': 'Lo', 'LU': 'Lu',
+      'MA': 'Ma', 'ME': 'Me', 'MI': 'Mi', 'MO': 'Mo', 'MU': 'Mu',
+      'NA': 'Na', 'NE': 'Ne', 'NI': 'Ni', 'NO': 'No', 'NU': 'Nu',
+      'PA': 'Pa', 'PE': 'Pe', 'PI': 'Pi', 'PO': 'Po', 'PU': 'Pu',
+      'RA': 'Ra', 'RE': 'Re', 'RI': 'Ri', 'RO': 'Ro', 'RU': 'Ru',
+      'RRO': 'Rro',
+      'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
+      'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'Tho', 'TU': 'Tu',
+      'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
+      'QU': 'Ku',
+      'CUNA': 'Cuna',
+      'CENA': 'Cena',
+      'CINE': 'Cine',
+      'COPA': 'Copa',
+      'CASA': 'Casa',
+      'C': 'ce',
+      'R': 'erre',
+      'I': 'i',
+      'N': 'ene',
+      'CRIN': 'Crin',
+      'ZAPATO': 'Zapato',
+      'PERRO': 'Perro',
+      'PELOTA': 'Pelota',
+      'MARIPOSA': 'Mariposa',
+      'SOPA': 'Sopa',
+      'GATO': 'Gato'
+    };
+
+    // --- BANCO DE DATOS POR MUNDO DE AVENTURA ---
+    const gameDatasets = {
+      global: [
+        { word: 'SOL', emoji: '☀️', obstacle: '📦' },
+        { word: 'CASA', emoji: '🏠', obstacle: '🚪' },
+        { word: 'GATO', emoji: '🐱', obstacle: '🌉' },
+        { word: 'MAMA', emoji: '👩', obstacle: '🏰' }
+      ],
+      syllable: [
+        { syllables: ['ZA', 'PA', 'TO'], word: 'ZAPATO', emoji: '👞', obstacle: '📦' },
+        { syllables: ['PE', 'RRO'], word: 'PERRO', emoji: '🐶', obstacle: '🚪' },
+        { syllables: ['PE', 'LO', 'TA'], word: 'PELOTA', emoji: '⚽', obstacle: '🌉' },
+        { syllables: ['MA', 'RI', 'PO', 'SA'], word: 'MARIPOSA', emoji: '🦋', obstacle: '🏰' }
+      ],
+      story: [
+        {
+          chapterTitle: '📜 Cap. 1: El Bosque Mágico',
+          narration: 'Había una vez un explorador que caminaba por un bosque mágico. De pronto vio algo brillante escondido...',
+          syllables: ['ZA', 'PA', 'TO'],
+          word: 'ZAPATO',
+          emoji: '👞',
+          obstacle: '📦',
+          bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
+        },
+        {
+          chapterTitle: '📜 Cap. 2: El Jardín de Flores',
+          narration: 'Nuestro héroe siguió el camino de flores. Una hermosa mariposa esmeralda abrió sus alas para saludarlo.',
+          syllables: ['MA', 'RI', 'PO', 'SA'],
+          word: 'MARIPOSA',
+          emoji: '🦋',
+          obstacle: '🌸',
+          bgColors: ['#A890FE', '#F6B83D', '#FD79A8']
+        },
+        {
+          chapterTitle: '📜 Cap. 3: La Colina de la Mascota',
+          narration: 'Más adelante en la colina, escuchó un ladrido alegre: un perrito guardián jugaba con su pelota.',
+          syllables: ['PE', 'LO', 'TA'],
+          word: 'PELOTA',
+          emoji: '⚽',
+          obstacle: '🐶',
+          bgColors: ['#FD79A8', '#FFB86C', '#55EFC4']
+        },
+        {
+          chapterTitle: '📜 Cap. 4: El Castillo Mágico de CRIN',
+          narration: 'Llegamos al Castillo Mágico de CRIN. Escribe C-R-I-N para abrir las puertas doradas y completar la gran aventura.',
+          syllables: ['C', 'R', 'I', 'N'],
+          word: 'CRIN',
+          emoji: '🏰',
+          obstacle: '🏰',
+          isCastleChapter: true,
+          bgColors: ['#6C5CE7', '#A29BFE', '#74B9FF']
+        }
+      ],
+      homework: [
+        { sentence: 'El ___ ladra feliz.', word: 'PERRO', emoji: '🐶', obstacle: '📦' },
+        { sentence: 'La ___ es muy linda.', word: 'CASA', emoji: '🏠', obstacle: '🚪' },
+        { sentence: 'Juego con la ___ azul.', word: 'PELOTA', emoji: '⚽', obstacle: '🌉' }
+      ]
+    };
+
+    const gameState = {
+      stars: 12,
+      coins: 45,
+      avatar: '🧑‍🚀',
+      pet: '🐶',
+      currentMode: 'story',
+      currentWordIndex: 0
+    };
+
+    let targetItem = null;
+    let currentSlots = [];
+    let currentSlotBtns = [];
+    let cachedSpanishVoice = null;
+    let isNarratingLock = false;
+
+    function toggleFullscreen() {
+      const elem = document.querySelector('.app-container');
+      if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // --- REPRONUNCIACIÓN Y RESETEO COMPLETO AL COMETER UN ERROR ---
+    function onWrongAnimation(message) {
+      playErrorSound();
+
+      document.querySelectorAll('.slot').forEach(s => s.classList.add('wrong'));
+
+      const textToSay = message || "¡Inténtalo de nuevo!";
+      speakText(textToSay);
+
+      // Renderizar hacia el principio desde cero dando 2400ms para escuchar la frase completa sin cortes
+      setTimeout(() => {
+        loadCurrentWord();
+      }, 2400);
+    }
+
+    function clearSlotAt(idx) {
+      if (isNarratingLock) return;
+      if (!currentSlots || currentSlots[idx] === undefined) return;
+      if (currentSlots[idx] !== '') {
+        const val = currentSlots[idx];
+        const btn = currentSlotBtns[idx];
+
+        currentSlots[idx] = '';
+        currentSlotBtns[idx] = null;
+
+        if (btn) {
+          btn.style.visibility = 'visible';
+          btn.style.display = 'flex';
+          btn.style.opacity = '1';
+        } else {
+          const poolContainer = document.getElementById('letters-pool');
+          if (poolContainer) {
+            const buttons = poolContainer.querySelectorAll('.letter-btn');
+            for (let b of buttons) {
+              if (b.innerText.trim() === val.trim() && (b.style.visibility === 'hidden' || b.style.display === 'none')) {
+                b.style.visibility = 'visible';
+                b.style.display = 'flex';
+                b.style.opacity = '1';
+                break;
+              }
+            }
+          }
+        }
+
+        const slot = document.getElementById(`slot-${idx}`);
+        if (slot) {
+          slot.innerText = (gameState.currentMode === 'syllable') ? '?' : '';
+          slot.classList.remove('filled', 'wrong');
+        }
+
+        playPopSound();
+      }
+    }
+
+    function eraseLastSlot() {
+      if (isNarratingLock) return;
+      if (!currentSlots) return;
+      for (let i = currentSlots.length - 1; i >= 0; i--) {
+        if (currentSlots[i] && currentSlots[i] !== '') {
+          clearSlotAt(i);
+          break;
+        }
+      }
+    }
+    let audioUnlocked = false;
+
+    // Desbloquear audio en el primer clic o toque del usuario (Requisito de Seguridad de Chrome)
+    function unlockAudioSystem() {
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.resume();
+        } catch(e) {}
+      }
+      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.init) {
+        try { responsiveVoice.init(); } catch(e) {}
+      }
+    }
+    window.addEventListener('pointerdown', unlockAudioSystem, { passive: true });
+    window.addEventListener('click', unlockAudioSystem, { passive: true });
+
+    // Cargar voces en español nativo en cuanto el navegador las tenga listas
+    function initVoices() {
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          cachedSpanishVoice = voices.find(v => v.lang && (v.lang.toLowerCase().includes('es-') || v.lang.toLowerCase().includes('es_') || v.lang.toLowerCase() === 'es'))
+            || voices.find(v => (v.lang && v.lang.toLowerCase().startsWith('es')) || (v.name && v.name.toLowerCase().includes('spanish')));
+        }
+      }
+    }
+    if ('speechSynthesis' in window) {
+      initVoices();
+      window.speechSynthesis.onvoiceschanged = initVoices;
+    }
+
+    function cleanPhoneticText(rawText) {
+      if (!rawText) return '';
+      let text = rawText.toString().trim();
+      const exactKey = text.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+
+      if (phoneticMap[exactKey]) {
+        text = phoneticMap[exactKey];
+      } else {
+        Object.keys(phoneticMap).forEach(key => {
+          if (key.length > 1) {
+            const regex = new RegExp('\\b' + key + '\\b', 'gi');
+            text = text.replace(regex, phoneticMap[key]);
+          }
+        });
+      }
+
+      // Evita la reducción fonética de "TO" -> "TU" en sintetizadores de voz nativos
+      text = text.replace(/\bTO\b/gi, 'Tho');
+
+      return text;
+    }
+
+    let currentHtmlAudio = null;
+    let currentSpeechSessionId = 0;
+    let activeFallbackTimer = null;
+
+    function stopAllAudio() {
+      currentSpeechSessionId++; // Invalida inmediatamente cualquier callback de voz activo o pendiente
+      if (activeFallbackTimer) {
+        clearTimeout(activeFallbackTimer);
+        activeFallbackTimer = null;
+      }
+      if (currentHtmlAudio) {
+        try {
+          currentHtmlAudio.pause();
+          currentHtmlAudio.currentTime = 0;
+          currentHtmlAudio.onended = null;
+          currentHtmlAudio.onerror = null;
+        } catch(e) {}
+        currentHtmlAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch(e) {}
+      }
+      if (typeof responsiveVoice !== 'undefined') {
+        try { responsiveVoice.cancel(); } catch(e) {}
+      }
+    }
+
+    // --- REPRODUCCIÓN FONÉTICA CON CALLBACK DE FINALIZACIÓN Y CANCELACIÓN SEGURA ---
+    function speakText(text, onEndCallback) {
+      if (!text) return;
+
+      stopAllAudio();
+      unlockAudioSystem();
+
+      const thisSession = currentSpeechSessionId;
+      const textToSpeak = cleanPhoneticText(text);
+
+      const pictoCard = document.getElementById('big-picto-box');
+      if (pictoCard) {
+        pictoCard.classList.add('speaking');
+        setTimeout(() => pictoCard.classList.remove('speaking'), 600);
+      }
+
+      let callbackExecuted = false;
+      const safeCallback = () => {
+        if (thisSession !== currentSpeechSessionId) return; // Audio cancelado/detenido por el usuario
+        if (!callbackExecuted && onEndCallback) {
+          callbackExecuted = true;
+          onEndCallback();
+        }
+      };
+
+      const durationEst = Math.max(textToSpeak.length * 85 + 800, 1500);
+      activeFallbackTimer = setTimeout(() => {
+        activeFallbackTimer = null;
+        safeCallback();
+      }, durationEst);
+
+      let speechStarted = false;
+
+      // OPCIÓN 1: Audio nativo en español fluido de alta fidelidad (Google TTS CDN)
+      try {
+        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
+        const audio = new Audio();
+        currentHtmlAudio = audio;
+        audio.src = audioUrl;
+        audio.playbackRate = 0.95;
+
+        audio.onended = function() {
+          if (thisSession !== currentSpeechSessionId) return;
+          if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+          currentHtmlAudio = null;
+          safeCallback();
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            if (thisSession !== currentSpeechSessionId) {
+              try { audio.pause(); } catch(e) {}
+              return;
+            }
+            speechStarted = true;
+          }).catch(err => {
+            if (thisSession !== currentSpeechSessionId) return;
+            if (!speechStarted) {
+              speechStarted = true;
+              currentHtmlAudio = null;
+              fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+            }
+          });
+        }
+        return;
+      } catch(e) {
+        if (thisSession !== currentSpeechSessionId) return;
+        if (!speechStarted) {
+          speechStarted = true;
+          fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+        }
+      }
+    }
+
+    function fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession) {
+      if (thisSession !== currentSpeechSessionId) return;
+
+      // 2. Respaldo ResponsiveVoice
+      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.speak) {
+        try {
+          responsiveVoice.cancel();
+          responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
+            rate: 0.95,
+            pitch: 1.0,
+            onend: function() {
+              if (thisSession !== currentSpeechSessionId) return;
+              if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+              safeCallback();
+            }
+          });
+          return;
+        } catch(e) {}
+      }
+
+      // 3. Respaldo local WebSpeech API
+      if ('speechSynthesis' in window) {
+        try {
+          if (!cachedSpanishVoice) initVoices();
+          window.speechSynthesis.cancel();
+          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+          const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
+          if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
+          utterance.rate = 0.95;
+
+          utterance.onend = function() {
+            if (thisSession !== currentSpeechSessionId) return;
+            if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+            safeCallback();
+          };
+          utterance.onerror = function() {
+            if (thisSession !== currentSpeechSessionId) return;
+            if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+            safeCallback();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+      }
+    }
+
+    function toggleAppFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => {});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          document.documentElement.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(err => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    }
+
+    function switchScreen(screenName) {
+      stopAllAudio();
+      forceUnlockStoryPuzzle();
+
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      const targetScreen = document.getElementById('screen-' + screenName);
+      if (targetScreen) targetScreen.classList.add('active');
+
+      if (screenName === 'game') {
+        setTimeout(resizeCanvas, 50);
+        setTimeout(resizeCanvas, 200);
+      }
+
+      const navButtons = document.querySelectorAll('.nav-btn');
+      if (navButtons && navButtons.length >= 4) {
+        if (screenName === 'map') navButtons[0].classList.add('active');
+        if (screenName === 'avatar') navButtons[1].classList.add('active');
+        if (screenName === 'rewards') navButtons[2].classList.add('active');
+        if (screenName === 'therapist') navButtons[3].classList.add('active');
+      }
+    }
+
+    const activitySequence = ['global', 'syllable', 'homework', 'story'];
+
+    const introVoiceMap = {
+      global: '¡Comencemos por el Bosque de las Letras!',
+      syllable: '¡Súper! Ahora pasemos a la Cueva de las Sílabas.',
+      homework: '¡Súper! Ahora pasemos al Castillo Tarea CRIN.',
+      story: '¡Súper! Ahora vivamos El Cuento Mágico del Bosque.'
+    };
+
+    function startQuest(mode, skipIntroVoice) {
+      gameState.currentMode = mode;
+      gameState.currentWordIndex = 0;
+      buildActiveDatasets();
+      switchScreen('game');
+
+      const hero = document.getElementById('hero-game-sprite');
+      const pet = document.getElementById('pet-game-sprite');
+      const titleEl = document.getElementById('quest-mode-title');
+
+      if (hero) hero.innerText = gameState.avatar;
+      if (pet) pet.innerText = gameState.pet;
+
+      const titleMap = {
+        global: '🌳 Bosque de las Letras',
+        syllable: '🌋 Cueva de las Sílabas',
+        homework: '🏰 Castillo Tarea CRIN',
+        story: '📖 El Cuento Mágico del Bosque'
+      };
+      if (titleEl) titleEl.innerText = titleMap[mode] || 'Misión CRIN';
+
+      loadCurrentWord(true); // Pasar true para evitar narrar la historia 2 veces si hay introVoice
+
+      if (!skipIntroVoice && introVoiceMap[mode]) {
+        lockStoryPuzzle();
+        speakText(introVoiceMap[mode], () => {
+          const dataset = gameDatasets[gameState.currentMode];
+          const item = dataset ? dataset[gameState.currentWordIndex % dataset.length] : null;
+          if (item) {
+            if (mode === 'story' && item.narration) {
+              playStoryChapterNarration(item);
+            } else if (mode === 'homework' && item.sentence) {
+              playHomeworkSentenceNarration(item);
+            } else if (mode === 'syllable' && item.syllables) {
+              forceUnlockStoryPuzzle();
+              speakText(item.syllables.join(', '));
+            } else if (mode === 'global' && item.word) {
+              forceUnlockStoryPuzzle();
+              speakText(item.word);
+            } else {
+              forceUnlockStoryPuzzle();
+            }
+          } else {
+            forceUnlockStoryPuzzle();
+          }
+        });
+      } else {
+        const dataset = gameDatasets[gameState.currentMode];
+        const item = dataset ? dataset[gameState.currentWordIndex % dataset.length] : null;
+        if (item) {
+          if (mode === 'story') {
+            playStoryChapterNarration(item);
+          } else if (mode === 'homework') {
+            playHomeworkSentenceNarration(item);
+          } else {
+            forceUnlockStoryPuzzle();
+          }
+        } else {
+          forceUnlockStoryPuzzle();
+        }
+      }
+    }
+
+    function formatTextWithStudentName(text) {
+      if (!text) return '';
+      const currentName = (studentName && studentName.trim()) ? studentName.trim() : 'Aventurero';
+      return text
+        .replace(/\bSanti\b/gi, currentName)
+        .replace(/\{nombre\}/gi, currentName)
+        .replace(/\{alumno\}/gi, currentName)
+        .replace(/\{estudiante\}/gi, currentName);
+    }
+
+    function playStoryChapterNarration(item, onFinish) {
+      if (!item) {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+        return;
+      }
+      lockStoryPuzzle();
+      const currentName = (studentName && studentName.trim()) ? studentName.trim() : 'Aventurero';
+      const rawTextToNarrate = item.narration || '';
+      const textToNarrate = formatTextWithStudentName(rawTextToNarrate);
+      const questionPrompt = (item.word && !item.isCastleChapter) ? `¡${currentName} encontró ${item.word.toLowerCase()}! ¿Cómo se escribe?` : '';
+
+      const fullText = (textToNarrate + (questionPrompt ? `. ${questionPrompt}` : '')).trim();
+
+      if (!fullText) {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+        return;
+      }
+
+      speakText(fullText, () => {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+      });
+    }
+
+    function playHomeworkSentenceNarration(item, onFinish) {
+      if (!item) {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+        return;
+      }
+      lockStoryPuzzle();
+      const rawSentenceText = (item.sentence || '').replace('___', item.word || '');
+      const sentenceText = formatTextWithStudentName(rawSentenceText);
+
+      if (!sentenceText) {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+        return;
+      }
+
+      speakText(sentenceText, () => {
+        forceUnlockStoryPuzzle();
+        if (onFinish) onFinish();
+      });
+    }
+
+    function speakCurrentStoryNarration() {
+      if (targetItem) {
+        if (gameState.currentMode === 'story') {
+          playStoryChapterNarration(targetItem);
+        } else if (gameState.currentMode === 'homework') {
+          playHomeworkSentenceNarration(targetItem);
+        } else if (targetItem.narration) {
+          speakText(targetItem.narration);
+        }
+      }
+    }
+
+    function lockStoryPuzzle() {
+      isNarratingLock = true;
+      const lockOverlay = document.getElementById('narration-lock-overlay');
+      const pool = document.getElementById('letters-pool');
+      const slots = document.getElementById('slots-container');
+
+      if (lockOverlay) lockOverlay.style.display = 'flex';
+      if (pool) { pool.style.pointerEvents = 'none'; pool.style.opacity = '0.5'; }
+      if (slots) { slots.style.pointerEvents = 'none'; }
+    }
+
+    function unlockStoryPuzzle() {
+      if (isNarratingLock) return; // Mantener estrictamente bloqueado mientras el relator habla
+      const lockOverlay = document.getElementById('narration-lock-overlay');
+      const bubble = document.getElementById('encounter-bubble');
+      const pool = document.getElementById('letters-pool');
+      const slots = document.getElementById('slots-container');
+
+      if (lockOverlay) lockOverlay.style.display = 'none';
+      if (bubble) bubble.style.display = 'none';
+      if (pool) { pool.style.pointerEvents = 'auto'; pool.style.opacity = '1'; }
+      if (slots) { slots.style.pointerEvents = 'auto'; }
+
+      stage3D.isWalking = false;
+      stage3D.objectZ = 0.0;
+      spawnParticles(stage3D.width / 2, stage3D.height - 60, 25);
+      playPopSound();
+    }
+
+    function forceUnlockStoryPuzzle() {
+      isNarratingLock = false;
+      unlockStoryPuzzle();
+    }
+
+    function loadCurrentWord(isInitQuest) {
+      const dataset = gameDatasets[gameState.currentMode];
+      if (!dataset || dataset.length === 0) return;
+      targetItem = dataset[gameState.currentWordIndex % dataset.length];
+
+      const catEl = document.getElementById('quest-category');
+      if (catEl) catEl.innerText = `Desafío ${gameState.currentWordIndex + 1}/${dataset.length}`;
+
+      const sentenceBox = document.getElementById('sentence-box');
+      const storyBanner = document.getElementById('story-banner-card');
+      const bubble = document.getElementById('encounter-bubble');
+      const storyText = document.getElementById('story-text-content');
+      const pictoEmoji = document.getElementById('picto-emoji');
+
+      // Reiniciar perspectiva 3D: El objeto inicia pequeño en el horizonte 3D (z=1.0)
+      stage3D.objectZ = 1.0;
+      stage3D.targetZ = 0.0;
+      stage3D.isWalking = true;
+      stage3D.isCastleOpening = false;
+      stage3D.isCastleClosedInside = false;
+      stage3D.heroCastleWalkZ = 0;
+
+      const stage3dWrap = document.getElementById('stage-3d-wrap');
+      const stage2dDisplay = document.getElementById('stage-2d-display');
+      const stage2dEmoji = document.getElementById('stage-2d-emoji');
+
+      if (gameState.currentMode === 'story') {
+        if (stage3dWrap) stage3dWrap.style.display = 'block';
+        if (stage2dDisplay) stage2dDisplay.style.display = 'none';
+        if (storyBanner) storyBanner.style.display = 'flex';
+        if (sentenceBox) sentenceBox.style.display = 'none';
+        if (bubble) bubble.style.display = 'none';
+
+        if (storyText) storyText.innerText = formatTextWithStudentName(targetItem.narration || '');
+
+        if (targetItem.bgColors) stage3D.bgColors = targetItem.bgColors;
+        else stage3D.bgColors = ['#74B9FF', '#A8E6CF', '#55EFC4'];
+
+        setTimeout(resizeCanvas, 20);
+        setTimeout(resizeCanvas, 150);
+
+        if (!isInitQuest) {
+          playStoryChapterNarration(targetItem);
+        }
+
+      } else {
+        if (stage3dWrap) stage3dWrap.style.display = 'none';
+        if (stage2dDisplay) stage2dDisplay.style.display = 'flex';
+        if (stage2dEmoji) stage2dEmoji.innerText = targetItem.emoji || '⭐';
+
+        if (storyBanner) storyBanner.style.display = 'none';
+        if (bubble) bubble.style.display = 'none';
+
+        stage3D.bgColors = ['#74B9FF', '#A8E6CF', '#55EFC4'];
+
+        if (gameState.currentMode === 'homework') {
+          if (sentenceBox) {
+            sentenceBox.style.display = 'block';
+            const rawSentence = targetItem.sentence.replace('___', '<span style="color:var(--primary); font-weight:bold; text-decoration:underline;">[ ? ]</span>');
+            sentenceBox.innerHTML = formatTextWithStudentName(rawSentence);
+          }
+          if (!isInitQuest) {
+            playHomeworkSentenceNarration(targetItem);
+          }
+        } else if (gameState.currentMode === 'syllable' && targetItem.syllables) {
+          if (sentenceBox) sentenceBox.style.display = 'none';
+          forceUnlockStoryPuzzle();
+          if (!isInitQuest) speakText(targetItem.syllables.join(', '));
+        } else {
+          if (sentenceBox) sentenceBox.style.display = 'none';
+          forceUnlockStoryPuzzle();
+          if (!isInitQuest) speakText(targetItem.word);
+        }
+      }
+
+      const greenGemSVG = `<svg width="75" height="75" viewBox="0 0 64 64" fill="none" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));"><polygon points="20,10 44,10 58,24 32,56 6,24" fill="#2ECC71"/><polygon points="20,10 44,10 38,24 26,24" fill="#A3E635"/><polygon points="20,10 26,24 6,24" fill="#6EE7B7"/><polygon points="44,10 58,24 38,24" fill="#10B981"/><polygon points="6,24 26,24 32,56" fill="#059669"/><polygon points="58,24 38,24 32,56" fill="#047857"/><polygon points="17,14 26,14 23,20 14,20" fill="#FFFFFF" opacity="0.75"/></svg>`;
+
+      if (targetItem && targetItem.word === 'VERDE') {
+        if (stage2dEmoji) {
+          stage2dEmoji.innerHTML = greenGemSVG;
+          stage2dEmoji.style.filter = 'none';
+        }
+        if (pictoEmoji) {
+          pictoEmoji.innerHTML = greenGemSVG;
+          pictoEmoji.style.filter = 'none';
+        }
+      } else {
+        if (stage2dEmoji) {
+          stage2dEmoji.innerText = targetItem.emoji || '⭐';
+          stage2dEmoji.style.filter = 'none';
+        }
+        if (pictoEmoji) {
+          pictoEmoji.innerText = targetItem.emoji || '⭐';
+          pictoEmoji.style.filter = 'none';
+        }
+      }
+
+      const slotsContainer = document.getElementById('word-slots');
+      const poolContainer = document.getElementById('letters-pool');
+
+      if (slotsContainer) slotsContainer.innerHTML = '';
+      if (poolContainer) poolContainer.innerHTML = '';
+
+      if (!slotsContainer || !poolContainer) return;
+
+      if (gameState.currentMode === 'syllable' || gameState.currentMode === 'story') {
+        const syllables = targetItem.syllables || [];
+        currentSlots = new Array(syllables.length).fill('');
+        currentSlotBtns = new Array(syllables.length).fill(null);
+
+        syllables.forEach((s, idx) => {
+          const slot = document.createElement('div');
+          slot.className = 'slot syllable-slot';
+          slot.id = `slot-${idx}`;
+          slot.innerText = '?';
+          slot.onclick = () => clearSlotAt(idx);
+          slotsContainer.appendChild(slot);
+        });
+
+        let pool = [...syllables];
+        const extraSyllables = ['MA', 'PA', 'TO', 'LA', 'BO'];
+        while (pool.length < Math.max(syllables.length + 2, 4)) {
+          const rand = extraSyllables[Math.floor(Math.random() * extraSyllables.length)];
+          if (!pool.includes(rand)) pool.push(rand);
+        }
+        pool.sort(() => Math.random() - 0.5);
+
+        pool.forEach((syllable) => {
+          const btn = document.createElement('div');
+          btn.className = 'letter-btn syllable-btn';
+          btn.innerText = syllable;
+          btn.onclick = () => selectSyllable(syllable, btn);
+          poolContainer.appendChild(btn);
+        });
+
+      } else {
+        const word = targetItem.word || '';
+        currentSlots = new Array(word.length).fill('');
+        currentSlotBtns = new Array(word.length).fill(null);
+
+        for (let i = 0; i < word.length; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'slot';
+          slot.id = `slot-${i}`;
+          slot.onclick = () => clearSlotAt(i);
+          slotsContainer.appendChild(slot);
+        }
+
+        let poolLetters = word.split('');
+        const extraLetters = ['L', 'M', 'P', 'S', 'A', 'E', 'O'];
+        while (poolLetters.length < Math.max(word.length + 2, 5)) {
+          const rand = extraLetters[Math.floor(Math.random() * extraLetters.length)];
+          if (!poolLetters.includes(rand)) poolLetters.push(rand);
+        }
+        poolLetters.sort(() => Math.random() - 0.5);
+
+        poolLetters.forEach((letter) => {
+          const btn = document.createElement('div');
+          btn.className = 'letter-btn';
+          btn.innerText = letter;
+          btn.onclick = () => selectLetter(letter, btn);
+          poolContainer.appendChild(btn);
+        });
+      }
+    }
+
+    function speakCurrentTarget() {
+      if ((gameState.currentMode === 'syllable' || gameState.currentMode === 'story') && targetItem.syllables) {
+        speakText(targetItem.syllables.join(', '));
+      } else {
+        speakText(targetItem.word);
+      }
+    }
+
+    // --- FUNCIONES DE BORRADO Y EFECTOS DE SONIDO WEB AUDIO ---
+    function playPopSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+      } catch(e) {}
+    }
+
+    function playErrorSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } catch(e) {}
+    }
+
+    function playWinSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + idx * 0.1 + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.1);
+          osc.stop(ctx.currentTime + idx * 0.1 + 0.25);
+        });
+      } catch(e) {}
+    }
+
+    function selectSyllable(syllable, btnElement) {
+      if (isNarratingLock) return;
+      const emptyIdx = currentSlots.indexOf('');
+      if (emptyIdx !== -1) {
+        currentSlots[emptyIdx] = syllable;
+        currentSlotBtns[emptyIdx] = btnElement;
+        const slot = document.getElementById(`slot-${emptyIdx}`);
+        if (slot) {
+          slot.innerText = syllable;
+          slot.classList.add('filled');
+        }
+        btnElement.style.visibility = 'hidden';
+
+        const isComplete = !currentSlots.includes('');
+        if (isComplete) {
+          speakText(syllable, () => {
+            checkSyllables();
+          });
+        } else {
+          speakText(syllable);
+        }
+      }
+    }
+
+    function checkSyllables() {
+      if (currentSlots.join('') === targetItem.syllables.join('')) {
+        playWinSound();
+        onWinAnimation();
+      } else {
+        onWrongAnimation("¡Inténtalo de nuevo!");
+      }
+    }
+
+    function selectLetter(letter, btnElement) {
+      if (isNarratingLock) return;
+      const emptyIdx = currentSlots.indexOf('');
+      if (emptyIdx !== -1) {
+        currentSlots[emptyIdx] = letter;
+        currentSlotBtns[emptyIdx] = btnElement;
+        const slot = document.getElementById(`slot-${emptyIdx}`);
+        if (slot) {
+          slot.innerText = letter;
+          slot.classList.add('filled');
+        }
+        btnElement.style.visibility = 'hidden';
+
+        const isComplete = !currentSlots.includes('');
+        if (isComplete) {
+          speakText(letter, () => {
+            checkWord();
+          });
+        } else {
+          speakText(letter);
+        }
+      }
+    }
+
+    function checkWord() {
+      if (currentSlots.join('') === targetItem.word) {
+        playWinSound();
+        onWinAnimation();
+      } else {
+        onWrongAnimation("¡Inténtalo de nuevo!");
+      }
+    }
+
+    function onWinAnimation() {
+      document.querySelectorAll('.slot').forEach(s => s.classList.add('correct'));
+
+      setTimeout(() => {
+        if (targetItem && targetItem.isCastleChapter) {
+          speakText("¡Felicidades! ¡Abriste las puertas doradas del Castillo Mágico de CRIN!");
+        } else {
+          speakText("¡Súper! " + targetItem.word);
+        }
+      }, 150);
+
+      if (targetItem && targetItem.isCastleChapter) {
+        stage3D.isCastleOpening = true;
+        let enterStep = 0;
+        const enterInterval = setInterval(() => {
+          enterStep += 0.04;
+          stage3D.heroCastleWalkZ = enterStep;
+          if (Math.random() > 0.3) {
+            spawnParticles(stage3D.width / 2, stage3D.height * 0.45, 4);
+          }
+
+          if (enterStep >= 1.0) {
+            clearInterval(enterInterval);
+            stage3D.isCastleClosedInside = true;
+            spawnParticles(stage3D.width / 2, stage3D.height * 0.38, 45);
+            
+            setTimeout(() => {
+              const winModal = document.getElementById('win-modal');
+              const winMsg = document.getElementById('win-message');
+              if (winMsg) winMsg.innerHTML = "👑 ¡HEROICO! ¡Completaste el Cuento Mágico de CRIN y entraste al Castillo!";
+              if (winModal) winModal.style.display = 'flex';
+            }, 1200);
+          }
+        }, 50);
+
+      } else {
+        let jumpStep = 0;
+        const jumpInterval = setInterval(() => {
+          jumpStep += 0.2;
+          stage3D.heroJumpY = Math.sin(jumpStep) * 45;
+          if (Math.random() > 0.3) {
+            spawnParticles(stage3D.width / 2, stage3D.height - 50 - stage3D.heroJumpY, 4);
+          }
+          if (jumpStep >= Math.PI) {
+            clearInterval(jumpInterval);
+            stage3D.heroJumpY = 0;
+          }
+        }, 30);
+
+        gameState.stars += 10;
+        gameState.coins += 5;
+        const starCountEl = document.getElementById('star-count');
+        const coinCountEl = document.getElementById('coin-count');
+        if (starCountEl) starCountEl.innerText = gameState.stars;
+        if (coinCountEl) coinCountEl.innerText = gameState.coins;
+
+        setTimeout(() => {
+          const winModal = document.getElementById('win-modal');
+          if (winModal) winModal.style.display = 'flex';
+        }, 1400);
+      }
+    }
+
+    function nextQuest() {
+      const winModal = document.getElementById('win-modal');
+      if (winModal) winModal.style.display = 'none';
+      gameState.currentWordIndex++;
+      const dataset = gameDatasets[gameState.currentMode];
+
+      if (gameState.currentWordIndex >= dataset.length) {
+        const currentIdx = activitySequence.indexOf(gameState.currentMode);
+        if (currentIdx !== -1 && currentIdx < activitySequence.length - 1) {
+          const nextMode = activitySequence[currentIdx + 1];
+          startQuest(nextMode);
+        } else {
+          speakText('¡Felicidades! Completaste todas las misiones de la tarea semanal.');
+          switchScreen('map');
+        }
+      } else {
+        loadCurrentWord();
+      }
+    }
+
+    function setAvatar(emoji) {
+      gameState.avatar = emoji;
+      const display = document.getElementById('avatar-display');
+      if (display && display.childNodes[0]) display.childNodes[0].nodeValue = emoji;
+      const headerBtn = document.getElementById('header-avatar-btn');
+      if (headerBtn) headerBtn.innerText = emoji;
+    }
+
+    function setPet(emoji) {
+      gameState.pet = emoji;
+      const petDisplay = document.getElementById('pet-display');
+      if (petDisplay) petDisplay.innerText = emoji;
+    }
+
+    let studentName = '';
+    let customWordsList = [];
+
+    function splitSpanishSyllables(word) {
+      word = word.toUpperCase().trim();
+      if (word.includes('-')) return word.split('-').map(s => s.trim()).filter(Boolean);
+      if (word.includes('/')) return word.split('/').map(s => s.trim()).filter(Boolean);
+      
+      const vowels = 'AEIOUÁÉÍÓÚÜ';
+      const isVowel = c => vowels.includes(c);
+      let syllables = [];
+      let current = '';
+
+      for (let i = 0; i < word.length; i++) {
+        current += word[i];
+        const char = word[i];
+        const nextChar = word[i + 1] || '';
+        const nextNext = word[i + 2] || '';
+
+        if (isVowel(char)) {
+          if (!nextChar) {
+            syllables.push(current);
+            current = '';
+          } else if (!isVowel(nextChar)) {
+            if (!nextNext || isVowel(nextNext)) {
+              const pair = nextChar + nextNext;
+              const blended = ['CH','LL','RR','PL','PR','BL','BR','CL','CR','FL','FR','GL','GR','TL','TR','DR'];
+              if (!blended.includes(pair)) {
+                syllables.push(current);
+                current = '';
+              }
+            } else {
+              const pair = nextChar + nextNext;
+              const blended = ['CH','LL','RR','PL','PR','BL','BR','CL','CR','FL','FR','GL','GR','TL','TR','DR'];
+              if (blended.includes(pair)) {
+                syllables.push(current);
+                current = '';
+              } else {
+                current += nextChar;
+                i++;
+                syllables.push(current);
+                current = '';
+              }
+            }
+          }
+        }
+      }
+      if (current) {
+        if (syllables.length > 0) syllables[syllables.length - 1] += current;
+        else syllables.push(current);
+      }
+      return syllables.filter(s => s.length > 0);
+    }
+
+    const emojiMap = {
+      'PELOTA': '⚽', 'MARIPOSA': '🦋', 'AGUA': '💧', 'PATO': '🦆', 'GATO': '🐱',
+      'PERRO': '🐶', 'CASA': '🏠', 'SOL': '☀️', 'LUNA': '🌙', 'ESTRELLA': '⭐',
+      'MESA': '🪑', 'FLOR': '🌸', 'AUTO': '🚗', 'BICI': '🚲', 'TREN': '🚂',
+      'MANZANA': '🍎', 'BANANO': '🍌', 'PLATANO': '🍌', 'ARBOL': '🌳', 'ÁRBOL': '🌳',
+      'PEZ': '🐟', 'PAJARO': '🐦', 'PÁJARO': '🐦', 'LEON': '🦁', 'LEÓN': '🦁',
+      'OSO': '🐻', 'RATON': '🐭', 'RATÓN': '🐭', 'CORAZON': '❤️', 'CORAZÓN': '❤️',
+      'LECHE': '🥛', 'PAN': '🍞', 'LIBRO': '📖', 'LAPIZ': '✏️', 'LÁPIZ': '✏️',
+      'ZAPATO': '👞', 'SOPA': '🍲', 'MAMA': '👩', 'MAMÁ': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨',
+      'RANA': '🐸', 'SAPO': '🐸', 'SPO': '🐸', 'SEÑORA': '👵', 'SENORA': '👵', 'SEÑOR': '👨', 'SENOR': '👨',
+      'SALA': '🛋️', 'SILLA': '🪑', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'SERPIENTE': '🐍', 'SIRENA': '🧜‍♀️', 'SOMBRERO': '🤠', 'SOMBRILLA': '☂️',
+      'VERDE': '💎', 'BLANCO': '☁️', 'ROJO': '🔴', 'AZUL': '🔵',
+      'AMARILLO': '🟡', 'ROSA': '🌸', 'NEGRO': '⬛', 'GRIS': '🩶', 'DORADO': '🌟',
+      'LANA': '🧶', 'LENTA': '🐢', 'LINDA': '🌸', 'LOMA': '⛰️', 'LUNA': '🌙',
+      'PUMA': '🐆', 'POMELO': '🍊', 'PIE': '🦶', 'LIMA': '🍋', 'MANO': '✋', 'BOCA': '👄', 'PATA': '🐾',
+      'PALA': '⛏️', 'PERA': '🍐', 'PIÑA': '🍍', 'PILA': '🔋', 'PINO': '🌲', 'PUERTA': '🚪', 'PUENTE': '🌉', 'PLUMA': '🪶', 'PLATO': '🍽️',
+      'CENA': '🍽️', 'CINE': '🎬', 'CUNA': '🛏️', 'COPA': '🏆', 'COLA': '🐕', 'COMA': '✍️', 'COCHE': '🚗', 'CAMA': '🛌', 'CARA': '😃', 'COCO': '🥥', 'CERA': '🕯️',
+      'TAZA': '☕', 'TELA': '🧵', 'TÍTERE': '🎭', 'TITERE': '🎭', 'TAPA': '📦', 'MOTO': '🏍️', 'MATE': '🧉', 'MAPA': '🗺️',
+      'BOTA': '👢', 'BOLA': '🔮', 'DADO': '🎲', 'DEDO': '☝️', 'FOTO': '🖼️', 'LATA': '🥫', 'POZO': '🕳️', 'PIPA': '🫧', 'PITO': '🎷', 'CUENTO': '📖',
+      'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '👴', 'TIO': '👴', 'TÍA': '👵', 'TIA': '👵'
+    };
+
+    function getEmojiForWord(word) {
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      if (emojiMap[clean]) return emojiMap[clean];
+
+      const category = getWordCategory(clean);
+      const categoryEmojiMap = {
+        animal: '🐸',
+        food_meal: '🍎',
+        place_venue: '🏰',
+        furniture_home: '🪑',
+        tool_object: '📦',
+        body: '✋',
+        nature: '🌿',
+        color: '🎨'
+      };
+
+      if (categoryEmojiMap[category]) return categoryEmojiMap[category];
+      if (clean.includes('SAPO') || clean.includes('RANA')) return '🐸';
+      if (clean.includes('SEÑOR') || clean.includes('SENOR')) return '👨';
+      if (clean.includes('SEÑORA') || clean.includes('SENORA')) return '👵';
+
+      return '⭐';
+    }
+
+    function getSpanishGender(word) {
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      const masculineExceptions = [
+        'PUMA', 'MAPA', 'DÍA', 'PLANETA', 'SOFA', 'SOFÁ', 'PAPA', 'PAPÁ', 'TEMA', 'PROBLEMA',
+        'POEMA', 'CLIMA', 'IDIOMA', 'SISTEMA', 'DIPLOMA', 'FANTASMA', 'SÍNTOMA', 'PIE',
+        'POMELO', 'PATO', 'GATO', 'PERRO', 'LEON', 'LEÓN', 'OSO', 'RATON', 'RATÓN', 'AUTO',
+        'PUENTE', 'PLATO', 'PINO', 'CINE', 'COCHE', 'COCO', 'CIMA', 'RELOJ', 'LAPIZ', 'LÁPIZ', 'ZAPATO', 'TREN', 'SOL', 'MAR', 'BOSQUE', 'RÍO', 'RIO', 'ARBOL', 'ÁRBOL',
+        'TÍTERE', 'TITERE', 'MATE', 'DADO', 'DEDO', 'POZO', 'PITO', 'CUENTO', 'TOTO', 'TITO', 'TETE',
+        'SAPO', 'SEÑOR', 'SENOR', 'SOMBRERO', 'SEMÁFORO', 'SEMAFORO'
+      ];
+      if (masculineExceptions.includes(clean)) return 'm';
+
+      const feminineNouns = [
+        'RANA', 'MARIPOSA', 'PELOTA', 'CASA', 'MESA', 'SOPA', 'LUNA', 'ESTRELLA',
+        'FLOR', 'MANZANA', 'LECHE', 'BICI', 'ROSA', 'PLATA', 'PUERTA', 'VENTANA',
+        'AGUA', 'SILLA', 'PIEDRA', 'HOJA', 'NUBE', 'MONTAÑA', 'FRUTA', 'VACA',
+        'OVEJA', 'GALLINA', 'JIRAFA', 'CEBRA', 'ISLA', 'CAMPANA', 'LANA', 'LOMA', 'LIMA',
+        'MANO', 'BOCA', 'PATA', 'PALA', 'PERA', 'PIÑA', 'PILA', 'PLUMA',
+        'CENA', 'CUNA', 'COPA', 'COLA', 'COMA', 'CAMA', 'CARA', 'CERA', 'COPITA',
+        'TAZA', 'TELA', 'TAPA', 'MOTO', 'BOTA', 'BOLA', 'FOTO', 'LATA', 'PIPA', 'TITA',
+        'SEÑORA', 'SENORA', 'SALA', 'SERPIENTE', 'SIRENA', 'SOMBRILLA'
+      ];
+      if (feminineNouns.includes(clean)) return 'f';
+      if (clean.endsWith('A')) return 'f';
+      return 'm';
+    }
+
+    function getWordCategory(word) {
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      const colors = ['VERDE', 'BLANCO', 'ROJO', 'AZUL', 'AMARILLO', 'ROSA', 'NEGRO', 'GRIS', 'VIOLETA', 'DORADO', 'CELESTE'];
+      const animals = ['PUMA', 'RANA', 'SAPO', 'SPO', 'SERPIENTE', 'PATO', 'GATO', 'PERRO', 'MARIPOSA', 'PEZ', 'PAJARO', 'PÁJARO', 'LEON', 'LEÓN', 'OSO', 'RATON', 'RATÓN', 'ZORRO', 'CONEJO', 'MONO', 'VACA', 'OVEJA', 'GALLINA', 'JIRAFA', 'CEBRA', 'TORTUGA', 'TIGRE', 'CABALLO', 'LOBO', 'TOTO'];
+      const food_meal = ['CENA', 'DESAYUNO', 'ALMUERZO', 'MERIENDA', 'SOPA', 'LECHE', 'PAN', 'QUESO', 'PIZZA', 'POSTRE', 'PASTEL', 'TORTA', 'FRUTA', 'PERA', 'PIÑA', 'POMELO', 'LIMA', 'MANZANA', 'BANANO', 'PLATANO', 'PLÁTANO', 'UVA', 'UVAS', 'MELON', 'MELÓN', 'COCO', 'TAZA', 'MATE'];
+      const place_venue = ['CINE', 'PARQUE', 'TEATRO', 'ESCUELA', 'PLAZA', 'MUSEO', 'CASA', 'JARDÍN', 'JARDIN', 'BOSQUE', 'PLAYA', 'CAMPO', 'PUEBLO', 'CASTILLO', 'CIUDAD', 'LOMA', 'MONTAÑA', 'ISLA', 'POZO'];
+      const furniture_home = ['CUNA', 'CAMA', 'MESA', 'SILLA', 'SOFÁ', 'SOFA', 'ROPERO', 'PUERTA', 'VENTANA', 'PIZARRA', 'SALA', 'SILLÓN', 'SILLON'];
+      const tool_object = ['PALA', 'COPA', 'VASO', 'TAZA', 'LÁPIZ', 'LAPIZ', 'LIBRO', 'RELOJ', 'PELOTA', 'MOCHILA', 'BOTELLA', 'COCHE', 'AUTO', 'BICI', 'TREN', 'PILA', 'PUENTE', 'PLUMA', 'PLATO', 'COPITA', 'CERA', 'COMA', 'TELA', 'TÍTERE', 'TITERE', 'TAPA', 'MOTO', 'MAPA', 'BOTA', 'BOLA', 'DADO', 'DEDO', 'FOTO', 'LATA', 'PIPA', 'PITO', 'CUENTO', 'SOMBRERO', 'SOMBRILLA', 'SEMÁFORO', 'SEMAFORO'];
+      const body = ['PIE', 'MANO', 'BOCA', 'NARIZ', 'OJO', 'CARA', 'CABEZA', 'PATA', 'OREJA', 'BRAZO', 'COLA', 'DEDO'];
+      const nature = ['SOL', 'LUNA', 'ESTRELLA', 'AGUA', 'FLOR', 'ARBOL', 'ÁRBOL', 'NUBE', 'RÍO', 'RIO', 'BOSQUE', 'MAR', 'MONTAÑA', 'HOJA', 'PIEDRA', 'PINO'];
+
+      if (colors.includes(clean)) return 'color';
+      if (animals.includes(clean)) return 'animal';
+      if (food_meal.includes(clean)) return 'food_meal';
+      if (place_venue.includes(clean)) return 'place_venue';
+      if (furniture_home.includes(clean)) return 'furniture_home';
+      if (tool_object.includes(clean)) return 'tool_object';
+      if (body.includes(clean)) return 'body';
+      if (nature.includes(clean)) return 'nature';
+      return 'general';
+    }
+
+    const sentenceDictionary = {
+      'CASA': 'Llegamos a nuestra acogedora ___.',
+      'CENA': 'Disfrutamos de una rica ___ en familia.',
+      'CINE': 'Fuimos a ver una película divertida al ___.',
+      'COPA': 'El equipo ganador celebró levantando la ___.',
+      'CUNA': 'El bebé duerme plácidamente en su ___.',
+      'COLA': 'El perrito mueve la ___ cuando está contento.',
+      'COMA': 'Colocamos una ___ para separar las palabras.',
+      'COCHE': 'El ___ viaja rápido por la carretera.',
+      'CAMA': 'Nos acostamos a descansar en la ___.',
+      'CARA': 'Nos lavamos la ___ con agua y jabón.',
+      'COCO': 'Tomamos agua fresca del ___.',
+      'CERA': 'La vela de ___ ilumina suavemente la habitación.',
+      'COPITA': 'Servimos un poco de jugo en una ___ pequeña.',
+      'PALA': 'Usamos la ___ para cavar en el jardín.',
+      'PERA': 'La ___ es una fruta dulce, jugosa y muy rica.',
+      'PUMA': 'El ___ es un gran felino salvaje de las montañas.',
+      'POMELO': 'El ___ es una fruta dulce y jugosa.',
+      'PIE': 'Me pongo el zapato en el ___ derecho.',
+      'LIMA': 'La ___ es una fruta verde y muy fresca.',
+      'MANO': 'Saludamos levantando la ___ feliz.',
+      'BOCA': 'Sonreímos con la ___ muy contentos.',
+      'PATA': 'El perrito da la ___ para saludar.',
+      'LANA': 'La oveja nos da su suave ___ para tejer.',
+      'LENTA': 'La tortuga camina despacio y ___.',
+      'LINDA': 'La mariposa es muy brillante y ___.',
+      'LOMA': 'Subimos juntos a lo alto de la ___ verde.',
+      'LUNA': 'La ___ brilla en la noche estrellada.',
+      'MAMÁ': 'Al llegar a casa encontré a ___ muy feliz.',
+      'MAMA': 'Al llegar a casa encontré a ___ muy feliz.',
+      'PAPÁ': 'Al llegar a casa encontré a ___ muy feliz.',
+      'PAPA': 'Al llegar a casa encontré a ___ muy feliz.',
+      'RANA': 'La ___ verde salta muy cerca del agua.',
+      'VERDE': 'Entre la hierba del bosque brillaba una gema de color ___.',
+      'BLANCO': 'En el cielo azul vemos hermosas nubes de color ___.',
+      'ROJO': 'La manzana madura es de color ___.',
+      'AZUL': 'El mar inmenso es de color ___.',
+      'AMARILLO': 'El sol brillante es de color ___.',
+      'ROSA': 'La linda flor del jardín es de color ___.',
+      'NEGRO': 'La noche oscura es de color ___.',
+      'GRIS': 'El delfín simpático es de color ___.',
+      'DORADO': 'El cofre del tesoro es de color ___.',
+      'PATO': 'El ___ nada alegremente en el lago.',
+      'PELOTA': 'Juego a lanzar la ___ en el parque.',
+      'MARIPOSA': 'La ___ de colores vuela sobre las flores.',
+      'AGUA': 'Tomo un vaso de ___ bien fresca.',
+      'MESA': 'Servimos la comida sobre la ___.',
+      'GATO': 'El ___ ronronea suavemente.',
+      'PERRO': 'El ___ ladra feliz en el jardín.',
+      'SOL': 'El ___ ilumina todo el cielo azul.',
+      'ESTRELLA': 'Una ___ fugaz pasó por el cielo.',
+      'FLOR': 'La ___ tiene un aroma hermoso.',
+      'AUTO': 'El ___ rojo rueda por el camino.',
+      'BICI': 'Paseo en mi ___ por el parque.',
+      'TREN': 'El ___ viaja rápido por los rieles.',
+      'MANZANA': 'Disfruto de una ___ muy dulce.',
+      'BANANO': 'El mono come un rico ___.',
+      'PLATANO': 'Comemos un dulce ___ maduro.',
+      'ARBOL': 'El pájaro canta sobre el ___ verde.',
+      'ÁRBOL': 'El pájaro canta sobre el ___ verde.',
+      'PEZ': 'El ___ nada rápido entre las rocas.',
+      'PAJARO': 'Un lindo ___ vuela muy alto.',
+      'PÁJARO': 'Un lindo ___ vuela muy alto.',
+      'LEON': 'El ___ es el rey de la selva.',
+      'LEÓN': 'El ___ es el rey de la selva.',
+      'OSO': 'El ___ busca miel en el bosque.',
+      'RATON': 'El ___ busca un poco de queso.',
+      'RATÓN': 'El ___ busca un poco de queso.',
+      'LECHE': 'Tomo un vaso de ___ tibia.',
+      'PAN': 'El ___ recién horneado huele riquísimo.',
+      'LIBRO': 'Abro un ___ de cuentos mágicos.',
+      'LAPIZ': 'Dibujo con mi ___ de colores.',
+      'LÁPIZ': 'Dibujo con mi ___ de colores.',
+      'ZAPATO': 'Me pongo el ___ antes de salir a jugar.',
+      'SOPA': 'Mamá preparó una ___ de verduras deliciosa.',
+      'PIÑA': 'La ___ es una fruta tropical muy dulce.',
+      'PILA': 'Puse una ___ nueva en la linterna.',
+      'PINO': 'El ___ verde huele fresco en el bosque.',
+      'PUERTA': 'Abrimos la ___ del castillo mágico.',
+      'PUENTE': 'Cruzamos el ___ de madera sobre el arroyo.',
+      'PLUMA': 'La ave dejó caer una ___ muy suave.',
+      'PLATO': 'Servimos la deliciosa comida en el ___.',
+      'TAZA': 'Sirvieron un rico chocolate caliente en la ___.',
+      'TELA': 'El mago llevaba una capa de suave ___.',
+      'TÍTERE': 'El ___ de madera nos hizo reír en el teatro.',
+      'TITERE': 'El ___ de madera nos hizo reír en el teatro.',
+      'TAPA': 'Levantamos la ___ dorada del cofre antiguo.',
+      'TOTO': 'El perrito ___ corrió alegremente por el jardín.',
+      'TITA': 'La tía ___ nos recibió con una gran sonrisa.',
+      'TETE': 'El bebé guardó su ___ en la cunita.',
+      'TITO': 'El osito ___ caminaba sonriendo por el sendero.',
+      'MOTO': 'El explorador viaja en una veloz ___.',
+      'MATE': 'Compartimos un rico ___ caliente en el campamento.',
+      'MAPA': 'El ___ nos indica la ruta hacia el castillo.',
+      'BOTA': 'El explorador se ajustó la ___ para caminar.',
+      'BOLA': 'La ___ de cristal reflejaba luces mágicas.',
+      'DADO': 'Lanzamos el ___ para avanzar en el camino.',
+      'DEDO': 'Señaló la estrella brillante con el ___.',
+      'FOTO': 'Guardamos una linda ___ de recuerdo de la aventura.',
+      'LATA': 'Abrimos una ___ de galletitas crujientes.',
+      'POZO': 'El agua fresca del ___ estaba muy pura.',
+      'PIPA': 'El viejo sabio soplaba burbujas con su ___.',
+      'PITO': 'El guía tocó el ___ para iniciar el paseo.',
+      'CUENTO': 'Leímos un hermoso ___ antes de dormir.',
+      'SAPO': 'El ___ verde da grandes saltos cerca del agua.',
+      'SPO': 'El ___ verde da grandes saltos cerca del agua.',
+      'SEÑORA': 'La amable ___ nos recibió con un cálido saludo.',
+      'SENORA': 'La amable ___ nos recibió con un cálido saludo.',
+      'SEÑOR': 'El ___ guardián abrió las puertas del jardín.',
+      'SENOR': 'El ___ guardián abrió las puertas del jardín.',
+      'SILLA': 'Nos sentamos a descansar en la ___ cómoda.',
+      'SALA': 'Jugamos con alegría en la ___ del castillo.',
+      'SERPIENTE': 'La ___ se deslizaba suavemente entre las hojas.',
+      'SIRENA': 'La ___ cantaba alegremente desde la roca del mar.',
+      'SOMBRERO': 'El explorador llevaba un lindo ___ para el sol.',
+      'SOMBRILLA': 'Abrimos la ___ de colores para resguardarnos.'
+    };
+
+    function getSentenceForWord(word, index = 0) {
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      if (sentenceDictionary[clean]) return sentenceDictionary[clean];
+      
+      const gender = getSpanishGender(clean);
+      const category = getWordCategory(clean);
+      const idx = Math.abs(index) || 0;
+
+      if (category === 'food_meal') {
+        if (gender === 'f') {
+          const t = [
+            'Disfrutamos de una rica ___ en la mesa.',
+            'Servimos una abundante ___ para compartir en familia.',
+            'En la cocina prepararon una excelente ___.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'Disfrutamos de un rico ___ en la mesa.',
+            'Servimos un abundante ___ para compartir en familia.',
+            'En la cocina prepararon un excelente ___.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (category === 'place_venue') {
+        if (gender === 'f') {
+          const t = [
+            'Visitamos una hermosa ___ durante nuestro recorrido.',
+            'Llegamos a la entrada de una gran ___ iluminada.',
+            'Conocimos una acogedora ___ en el pueblo.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'Fuimos a disfrutar de un hermoso ___ durante el paseo.',
+            'Llegamos a la entrada de un gran ___ iluminado.',
+            'Conocimos un acogedor ___ en el pueblo.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (category === 'furniture_home') {
+        if (gender === 'f') {
+          const t = [
+            'Acomodamos con cuidado la ___ en la habitación.',
+            'En la casa colocamos una bonita ___ muy cómoda.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'Acomodamos con cuidado el ___ en la habitación.',
+            'En la casa colocamos un bonito ___ muy cómodo.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (category === 'tool_object') {
+        if (gender === 'f') {
+          const t = [
+            'Sostuvimos la ___ con cuidado para avanzar en la misión.',
+            'Guardamos la ___ en el cofre del explorador.',
+            'Con mucho entusiasmo usamos la ___ en el camino.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'Sostuvimos el ___ con cuidado para avanzar en la misión.',
+            'Guardamos el ___ en el cofre del explorador.',
+            'Con mucho entusiasmo usamos el ___ en el camino.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (category === 'body') {
+        if (gender === 'f') {
+          const t = [
+            'Nuestro explorador cuidó la ___ con delicadeza en el camino.',
+            'Extendimos la ___ con alegría para saludar.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'Nuestro explorador cuidó el ___ con delicadeza en el camino.',
+            'Apoyamos el ___ con firmeza para avanzar.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (category === 'animal') {
+        if (gender === 'f') {
+          const t = [
+            'En el prado vimos una ___ corriendo alegremente.',
+            'Una linda ___ nos saludó desde la orilla del camino.',
+            'Cuidamos con cariño a la ___ en la granja.'
+          ];
+          return t[idx % t.length];
+        } else {
+          const t = [
+            'En el prado vimos un ___ corriendo alegremente.',
+            'Un lindo ___ nos saludó desde la orilla del camino.',
+            'Cuidamos con cariño al ___ en la granja.'
+          ];
+          return t[idx % t.length];
+        }
+      }
+
+      if (gender === 'f') {
+        const femaleTemplates = [
+          'En la cima de la colina encontramos una ___ llena de luz.',
+          'El héroe llevó la ___ con mucho entusiasmo durante el paseo.',
+          'Entre las flores del jardín brillaba una hermosa ___.',
+          'Guardamos la ___ en el cofre mágico para compartirla.',
+          'Admiramos una ___ maravillosa al cruzar el valle.',
+          'Nos sorprendió una ___ brillante junto al camino.'
+        ];
+        return femaleTemplates[idx % femaleTemplates.length];
+      } else {
+        const maleTemplates = [
+          'En la cima de la colina encontramos un ___ lleno de luz.',
+          'El héroe llevó el ___ con mucho entusiasmo durante el paseo.',
+          'Entre las flores del jardín brillaba un hermoso ___.',
+          'Guardamos el ___ en el cofre mágico para compartirlo.',
+          'Admiramos un ___ maravilloso al cruzar el valle.',
+          'Nos sorprendió un ___ brillante junto al camino.'
+        ];
+        return maleTemplates[idx % maleTemplates.length];
+      }
+    }
+
+    const storyDictionary = {
+      'CASA': {
+        chapterTitle: '📜 Cap.: La Casa Acogedora',
+        narration: 'Llegamos a una acogedora casa iluminada donde nos recibieron con una gran bienvenida.'
+      },
+      'CENA': {
+        chapterTitle: '📜 Cap.: La Deliciosa Cena',
+        narration: 'Al caer el atardecer, nuestro héroe disfrutó de una rica cena al calor de la fogata.'
+      },
+      'CINE': {
+        chapterTitle: '📜 Cap.: La Función de Cine',
+        narration: 'En la plaza del pueblo mágico, los duendes organizaron una divertida función de cine bajo las estrellas.'
+      },
+      'CUNA': {
+        chapterTitle: '📜 Cap.: La Cuna Dorada',
+        narration: 'En el cuarto secreto del castillo, hallamos una hermosa cuna dorada para el descanso de las pequeñas criaturas.'
+      },
+      'COPA': {
+        chapterTitle: '📜 Cap.: La Copa de Cristal',
+        narration: 'Sobre un pedestal de piedra, brillaba una elegante copa de cristal con destellos mágicos.'
+      },
+      'COLA': {
+        chapterTitle: '📜 Cap.: La Suave Cola',
+        narration: 'Un simpático perrito movía su suave cola mientras nos guiaba por el sendero secreto.'
+      },
+      'CAMA': {
+        chapterTitle: '📜 Cap.: La Cama Mullida',
+        narration: 'En el refugio del bosque, encontramos una cómoda cama mullida cubierta de pétalos suavemente perfumados.'
+      },
+      'COCHE': {
+        chapterTitle: '📜 Cap.: El Coche Mágico',
+        narration: 'Subimos a un veloz coche mágico que nos llevó volando sobre los senderos dorados.'
+      },
+      'PUMA': {
+        chapterTitle: '📜 Cap.: El Ágil Puma',
+        narration: 'Siguiendo el rastro entre las rocas de la montaña, divisamos a un ágil puma que observaba el bosque con mirada sabia.'
+      },
+      'POMELO': {
+        chapterTitle: '📜 Cap.: El Pomelo Jugoso',
+        narration: 'Al pasar bajo los árboles frutales, cosechamos un rico pomelo jugoso para compartir en nuestra aventura.'
+      },
+      'PIE': {
+        chapterTitle: '📜 Cap.: El Primer Paso',
+        narration: 'Con paso firme y sin temor, nuestro explorador puso el pie en el sendero mágico para iniciar la gran travesía.'
+      },
+      'LIMA': {
+        chapterTitle: '📜 Cap.: La Fresca Lima',
+        narration: 'Junto al manantial de agua pura, encontramos una rica fruta de lima que refrescaba todo el ambiente.'
+      },
+      'PATO': {
+        chapterTitle: '📜 Cap.: El Pato del Arroyo',
+        narration: 'Siguiendo el alegre murmullo del arroyo, nuestro explorador vio a un lindo pato nadando sobre el agua cristalina.'
+      },
+      'RANA': {
+        chapterTitle: '📜 Cap.: La Rana del Estanque',
+        narration: 'Cerca del estanque de agua, nuestro héroe encontró una simpática rana verde que daba grandes saltos sobre las hojas.'
+      },
+      'VERDE': {
+        chapterTitle: '📜 Cap.: La Gema Verde',
+        narration: 'Continuando nuestro paseo por el bosque mágico, nuestro héroe encontró una valiosa gema de color verde.'
+      },
+      'BLANCO': {
+        chapterTitle: '📜 Cap.: Las Nubes Blancas',
+        narration: 'Al levantar la mirada hacia el cielo azul del bosque, contemplamos hermosas nubes esponjosas de color blanco flotando suavemente.'
+      },
+      'PELOTA': {
+        chapterTitle: '📜 Cap.: La Pelota de Colores',
+        narration: 'En medio de la colina verde, rebotaba alegremente una mágica pelota con los colores del arcoíris.'
+      },
+      'MARIPOSA': {
+        chapterTitle: '📜 Cap.: La Mariposa Dorada',
+        narration: 'Una hermosa mariposa extendió sus brillantes alas para guiarnos por el sendero secreto del bosque.'
+      },
+      'AGUA': {
+        chapterTitle: '📜 Cap.: La Fuente de Agua Pura',
+        narration: 'Al pie de la gran montaña, encontramos una cristalina fuente de agua pura para recuperar nuestras fuerzas.'
+      },
+      'MESA': {
+        chapterTitle: '📜 Cap.: La Mesa del Banquete',
+        narration: 'Llegamos a una gran mesa de madera donde los duendes del bosque preparaban una fiesta sorpresa.'
+      },
+      'LANA': {
+        chapterTitle: '📜 Cap.: La Suave Lana Mágica',
+        narration: 'Explorando el camino del bosque, nuestro héroe encontró un ovillo de suave lana mágica que brillaba con luz propia.'
+      },
+      'LENTA': {
+        chapterTitle: '📜 Cap.: La Tortuga Lenta',
+        narration: 'Avanzando paso a paso por el sendero, nos encontramos con una simpática tortuga lenta que nos mostró un atajo secreto.'
+      },
+      'LINDA': {
+        chapterTitle: '📜 Cap.: La Linda Mariposa',
+        narration: 'Al llegar al jardín de flores, admiramos una linda mariposa esmeralda que volaba alegremente en el aire.'
+      },
+      'LOMA': {
+        chapterTitle: '📜 Cap.: La Gran Loma Mágica',
+        narration: 'Subimos juntos a lo alto de una verde loma para contemplar todo el maravilloso paisaje del bosque.'
+      },
+      'LUNA': {
+        chapterTitle: '📜 Cap.: La Luna de Cristal',
+        narration: 'Al caer la noche sobre el castillo, una brillante luna de cristal iluminó el cielo para abrir las puertas doradas.'
+      },
+      'TAZA': {
+        chapterTitle: '📜 Cap.: La Taza de Chocolate',
+        narration: 'En la cabaña del bosque, nos sirvieron una tibia taza de chocolate para calentar los ánimos.'
+      },
+      'TELA': {
+        chapterTitle: '📜 Cap.: La Tela Encantada',
+        narration: 'En el cofre antiguo descubrimos un rollo de suave tela brillante con la que confeccionaron una capa mágica.'
+      },
+      'TÍTERE': {
+        chapterTitle: '📜 Cap.: El Títere Alegre',
+        narration: 'En el teatro del pueblo, un simpático títere de madera nos regaló sonrisas con sus divertidas piruetas.'
+      },
+      'TITERE': {
+        chapterTitle: '📜 Cap.: El Títere Alegre',
+        narration: 'En el teatro del pueblo, un simpático títere de madera nos regaló sonrisas con sus divertidas piruetas.'
+      },
+      'TAPA': {
+        chapterTitle: '📜 Cap.: La Tapa del Tesoro',
+        narration: 'Levantamos la gran tapa dorada del cofre antiguo y descubrimos brillantes recuerdos de la expedición.'
+      },
+      'TOTO': {
+        chapterTitle: '📜 Cap.: El Perrito Toto',
+        narration: 'Un simpático perrito llamado Toto nos salió al encuentro ladrando de felicidad para acompañarnos.'
+      },
+      'TITA': {
+        chapterTitle: '📜 Cap.: La Tía Tita',
+        narration: 'Llegamos a la colorida casa de la tía Tita, quien nos recibió con un caluroso abrazo y ricas golosinas.'
+      },
+      'TETE': {
+        chapterTitle: '📜 Cap.: El Regalo del Bebé',
+        narration: 'Encontramos un lindo accesorio de bebé en la cuna iluminada del refugio mágico.'
+      },
+      'TITO': {
+        chapterTitle: '📜 Cap.: El Osito Tito',
+        narration: 'Un tierno osito de peluche llamado Tito nos sonrió desde una ramita del bosque.'
+      },
+      'MOTO': {
+        chapterTitle: '📜 Cap.: La Veloz Moto',
+        narration: 'Subimos a una fantástica moto mágica que rodaba suavemente por los senderos resplandecientes.'
+      },
+      'MATE': {
+        chapterTitle: '📜 Cap.: El Mágico Mate',
+        narration: 'En la ronda del campamento bajo las estrellas, compartimos un caliente mate lleno de buena energía.'
+      },
+      'MAPA': {
+        chapterTitle: '📜 Cap.: El Mapa del Tesoro',
+        narration: 'Desplegamos el gran mapa antiguo que nos guiaba paso a paso por los senderos secretos del bosque.'
+      },
+      'BOTA': {
+        chapterTitle: '📜 Cap.: La Bota de Cuero',
+        narration: 'Nuestro explorador ajustó su bota de cuero para dar pasos firmes y seguros por la montaña.'
+      },
+      'BOLA': {
+        chapterTitle: '📜 Cap.: La Bola de Cristal',
+        narration: 'En la torre del sabio hallamos una reluciente bola de cristal que reflejaba caminos dorados.'
+      },
+      'DADO': {
+        chapterTitle: '📜 Cap.: El Dado de la Suerte',
+        narration: 'Lanzamos un brillante dado de la suerte que indicó el camino más seguro de la travesía.'
+      },
+      'DEDO': {
+        chapterTitle: '📜 Cap.: Señalando la Estrella',
+        narration: 'Nuestro explorador señaló con el dedo la estrella más brillante del cielo para marcar el rumbo.'
+      },
+      'FOTO': {
+        chapterTitle: '📜 Cap.: La Foto del Recuerdo',
+        narration: 'Capturamos una hermosa foto del recuerdo con todos los amigos de la expedición antes de continuar.'
+      },
+      'LATA': {
+        chapterTitle: '📜 Cap.: La Lata del Tesoro',
+        narration: 'En la despensa del refugio descubrimos una dorada lata repleta de ricas galletitas mágicas.'
+      },
+      'POZO': {
+        chapterTitle: '📜 Cap.: El Pozo Mágico',
+        narration: 'Al pie de la colina encontramos un antiguo pozo de agua pura que concedía buenos deseos.'
+      },
+      'PIPA': {
+        chapterTitle: '📜 Cap.: La Pipa del Sabio',
+        narration: 'El anciano guardián del bosque soplaba burbujas multicolores con su mágica pipa de madera.'
+      },
+      'PITO': {
+        chapterTitle: '📜 Cap.: El Pito del Guía',
+        narration: 'Con un alegre toque de su pito plateado, el guía anunció el inicio de la gran caminata.'
+      },
+      'CUENTO': {
+        chapterTitle: '📜 Cap.: El Gran Cuento Mágico',
+        narration: 'Abrimos las páginas de un gran libro de cuentos donde las imágenes cobraban vida.'
+      },
+      'SAPO': {
+        chapterTitle: '📜 Cap.: El Sapo Saltarín',
+        narration: 'Junto a las flores del estanque, un simpático sapo verde daba alegres saltos guiando nuestro camino.'
+      },
+      'SEÑORA': {
+        chapterTitle: '📜 Cap.: La Amable Señora',
+        narration: 'Llegamos al pintoresco pueblo donde una amable señora nos saludó alegremente con una cálida bienvenida.'
+      },
+      'SENORA': {
+        chapterTitle: '📜 Cap.: La Amable Señora',
+        narration: 'Llegamos al pintoresco pueblo donde una amable señora nos saludó alegremente con una cálida bienvenida.'
+      },
+      'SEÑOR': {
+        chapterTitle: '📜 Cap.: El Señor Guardián',
+        narration: 'En la entrada del valle mágico, el señor guardián nos mostró el sendero dorado.'
+      },
+      'SENOR': {
+        chapterTitle: '📜 Cap.: El Señor Guardián',
+        narration: 'En la entrada del valle mágico, el señor guardián nos mostró el sendero dorado.'
+      },
+      'SILLA': {
+        chapterTitle: '📜 Cap.: La Silla Cómoda',
+        narration: 'En el refugio del bosque, encontramos una cómoda silla de madera para descansar nuestras piernas.'
+      },
+      'SALA': {
+        chapterTitle: '📜 Cap.: La Sala de Cristal',
+        narration: 'Entramos a la gran sala de cristal del castillo donde los destellos de luz iluminaban el ambiente.'
+      }
+    };
+
+    function getStoryForWord(word, syllables, emoji, chapterIdx = 0) {
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      const lower = clean.toLowerCase();
+      const gender = getSpanishGender(clean);
+      const category = getWordCategory(clean);
+
+      if (storyDictionary[clean]) {
+        return {
+          chapterTitle: storyDictionary[clean].chapterTitle,
+          narration: storyDictionary[clean].narration,
+          syllables: syllables,
+          word: clean,
+          emoji: emoji,
+          obstacle: '📦',
+          bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
+        };
+      }
+
+      let title = '';
+      let narration = '';
+
+      if (category === 'color') {
+        if (clean === 'BLANCO') {
+          title = `📜 Cap.: Las Nubes Blancas`;
+          narration = `Al levantar la mirada hacia el cielo azul del bosque, contemplamos hermosas nubes esponjosas de color blanco flotando suavemente.`;
+        } else {
+          const v = chapterIdx % 2;
+          if (v === 0) {
+            title = `📜 Cap.: La Gema ${clean}`;
+            narration = `Continuando nuestro paseo por el bosque mágico, nuestro héroe encontró una valiosa gema de color ${lower}.`;
+          } else {
+            title = `📜 Cap.: El Sendero ${clean}`;
+            narration = `El camino se tiñó con un resplandor maravilloso, iluminado por destellos de color ${lower}.`;
+          }
+        }
+      } else if (category === 'animal') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Hermosa ${clean}`, n: `Cerca del estanque del bosque, nuestro explorador encontró una simpática ${lower} que saltaba alegremente para guiarnos.` },
+            { t: `📜 Cap.: La Ágil ${clean}`, n: `Siguiendo el murmullo del viento, apareció una veloz ${lower} que nos acompañó con gran agilidad.` },
+            { t: `📜 Cap.: La Leal ${clean}`, n: `Entre las flores de la pradera, descubrimos una hermosa ${lower} lista para sumarse a la aventura.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Amigable ${clean}`, n: `Siguiendo el sendero de árboles, apareció un lindo ${lower} que nos saludó con entusiasmo para acompañarnos en la aventura.` },
+            { t: `📜 Cap.: El Ágil ${clean}`, n: `Entre las frondosas ramas del bosque, se dejó ver un imponente ${lower} que corría con gracia y fuerza.` },
+            { t: `📜 Cap.: El Noble ${clean}`, n: `Junto al claro del bosque, nos salió al encuentro un noble ${lower} dispuesto a guiar nuestros pasos.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'food_meal') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Deliciosa ${clean}`, n: `Al caer el atardecer, nuestro explorador disfrutó de una sabrosa ${lower} para recargar energías.` },
+            { t: `📜 Cap.: La Dulce ${clean}`, n: `En el huerto del castillo, los duendes compartieron una rica ${lower} repleta de frescura.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Delicioso ${clean}`, n: `Al caer el atardecer, nuestro explorador disfrutó de un sabroso ${lower} para recargar energías.` },
+            { t: `📜 Cap.: El Jugoso ${clean}`, n: `En el huerto del castillo, los duendes compartieron un rico ${lower} repleto de frescura.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'place_venue') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Acogedora ${clean}`, n: `Al terminar la travesía, nuestro equipo llegó a una hermosa ${lower} donde fuimos recibidos alegremente.` },
+            { t: `📜 Cap.: La Gran ${clean}`, n: `En medio del paisaje del bosque, contemplamos la impresionante silueta de la ${lower}.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Acogedor ${clean}`, n: `Al terminar la travesía, nuestro equipo llegó a un hermoso ${lower} donde fuimos recibidos alegremente.` },
+            { t: `📜 Cap.: El Gran ${clean}`, n: `En medio del paisaje del bosque, contemplamos la impresionante silueta del ${lower}.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'furniture_home') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Cómoda ${clean}`, n: `En la sala secreta del castillo, hallamos una bonita ${lower} lista para descansar.` },
+            { t: `📜 Cap.: La Mágica ${clean}`, n: `Nuestro explorador preparó una suave ${lower} para pasar una noche tranquila.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Cómodo ${clean}`, n: `En la sala secreta del castillo, hallamos un bonito ${lower} listo para descansar.` },
+            { t: `📜 Cap.: El Mágico ${clean}`, n: `Nuestro explorador preparó un suave ${lower} para pasar una noche tranquila.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'body') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Fuerza de la ${clean}`, n: `Con paso seguro y alegre, nuestro explorador extendió la ${lower} para avanzar con valor en la aventura.` },
+            { t: `📜 Cap.: La Sonrisa y la ${clean}`, n: `Con una sonrisa iluminada, nuestro aventurero cuidó su ${lower} mientras cruzaba el puente mágico.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Paso Firme y el ${clean}`, n: `Con paso firme y entusiasmado, nuestro explorador apoyó el ${lower} en el sendero para avanzar.` },
+            { t: `📜 Cap.: El Valor en el ${clean}`, n: `Sintiendo la energía del bosque mágico, nuestro héroe dio un gran impulso con el ${lower} hacia la victoria.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'nature') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Deslumbrante ${clean}`, n: `Mirando hacia el horizonte del bosque, nos maravillamos con una hermosa ${lower} que iluminaba mágicamente nuestro viaje.` },
+            { t: `📜 Cap.: La Resplandeciente ${clean}`, n: `En la cumbre de la pradera, contemplamos la silueta de una espectacular ${lower} bajo el cielo estrellado.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Majestuoso ${clean}`, n: `Caminando un poco más, llegamos frente a un gran ${lower} lleno de luz y energía para continuar la expedición.` },
+            { t: `📜 Cap.: El Imponente ${clean}`, n: `Al cruzar el arroyo, descubrimos un deslumbrante ${lower} que protegía los secretos del bosque.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else if (category === 'tool_object') {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Valiosa ${clean}`, n: `En el cofre del tesoro, nuestro explorador halló una reluciente ${lower} que nos ayudó en el camino.` },
+            { t: `📜 Cap.: La Sorprendente ${clean}`, n: `Con mucha emoción, descubrimos una fantástica ${lower} llena de magia y color.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Valioso ${clean}`, n: `En el cofre del tesoro, nuestro explorador halló un reluciente ${lower} que nos ayudó en el camino.` },
+            { t: `📜 Cap.: El Sorprendente ${clean}`, n: `Con mucha emoción, descubrimos un fantástico ${lower} lleno de magia y color.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      } else {
+        if (gender === 'f') {
+          const templates = [
+            { t: `📜 Cap.: La Mágica ${clean}`, n: `En el corazón del bosque, hallamos una hermosa ${lower} que iluminaba el camino con destellos dorados.` },
+            { t: `📜 Cap.: La Fantástica ${clean}`, n: `Con entusiasmo y curiosidad, nuestro explorador guardó la ${lower} en su mochila para compartirla con sus amigos.` },
+            { t: `📜 Cap.: La Valiosa ${clean}`, n: `Cerca de la cascada cristalina, contemplamos una linda ${lower} que traía mucha alegría a la travesía.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        } else {
+          const templates = [
+            { t: `📜 Cap.: El Mágico ${clean}`, n: `En el corazón del bosque, hallamos un hermoso ${lower} que iluminaba el camino con destellos dorados.` },
+            { t: `📜 Cap.: El Fantástico ${clean}`, n: `Con entusiasmo y curiosidad, nuestro explorador guardó el ${lower} en su mochila para compartirlo con sus amigos.` },
+            { t: `📜 Cap.: El Valioso ${clean}`, n: `Cerca de la cascada cristalina, contemplamos un lindo ${lower} que traía mucha alegría a la travesía.` }
+          ];
+          const chosen = templates[chapterIdx % templates.length];
+          title = chosen.t; narration = chosen.n;
+        }
+      }
+
+      return {
+        chapterTitle: title,
+        narration: narration,
+        syllables: syllables,
+        word: clean,
+        emoji: emoji,
+        obstacle: '📦',
+        bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
+      };
+    }
+
+    const allTaskPacks = {
+      task1: {
+        id: 'task1',
+        name: '📍 Tarea 1: ZAPATO, MARIPOSA, PELOTA, MAMÁ',
+        words: ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ']
+      },
+      task2: {
+        id: 'task2',
+        name: '🌿 Tarea 2: VERDE, BLANCO, RANA, PATO',
+        words: ['VERDE', 'BLANCO', 'RANA', 'PATO']
+      },
+      task3: {
+        id: 'task3',
+        name: '🌙 Tarea 3: LANA, LENTA, LINDA, LOMA, LUNA',
+        words: ['LANA', 'LENTA', 'LINDA', 'LOMA', 'LUNA']
+      },
+      task4: {
+        id: 'task4',
+        name: '🐆 Tarea 4: PALA, PERA, PIE, POMELO, PUMA',
+        words: ['PALA', 'PERA', 'PIE', 'POMELO', 'PUMA']
+      },
+      task5: {
+        id: 'task5',
+        name: '🏠 Tarea 5: CASA, CENA, CINE, COPA, CUNA',
+        words: ['CASA', 'CENA', 'CINE', 'COPA', 'CUNA']
+      },
+      custom: {
+        id: 'custom',
+        name: '⭐ Tarea Semanal Personalizada (Panel CRIN)',
+        words: []
+      }
+    };
+
+    let activeTaskPackId = 'task1';
+
+    function populateTaskSelectOptions() {
+      const select = document.getElementById('active-task-select');
+      if (!select) return;
+
+      const currentValue = activeTaskPackId;
+      select.innerHTML = '';
+
+      const stdGroup = document.createElement('optgroup');
+      stdGroup.label = '📚 Tareas Predefinidas del Sistema';
+
+      Object.keys(allTaskPacks).forEach(key => {
+        const pack = allTaskPacks[key];
+        const opt = document.createElement('option');
+        opt.value = pack.id;
+        opt.innerText = pack.name;
+        stdGroup.appendChild(opt);
+      });
+      select.appendChild(stdGroup);
+
+      if (savedTasksBank && savedTasksBank.length > 0) {
+        const bankGroup = document.createElement('optgroup');
+        bankGroup.label = '🗂️ Banco de Tareas Guardadas';
+        savedTasksBank.forEach(task => {
+          const opt = document.createElement('option');
+          opt.value = 'bank_' + task.id;
+          opt.innerText = `🗂️ Tarea: ${task.wordsSummary}`;
+          bankGroup.appendChild(opt);
+        });
+        select.appendChild(bankGroup);
+      }
+
+      select.value = currentValue;
+    }
+
+    function changeActiveTaskPack(packId) {
+      if (packId.startsWith('bank_')) {
+        const realId = packId.replace('bank_', '');
+        loadSavedTaskFromBank(realId);
+        return;
+      }
+
+      if (!allTaskPacks[packId]) return;
+      activeTaskPackId = packId;
+      try {
+        localStorage.setItem('crin_active_task_pack', activeTaskPackId);
+      } catch(e) {}
+      updateActiveTaskPackUI();
+      buildActiveDatasets();
+    }
+
+    function updateActiveTaskPackUI() {
+      populateTaskSelectOptions();
+      const select = document.getElementById('active-task-select');
+      if (select) select.value = activeTaskPackId;
+
+      const infoDiv = document.getElementById('active-task-words-info');
+      const badgeSpan = document.getElementById('active-task-badge');
+
+      const pack = allTaskPacks[activeTaskPackId];
+      let wordsList = pack ? pack.words : [];
+
+      if (activeTaskPackId === 'custom') {
+        wordsList = customWordsList.map(item => item.word);
+      }
+
+      if (badgeSpan) badgeSpan.innerText = `${wordsList.length} Misiones`;
+
+      if (infoDiv) {
+        if (wordsList.length === 0) {
+          infoDiv.innerText = `⚠️ No hay palabras cargadas aún en esta tarea. Ve a ⚙️ CRIN para agregar palabras.`;
+        } else {
+          const itemsStr = wordsList.map(w => `${getEmojiForWord(w)} ${w}`).join(' • ');
+          infoDiv.innerText = `✨ Palabras: ${itemsStr}`;
+        }
+      }
+    }
+
+    function buildActiveDatasets() {
+      const pack = allTaskPacks[activeTaskPackId];
+      let words = pack ? pack.words : [];
+      if (activeTaskPackId === 'custom') {
+        words = customWordsList.map(item => item.word);
+      }
+
+      if (!words || words.length === 0) {
+        words = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ'];
+      }
+
+      gameDatasets.global = [];
+      gameDatasets.syllable = [];
+      gameDatasets.homework = [];
+      gameDatasets.story = [];
+
+      words.forEach((word, idx) => {
+        const cleanWord = word.toUpperCase().trim();
+        const syllables = splitSpanishSyllables(cleanWord);
+        const emoji = getEmojiForWord(cleanWord);
+        
+        const customItem = customWordsList.find(c => c.word === cleanWord);
+        const sentence = (customItem && customItem.sentence) ? customItem.sentence : getSentenceForWord(cleanWord, idx);
+
+        gameDatasets.global.push({ word: cleanWord, emoji: emoji, obstacle: '📦' });
+        gameDatasets.syllable.push({ word: cleanWord, syllables: syllables, emoji: emoji, obstacle: '📦' });
+        gameDatasets.homework.push({ sentence: sentence, word: cleanWord, emoji: emoji, obstacle: '📦' });
+
+        // Excluir MAMÁ de las historias del Cuento Mágico
+        if (cleanWord !== 'MAMÁ' && cleanWord !== 'MAMA') {
+          let storyItem;
+          if (customItem && customItem.storyNarration) {
+            storyItem = {
+              chapterTitle: customItem.storyTitle || `📜 Cap.: ${cleanWord}`,
+              narration: customItem.storyNarration,
+              syllables: syllables,
+              word: cleanWord,
+              emoji: emoji,
+              obstacle: '📦',
+              bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
+            };
+          } else {
+            storyItem = getStoryForWord(cleanWord, syllables, emoji, idx);
+          }
+          gameDatasets.story.push(storyItem);
+        }
+      });
+
+      // Capítulo final de cierre del Castillo Mágico de CRIN
+      gameDatasets.story.push({
+        chapterTitle: '📜 Cap. Final: El Castillo Mágico de CRIN',
+        narration: 'Llegamos al Castillo Mágico de CRIN. Escribe C-R-I-N para abrir las puertas doradas y completar la gran aventura.',
+        syllables: ['C', 'R', 'I', 'N'],
+        word: 'CRIN',
+        emoji: '🏰',
+        obstacle: '🏰',
+        isCastleChapter: true,
+        bgColors: ['#6C5CE7', '#A29BFE', '#74B9FF']
+      });
+    }
+
+    let draftWordsData = [];
+
+    function generateTeacherDraft() {
+      const nameInput = document.getElementById('student-name-input');
+      const wordInput = document.getElementById('new-word-input');
+
+      if (nameInput && nameInput.value.trim()) {
+        studentName = nameInput.value.trim();
+        updateStudentNameUI();
+      }
+
+      if (!wordInput || !wordInput.value.trim()) {
+        alert('Por favor ingresa las palabras para la tarea separadas por coma.');
+        return;
+      }
+
+      const rawWords = wordInput.value.split(/[,;\n]+/);
+      const parsedWords = [];
+      rawWords.forEach(w => {
+        const clean = w.trim().toUpperCase();
+        if (clean && !parsedWords.includes(clean)) {
+          parsedWords.push(clean);
+        }
+      });
+
+      if (parsedWords.length === 0) {
+        alert('Ingresa palabras válidas.');
+        return;
+      }
+
+      draftWordsData = parsedWords.map((word, idx) => {
+        const syllables = splitSpanishSyllables(word);
+        const emoji = getEmojiForWord(word);
+        const sentence = getSentenceForWord(word, idx);
+        const storyObj = getStoryForWord(word, syllables, emoji, idx);
+
+        return {
+          word: word,
+          syllables: syllables,
+          emoji: emoji,
+          sentence: sentence,
+          storyTitle: storyObj.chapterTitle || `📜 Cap. ${idx + 1}: ${word}`,
+          storyNarration: storyObj.narration || ''
+        };
+      });
+
+      renderDraftStep1Sentences();
+
+      const draftSec = document.getElementById('teacher-draft-section');
+      const step1 = document.getElementById('draft-step-1');
+      const step2 = document.getElementById('draft-step-2');
+
+      if (draftSec) draftSec.style.display = 'block';
+      if (step1) step1.style.display = 'block';
+      if (step2) step2.style.display = 'none';
+
+      draftSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function startVoiceDictation(targetInputId, statusBtnId, targetWord = '') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const btn = document.getElementById(statusBtnId);
+      const input = document.getElementById(targetInputId);
+
+      if (!SpeechRecognition) {
+        alert('💡 Tu navegador no soporta WebSpeech nativo.\n\nSolución fácil: Toca la casilla de texto y usa el botón de micrófono 🎙️ del teclado de tu teléfono.');
+        return;
+      }
+
+      // Solicitud explícita de permiso de micrófono para evitar cierre inmediato por falta de permiso
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop());
+        } catch (err) {
+          alert('⚠️ Permiso de micrófono denegado en el navegador.\n\n💡 Solución fácil en celular: Toca la casilla de texto y usa el botón de micrófono 🎙️ del propio teclado de tu teléfono para dictar.');
+          return;
+        }
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'es-AR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        if (btn) {
+          btn.dataset.oldText = btn.innerHTML;
+          btn.innerHTML = '🎙️ Escuchando... ¡Habla ahora!';
+          btn.style.background = '#E74C3C';
+          btn.style.color = 'white';
+        }
+
+        recognition.onresult = (event) => {
+          let transcript = event.results[0][0].transcript.trim();
+          if (input) {
+            if (targetInputId.includes('sentence')) {
+              const cleanW = targetWord ? targetWord.toUpperCase().trim() : '';
+              if (cleanW && transcript.toUpperCase().includes(cleanW)) {
+                const reg = new RegExp(cleanW, 'gi');
+                transcript = transcript.replace(reg, '___');
+              } else if (!transcript.includes('___')) {
+                transcript += ' ___';
+              }
+            }
+            input.value = transcript;
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.warn('Error en dictado por voz WebSpeech:', event.error);
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            alert('⚠️ El navegador bloqueó el micrófono WebSpeech en la red local (HTTP).\n\n💡 Solución en celular: Toca la casilla de texto y usa el botón de micrófono 🎙️ del teclado de tu propio celular para dictar.');
+          }
+          if (btn) {
+            btn.innerHTML = btn.dataset.oldText || '🎤 Dictar por Voz';
+            btn.style.background = '';
+            btn.style.color = '';
+          }
+        };
+
+        recognition.onend = () => {
+          if (btn) {
+            btn.innerHTML = btn.dataset.oldText || '🎤 Dictar por Voz';
+            btn.style.background = '';
+            btn.style.color = '';
+          }
+        };
+
+        recognition.start();
+      } catch (e) {
+        console.error(e);
+        alert('💡 Toca la casilla de texto y usa el botón de micrófono 🎙️ del teclado de tu celular.');
+        if (btn) {
+          btn.innerHTML = '🎤 Dictar por Voz';
+          btn.style.background = '';
+          btn.style.color = '';
+        }
+      }
+    }
+
+    let wizardCurrentStep = 0;
+
+    function startGuidedDictationWizard() {
+      const nameInput = document.getElementById('student-name-input');
+      const wordInput = document.getElementById('new-word-input');
+
+      if (nameInput && nameInput.value.trim()) {
+        studentName = nameInput.value.trim();
+        updateStudentNameUI();
+      }
+
+      let rawWords = wordInput ? wordInput.value.split(/[,;\n]+/) : [];
+      let parsedWords = [];
+      rawWords.forEach(w => {
+        const clean = w.trim().toUpperCase();
+        if (clean && !parsedWords.includes(clean)) parsedWords.push(clean);
+      });
+
+      if (parsedWords.length === 0) {
+        parsedWords = ['TAZA', 'TELA', 'TÍTERE'];
+        if (wordInput) wordInput.value = 'TAZA, TELA, TÍTERE';
+      }
+
+      draftWordsData = parsedWords.map((word, idx) => {
+        const syllables = splitSpanishSyllables(word);
+        const emoji = getEmojiForWord(word);
+        const sentence = getSentenceForWord(word, idx);
+        const storyObj = getStoryForWord(word, syllables, emoji, idx);
+
+        return {
+          word: word,
+          syllables: syllables,
+          emoji: emoji,
+          sentence: sentence,
+          storyTitle: storyObj.chapterTitle || `📜 Cap. ${idx + 1}: ${word}`,
+          storyNarration: storyObj.narration || ''
+        };
+      });
+
+      wizardCurrentStep = 0;
+      const draftSec = document.getElementById('teacher-draft-section');
+      const step1 = document.getElementById('draft-step-1');
+      const step2 = document.getElementById('draft-step-2');
+      const wizardSec = document.getElementById('draft-step-wizard');
+
+      if (draftSec) draftSec.style.display = 'block';
+      if (step1) step1.style.display = 'none';
+      if (step2) step2.style.display = 'none';
+      if (wizardSec) wizardSec.style.display = 'block';
+
+      renderWizardCurrentStep();
+      if (draftSec) draftSec.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderWizardCurrentStep() {
+      const container = document.getElementById('wizard-content-container');
+      if (!container || draftWordsData.length === 0) return;
+
+      const totalWords = draftWordsData.length;
+      const totalSteps = totalWords * 2;
+      const isSentencePhase = wizardCurrentStep < totalWords;
+      const wordIdx = isSentencePhase ? wizardCurrentStep : (wizardCurrentStep - totalWords);
+      const item = draftWordsData[wordIdx];
+
+      if (isSentencePhase) {
+        container.innerHTML = `
+          <div style="background: linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%); border-radius: 14px; padding: 14px; border: 2px solid #FBC02D; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 11px; font-weight: bold; color: #F57F17; background: white; padding: 2px 8px; border-radius: 10px;">
+                PASO 1 DE 2: FRASES • Palabra ${wordIdx + 1} de ${totalWords}
+              </span>
+              <span style="font-size: 11px; font-weight: bold; color: #333;">${wizardCurrentStep + 1} / ${totalSteps}</span>
+            </div>
+
+            <div style="font-size: 18px; font-weight: bold; color: #2C3E50; margin: 6px 0;">
+              ${item.emoji} Palabra: <span style="color: #D35400;">${item.word}</span> (${item.syllables.join('-')})
+            </div>
+
+            <div style="margin: 12px 0;">
+              <label style="font-size: 12px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">
+                🗣️ Dicta por micrófono o edita la frase para esta palabra:
+              </label>
+              <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                <button id="wiz-mic-btn" onclick="startVoiceDictation('wiz-sentence-input', 'wiz-mic-btn', '${item.word}')" style="background: #E74C3C; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  🎤 Dictar por Voz
+                </button>
+              </div>
+              <input type="text" id="wiz-sentence-input" class="input-text" style="width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 10px;" value="${item.sentence.replace(/"/g, '&quot;')}" />
+              <span style="font-size: 10px; color: #7F8C8D; margin-top: 4px; display: block;">💡 Usa ___ en el espacio donde irá la palabra oculta.</span>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              ${wizardCurrentStep > 0 ? `<button onclick="prevWizardStep()" style="background: white; border: 1px solid #CCC; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">⬅️ Anterior</button>` : ''}
+              <button onclick="nextWizardStep()" style="flex: 1; background: #2ECC71; color: white; border: none; padding: 10px 14px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer;">
+                ${(wizardCurrentStep === totalWords - 1) ? '✅ Finalizar Frases y Pasar al Cuento ➡️' : 'Siguiente Palabra ➡️'}
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%); border-radius: 14px; padding: 14px; border: 2px solid #8E44AD; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 11px; font-weight: bold; color: #4A148C; background: white; padding: 2px 8px; border-radius: 10px;">
+                PASO 2 DE 2: CUENTO MÁGICO • Capítulo ${wordIdx + 1} de ${totalWords}
+              </span>
+              <span style="font-size: 11px; font-weight: bold; color: #333;">${wizardCurrentStep + 1} / ${totalSteps}</span>
+            </div>
+
+            <div style="font-size: 17px; font-weight: bold; color: #4A148C; margin: 6px 0;">
+              ${item.emoji} Capítulo: <span style="color: #6C3483;">${item.word}</span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #555;">Título del Capítulo:</label>
+              <input type="text" id="wiz-story-title" class="input-text" style="width: 100%; font-size: 12px; padding: 6px; border-radius: 8px; margin-top: 2px;" value="${item.storyTitle.replace(/"/g, '&quot;')}" />
+            </div>
+
+            <div style="margin: 10px 0;">
+              <label style="font-size: 12px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">
+                🗣️ Dicta por micrófono o edita la historia narrada de este capítulo:
+              </label>
+              <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                <button id="wiz-mic-story-btn" onclick="startVoiceDictation('wiz-story-narration', 'wiz-mic-story-btn')" style="background: #8E44AD; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                  🎤 Dictar Cuento por Voz
+                </button>
+              </div>
+              <textarea id="wiz-story-narration" class="input-text" style="width: 100%; height: 75px; font-size: 12px; padding: 8px; border-radius: 10px; font-family: inherit; resize: vertical;">${item.storyNarration}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <button onclick="prevWizardStep()" style="background: white; border: 1px solid #CCC; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">⬅️ Anterior</button>
+              <button onclick="nextWizardStep()" style="flex: 1; background: linear-gradient(135deg, #9B59B6, #8E44AD); color: white; border: none; padding: 10px 14px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer;">
+                ${(wizardCurrentStep === totalSteps - 1) ? '🚀 Aprobar y Activar Tarea Semanal 🎉' : 'Siguiente Capítulo ➡️'}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function saveCurrentWizardInput() {
+      const totalWords = draftWordsData.length;
+      const isSentencePhase = wizardCurrentStep < totalWords;
+      const wordIdx = isSentencePhase ? wizardCurrentStep : (wizardCurrentStep - totalWords);
+      const item = draftWordsData[wordIdx];
+      if (!item) return;
+
+      if (isSentencePhase) {
+        const inp = document.getElementById('wiz-sentence-input');
+        if (inp && inp.value.trim()) item.sentence = inp.value.trim();
+      } else {
+        const titleInp = document.getElementById('wiz-story-title');
+        const narrInp = document.getElementById('wiz-story-narration');
+        if (titleInp && titleInp.value.trim()) item.storyTitle = titleInp.value.trim();
+        if (narrInp && narrInp.value.trim()) item.storyNarration = narrInp.value.trim();
+      }
+    }
+
+    function nextWizardStep() {
+      saveCurrentWizardInput();
+      const totalSteps = draftWordsData.length * 2;
+      if (wizardCurrentStep < totalSteps - 1) {
+        wizardCurrentStep++;
+        renderWizardCurrentStep();
+      } else {
+        finalizeTeacherTask();
+      }
+    }
+
+    function prevWizardStep() {
+      saveCurrentWizardInput();
+      if (wizardCurrentStep > 0) {
+        wizardCurrentStep--;
+        renderWizardCurrentStep();
+      }
+    }
+
+    function renderDraftStep1Sentences() {
+      const container = document.getElementById('draft-sentences-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      draftWordsData.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);';
+        card.innerHTML = `
+          <div style="font-weight: bold; font-size: 13px; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span>${item.emoji} Pal. ${idx + 1}: <strong>${item.word}</strong> (${item.syllables.join('-')})</span>
+            <button id="mic-btn-sentence-${idx}" onclick="startVoiceDictation('draft-sentence-input-${idx}', 'mic-btn-sentence-${idx}', '${item.word}')" style="background: #EBF5FB; border: 1px solid #3498DB; color: #2980B9; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+              🎤 Dictar por Voz
+            </button>
+          </div>
+          <label style="font-size: 11px; color: #64748B; display: block; margin-bottom: 2px;">Frase para Castillo Tarea CRIN (usa ___ o habla por voz):</label>
+          <input type="text" id="draft-sentence-input-${idx}" class="input-text" style="width: 100%; font-size: 12px; padding: 6px 10px;" value="${item.sentence.replace(/"/g, '&quot;')}" />
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function proceedToStep2Story() {
+      draftWordsData.forEach((item, idx) => {
+        const inp = document.getElementById(`draft-sentence-input-${idx}`);
+        if (inp && inp.value.trim()) {
+          item.sentence = inp.value.trim();
+        }
+      });
+
+      renderDraftStep2Story();
+
+      const step1 = document.getElementById('draft-step-1');
+      const step2 = document.getElementById('draft-step-2');
+      const wizardSec = document.getElementById('draft-step-wizard');
+      if (step1) step1.style.display = 'none';
+      if (step2) step2.style.display = 'block';
+      if (wizardSec) wizardSec.style.display = 'none';
+
+      step2.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function backToStep1Sentences() {
+      const step1 = document.getElementById('draft-step-1');
+      const step2 = document.getElementById('draft-step-2');
+      const wizardSec = document.getElementById('draft-step-wizard');
+      if (step1) step1.style.display = 'block';
+      if (step2) step2.style.display = 'none';
+      if (wizardSec) wizardSec.style.display = 'none';
+    }
+
+    function renderDraftStep2Story() {
+      const container = document.getElementById('draft-story-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      draftWordsData.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);';
+        card.innerHTML = `
+          <div style="font-weight: bold; font-size: 13px; color: #8E44AD; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span>${item.emoji} Cap. ${idx + 1}: <strong>${item.word}</strong></span>
+            <button id="mic-btn-story-${idx}" onclick="startVoiceDictation('draft-story-narration-${idx}', 'mic-btn-story-${idx}')" style="background: #F4ECF7; border: 1px solid #8E44AD; color: #6C3483; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+              🎤 Dictar Cuento por Voz
+            </button>
+          </div>
+          <div style="margin-bottom: 6px;">
+            <label style="font-size: 11px; color: #64748B;">Título del Capítulo:</label>
+            <input type="text" id="draft-story-title-${idx}" class="input-text" style="width: 100%; font-size: 12px; padding: 4px 8px; margin-top: 2px;" value="${item.storyTitle.replace(/"/g, '&quot;')}" />
+          </div>
+          <div>
+            <label style="font-size: 11px; color: #64748B;">Texto Narrado del Capítulo (Habla por voz o edita el texto escrito):</label>
+            <textarea id="draft-story-narration-${idx}" class="input-text" style="width: 100%; height: 65px; font-size: 12px; padding: 6px; margin-top: 2px; font-family: inherit; resize: vertical;">${item.storyNarration}</textarea>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function sanitizeTextForBank(text) {
+      if (!text) return '';
+      return text
+        .replace(/\bSanti\b/gi, '{nombre}')
+        .replace(/\{alumno\}/gi, '{nombre}')
+        .replace(/\{estudiante\}/gi, '{nombre}');
+    }
+
+    function finalizeTeacherTask() {
+      draftWordsData.forEach((item, idx) => {
+        const titleInp = document.getElementById(`draft-story-title-${idx}`);
+        const textInp = document.getElementById(`draft-story-narration-${idx}`);
+        if (titleInp && titleInp.value.trim()) item.storyTitle = titleInp.value.trim();
+        if (textInp && textInp.value.trim()) item.storyNarration = textInp.value.trim();
+
+        item.sentence = sanitizeTextForBank(item.sentence);
+        item.storyNarration = sanitizeTextForBank(item.storyNarration);
+      });
+
+      customWordsList = JSON.parse(JSON.stringify(draftWordsData));
+
+      const wordsKey = customWordsList.map(w => w.word).join(', ');
+      const existingIdx = savedTasksBank.findIndex(t => t.wordsSummary === wordsKey);
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+      const taskRecord = {
+        id: 'task_' + Date.now(),
+        studentName: 'Tarea Genérica',
+        wordsSummary: wordsKey,
+        wordsData: JSON.parse(JSON.stringify(customWordsList)),
+        createdAt: dateStr
+      };
+
+      if (existingIdx >= 0) {
+        savedTasksBank[existingIdx] = taskRecord;
+      } else {
+        savedTasksBank.unshift(taskRecord);
+      }
+
+      saveTherapistToLocalStorage();
+      renderCustomWordTags();
+      renderSavedTasksBank();
+      changeActiveTaskPack('custom');
+
+      const wordInput = document.getElementById('new-word-input');
+      if (wordInput) wordInput.value = '';
+
+      const draftSec = document.getElementById('teacher-draft-section');
+      if (draftSec) draftSec.style.display = 'none';
+
+      const currentChild = (studentName && studentName.trim() && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName.trim() : 'Aventurero';
+
+      alert(`🎓 ¡Tarea Semanal Genérica (${wordsKey}) Validada y Activada!\n\nSe ha guardado en el Banco de Tareas de forma genérica para adaptarse al niño que la juegue (${currentChild}).`);
+    }
+
+    function loadSavedTaskFromBank(taskId) {
+      const task = savedTasksBank.find(t => t.id === taskId);
+      if (!task) return;
+
+      customWordsList = JSON.parse(JSON.stringify(task.wordsData));
+      saveTherapistToLocalStorage();
+      renderCustomWordTags();
+      changeActiveTaskPack('custom');
+
+      const currentChild = (studentName && studentName.trim() && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName.trim() : 'Aventurero';
+      alert(`🚀 Tarea (${task.wordsSummary}) cargada para ${currentChild}.`);
+    }
+
+    function deleteSavedTaskFromBank(taskId) {
+      if (confirm('¿Deseas eliminar esta tarea del Banco de Tareas Guardadas?')) {
+        savedTasksBank = savedTasksBank.filter(t => t.id !== taskId);
+        saveTherapistToLocalStorage();
+        renderSavedTasksBank();
+      }
+    }
+
+    function renderSavedTasksBank() {
+      const container = document.getElementById('saved-tasks-bank-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (savedTasksBank.length === 0) {
+        container.innerHTML = `<span style="font-size: 12px; color: #888; font-style: italic;">No hay tareas guardadas aún. Al aprobar una tarea, se archivará aquí automáticamente.</span>`;
+        return;
+      }
+
+      savedTasksBank.forEach(task => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);';
+        
+        const wordsIcons = task.wordsData.map(w => `${w.emoji || '⭐'} ${w.word}`).join(' • ');
+
+        card.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-weight: bold; font-size: 12px; color: #2C3E50;">🗂️ Tarea Guardada</span>
+            <span style="font-size: 10px; color: #94A3B8;">📅 ${task.createdAt}</span>
+          </div>
+          <div style="font-size: 12px; color: #334155; font-weight: 600;">
+            ${wordsIcons}
+          </div>
+          <div style="display: flex; gap: 6px; margin-top: 4px;">
+            <button onclick="loadSavedTaskFromBank('${task.id}')" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              🚀 Activar esta Tarea
+            </button>
+            <button onclick="deleteSavedTaskFromBank('${task.id}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+              🗑️
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function exportTasksBank() {
+      if (savedTasksBank.length === 0) {
+        alert('No hay tareas guardadas para exportar.');
+        return;
+      }
+      const dataStr = JSON.stringify(savedTasksBank, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `banco_tareas_crin_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importTasksBank() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            if (Array.isArray(imported)) {
+              let count = 0;
+              imported.forEach(task => {
+                if (task.wordsSummary && Array.isArray(task.wordsData)) {
+                  const exists = savedTasksBank.some(t => t.wordsSummary === task.wordsSummary);
+                  if (!exists) {
+                    savedTasksBank.push(task);
+                    count++;
+                  }
+                }
+              });
+              saveTherapistToLocalStorage();
+              renderSavedTasksBank();
+              alert(`✅ Se importaron ${count} tareas al Banco de Tareas.`);
+            } else {
+              alert('El archivo no tiene un formato de tareas válido.');
+            }
+          } catch(err) {
+            alert('Error al leer el archivo de tareas.');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function clearCustomWords() {
+      if (confirm('¿Deseas borrar todas las palabras de la Tarea Personalizada?')) {
+        customWordsList = [];
+        saveTherapistToLocalStorage();
+        renderCustomWordTags();
+        buildActiveDatasets();
+        updateActiveTaskPackUI();
+      }
+    }
+
+    function removeCustomWord(wordToRemove) {
+      customWordsList = customWordsList.filter(item => item.word !== wordToRemove);
+      saveTherapistToLocalStorage();
+      renderCustomWordTags();
+      buildActiveDatasets();
+      updateActiveTaskPackUI();
+    }
+
+    function renderCustomWordTags() {
+      const container = document.getElementById('custom-words-tags');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (customWordsList.length === 0) {
+        container.innerHTML = `<span style="font-size: 12px; color: #888; font-style: italic;">No hay palabras personalizadas cargadas aún.</span>`;
+        return;
+      }
+
+      customWordsList.forEach((item, idx) => {
+        const sentence = item.sentence || getSentenceForWord(item.word, idx);
+        const storyTitle = item.storyTitle || `📜 Cap.: ${item.word}`;
+        const tag = document.createElement('div');
+        tag.style.cssText = 'background: #74B9FF; color: white; border-radius: 12px; padding: 8px 12px; font-size: 12px; font-weight: bold; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;';
+        tag.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span>${item.emoji} <strong>${item.word}</strong> (${item.syllables.join('-')})</span>
+            <span onclick="removeCustomWord('${item.word}')" style="cursor: pointer; background: rgba(0,0,0,0.25); border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px;">✕</span>
+          </div>
+          <div style="font-size: 11px; opacity: 0.95; font-weight: normal; font-style: italic;">🏰 Oración: "${sentence.replace('___', '[' + item.word + ']')}"</div>
+          <div style="font-size: 11px; opacity: 0.95; font-weight: normal; font-style: italic;">📖 Cuento: "${storyTitle}"</div>
+        `;
+        container.appendChild(tag);
+      });
+    }
+
+    function openStudentNameModal() {
+      const modal = document.getElementById('student-name-modal');
+      const input = document.getElementById('modal-student-name-input');
+      const currentVal = (studentName && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName : '';
+
+      if (modal) {
+        if (input) input.value = currentVal;
+        modal.style.display = 'flex';
+        setTimeout(() => { if (input) input.focus(); }, 150);
+      } else {
+        const entered = prompt('🧑‍🚀 Ingresa tu nombre para comenzar la aventura:', currentVal);
+        if (entered !== null && entered.trim()) {
+          studentName = entered.trim();
+          saveTherapistToLocalStorage();
+          updateStudentNameUI();
+          buildActiveDatasets();
+          if (gameState.currentMode) loadCurrentWord(true);
+        }
+      }
+    }
+
+    function confirmStudentNameFromModal() {
+      const input = document.getElementById('modal-student-name-input');
+      let newName = input ? input.value.trim() : '';
+      if (!newName) newName = 'Aventurero';
+
+      studentName = newName;
+      saveTherapistToLocalStorage();
+      updateStudentNameUI();
+
+      const modal = document.getElementById('student-name-modal');
+      if (modal) modal.style.display = 'none';
+
+      buildActiveDatasets();
+      if (gameState.currentMode) loadCurrentWord(true);
+    }
+
+    function updateStudentNameUI() {
+      const displayName = (studentName && studentName.trim()) ? studentName.trim() : 'Aventurero';
+      const nameElem = document.getElementById('user-name');
+      if (nameElem) nameElem.innerHTML = `${displayName} <span style="font-size:10px; opacity:0.8;">✏️</span>`;
+      const nameInput = document.getElementById('student-name-input');
+      if (nameInput) nameInput.value = displayName;
+      const bubbleElem = document.getElementById('encounter-bubble');
+      if (bubbleElem && targetItem) {
+        bubbleElem.innerText = `✨ ¿Qué encontró ${displayName}?`;
+      }
+    }
+
+    function saveTherapistToLocalStorage() {
+      try {
+        localStorage.setItem('crin_student_name', studentName);
+        localStorage.setItem('crin_custom_words', JSON.stringify(customWordsList));
+        localStorage.setItem('crin_saved_tasks_bank', JSON.stringify(savedTasksBank));
+        localStorage.setItem('crin_active_task_pack', activeTaskPackId);
+      } catch(e) {}
+    }
+
+    function loadTherapistFromLocalStorage() {
+      try {
+        const savedName = localStorage.getItem('crin_student_name');
+        if (savedName && savedName.trim() && savedName.trim() !== 'Santi') {
+          studentName = savedName.trim();
+        } else {
+          studentName = '';
+        }
+        
+        const nameInput = document.getElementById('student-name-input');
+        if (nameInput) nameInput.value = studentName || 'Aventurero';
+        updateStudentNameUI();
+
+        const savedWords = localStorage.getItem('crin_custom_words');
+        if (savedWords) {
+          const list = JSON.parse(savedWords);
+          if (Array.isArray(list)) {
+            customWordsList = list.map(w => {
+              w.sentence = sanitizeTextForBank(w.sentence);
+              w.storyNarration = sanitizeTextForBank(w.storyNarration);
+              return w;
+            });
+            renderCustomWordTags();
+          }
+        }
+
+        const savedBank = localStorage.getItem('crin_saved_tasks_bank');
+        if (savedBank) {
+          const bank = JSON.parse(savedBank);
+          if (Array.isArray(bank)) {
+            savedTasksBank = bank.map(task => {
+              task.studentName = 'Tarea Genérica';
+              if (Array.isArray(task.wordsData)) {
+                task.wordsData.forEach(w => {
+                  if (w.sentence) w.sentence = sanitizeTextForBank(w.sentence);
+                  if (w.storyNarration) w.storyNarration = sanitizeTextForBank(w.storyNarration);
+                });
+              }
+              return task;
+            });
+          }
+        }
+        renderSavedTasksBank();
+
+        const savedPack = localStorage.getItem('crin_active_task_pack');
+        if (savedPack && allTaskPacks[savedPack]) {
+          activeTaskPackId = savedPack;
+        }
+
+        updateActiveTaskPackUI();
+        buildActiveDatasets();
+
+        // Solicitar el nombre si el niño abre la app y no tiene nombre guardado o es genérico
+        if (!studentName || studentName === 'Santi' || studentName === 'Aventurero') {
+          setTimeout(() => {
+            openStudentNameModal();
+          }, 350);
+        }
+      } catch(e) {}
+    }
+
+    loadTherapistFromLocalStorage();
+
+    function toggleFont() {
+      const fontCheck = document.getElementById('dyslexic-font');
+      if (!fontCheck) return;
+      if (fontCheck.checked) {
+        document.body.style.fontFamily = 'Comic Sans MS, sans-serif';
+      } else {
+        document.body.style.fontFamily = 'var(--font-main)';
+      }
+    }
+
+    function drawGreenGem3D(ctx, x, y, scale) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      const w = 55 * scale;
+      const h = 60 * scale;
+
+      // Outer Emerald Glow
+      const glow = ctx.createRadialGradient(0, 0, 5 * scale, 0, 0, 40 * scale);
+      glow.addColorStop(0, 'rgba(46, 204, 113, 0.9)');
+      glow.addColorStop(1, 'rgba(46, 204, 113, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, 40 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      const topW = w * 0.62;
+      const midY = -h * 0.15;
+      const bottomY = h * 0.5;
+      const topY = -h * 0.5;
+
+      // Pavilion (Bottom Pointy Section) - Left & Right Facets
+      ctx.fillStyle = '#059669';
+      ctx.beginPath();
+      ctx.moveTo(-w/2, midY);
+      ctx.lineTo(0, midY);
+      ctx.lineTo(0, bottomY);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#047857';
+      ctx.beginPath();
+      ctx.moveTo(w/2, midY);
+      ctx.lineTo(0, midY);
+      ctx.lineTo(0, bottomY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Crown (Top Section) - Side Facets & Center
+      ctx.fillStyle = '#6EE7B7';
+      ctx.beginPath();
+      ctx.moveTo(-topW/2, topY);
+      ctx.lineTo(-topW * 0.2, topY);
+      ctx.lineTo(0, midY);
+      ctx.lineTo(-w/2, midY);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#10B981';
+      ctx.beginPath();
+      ctx.moveTo(topW/2, topY);
+      ctx.lineTo(topW * 0.2, topY);
+      ctx.lineTo(0, midY);
+      ctx.lineTo(w/2, midY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Crown Table (Center Bright Highlight)
+      ctx.fillStyle = '#A3E635';
+      ctx.beginPath();
+      ctx.moveTo(-topW/2, topY);
+      ctx.lineTo(topW/2, topY);
+      ctx.lineTo(topW * 0.2, midY);
+      ctx.lineTo(-topW * 0.2, midY);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bright Sparkle Highlight
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(-topW * 0.35, topY + 3 * scale);
+      ctx.lineTo(-topW * 0.1, topY + 3 * scale);
+      ctx.lineTo(-topW * 0.2, topY + 12 * scale);
+      ctx.closePath();
+      ctx.fill();
+
+      // Facet Outlines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = 1.5 * scale;
+      ctx.beginPath();
+      ctx.moveTo(-topW/2, topY);
+      ctx.lineTo(topW/2, topY);
+      ctx.lineTo(w/2, midY);
+      ctx.lineTo(0, bottomY);
+      ctx.lineTo(-w/2, midY);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // --- MOTOR GRÁFICO 3D EN PERSPECTIVA A 60 FPS ("CAMINANDO HACIA EL BOSQUE") ---
+    const canvas = document.getElementById('game-stage-canvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    const stage3D = {
+      width: 400,
+      height: 280,
+      frame: 0,
+      isWalking: false,
+      roadOffset: 0,
+      objectZ: 1.0,
+      targetZ: 0.0,
+      heroJumpY: 0,
+      heroCastleWalkZ: 0,
+      isCastleOpening: false,
+      isCastleClosedInside: false,
+      particles: [],
+      bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4'],
+      trees3D: [],
+      birds3D: []
+    };
+
+    function init3DEnvironment() {
+      stage3D.trees3D = [];
+      for (let i = 0; i < 16; i++) {
+        stage3D.trees3D.push({
+          z: Math.random(),
+          side: i % 2 === 0 ? -1 : 1,
+          type: Math.random() > 0.4 ? '🌲' : (Math.random() > 0.5 ? '🌳' : '🌴')
+        });
+      }
+
+      stage3D.birds3D = [
+        { x: 40, y: 35, speed: 1.1, flapOffset: 0, icon: '🕊️' },
+        { x: 180, y: 22, speed: 1.4, flapOffset: 1.5, icon: '🦅' },
+        { x: 310, y: 48, speed: 0.9, flapOffset: 3.0, icon: '🐦' }
+      ];
+    }
+    init3DEnvironment();
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      stage3D.width = rect.width;
+      stage3D.height = rect.height;
+      if (ctx) ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(resizeCanvas, 50);
+      setTimeout(resizeCanvas, 200);
+    });
+
+    function spawnParticles(x, y, count = 15) {
+      const shapes = ['⭐', '✨', '🌸', '💫', '💛', '👑', '🎆'];
+      for (let i = 0; i < count; i++) {
+        stage3D.particles.push({
+          x: x + (Math.random() - 0.5) * 45,
+          y: y + (Math.random() - 0.5) * 45,
+          vx: (Math.random() - 0.5) * 6,
+          vy: -Math.random() * 6 - 2,
+          size: 16 + Math.random() * 18,
+          shape: shapes[Math.floor(Math.random() * shapes.length)],
+          alpha: 1,
+          life: 1
+        });
+      }
+    }
+
+    function update3DEngine() {
+      stage3D.frame++;
+
+      stage3D.birds3D.forEach(b => {
+        b.x += b.speed;
+        if (b.x > stage3D.width + 50) b.x = -50;
+      });
+
+      if (stage3D.isWalking) {
+        stage3D.roadOffset += 0.04;
+
+        if (stage3D.objectZ > stage3D.targetZ) {
+          stage3D.objectZ -= 0.005;
+          if (stage3D.objectZ <= 0.04) {
+            stage3D.objectZ = 0.0;
+            stage3D.isWalking = false;
+            unlockStoryPuzzle();
+          }
+        }
+
+        stage3D.trees3D.forEach(t => {
+          t.z -= 0.015;
+          if (t.z < 0) t.z += 1.0;
+        });
+      }
+
+      for (let i = stage3D.particles.length - 1; i >= 0; i--) {
+        const p = stage3D.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.18;
+        p.life -= 0.025;
+        p.alpha = Math.max(0, p.life);
+        if (p.life <= 0) stage3D.particles.splice(i, 1);
+      }
+    }
+
+    function draw3DScene() {
+      if (!ctx || !canvas) return;
+      const w = stage3D.width;
+      const h = stage3D.height;
+      const horizonY = h * 0.38;
+      const vanishingX = w / 2;
+
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = '#000000';
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. CIELO ATMOSFÉRICO 3D
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+      skyGrad.addColorStop(0, stage3D.bgColors[0]);
+      skyGrad.addColorStop(0.7, stage3D.bgColors[1]);
+      skyGrad.addColorStop(1, stage3D.bgColors[2]);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, w, horizonY);
+
+      // Sol Mágico en el Horizonte
+      ctx.save();
+      const sunGlow = ctx.createRadialGradient(vanishingX, horizonY - 10, 5, vanishingX, horizonY - 10, 65);
+      sunGlow.addColorStop(0, 'rgba(255, 234, 167, 0.95)');
+      sunGlow.addColorStop(1, 'rgba(255, 234, 167, 0)');
+      ctx.fillStyle = sunGlow;
+      ctx.beginPath();
+      ctx.arc(vanishingX, horizonY - 10, 65, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Nubes y Pájaros 3D
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.font = '28px serif';
+      const cloud1X = (vanishingX - 140 + stage3D.frame * 0.2) % (w + 100) - 50;
+      const cloud2X = (vanishingX + 90 - stage3D.frame * 0.15) % (w + 100) - 50;
+      ctx.fillText('☁️', cloud1X, 35);
+      ctx.fillText('☁️', cloud2X, 55);
+
+      stage3D.birds3D.forEach(b => {
+        const flapY = Math.sin(stage3D.frame * 0.2 + b.flapOffset) * 6;
+        ctx.font = '22px serif';
+        ctx.fillText(b.icon, b.x, b.y + flapY);
+      });
+      ctx.restore();
+
+      // 2. CAMINO Y TERRENO EN PERSPECTIVA 3D (DE ABAJO HACIA ARRIBA)
+      const groundGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+      groundGrad.addColorStop(0, '#26AF5F');
+      groundGrad.addColorStop(1, '#1E8449');
+      ctx.fillStyle = groundGrad;
+      ctx.fillRect(0, horizonY, w, h - horizonY);
+
+      const roadTopWidth = 45;
+      const roadBottomWidth = w * 0.78;
+
+      ctx.save();
+      const roadGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+      roadGrad.addColorStop(0, '#FFEAA7');
+      roadGrad.addColorStop(1, '#FDCB6E');
+      ctx.fillStyle = roadGrad;
+
+      ctx.beginPath();
+      ctx.moveTo(vanishingX - roadTopWidth / 2, horizonY);
+      ctx.lineTo(vanishingX + roadTopWidth / 2, horizonY);
+      ctx.lineTo(vanishingX + roadBottomWidth / 2, h);
+      ctx.lineTo(vanishingX - roadBottomWidth / 2, h);
+      ctx.closePath();
+      ctx.fill();
+
+      // Franjas de movimiento 3D en la carretera
+      ctx.strokeStyle = 'rgba(211, 84, 0, 0.35)';
+      ctx.lineWidth = 3;
+      const stripeCount = 8;
+      for (let i = 0; i < stripeCount; i++) {
+        let stripeZ = (i / stripeCount + (stage3D.roadOffset % (1 / stripeCount))) % 1.0;
+        let sy = horizonY + (1 - stripeZ) * (h - horizonY);
+        let sw = roadTopWidth + (1 - stripeZ) * (roadBottomWidth - roadTopWidth);
+        ctx.beginPath();
+        ctx.moveTo(vanishingX - sw / 2, sy);
+        ctx.lineTo(vanishingX + sw / 2, sy);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 3. ÁRBOLES ALTOS EN PERSPECTIVA 3D (IZQUIERDA Y DERECHA DEL CAMINO)
+      const sortedTrees = [...stage3D.trees3D].sort((a, b) => b.z - a.z);
+      sortedTrees.forEach(t => {
+        let treeY = horizonY + (1 - t.z) * (h - horizonY);
+        let scale = 0.25 + (1 - t.z) * 1.1;
+        let roadWAtZ = roadTopWidth + (1 - t.z) * (roadBottomWidth - roadTopWidth);
+        let treeX = vanishingX + t.side * (roadWAtZ / 2 + 30 * scale + 15);
+
+        ctx.save();
+        ctx.font = `${Math.round(56 * scale)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(t.type, treeX, treeY);
+        ctx.restore();
+      });
+
+      // 4. OBJETO DESCUBIERTO O GRAN CASTILLO MÁGICO EN 3D
+      const z = stage3D.objectZ;
+      const objY = horizonY + (1 - z) * (h - horizonY - 45);
+      const objScale = 0.2 + (1 - z) * 1.15;
+      const objX = vanishingX;
+
+      ctx.save();
+      const haloRadius = Math.max(10, (40 + Math.sin(stage3D.frame * 0.12) * 8) * objScale);
+      const glowGrad = ctx.createRadialGradient(objX, objY - 25 * objScale, 5, objX, objY - 25 * objScale, haloRadius);
+      glowGrad.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
+      glowGrad.addColorStop(0.6, 'rgba(255, 159, 67, 0.6)');
+      glowGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(objX, objY - 25 * objScale, haloRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sombra 3D del objeto
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.beginPath();
+      ctx.ellipse(objX, objY, 28 * objScale, 10 * objScale, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Resetear fillStyle a sólido para dibujar el ícono del objeto sin transparencia
+      ctx.fillStyle = '#000000';
+      ctx.globalAlpha = 1.0;
+
+      const targetEmoji = (targetItem && targetItem.emoji) ? targetItem.emoji : '👞';
+      const objFloat = Math.sin(stage3D.frame * 0.1) * (6 * objScale);
+
+      if (targetItem && targetItem.isCastleChapter) {
+        ctx.font = `${Math.round(95 * objScale)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText('🏰', objX, objY - 15 * objScale);
+
+        if (stage3D.isCastleOpening && !stage3D.isCastleClosedInside) {
+          ctx.font = `${Math.round(34 * objScale)}px serif`;
+          ctx.fillText('✨🚪✨', objX, objY - 8 * objScale);
+        }
+      } else if (targetItem && targetItem.word === 'VERDE') {
+        drawGreenGem3D(ctx, objX, objY - 20 * objScale + objFloat, objScale);
+      } else {
+        ctx.font = `${Math.round(62 * objScale)}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(targetEmoji, objX, objY - 15 * objScale + objFloat);
+      }
+      ctx.restore();
+
+      // 5. PERSONAJES PRINCIPALES (SANTI 🧑‍🚀 Y MASCOTA 🐶) EN PRIMER PLANO O ENTRANDO AL CASTILLO
+      if (!stage3D.isCastleClosedInside) {
+        let walkProgress = stage3D.heroCastleWalkZ || 0;
+        
+        let heroX = vanishingX - 35 * (1 - walkProgress * 0.8);
+        let petX = vanishingX + 35 * (1 - walkProgress * 0.8);
+        let heroY = (h - 25 - stage3D.heroJumpY) - walkProgress * (h - horizonY - 15);
+        let petY = (h - 25) - walkProgress * (h - horizonY - 15);
+        
+        let heroAlpha = Math.max(0, 1 - walkProgress * 1.2);
+
+        let walkRot = 0;
+        let walkBounce = 0;
+        if (stage3D.isWalking || stage3D.isCastleOpening) {
+          const cycle = Math.sin(stage3D.frame * 0.3);
+          walkBounce = Math.abs(cycle) * 10;
+          walkRot = cycle * 0.1;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = heroAlpha;
+
+        // Sombras de los personajes
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        const shadowSize = (1 - walkProgress * 0.7) * Math.max(0.3, 1 - stage3D.heroJumpY / 60);
+        ctx.beginPath();
+        ctx.ellipse(heroX, heroY + 3, 22 * shadowSize, 8 * shadowSize, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.ellipse(petX, petY + 3, 16 * shadowSize, 6 * shadowSize, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Resetear fillStyle a sólido para dibujar los personajes (Santi y Mascota) nítidos
+        ctx.fillStyle = '#000000';
+
+        // Mascota (🐶)
+        ctx.font = `${Math.round(36 * (1 - walkProgress * 0.5))}px serif`;
+        ctx.textAlign = 'center';
+        const petBounce = (stage3D.isWalking || stage3D.isCastleOpening) ? Math.sin(stage3D.frame * 0.35) * 6 : 0;
+        ctx.fillText(gameState.pet || '🐶', petX, petY - 12 - petBounce);
+
+        // Santi (🧑‍🚀)
+        ctx.save();
+        ctx.translate(heroX, heroY - 16 - walkBounce);
+        ctx.rotate(walkRot);
+        ctx.font = `${Math.round(64 * (1 - walkProgress * 0.5))}px serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(gameState.avatar || '🧑‍🚀', 0, 0);
+        ctx.restore();
+
+        ctx.restore();
+      }
+
+      // 6. PARTÍCULAS 3D FLOTANTES
+      stage3D.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.font = `${p.size}px serif`;
+        ctx.fillText(p.shape, p.x, p.y);
+        ctx.restore();
+      });
+    }
+
+    function gameLoop3D() {
+      update3DEngine();
+      draw3DScene();
+      requestAnimationFrame(gameLoop3D);
+    }
+
+    setTimeout(() => {
+      resizeCanvas();
+      requestAnimationFrame(gameLoop3D);
+    }, 100);
+
+    if (canvas) {
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        spawnParticles(clickX, e.clientY - rect.top, 12);
+        if (stage3D.objectZ <= 0.2) {
+          speakCurrentTarget();
+        } else {
+          speakCurrentStoryNarration();
+        }
+      });
+    }
+
+    let isAppInitialized = false;
+    function initApp() {
+      if (isAppInitialized) return;
+      isAppInitialized = true;
+      switchScreen('map');
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+  <!-- MODAL INDEPENDIENTE DE SELECCIÓN DE NOMBRE DE ALUMNO / NIÑO -->
+  <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 99999;">
+    <div style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 3px solid #4A90E2; max-width: 380px; width: 90%; margin: auto; padding: 22px; border-radius: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <div style="font-size: 55px; margin-bottom: 4px;">🧑‍🚀</div>
+      <h2 style="font-size: 22px; color: #4A90E2; margin-bottom: 4px;">¡Hola Explorador/a!</h2>
+      <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">Ingresa tu nombre para personalizar tu aventura:</p>
+      
+      <input type="text" id="modal-student-name-input" class="input-text" placeholder="Ej: Sofía, Mateo, Lucas..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 12px; border: 2px solid #4A90E2; border-radius: 14px; margin-bottom: 16px; width: 100%; box-sizing: border-box;" onkeypress="if(event.key === 'Enter') confirmStudentNameFromModal()" />
+      
+      <div style="display: flex; gap: 8px;">
+        <button onclick="confirmStudentNameFromModal()" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(46,204,113,0.3);">
+          🚀 ¡Ingresar y Comenzar!
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
