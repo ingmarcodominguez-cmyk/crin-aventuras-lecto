@@ -1,0 +1,4 @@
+# Ignorar archivos temporales de pruebas de audio
+scratch/
+.DS_Store
+Thumbs.db
