@@ -9,11 +9,19 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
+    const CURRENT_APP_VERSION = 'v98';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
       });
     }
+    try {
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+    } catch(e) {}
   </script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
