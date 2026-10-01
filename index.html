@@ -995,7 +995,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v88</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v89</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1195,7 +1195,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v88</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v89</span>
         </div>
         
         <div class="panel-card">
@@ -2341,6 +2341,7 @@
 
     let studentName = '';
     let customWordsList = [];
+    let savedTasksBank = [];
 
     function splitSpanishSyllables(word) {
       word = word.toUpperCase().trim();
@@ -3732,106 +3733,112 @@
     }
 
     function finalizeTeacherTask() {
-      const wordInput = document.getElementById('new-word-input');
-
-      if ((!draftWordsData || draftWordsData.length === 0) && wordInput && wordInput.value.trim()) {
-        const rawWords = wordInput.value.split(/[,;\n]+/);
-        const parsedWords = [];
-        rawWords.forEach(w => {
-          const clean = w.trim().toUpperCase();
-          if (clean && !parsedWords.includes(clean)) parsedWords.push(clean);
-        });
-        if (parsedWords.length > 0) {
-          draftWordsData = parsedWords.map((word, idx) => {
-            const syllables = splitSpanishSyllables(word);
-            const emoji = getEmojiForWord(word);
-            const sentence = getSentenceForWord(word, idx);
-            const storyObj = getStoryForWord(word, syllables, emoji, idx);
-            return {
-              word: word,
-              syllables: syllables,
-              emoji: emoji,
-              sentence: sentence,
-              storyTitle: storyObj.chapterTitle || `📜 Cap. ${idx + 1}: ${word}`,
-              storyNarration: storyObj.narration || ''
-            };
-          });
-        }
-      }
-
-      if (!draftWordsData || draftWordsData.length === 0) {
-        alert('⚠️ Por favor escribe las palabras de la tarea en el cuadro de texto antes de aprobar y activar.');
-        return;
-      }
-
-      if (typeof saveCurrentWizardInput === 'function') {
-        try { saveCurrentWizardInput(); } catch(e) {}
-      }
-
-      draftWordsData.forEach((item, idx) => {
-        const sentenceInp = document.getElementById(`draft-sentence-input-${idx}`);
-        const titleInp = document.getElementById(`draft-story-title-${idx}`);
-        const textInp = document.getElementById(`draft-story-narration-${idx}`);
-
-        if (sentenceInp && sentenceInp.value !== undefined && sentenceInp.value.trim()) {
-          item.sentence = sentenceInp.value.trim();
-        }
-        if (titleInp && titleInp.value !== undefined && titleInp.value.trim()) {
-          item.storyTitle = titleInp.value.trim();
-        }
-        if (textInp && textInp.value !== undefined && textInp.value.trim()) {
-          item.storyNarration = textInp.value.trim();
-        }
-
-        item.sentence = sanitizeTextForBank(item.sentence || '');
-        item.storyNarration = sanitizeTextForBank(item.storyNarration || '');
-      });
-
-      customWordsList = JSON.parse(JSON.stringify(draftWordsData));
-
-      const wordsKey = customWordsList.map(w => w.word).join(', ');
-      const existingIdx = savedTasksBank.findIndex(t => t.wordsSummary === wordsKey);
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-      const taskRecord = {
-        id: 'task_' + Date.now(),
-        studentName: 'Tarea Genérica',
-        wordsSummary: wordsKey,
-        wordsData: JSON.parse(JSON.stringify(customWordsList)),
-        createdAt: dateStr
-      };
-
-      if (existingIdx >= 0) {
-        savedTasksBank[existingIdx] = taskRecord;
-      } else {
-        savedTasksBank.unshift(taskRecord);
-      }
-
-      activeTaskPackId = 'custom';
       try {
-        localStorage.setItem('crin_active_task_pack', 'custom');
-      } catch(e) {}
+        if (!Array.isArray(savedTasksBank)) savedTasksBank = [];
+        const wordInput = document.getElementById('new-word-input');
 
-      saveTherapistToLocalStorage();
-      renderCustomWordTags();
-      populateTaskSelectOptions();
-      renderSavedTasksBank();
-      updateActiveTaskPackUI();
-      buildActiveDatasets();
+        if ((!draftWordsData || draftWordsData.length === 0) && wordInput && wordInput.value.trim()) {
+          const rawWords = wordInput.value.split(/[,;\n]+/);
+          const parsedWords = [];
+          rawWords.forEach(w => {
+            const clean = w.trim().toUpperCase();
+            if (clean && !parsedWords.includes(clean)) parsedWords.push(clean);
+          });
+          if (parsedWords.length > 0) {
+            draftWordsData = parsedWords.map((word, idx) => {
+              const syllables = splitSpanishSyllables(word);
+              const emoji = getEmojiForWord(word);
+              const sentence = getSentenceForWord(word, idx);
+              const storyObj = getStoryForWord(word, syllables, emoji, idx);
+              return {
+                word: word,
+                syllables: syllables,
+                emoji: emoji,
+                sentence: sentence,
+                storyTitle: storyObj.chapterTitle || `📜 Cap. ${idx + 1}: ${word}`,
+                storyNarration: storyObj.narration || ''
+              };
+            });
+          }
+        }
 
-      if (wordInput) wordInput.value = '';
+        if (!draftWordsData || draftWordsData.length === 0) {
+          alert('⚠️ Por favor escribe las palabras de la tarea en el cuadro de texto antes de aprobar y activar.');
+          return;
+        }
 
-      const draftSec = document.getElementById('teacher-draft-section');
-      if (draftSec) draftSec.style.display = 'none';
+        if (typeof saveCurrentWizardInput === 'function') {
+          try { saveCurrentWizardInput(); } catch(e) {}
+        }
 
-      draftWordsData = [];
+        draftWordsData.forEach((item, idx) => {
+          const sentenceInp = document.getElementById(`draft-sentence-input-${idx}`);
+          const titleInp = document.getElementById(`draft-story-title-${idx}`);
+          const textInp = document.getElementById(`draft-story-narration-${idx}`);
 
-      const currentChild = (studentName && studentName.trim() && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName.trim() : 'Aventurero';
+          if (sentenceInp && sentenceInp.value !== undefined && sentenceInp.value.trim()) {
+            item.sentence = sentenceInp.value.trim();
+          }
+          if (titleInp && titleInp.value !== undefined && titleInp.value.trim()) {
+            item.storyTitle = titleInp.value.trim();
+          }
+          if (textInp && textInp.value !== undefined && textInp.value.trim()) {
+            item.storyNarration = textInp.value.trim();
+          }
 
-      alert(`🎓 ¡Tarea Semanal (${wordsKey}) Aprobada y Activada!\n\nSe ha activado en la aplicación para ${currentChild} y se guardó en el Banco de Tareas.`);
+          item.sentence = sanitizeTextForBank(item.sentence || '');
+          item.storyNarration = sanitizeTextForBank(item.storyNarration || '');
+        });
 
-      showScreen('screen-map');
+        customWordsList = JSON.parse(JSON.stringify(draftWordsData));
+
+        const wordsKey = customWordsList.map(w => w.word).join(', ');
+        const existingIdx = savedTasksBank.findIndex(t => t && t.wordsSummary === wordsKey);
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+        const taskRecord = {
+          id: 'task_' + Date.now(),
+          studentName: 'Tarea Genérica',
+          wordsSummary: wordsKey,
+          wordsData: JSON.parse(JSON.stringify(customWordsList)),
+          createdAt: dateStr
+        };
+
+        if (existingIdx >= 0) {
+          savedTasksBank[existingIdx] = taskRecord;
+        } else {
+          savedTasksBank.unshift(taskRecord);
+        }
+
+        activeTaskPackId = 'custom';
+        try {
+          localStorage.setItem('crin_active_task_pack', 'custom');
+        } catch(e) {}
+
+        saveTherapistToLocalStorage();
+        renderCustomWordTags();
+        populateTaskSelectOptions();
+        renderSavedTasksBank();
+        updateActiveTaskPackUI();
+        buildActiveDatasets();
+
+        if (wordInput) wordInput.value = '';
+
+        const draftSec = document.getElementById('teacher-draft-section');
+        if (draftSec) draftSec.style.display = 'none';
+
+        draftWordsData = [];
+
+        const currentChild = (studentName && studentName.trim() && studentName !== 'Santi' && studentName !== 'Aventurero') ? studentName.trim() : 'Aventurero';
+
+        alert(`🎓 ¡Tarea Semanal (${wordsKey}) Aprobada y Activada!\n\nSe ha activado en la aplicación para ${currentChild} y se guardó en el Banco de Tareas.`);
+
+        showScreen('screen-map');
+      } catch(err) {
+        console.error('Error en finalizeTeacherTask:', err);
+        alert('⚠️ Ocurrió un inconveniente al aprobar la tarea: ' + err.message);
+      }
     }
 
     function loadSavedTaskFromBank(taskId) {
