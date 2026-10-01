@@ -1198,18 +1198,13 @@
             <input type="text" id="new-word-input" class="input-text" placeholder="Ej: LANA, LENTA, LINDA, LOMA" />
             <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">💡 Escribe las palabras separadas por coma. El sistema construirá el borrador completo para tu validación.</span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-            <button class="btn-primary" onclick="finalizeTeacherTask()" style="width: 100%; font-size: 13px; padding: 12px 10px; background: linear-gradient(135deg, #9B59B6, #8E44AD); font-weight: bold; border-radius: 12px; box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3);">
-              🚀 Aprobar y Activar Tarea Semanal
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn-primary" onclick="generateTeacherDraft()" style="flex: 1; font-size: 13px; padding: 12px 10px; background: linear-gradient(135deg, #FF9F43, #EE5253); font-weight: bold;">
+              ✨ Generar / Personalizar Tarea
             </button>
-            <div style="display: flex; gap: 8px;">
-              <button class="btn-primary" onclick="generateTeacherDraft()" style="flex: 1; font-size: 12px; padding: 10px 8px; background: linear-gradient(135deg, #FF9F43, #EE5253);">
-                ✨ Personalizar Frases/Cuento
-              </button>
-              <button class="btn-primary" onclick="startGuidedDictationWizard()" style="flex: 1; font-size: 12px; padding: 10px 8px; background: linear-gradient(135deg, #10B981, #059669);">
-                🎙️ Dictar por Voz
-              </button>
-            </div>
+            <button class="btn-primary" onclick="startGuidedDictationWizard()" style="flex: 1; font-size: 13px; padding: 12px 10px; background: linear-gradient(135deg, #10B981, #059669); font-weight: bold;">
+              🎙️ Dictar por Voz
+            </button>
           </div>
         </div>
 
@@ -1229,9 +1224,14 @@
             </p>
             <div id="draft-sentences-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
             
-            <button class="btn-primary" onclick="proceedToStep2Story()" style="width: 100%; margin-top: 14px; background: #2ECC71;">
-              ✅ Validar Frases y Pasar al Cuento ➡️
-            </button>
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <button class="btn-primary" onclick="proceedToStep2Story()" style="flex: 1; background: #2ECC71;">
+                ✅ Ir a Editar Cuento ➡️
+              </button>
+              <button class="btn-primary" onclick="finalizeTeacherTask()" style="flex: 1; background: linear-gradient(135deg, #9B59B6, #8E44AD);">
+                🚀 Aprobar y Activar Tarea
+              </button>
+            </div>
           </div>
 
           <!-- PASO 2: REVISIÓN Y COHERENCIA DEL CUENTO MÁGICO -->
@@ -1248,11 +1248,11 @@
             <div id="draft-story-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
             
             <div style="display: flex; gap: 8px; margin-top: 14px;">
-              <button onclick="backToStep1Sentences()" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 8px 12px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; color: #475569;">
+              <button onclick="backToStep1Sentences()" style="background: #F1F5F9; border: 1px solid #CBD5E1; padding: 10px 14px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; color: #475569;">
                 ⬅️ Volver a Frases
               </button>
-              <button class="btn-primary" onclick="finalizeTeacherTask()" style="flex: 1; background: linear-gradient(135deg, #9B59B6, #8E44AD);">
-                🚀 Aprobar y Activar Tarea Semanal
+              <button class="btn-primary" onclick="finalizeTeacherTask()" style="flex: 1; background: linear-gradient(135deg, #9B59B6, #8E44AD); font-weight: bold; font-size: 13px; padding: 12px;">
+                🚀 Aprobar, Guardar y Activar Tarea
               </button>
             </div>
           </div>
@@ -3754,14 +3754,27 @@
         return;
       }
 
+      if (typeof saveCurrentWizardInput === 'function') {
+        try { saveCurrentWizardInput(); } catch(e) {}
+      }
+
       draftWordsData.forEach((item, idx) => {
+        const sentenceInp = document.getElementById(`draft-sentence-input-${idx}`);
         const titleInp = document.getElementById(`draft-story-title-${idx}`);
         const textInp = document.getElementById(`draft-story-narration-${idx}`);
-        if (titleInp && titleInp.value.trim()) item.storyTitle = titleInp.value.trim();
-        if (textInp && textInp.value.trim()) item.storyNarration = textInp.value.trim();
 
-        item.sentence = sanitizeTextForBank(item.sentence);
-        item.storyNarration = sanitizeTextForBank(item.storyNarration);
+        if (sentenceInp && sentenceInp.value !== undefined && sentenceInp.value.trim()) {
+          item.sentence = sentenceInp.value.trim();
+        }
+        if (titleInp && titleInp.value !== undefined && titleInp.value.trim()) {
+          item.storyTitle = titleInp.value.trim();
+        }
+        if (textInp && textInp.value !== undefined && textInp.value.trim()) {
+          item.storyNarration = textInp.value.trim();
+        }
+
+        item.sentence = sanitizeTextForBank(item.sentence || '');
+        item.storyNarration = sanitizeTextForBank(item.storyNarration || '');
       });
 
       customWordsList = JSON.parse(JSON.stringify(draftWordsData));
