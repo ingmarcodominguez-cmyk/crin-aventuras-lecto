@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v113';
+    const CURRENT_APP_VERSION = 'v114';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -82,6 +82,135 @@
         height: 90vh;
         border-radius: 36px;
         border: 12px solid #2d2d44;
+      }
+    }
+
+    
+    /* 💻 ADAPTACIÓN PARA COMPUTADORAS DE ESCRITORIO Y NOTEBOOKS (ANCHO COMPLETO) */
+    @media (min-width: 768px) {
+      .app-container {
+        max-width: 1080px !important;
+        width: 95vw !important;
+        height: 94vh !important;
+        max-height: 920px !important;
+        border-radius: 28px !important;
+        border: 8px solid #2d2d44 !important;
+      }
+
+      /* LAYOUT DE 2 COLUMNAS RESPONSIVAS EN EL JUEGO PARA NOTEOOK (ZERO SCROLL) */
+      .game-screen-container {
+        overflow-y: hidden !important;
+        height: 100% !important;
+      }
+
+      .game-layout-grid {
+        display: grid !important;
+        grid-template-columns: 1.1fr 0.9fr !important;
+        gap: 14px !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        align-items: stretch !important;
+      }
+
+      .game-left-col {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        height: 100% !important;
+        min-height: 0 !important;
+      }
+
+      .game-right-col {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        min-height: 0 !important;
+      }
+
+      .adventure-stage-wrap {
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 180px !important;
+        margin-bottom: 0 !important;
+      }
+
+      .challenge-card {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-around !important;
+        padding: 12px !important;
+      }
+
+      .big-picto-card {
+        width: clamp(100px, 14vw, 130px) !important;
+        height: clamp(80px, 12vh, 100px) !important;
+      }
+
+      .big-picto-emoji {
+        font-size: clamp(45px, 6vh, 60px) !important;
+      }
+    }
+
+    /* 📱 ADAPTACIÓN COMPACTA ZERO-SCROLL PARA TELÉFONOS */
+    @media (max-width: 767px) {
+      .game-screen-container {
+        overflow-y: hidden !important;
+        height: 100% !important;
+        justify-content: space-between !important;
+      }
+
+      .game-layout-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        justify-content: space-between !important;
+      }
+
+      .game-left-col, .game-right-col {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .adventure-stage-wrap {
+        height: clamp(95px, 15vh, 135px) !important;
+        min-height: 95px !important;
+        margin-bottom: 4px !important;
+      }
+
+      .story-banner {
+        padding: 4px 8px !important;
+        margin-bottom: 4px !important;
+      }
+
+      .story-banner .story-icon { font-size: 18px !important; }
+      .story-banner .story-text { font-size: 11px !important; }
+
+      .big-picto-card {
+        height: clamp(40px, 7vh, 55px) !important;
+        width: clamp(65px, 15vw, 80px) !important;
+      }
+
+      .big-picto-emoji {
+        font-size: clamp(24px, 4vh, 34px) !important;
+      }
+
+      .slot {
+        min-width: 32px !important;
+        height: 34px !important;
+        font-size: 15px !important;
+      }
+
+      .letter-btn {
+        min-width: 36px !important;
+        height: 36px !important;
+        font-size: 16px !important;
+      }
+
+      .challenge-card {
+        padding: 4px 6px !important;
       }
     }
 
@@ -1007,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v113</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v114</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1069,12 +1198,12 @@
         </div>
       </div>
 
-      <!-- 🎮 SCREEN 2: JUEGO ESTILO VIDEOJUEGO DE AVENTURA 2D -->
+      <!-- 🎮 SCREEN 2: JUEGO ESTILO VIDEOJUEGO DE AVENTURA (DISEÑO ZERO-SCROLL RESPONSIVO V114) -->
       <div id="screen-game" class="screen">
         <div class="game-screen-container">
           
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <button onclick="switchScreen('map')" style="background:none; border:none; font-size:16px; font-weight:bold; color:#64748B; cursor:pointer;">⬅️ Salir</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0;">
+            <button onclick="switchScreen('map')" style="background:none; border:none; font-size:15px; font-weight:bold; color:#64748B; cursor:pointer;">⬅️ Salir</button>
             <div style="text-align: center;">
               <div id="quest-mode-title" style="font-size: 13px; font-weight: bold; color: var(--primary);">📖 El Cuento Mágico del Bosque</div>
               <div id="quest-category" style="font-size: 11px; font-weight: 600; color: #64748B;">Desafío 1/4</div>
@@ -1082,58 +1211,69 @@
             <button class="btn-fullscreen" onclick="toggleFullscreen()">⛶ Fullscreen</button>
           </div>
 
-          <!-- 📜 BANNER PERGAMINO NARRADOR DE CUENTO -->
-          <div class="story-banner" id="story-banner-card" style="display: none;">
-            <span class="story-icon">📜</span>
-            <span class="story-text" id="story-text-content">Había una vez un valiente explorador que caminaba por un bosque mágico...</span>
-            <button class="btn-listen-story" onclick="speakCurrentStoryNarration()">
-              <span>🔊 Oír Cuento</span>
-            </button>
-          </div>
-
-          <!-- 🏃 ESCENARIO 3D EN PERSPECTIVA (ÚNICAMENTE EN EL CUENTO MÁGICO) -->
-          <div class="adventure-stage-wrap" id="stage-3d-wrap">
-            <canvas id="game-stage-canvas" style="width: 100%; height: 100%; display: block; cursor: pointer;"></canvas>
-            <div class="encounter-bubble" id="encounter-bubble" style="display: none; position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10; background: white; border: 3px solid #FF9F43; border-radius: 16px; padding: 8px 18px; font-size: 14px; font-weight: bold; color: #2D3436; box-shadow: 0 6px 20px rgba(0,0,0,0.25); text-align: center; white-space: nowrap;">✨ ¿Qué encontró Santi?</div>
-          </div>
-
-          <!-- 🎨 ESCENARIO 2D LIMPIO CON OBJETO / ILUSTRACIÓN GRANDE (PARA LETRAS, SÍLABAS Y CASTILLO) -->
-          <div id="stage-2d-display" style="display: none; width: 100%; height: 180px; background: linear-gradient(135deg, #74B9FF 0%, #A8E6CF 100%); border-radius: 20px; margin-bottom: 12px; align-items: center; justify-content: center; position: relative; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 4px solid white; cursor: pointer;" onclick="speakCurrentTarget()">
-            <div style="font-size: 85px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2));" id="stage-2d-emoji">💎</div>
-            <div style="position: absolute; bottom: 10px; background: rgba(255,255,255,0.9); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; color: #2D3436; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">🔊 Toca para escuchar la palabra</div>
-          </div>
-
-          <!-- 🧩 TARJETA DE DESAFÍO CON PICTOGRAMA GIGANTE -->
-          <div class="challenge-card">
+          <!-- RECIPIENTE RESPONSIVO: 2 COLUMNAS EN NOTEBOOK / 1 COLUMNA EN CELULAR -->
+          <div class="game-layout-grid">
             
-            <div class="sentence-box" id="sentence-box" style="display: none;">
-              El <span style="color: var(--primary); text-decoration: underline;">___</span> ladra en el jardín.
-            </div>
-
-            <!-- 🌟 GRAPHIC / PICTOGRAMA GIGANTE PARA ALTA VISIBILIDAD DE LA PALABRA -->
-            <div class="big-picto-card" id="big-picto-box" onclick="speakCurrentTarget()">
-              <span class="big-picto-emoji" id="picto-emoji">🐶</span>
-              <div class="speaker-badge-sub">🔊 Toca para escuchar</div>
-            </div>
-
-            <!-- Espacios para Letras o Sílabas -->
-            <div class="word-slots" id="word-slots"></div>
-
-            <!-- Botón de Borrar / Deshacer -->
-            <div style="display: flex; justify-content: center; margin: 4px 0 8px 0;">
-              <button class="action-btn btn-erase" onclick="eraseLastSlot()">
-                <span>⌫ Borrar última</span>
-              </button>
-            </div>
-
-            <!-- Teclas de letras o sílabas para elegir con Capa de Bloqueo mientras Narra -->
-            <div class="letters-pool-wrap" style="position: relative; width: 100%;">
-              <div class="narration-lock-overlay" id="narration-lock-overlay" style="display: none;">
-                <span style="font-size: 22px;">🎧</span>
-                <span>Escuchando el cuento...</span>
+            <!-- COLUMNA IZQUIERDA (CUENTO Y ESCENARIO 3D/2D) -->
+            <div class="game-left-col">
+              <!-- 📜 BANNER PERGAMINO NARRADOR DE CUENTO -->
+              <div class="story-banner" id="story-banner-card" style="display: none;">
+                <span class="story-icon">📜</span>
+                <span class="story-text" id="story-text-content">Había una vez un valiente explorador que caminaba por un bosque mágico...</span>
+                <button class="btn-listen-story" onclick="speakCurrentStoryNarration()">
+                  <span>🔊 Oír Cuento</span>
+                </button>
               </div>
-              <div class="letters-pool" id="letters-pool"></div>
+
+              <!-- 🏃 ESCENARIO 3D EN PERSPECTIVA -->
+              <div class="adventure-stage-wrap" id="stage-3d-wrap">
+                <canvas id="game-stage-canvas" style="width: 100%; height: 100%; display: block; cursor: pointer;"></canvas>
+                <div class="encounter-bubble" id="encounter-bubble" style="display: none; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; background: white; border: 3px solid #FF9F43; border-radius: 14px; padding: 6px 14px; font-size: 13px; font-weight: bold; color: #2D3436; box-shadow: 0 4px 14px rgba(0,0,0,0.25); text-align: center; white-space: nowrap;">✨ ¿Qué encontró Santi?</div>
+              </div>
+
+              <!-- 🎨 ESCENARIO 2D LIMPIO (PARA LETRAS Y SÍLABAS) -->
+              <div id="stage-2d-display" style="display: none; width: 100%; flex: 1; min-height: 120px; background: linear-gradient(135deg, #74B9FF 0%, #A8E6CF 100%); border-radius: 20px; align-items: center; justify-content: center; position: relative; box-shadow: 0 6px 20px rgba(0,0,0,0.12); border: 3px solid white; cursor: pointer;" onclick="speakCurrentTarget()">
+                <div style="font-size: 75px; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.2));" id="stage-2d-emoji">💎</div>
+                <div style="position: absolute; bottom: 8px; background: rgba(255,255,255,0.9); padding: 3px 12px; border-radius: 16px; font-size: 11px; font-weight: bold; color: #2D3436;">🔊 Toca para escuchar</div>
+              </div>
             </div>
+
+            <!-- COLUMNA DERECHA (PICTOGRAMA, SLOTS, TECLAS Y BOTÓN BORRAR) -->
+            <div class="game-right-col">
+              <div class="challenge-card">
+                
+                <div class="sentence-box" id="sentence-box" style="display: none;">
+                  El <span style="color: var(--primary); text-decoration: underline;">___</span> ladra en el jardín.
+                </div>
+
+                <!-- PICTOGRAMA DE PALABRA -->
+                <div class="big-picto-card" id="big-picto-box" onclick="speakCurrentTarget()">
+                  <span class="big-picto-emoji" id="picto-emoji">🐶</span>
+                  <div class="speaker-badge-sub">🔊 Toca para escuchar</div>
+                </div>
+
+                <!-- Espacios para Letras o Sílabas -->
+                <div class="word-slots" id="word-slots"></div>
+
+                <!-- Botón de Borrar / Deshacer -->
+                <div style="display: flex; justify-content: center; margin: 2px 0 4px 0;">
+                  <button class="action-btn btn-erase" onclick="eraseLastSlot()" style="padding: 4px 10px; font-size: 11px;">
+                    <span>⌫ Borrar última</span>
+                  </button>
+                </div>
+
+                <!-- Teclas de letras o sílabas -->
+                <div class="letters-pool-wrap" style="position: relative; width: 100%;">
+                  <div class="narration-lock-overlay" id="narration-lock-overlay" style="display: none;">
+                    <span style="font-size: 20px;">🎧</span>
+                    <span>Escuchando el cuento...</span>
+                  </div>
+                  <div class="letters-pool" id="letters-pool"></div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -1246,7 +1386,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v113</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v114</span>
         </div>
         
         <div class="panel-card">
