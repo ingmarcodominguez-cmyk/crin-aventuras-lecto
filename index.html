@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v106';
+    const CURRENT_APP_VERSION = 'v107';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1004,7 +1004,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v106</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v107</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1222,7 +1222,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v106</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v107</span>
         </div>
         
         <div class="panel-card">
@@ -4265,7 +4265,9 @@
     // =========================================================================
     
     // =========================================================================
-    // SISTEMA MULTI-PERFIL DE NIÑOS POR NOMBRE Y APELLIDO (v105)
+    
+    // =========================================================================
+    // SISTEMA DE PERFILES DE NIÑOS POR INGRESO DE NOMBRE Y APELLIDO (v107)
     // =========================================================================
 
     let allChildProfiles = {};
@@ -4286,9 +4288,6 @@
           if (allChildProfiles[id].stars === undefined) allChildProfiles[id].stars = 0;
           if (allChildProfiles[id].unlockedSequenceIndex === undefined) {
             allChildProfiles[id].unlockedSequenceIndex = 0;
-          }
-          if (allChildProfiles[id].pin) {
-            delete allChildProfiles[id].pin;
           }
         }
       } catch(e) {
@@ -4325,7 +4324,6 @@
       if (coinCountEl) coinCountEl.innerText = activeChildProfile ? (activeChildProfile.coins || 0) : 0;
     }
 
-    // Tocar el perfil arriba en el header lleva al Héroe si ya está logueado
     function onHeaderProfileClick() {
       if (activeChildProfile) {
         switchScreen('avatar');
@@ -4336,106 +4334,54 @@
 
     function openStudentNameModal() {
       loadAllChildProfiles();
-      renderProfilesList();
-      const modal = document.getElementById('student-name-modal');
-      if (modal) modal.style.display = 'flex';
-    }
-
-    function renderProfilesList() {
-      const container = document.getElementById('profiles-list-container');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const keys = Object.keys(allChildProfiles);
-      if (keys.length === 0) {
-        container.innerHTML = `
-          <div style="background: #FFF9E6; border: 2px dashed #FDCB6E; border-radius: 16px; padding: 14px; text-align: center; color: #D35400; font-size: 13px; font-weight: bold;">
-            🐣 Aún no hay perfiles de niños registrados. Crea el primer perfil para comenzar.
-          </div>`;
-        return;
-      }
-
-      keys.forEach(id => {
-        const p = allChildProfiles[id];
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.style.cssText = 'width: 100%; background: #FFFFFF; border: 3px solid #74B9FF; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: transform 0.15s ease;';
-        btn.onclick = () => selectProfileForLogin(id);
-        btn.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 30px; width: 44px; height: 44px; background: #EBF5FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #74B9FF;">${p.avatar || '👦'}</div>
-            <div style="text-align: left;">
-              <div style="font-size: 16px; font-weight: 800; color: #2D3436;">${p.name}</div>
-              <div style="font-size: 11px; color: #636E72; font-weight: 600;">Toca para jugar</div>
-            </div>
-          </div>
-          <div style="font-size: 13px; font-weight: 800; color: #0984E3; background: #E1F5FE; padding: 6px 12px; border-radius: 12px;">
-            🪙 ${p.coins || 0} • ⭐ ${p.stars || 0}
-          </div>
-        `;
-        container.appendChild(btn);
-      });
-    }
-
-    // Al hacer clic en un niño de la lista, ingresa directo sin pedir emojis
-    function selectProfileForLogin(profileId) {
-      const p = allChildProfiles[profileId];
-      if (!p) return;
-
-      activeChildProfile = p;
-      saveActiveChildProfile();
-
-      const modal = document.getElementById('student-name-modal');
-      if (modal) modal.style.display = 'none';
-
-      // Narrar saludo sin signos de exclamación para evitar que el motor de voz diga "signo de exclamación"
-      speakText(`Bienvenido ${p.name}. Vamos a preparar tu héroe y acompañante.`);
-      switchScreen('avatar');
-    }
-
-    function openCreateProfileModal() {
-      const input = document.getElementById('new-profile-name-input');
+      const input = document.getElementById('student-login-name-input');
       if (input) input.value = '';
 
-      const modal = document.getElementById('create-profile-modal');
+      const modal = document.getElementById('student-name-modal');
       if (modal) modal.style.display = 'flex';
       setTimeout(() => { if (input) input.focus(); }, 150);
     }
 
-    function closeCreateProfileModal() {
-      const modal = document.getElementById('create-profile-modal');
-      if (modal) modal.style.display = 'none';
-    }
-
-    function confirmCreateProfileSubmit() {
-      const input = document.getElementById('new-profile-name-input');
+    function submitStudentLoginByText() {
+      const input = document.getElementById('student-login-name-input');
       let nameVal = input ? input.value.trim() : '';
 
       if (!nameVal) {
-        alert('Por favor ingresa el Nombre y Apellido del niño/a.');
+        alert('Por favor ingresa tu Nombre y Apellido para comenzar.');
         return;
       }
 
-      const profileId = 'child_' + Date.now();
-      const newProfile = {
-        id: profileId,
-        name: nameVal,
-        coins: 0,
-        stars: 0,
-        avatar: '🧑‍🚀',
-        pet: '🐶',
-        unlockedSequenceIndex: 0
-      };
+      // Normalizar clave del perfil para asociar historial existente
+      const profileId = 'p_' + nameVal.toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]/g, "_");
 
-      allChildProfiles[profileId] = newProfile;
-      activeChildProfile = newProfile;
+      loadAllChildProfiles();
+
+      if (allChildProfiles[profileId]) {
+        // PERFIL EXISTENTE: Cargar su historial y monedas
+        activeChildProfile = allChildProfiles[profileId];
+      } else {
+        // NUEVO PERFIL: Inicializar desde cero
+        activeChildProfile = {
+          id: profileId,
+          name: nameVal,
+          coins: 0,
+          stars: 0,
+          avatar: '🧑‍🚀',
+          pet: '🐶',
+          unlockedSequenceIndex: 0
+        };
+        allChildProfiles[profileId] = activeChildProfile;
+      }
+
       saveActiveChildProfile();
 
-      closeCreateProfileModal();
-      const mainModal = document.getElementById('student-name-modal');
-      if (mainModal) mainModal.style.display = 'none';
+      const modal = document.getElementById('student-name-modal');
+      if (modal) modal.style.display = 'none';
 
-      speakText(`Bienvenido ${nameVal}. Elige tu avatar y tu acompañante para la aventura.`);
+      speakText(`Bienvenido ${nameVal}. Vamos a preparar tu héroe y acompañante.`);
       switchScreen('avatar');
     }
 
@@ -4454,7 +4400,7 @@
       openStudentNameModal();
     }
 
-    // =========================================================================
+
     // LÓGICA DE SECUENCIA Y ADVERTENCIA DE SALTEO CON PENALIZACIÓN (v105)
     // =========================================================================
 
@@ -5354,43 +5300,19 @@
       initApp();
     }
   </script>
-      <!-- 1. MODAL DE SELECCIÓN DE PERFIL DE NIÑO POR NOMBRE Y APELLIDO -->
+        <!-- MODAL DE INGRESO POR NOMBRE Y APELLIDO (SIN LISTA PÚBLICA DE OTROS NIÑOS) -->
   <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
-    <div style="background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%); border: 4px solid #4A90E2; max-width: 480px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 6px rgba(74, 144, 226, 0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto;">
+    <div style="background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%); border: 4px solid #4A90E2; max-width: 480px; width: 95%; margin: auto; padding: 26px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 6px rgba(74, 144, 226, 0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto;">
       
       <div style="font-size: 54px; margin-bottom: 6px;">🌟</div>
-      <h2 style="font-size: 24px; color: #1E293B; font-weight: 800; margin-bottom: 4px;">¿Quién va a jugar hoy?</h2>
-      <p style="font-size: 14px; color: #64748B; margin-bottom: 18px; font-weight: 500;">Selecciona tu nombre o crea tu nuevo perfil:</p>
+      <h2 style="font-size: 24px; color: #1E293B; font-weight: 800; margin-bottom: 6px;">¡Hola Explorador/a!</h2>
+      <p style="font-size: 14px; color: #64748B; margin-bottom: 18px; font-weight: 500;">Ingresa tu <strong>Nombre y Apellido</strong> para acceder a tu historial y recompensas:</p>
 
-      <!-- Lista de perfiles de niños existentes -->
-      <div id="profiles-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 260px; overflow-y: auto; padding-right: 4px;">
-        <!-- Se llena dinámicamente con JS -->
-      </div>
+      <input type="text" id="student-login-name-input" class="input-text" placeholder="Ej: Luis Gómez, Sofía Pérez..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; background: #FFFFFF; color: #1E293B; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);" onkeypress="if(event.key === 'Enter') submitStudentLoginByText()" />
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button onclick="openCreateProfileModal()" style="width: 100%; background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); color: white; border: none; padding: 15px; border-radius: 18px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 6px 16px rgba(46,204,113,0.35); transition: transform 0.15s ease;">
-          ➕ Crear Nuevo Perfil de Niño/a
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. MODAL DE CREACIÓN DE NUEVO PERFIL (NOMBRE Y APELLIDO) -->
-  <div id="create-profile-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
-    <div style="background: #FFFFFF; border: 4px solid #2ECC71; max-width: 480px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-height: 92vh; overflow-y: auto;">
-      
-      <div style="font-size: 42px; margin-bottom: 6px;">✍️</div>
-      <h2 style="font-size: 22px; color: #1E293B; font-weight: 800; margin-bottom: 4px;">Crear Nuevo Perfil</h2>
-      <p style="font-size: 13px; color: #64748B; margin-bottom: 16px;">Ingresa el <strong>Nombre y Apellido</strong> del niño/a para diferenciarlo:</p>
-
-      <input type="text" id="new-profile-name-input" class="input-text" placeholder="Ej: Santino Gómez, Santino Martínez..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; background: #F8FAFC; color: #1E293B;" onkeypress="if(event.key === 'Enter') confirmCreateProfileSubmit()" />
-
-      <div style="display: flex; gap: 10px;">
-        <button onclick="closeCreateProfileModal()" style="flex: 1; background: #F1F5F9; border: 2px solid #CBD5E1; color: #475569; padding: 14px; border-radius: 14px; font-weight: bold; cursor: pointer;">
-          Cancelar
-        </button>
-        <button onclick="confirmCreateProfileSubmit()" style="flex: 2; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(46,204,113,0.35);">
-          🚀 Crear y Comenzar
+        <button onclick="submitStudentLoginByText()" style="width: 100%; background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 6px 16px rgba(46,204,113,0.35); transition: transform 0.15s ease;">
+          🚀 ¡Ingresar a la Aventura!
         </button>
       </div>
     </div>
