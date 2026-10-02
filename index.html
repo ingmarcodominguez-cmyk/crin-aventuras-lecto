@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v112';
+    const CURRENT_APP_VERSION = 'v113';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -266,6 +266,9 @@
 
     .screen.active {
       display: flex;
+    }
+    #screen-avatar.active {
+      display: flex !important;
     }
 
     @keyframes fadeIn {
@@ -1004,7 +1007,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v112</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v113</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1138,7 +1141,7 @@
 
       <!-- SCREEN 3: AVATAR CUSTOMIZER -->
             <!-- SCREEN 3: HÉROE Y ACOMPAÑANTE (DISEÑO RESPONSIVO COMPACTO DE 1 SOLA PANTALLA) -->
-      <div id="screen-avatar" class="screen" style="display: none; flex-direction: column; justify-content: space-between; height: 100%; padding: 8px 12px; box-sizing: border-box; overflow: hidden;">
+      <div id="screen-avatar" class="screen" style="flex-direction: column; justify-content: space-between; height: 100%; padding: 8px 12px; box-sizing: border-box; overflow-y: auto;">
         
         <div>
           <h2 style="font-size: 15px; font-weight: 800; color: #1E293B; margin: 0 0 6px 0; text-align: center;">🧙 Prepara tu Héroe y Acompañante</h2>
@@ -1243,7 +1246,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v112</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v113</span>
         </div>
         
         <div class="panel-card">
