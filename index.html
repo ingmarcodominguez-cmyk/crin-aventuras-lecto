@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v104';
+    const CURRENT_APP_VERSION = 'v105';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -979,7 +979,7 @@
   <div class="app-container">
     <!-- Header Bar -->
     <div class="header">
-      <div class="user-info" onclick="openStudentNameModal()" style="cursor: pointer;" title="Toca para cambiar el nombre del niño/a">
+      <div class="user-info" onclick="onHeaderProfileClick()" style="cursor: pointer;" title="Toca para ver o cambiar tu Héroe y Acompañante">
         <div class="avatar-mini" id="header-avatar-btn">🧑‍🚀</div>
         <div>
           <div style="font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 4px;" id="user-name">Santi ✏️</div>
@@ -1004,7 +1004,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v104</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v105</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1178,7 +1178,10 @@
           </div>
         </div>
         <button onclick="saveHeroAndGoToMap()" style="width: 100%; background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 6px 18px rgba(46,204,113,0.4); margin-top: 16px; transition: transform 0.15s ease;">
-          🚀 ¡Continuar a las Actividades!
+          🚀 Continuar a las Actividades
+        </button>
+        <button onclick="logoutStudent()" style="width: 100%; background: #F1F5F9; border: 2px solid #CBD5E1; color: #64748B; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px;">
+          🚪 Cerrar Sesión / Cambiar Niño
         </button>
       </div>
 
@@ -1219,7 +1222,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v104</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v105</span>
         </div>
         
         <div class="panel-card">
@@ -2494,10 +2497,13 @@
 
         gameState.stars += 10;
         gameState.coins += 5;
-        const starCountEl = document.getElementById('star-count');
-        const coinCountEl = document.getElementById('coin-count');
-        if (starCountEl) starCountEl.innerText = gameState.stars;
-        if (coinCountEl) coinCountEl.innerText = gameState.coins;
+        if (activeChildProfile) {
+          activeChildProfile.stars = (activeChildProfile.stars || 0) + 10;
+          activeChildProfile.coins = (activeChildProfile.coins || 0) + 5;
+          saveActiveChildProfile();
+        } else {
+          updateStatsUI();
+        }
 
         setTimeout(() => {
           const winModal = document.getElementById('win-modal');
@@ -2514,12 +2520,18 @@
 
       if (gameState.currentWordIndex >= dataset.length) {
         const currentIdx = activitySequence.indexOf(gameState.currentMode);
-        if (currentIdx !== -1 && currentIdx < activitySequence.length - 1) {
-          const nextMode = activitySequence[currentIdx + 1];
-          startQuest(nextMode);
-        } else {
-          speakText('¡Felicidades! Completaste todas las misiones de la tarea semanal.');
-          switchScreen('map');
+        if (currentIdx !== -1) {
+          if (activeChildProfile) {
+            activeChildProfile.unlockedSequenceIndex = Math.max(activeChildProfile.unlockedSequenceIndex || 0, currentIdx + 1);
+            saveActiveChildProfile();
+          }
+          if (currentIdx < activitySequence.length - 1) {
+            const nextMode = activitySequence[currentIdx + 1];
+            startQuest(nextMode);
+          } else {
+            speakText('Felicidades. Completaste todas las misiones de la tarea semanal.');
+            switchScreen('map');
+          }
         }
       } else {
         loadCurrentWord();
@@ -4251,18 +4263,13 @@
 
     
     // =========================================================================
-    // SISTEMA MULTI-PERFIL DE NIÑOS PROTEGIDO POR CÓDIGO DE 2 EMOJIS (v104)
+    
     // =========================================================================
-
-    const EMOJI_PIN_OPTIONS = ['🐶', '🚀', '🦁', '⭐', '🐉', '🦄', '🐱', '🍕', '🎨', '⚽', '🍦', '👑'];
+    // SISTEMA MULTI-PERFIL DE NIÑOS POR NOMBRE Y APELLIDO (v105)
+    // =========================================================================
 
     let allChildProfiles = {};
     let activeChildProfile = null;
-
-    let pendingLoginProfileId = null;
-    let authPinInput = [];
-
-    let newProfilePinSelection = [];
     let pendingSkipTarget = null;
 
     function loadAllChildProfiles() {
@@ -4274,18 +4281,13 @@
           allChildProfiles = {};
         }
 
-        // RESETEAR A 0 TODOS LOS PREMIOS FICTICIOS EXISTENTES
         for (let id in allChildProfiles) {
-          allChildProfiles[id].coins = 0;
-          allChildProfiles[id].stars = 0;
-          if (!allChildProfiles[id].pin || !Array.isArray(allChildProfiles[id].pin) || allChildProfiles[id].pin.length !== 2) {
-            allChildProfiles[id].pin = ['🐶', '🚀'];
-          }
+          if (allChildProfiles[id].coins === undefined) allChildProfiles[id].coins = 0;
+          if (allChildProfiles[id].stars === undefined) allChildProfiles[id].stars = 0;
           if (allChildProfiles[id].unlockedSequenceIndex === undefined) {
             allChildProfiles[id].unlockedSequenceIndex = 0;
           }
         }
-        saveAllChildProfilesToLocalStorage();
       } catch(e) {
         allChildProfiles = {};
       }
@@ -4320,6 +4322,15 @@
       if (coinCountEl) coinCountEl.innerText = activeChildProfile ? (activeChildProfile.coins || 0) : 0;
     }
 
+    // Tocar el perfil arriba en el header lleva al Héroe si ya está logueado
+    function onHeaderProfileClick() {
+      if (activeChildProfile) {
+        switchScreen('avatar');
+      } else {
+        openStudentNameModal();
+      }
+    }
+
     function openStudentNameModal() {
       loadAllChildProfiles();
       renderProfilesList();
@@ -4336,7 +4347,7 @@
       if (keys.length === 0) {
         container.innerHTML = `
           <div style="background: #FFF9E6; border: 2px dashed #FDCB6E; border-radius: 16px; padding: 14px; text-align: center; color: #D35400; font-size: 13px; font-weight: bold;">
-            🐣 Aún no hay perfiles de niños registrados. ¡Crea el primer perfil para comenzar!
+            🐣 Aún no hay perfiles de niños registrados. Crea el primer perfil para comenzar.
           </div>`;
         return;
       }
@@ -4352,7 +4363,7 @@
             <div style="font-size: 30px; width: 44px; height: 44px; background: #EBF5FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #74B9FF;">${p.avatar || '👦'}</div>
             <div style="text-align: left;">
               <div style="font-size: 16px; font-weight: 800; color: #2D3436;">${p.name}</div>
-              <div style="font-size: 11px; color: #636E72; font-weight: 600;">🔒 Toca para ingresar con 2 Emojis</div>
+              <div style="font-size: 11px; color: #636E72; font-weight: 600;">Toca para jugar</div>
             </div>
           </div>
           <div style="font-size: 13px; font-weight: 800; color: #0984E3; background: #E1F5FE; padding: 6px 12px; border-radius: 12px;">
@@ -4363,132 +4374,34 @@
       });
     }
 
+    // Al hacer clic en un niño de la lista, ingresa directo sin pedir emojis
     function selectProfileForLogin(profileId) {
-      pendingLoginProfileId = profileId;
-      authPinInput = [];
       const p = allChildProfiles[profileId];
       if (!p) return;
 
-      const titleEl = document.getElementById('pin-target-name');
-      if (titleEl) titleEl.innerText = `¡Hola ${p.name}!`;
+      activeChildProfile = p;
+      saveActiveChildProfile();
 
-      updateAuthPinSlotsDisplay();
-      renderAuthPinGrid();
-
-      const modal = document.getElementById('emoji-pin-modal');
-      if (modal) modal.style.display = 'flex';
-
-      speakText(`¡Hola ${p.name}! Toca tus dos emojis secretos para ingresar a tu aventura.`);
-    }
-
-    function renderAuthPinGrid() {
-      const grid = document.getElementById('auth-pin-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      EMOJI_PIN_OPTIONS.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.style.cssText = 'font-size: 32px; width: 62px; height: 62px; border-radius: 18px; border: 2px solid #74B9FF; background: #FFFFFF; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: transform 0.15s ease;';
-        btn.onclick = () => inputAuthPinEmoji(emoji);
-        btn.innerText = emoji;
-        grid.appendChild(btn);
-      });
-    }
-
-    function inputAuthPinEmoji(emoji) {
-      if (authPinInput.length >= 2) return;
-      authPinInput.push(emoji);
-      updateAuthPinSlotsDisplay();
-      playPopSound();
-
-      if (authPinInput.length === 2) {
-        const p = allChildProfiles[pendingLoginProfileId];
-        if (p && p.pin && p.pin[0] === authPinInput[0] && p.pin[1] === authPinInput[1]) {
-          // CÓDIGO CORRECTO
-          activeChildProfile = p;
-          saveActiveChildProfile();
-
-          closeEmojiPinModal();
-          const mainModal = document.getElementById('student-name-modal');
-          if (mainModal) mainModal.style.display = 'none';
-
-          speakText(`¡Excelente ${p.name}! Ahora vamos a preparar tu héroe y acompañante.`);
-          switchScreen('avatar');
-        } else {
-          // CÓDIGO INCORRECTO
-          playErrorSound();
-          speakText("Código secreto incorrecto. Intenta de nuevo.");
-          setTimeout(() => {
-            authPinInput = [];
-            updateAuthPinSlotsDisplay();
-          }, 600);
-        }
-      }
-    }
-
-    function updateAuthPinSlotsDisplay() {
-      const s0 = document.getElementById('auth-pin-slot-0');
-      const s1 = document.getElementById('auth-pin-slot-1');
-      if (s0) s0.innerText = authPinInput[0] || '❓';
-      if (s1) s1.innerText = authPinInput[1] || '❓';
-    }
-
-    function closeEmojiPinModal() {
-      const modal = document.getElementById('emoji-pin-modal');
+      const modal = document.getElementById('student-name-modal');
       if (modal) modal.style.display = 'none';
-      authPinInput = [];
-      pendingLoginProfileId = null;
+
+      // Narrar saludo sin signos de exclamación para evitar que el motor de voz diga "signo de exclamación"
+      speakText(`Bienvenido ${p.name}. Vamos a preparar tu héroe y acompañante.`);
+      switchScreen('avatar');
     }
 
     function openCreateProfileModal() {
-      newProfilePinSelection = [];
       const input = document.getElementById('new-profile-name-input');
       if (input) input.value = '';
-      updateCreatePinSlotsDisplay();
-      renderCreatePinGrid();
 
       const modal = document.getElementById('create-profile-modal');
       if (modal) modal.style.display = 'flex';
       setTimeout(() => { if (input) input.focus(); }, 150);
     }
 
-    function renderCreatePinGrid() {
-      const grid = document.getElementById('create-pin-grid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      EMOJI_PIN_OPTIONS.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.style.cssText = 'font-size: 30px; width: 56px; height: 56px; border-radius: 16px; border: 2px solid #CBD5E1; background: #FFFFFF; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s;';
-        btn.onclick = () => selectCreatePinEmoji(emoji);
-        btn.innerText = emoji;
-        grid.appendChild(btn);
-      });
-    }
-
-    function selectCreatePinEmoji(emoji) {
-      if (newProfilePinSelection.length >= 2) {
-        newProfilePinSelection = [emoji];
-      } else {
-        newProfilePinSelection.push(emoji);
-      }
-      updateCreatePinSlotsDisplay();
-      playPopSound();
-    }
-
-    function updateCreatePinSlotsDisplay() {
-      const s0 = document.getElementById('create-pin-slot-0');
-      const s1 = document.getElementById('create-pin-slot-1');
-      if (s0) s0.innerText = newProfilePinSelection[0] || '❓';
-      if (s1) s1.innerText = newProfilePinSelection[1] || '❓';
-    }
-
     function closeCreateProfileModal() {
       const modal = document.getElementById('create-profile-modal');
       if (modal) modal.style.display = 'none';
-      newProfilePinSelection = [];
     }
 
     function confirmCreateProfileSubmit() {
@@ -4496,12 +4409,7 @@
       let nameVal = input ? input.value.trim() : '';
 
       if (!nameVal) {
-        alert('Por favor ingresa el nombre del niño/a.');
-        return;
-      }
-
-      if (newProfilePinSelection.length < 2) {
-        alert('Por favor elige 2 emojis secretos para el código del niño/a.');
+        alert('Por favor ingresa el Nombre y Apellido del niño/a.');
         return;
       }
 
@@ -4509,7 +4417,6 @@
       const newProfile = {
         id: profileId,
         name: nameVal,
-        pin: [...newProfilePinSelection],
         coins: 0,
         stars: 0,
         avatar: '🧑‍🚀',
@@ -4525,7 +4432,7 @@
       const mainModal = document.getElementById('student-name-modal');
       if (mainModal) mainModal.style.display = 'none';
 
-      speakText(`¡Bienvenido/a ${nameVal}! Ahora elige tu avatar y tu acompañante para la aventura.`);
+      speakText(`Bienvenido ${nameVal}. Elige tu avatar y tu acompañante para la aventura.`);
       switchScreen('avatar');
     }
 
@@ -4535,7 +4442,7 @@
         activeChildProfile.pet = gameState.pet;
         saveActiveChildProfile();
       }
-      speakText('¡Excelente héroe! ¡Ingresamos a las tareas en el mapa!');
+      speakText('Excelente héroe. Ingresamos a las tareas en el mapa.');
       switchScreen('map');
     }
 
@@ -4545,7 +4452,7 @@
     }
 
     // =========================================================================
-    // LÓGICA DE SECUENCIA Y ADVERTENCIA DE SALTEO CON PENALIZACIÓN (v104)
+    // LÓGICA DE SECUENCIA Y ADVERTENCIA DE SALTEO CON PENALIZACIÓN (v105)
     // =========================================================================
 
     function handleMapNodeClick(nodeIndex) {
@@ -4598,8 +4505,9 @@
       }
       if (modal) modal.style.display = 'flex';
 
+      // TEXTO LIMPIO SIN SIGNOS DE EXCLAMACIÓN PARA EVITAR QUE EL SINTETIZADOR DIGA "SIGNO DE ADMIRACIÓN"
       const childName = (activeChildProfile && activeChildProfile.name) ? activeChildProfile.name : 'explorador';
-      speakText(`¡Atención ${childName}! Esta tarea está bloqueada. Si te salteas esta tarea perderás 10 monedas y 2 estrellas. ¿Seguro que quieres saltar?`);
+      speakText(`Atención ${childName}. Esta tarea está bloqueada. Si te salteas esta tarea perderás 10 monedas y 2 estrellas. Quieres saltar de todas formas.`);
     }
 
     function confirmSkipPenalty() {
@@ -4614,7 +4522,7 @@
         saveActiveChildProfile();
       }
 
-      speakText("Penalización aplicada. ¡Suerte en el desafío!");
+      speakText("Penalización aplicada. Suerte en el desafío.");
       startQuest(targetMode);
     }
 
@@ -5445,16 +5353,16 @@
       initApp();
     }
   </script>
-    <!-- 1. MODAL DE SELECCIÓN DE PERFIL DE NIÑO -->
+      <!-- 1. MODAL DE SELECCIÓN DE PERFIL DE NIÑO POR NOMBRE Y APELLIDO -->
   <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
     <div style="background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%); border: 4px solid #4A90E2; max-width: 480px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 6px rgba(74, 144, 226, 0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto;">
       
       <div style="font-size: 54px; margin-bottom: 6px;">🌟</div>
       <h2 style="font-size: 24px; color: #1E293B; font-weight: 800; margin-bottom: 4px;">¿Quién va a jugar hoy?</h2>
-      <p style="font-size: 14px; color: #64748B; margin-bottom: 18px; font-weight: 500;">Selecciona tu nombre o crea tu nuevo perfil de explorador/a:</p>
+      <p style="font-size: 14px; color: #64748B; margin-bottom: 18px; font-weight: 500;">Selecciona tu nombre o crea tu nuevo perfil:</p>
 
       <!-- Lista de perfiles de niños existentes -->
-      <div id="profiles-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+      <div id="profiles-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; max-height: 260px; overflow-y: auto; padding-right: 4px;">
         <!-- Se llena dinámicamente con JS -->
       </div>
 
@@ -5466,82 +5374,43 @@
     </div>
   </div>
 
-  <!-- 2. MODAL DE CREACIÓN DE NUEVO PERFIL CON CÓDIGO DE 2 EMOJIS -->
+  <!-- 2. MODAL DE CREACIÓN DE NUEVO PERFIL (NOMBRE Y APELLIDO) -->
   <div id="create-profile-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
     <div style="background: #FFFFFF; border: 4px solid #2ECC71; max-width: 480px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-height: 92vh; overflow-y: auto;">
       
       <div style="font-size: 42px; margin-bottom: 6px;">✍️</div>
       <h2 style="font-size: 22px; color: #1E293B; font-weight: 800; margin-bottom: 4px;">Crear Nuevo Perfil</h2>
-      <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">Ingresa el nombre del niño/a (ej: Santino G.) y elige 2 emojis secretos:</p>
+      <p style="font-size: 13px; color: #64748B; margin-bottom: 16px;">Ingresa el <strong>Nombre y Apellido</strong> del niño/a para diferenciarlo:</p>
 
-      <input type="text" id="new-profile-name-input" class="input-text" placeholder="Ej: Santino G., Sofía M., Mateo..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 12px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 16px; width: 100%; box-sizing: border-box; background: #F8FAFC; color: #1E293B;" />
-
-      <div style="font-size: 14px; font-weight: bold; color: #334155; margin-bottom: 8px;">
-        🔐 Elige tus 2 Emojis Secretos (tu código):
-      </div>
-
-      <!-- Casillas de previsualización de PIN de 2 emojis -->
-      <div id="create-pin-preview" style="display: flex; justify-content: center; gap: 12px; margin-bottom: 14px;">
-        <div id="create-pin-slot-0" style="width: 54px; height: 54px; border: 3px dashed #CBD5E1; border-radius: 16px; font-size: 28px; display: flex; align-items: center; justify-content: center; background: #F8FAFC; color: #94A3B8;">❓</div>
-        <div id="create-pin-slot-1" style="width: 54px; height: 54px; border: 3px dashed #CBD5E1; border-radius: 16px; font-size: 28px; display: flex; align-items: center; justify-content: center; background: #F8FAFC; color: #94A3B8;">❓</div>
-      </div>
-
-      <!-- Teclado de selección de Emojis para crear código -->
-      <div id="create-pin-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 20px;">
-        <!-- Se llena con JS -->
-      </div>
+      <input type="text" id="new-profile-name-input" class="input-text" placeholder="Ej: Santino Gómez, Santino Martínez..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; background: #F8FAFC; color: #1E293B;" onkeypress="if(event.key === 'Enter') confirmCreateProfileSubmit()" />
 
       <div style="display: flex; gap: 10px;">
-        <button onclick="closeCreateProfileModal()" style="flex: 1; background: #F1F5F9; border: 2px solid #CBD5E1; color: #475569; padding: 12px; border-radius: 14px; font-weight: bold; cursor: pointer;">
+        <button onclick="closeCreateProfileModal()" style="flex: 1; background: #F1F5F9; border: 2px solid #CBD5E1; color: #475569; padding: 14px; border-radius: 14px; font-weight: bold; cursor: pointer;">
           Cancelar
         </button>
-        <button onclick="confirmCreateProfileSubmit()" style="flex: 2; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(46,204,113,0.35);">
-          🚀 Guardar y Comenzar
+        <button onclick="confirmCreateProfileSubmit()" style="flex: 2; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(46,204,113,0.35);">
+          🚀 Crear y Comenzar
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 3. MODAL DE AUTENTICACIÓN POR CÓDIGO SECRETO DE 2 EMOJIS -->
-  <div id="emoji-pin-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
-    <div style="background: #FFFFFF; border: 4px solid #74B9FF; max-width: 440px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
-      
-      <div id="pin-target-name" style="font-size: 22px; font-weight: 800; color: #1E293B; margin-bottom: 4px;">¡Hola Santino!</div>
-      <p style="font-size: 14px; color: #64748B; margin-bottom: 16px;">Toca tus <strong>2 emojis secretos</strong> para ingresar a tu aventura:</p>
-
-      <!-- Pantalla de visualización de PIN -->
-      <div style="display: flex; justify-content: center; gap: 14px; margin-bottom: 18px;">
-        <div id="auth-pin-slot-0" style="width: 60px; height: 60px; border: 3px solid #74B9FF; border-radius: 18px; font-size: 32px; display: flex; align-items: center; justify-content: center; background: #EBF5FF;">❓</div>
-        <div id="auth-pin-slot-1" style="width: 60px; height: 60px; border: 3px solid #74B9FF; border-radius: 18px; font-size: 32px; display: flex; align-items: center; justify-content: center; background: #EBF5FF;">❓</div>
-      </div>
-
-      <!-- Teclado interactivo de Emojis -->
-      <div id="auth-pin-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px;">
-        <!-- Se genera con JS -->
-      </div>
-
-      <button onclick="closeEmojiPinModal()" style="width: 100%; background: #F1F5F9; border: 2px solid #CBD5E1; color: #64748B; padding: 12px; border-radius: 14px; font-weight: bold; cursor: pointer;">
-         Volver a Lista de Niños
-      </button>
-    </div>
-  </div>
-
-  <!-- 4. MODAL DE ADVERTENCIA DE SALTEO Y PENALIZACIÓN -->
+  <!-- 3. MODAL DE ADVERTENCIA DE SALTEO Y PENALIZACIÓN (SIN SIGNOS DE EXCLAMACIÓN EN AUDIO) -->
   <div id="skip-warning-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
     <div style="background: linear-gradient(145deg, #FFFFFF, #FFF5F5); border: 4px solid #FF6B81; max-width: 440px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6); animation: popIn 0.35s ease;">
       
       <div style="font-size: 52px; margin-bottom: 6px;">⚠️</div>
-      <h2 style="font-size: 22px; color: #D63031; font-weight: 800; margin-bottom: 8px;">¡Tarea Bloqueada!</h2>
+      <h2 style="font-size: 22px; color: #D63031; font-weight: 800; margin-bottom: 8px;">Tarea Bloqueada</h2>
       <p id="skip-warning-text" style="font-size: 14px; color: #2D3436; margin-bottom: 20px; line-height: 1.4; font-weight: 500;">
         Esta tarea está bloqueada en la secuencia. Si te salteas el orden, perderás <strong>10 monedas 🪙 y 2 estrellas ⭐</strong>.
       </p>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <button onclick="closeSkipWarningModal()" style="width: 100%; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(46,204,113,0.35);">
-          ❌ Volver al Orden (Recomendado)
+          Volver al Orden (Recomendado)
         </button>
         <button onclick="confirmSkipPenalty()" style="width: 100%; background: #FFEAA7; border: 2px solid #FDCB6E; color: #D35400; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 14px; cursor: pointer;">
-          ⚠️ Saltar y Pagar 10 🪙 + 2 ⭐
+          Saltar y Pagar 10 🪙 + 2 ⭐
         </button>
       </div>
     </div>
