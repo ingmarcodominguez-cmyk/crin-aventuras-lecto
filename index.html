@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v107';
+    const CURRENT_APP_VERSION = 'v108';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1004,7 +1004,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v107</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v108</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1222,7 +1222,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v107</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v108</span>
         </div>
         
         <div class="panel-card">
@@ -4267,12 +4267,15 @@
     // =========================================================================
     
     // =========================================================================
-    // SISTEMA DE PERFILES DE NIÑOS POR INGRESO DE NOMBRE Y APELLIDO (v107)
+    
+    // =========================================================================
+    // SISTEMA DE INGRESO Y REGISTRO POR PESTAÑAS (v108)
     // =========================================================================
 
     let allChildProfiles = {};
     let activeChildProfile = null;
     let pendingSkipTarget = null;
+    let currentLoginMode = 'login'; // 'login' o 'register'
 
     function loadAllChildProfiles() {
       try {
@@ -4332,26 +4335,47 @@
       }
     }
 
-    function openStudentNameModal() {
-      loadAllChildProfiles();
-      const input = document.getElementById('student-login-name-input');
-      if (input) input.value = '';
+    function switchLoginTab(mode) {
+      currentLoginMode = mode;
+      const tabBtnLogin = document.getElementById('tab-btn-login');
+      const tabBtnReg = document.getElementById('tab-btn-register');
+      const contentLogin = document.getElementById('tab-content-login');
+      const contentReg = document.getElementById('tab-content-register');
 
-      const modal = document.getElementById('student-name-modal');
-      if (modal) modal.style.display = 'flex';
-      setTimeout(() => { if (input) input.focus(); }, 150);
+      if (mode === 'login') {
+        if (tabBtnLogin) { tabBtnLogin.style.background = '#FFFFFF'; tabBtnLogin.style.color = '#0984E3'; tabBtnLogin.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)'; }
+        if (tabBtnReg) { tabBtnReg.style.background = 'transparent'; tabBtnReg.style.color = '#64748B'; tabBtnReg.style.boxShadow = 'none'; }
+        if (contentLogin) contentLogin.style.display = 'block';
+        if (contentReg) contentReg.style.display = 'none';
+        const inp = document.getElementById('existing-student-name-input');
+        if (inp) setTimeout(() => inp.focus(), 100);
+      } else {
+        if (tabBtnLogin) { tabBtnLogin.style.background = 'transparent'; tabBtnLogin.style.color = '#64748B'; tabBtnLogin.style.boxShadow = 'none'; }
+        if (tabBtnReg) { tabBtnReg.style.background = '#FFFFFF'; tabBtnReg.style.color = '#2ECC71'; tabBtnReg.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)'; }
+        if (contentLogin) contentLogin.style.display = 'none';
+        if (contentReg) contentReg.style.display = 'block';
+        const inp = document.getElementById('new-student-name-input');
+        if (inp) setTimeout(() => inp.focus(), 100);
+      }
     }
 
-    function submitStudentLoginByText() {
-      const input = document.getElementById('student-login-name-input');
+    function openStudentNameModal() {
+      loadAllChildProfiles();
+      switchLoginTab('login');
+      const modal = document.getElementById('student-name-modal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    // OPCIÓN 1: YA TENGO MI CUENTA (INGRESAR)
+    function submitExistingStudentLogin() {
+      const input = document.getElementById('existing-student-name-input');
       let nameVal = input ? input.value.trim() : '';
 
       if (!nameVal) {
-        alert('Por favor ingresa tu Nombre y Apellido para comenzar.');
+        alert('Por favor ingresa tu Nombre y Apellido.');
         return;
       }
 
-      // Normalizar clave del perfil para asociar historial existente
       const profileId = 'p_' + nameVal.toLowerCase()
         .normalize("NFD")
         .replace(/[̀-ͯ]/g, "")
@@ -4360,10 +4384,52 @@
       loadAllChildProfiles();
 
       if (allChildProfiles[profileId]) {
-        // PERFIL EXISTENTE: Cargar su historial y monedas
+        // Encontrado: recuperar su cuenta e historial
         activeChildProfile = allChildProfiles[profileId];
+        saveActiveChildProfile();
+
+        const modal = document.getElementById('student-name-modal');
+        if (modal) modal.style.display = 'none';
+
+        speakText(`Bienvenido de vuelta ${nameVal}. Vamos a preparar tu héroe.`);
+        switchScreen('avatar');
       } else {
-        // NUEVO PERFIL: Inicializar desde cero
+        // No encontrado: sugerir ir a registrarse
+        alert(`No encontramos una cuenta previa con el nombre "${nameVal}". Si es tu primera vez, por favor ingresa en la pestaña "Soy nuevo/a (Registrarse)".`);
+        switchLoginTab('register');
+        const regInput = document.getElementById('new-student-name-input');
+        if (regInput) regInput.value = nameVal;
+      }
+    }
+
+    // OPCIÓN 2: SOY NUEVO/A (REGISTRARSE POR PRIMERA VEZ)
+    function submitNewStudentRegistration() {
+      const input = document.getElementById('new-student-name-input');
+      let nameVal = input ? input.value.trim() : '';
+
+      if (!nameVal) {
+        alert('Por favor ingresa tu Nombre y Apellido para crear tu primera cuenta.');
+        return;
+      }
+
+      const profileId = 'p_' + nameVal.toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]/g, "_");
+
+      loadAllChildProfiles();
+
+      if (allChildProfiles[profileId]) {
+        // Ya existe una cuenta con ese nombre
+        const confirmLogin = confirm(`Ya existe una cuenta para "${nameVal}". ¿Deseas ingresar a esa cuenta existente?`);
+        if (confirmLogin) {
+          activeChildProfile = allChildProfiles[profileId];
+        } else {
+          alert('Por favor agrega la inicial de tu segundo apellido o segundo nombre para crear un perfil único.');
+          return;
+        }
+      } else {
+        // Crear nuevo perfil
         activeChildProfile = {
           id: profileId,
           name: nameVal,
@@ -4381,7 +4447,7 @@
       const modal = document.getElementById('student-name-modal');
       if (modal) modal.style.display = 'none';
 
-      speakText(`Bienvenido ${nameVal}. Vamos a preparar tu héroe y acompañante.`);
+      speakText(`Bienvenido a CRIN ${nameVal}. Elige tu avatar y tu acompañante.`);
       switchScreen('avatar');
     }
 
@@ -5300,21 +5366,45 @@
       initApp();
     }
   </script>
-        <!-- MODAL DE INGRESO POR NOMBRE Y APELLIDO (SIN LISTA PÚBLICA DE OTROS NIÑOS) -->
+          <!-- MODAL DE INGRESO Y REGISTRO CON 2 PESTAÑAS CLARAS (v108) -->
   <div id="student-name-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2147483647; padding: 16px;">
-    <div style="background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%); border: 4px solid #4A90E2; max-width: 480px; width: 95%; margin: auto; padding: 26px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 6px rgba(74, 144, 226, 0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto;">
+    <div style="background: linear-gradient(145deg, #FFFFFF 0%, #F8FAFC 100%); border: 4px solid #4A90E2; max-width: 500px; width: 95%; margin: auto; padding: 24px 20px; border-radius: 28px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 0 6px rgba(74, 144, 226, 0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto;">
       
-      <div style="font-size: 54px; margin-bottom: 6px;">🌟</div>
-      <h2 style="font-size: 24px; color: #1E293B; font-weight: 800; margin-bottom: 6px;">¡Hola Explorador/a!</h2>
-      <p style="font-size: 14px; color: #64748B; margin-bottom: 18px; font-weight: 500;">Ingresa tu <strong>Nombre y Apellido</strong> para acceder a tu historial y recompensas:</p>
+      <div style="font-size: 48px; margin-bottom: 4px;">🌟</div>
+      <h2 style="font-size: 22px; color: #1E293B; font-weight: 800; margin-bottom: 12px;">¡Bienvenido/a a CRIN Aventuras!</h2>
 
-      <input type="text" id="student-login-name-input" class="input-text" placeholder="Ej: Luis Gómez, Sofía Pérez..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 20px; width: 100%; box-sizing: border-box; background: #FFFFFF; color: #1E293B; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);" onkeypress="if(event.key === 'Enter') submitStudentLoginByText()" />
-
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button onclick="submitStudentLoginByText()" style="width: 100%; background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 800; font-size: 18px; cursor: pointer; box-shadow: 0 6px 16px rgba(46,204,113,0.35); transition: transform 0.15s ease;">
-          🚀 ¡Ingresar a la Aventura!
+      <!-- PESTAÑAS PRINCIPALES DE ACCESO -->
+      <div style="display: flex; background: #E2E8F0; padding: 4px; border-radius: 16px; margin-bottom: 18px;">
+        <button id="tab-btn-login" onclick="switchLoginTab('login')" style="flex: 1; padding: 10px 6px; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; background: #FFFFFF; color: #0984E3; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.2s;">
+          🔑 Ya tengo mi cuenta
+        </button>
+        <button id="tab-btn-register" onclick="switchLoginTab('register')" style="flex: 1; padding: 10px 6px; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; background: transparent; color: #64748B; transition: all 0.2s;">
+          ✨ Soy nuevo/a (Registrarse)
         </button>
       </div>
+
+      <!-- CONTENIDO PESTAÑA 1: YA TENGO MI CUENTA (INGRESAR) -->
+      <div id="tab-content-login" style="display: block;">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px; font-weight: 500;">
+          Si ya jugaste antes, escribe tu <strong>Nombre y Apellido</strong> para recuperar tus monedas, estrellas e historial:
+        </p>
+        <input type="text" id="existing-student-name-input" class="input-text" placeholder="Ej: Luis Gómez, Sofía Pérez..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #74B9FF; border-radius: 16px; margin-bottom: 18px; width: 100%; box-sizing: border-box; background: #FFFFFF; color: #1E293B;" onkeypress="if(event.key === 'Enter') submitExistingStudentLogin()" />
+        <button onclick="submitExistingStudentLogin()" style="width: 100%; background: linear-gradient(135deg, #0984E3 0%, #74B9FF 100%); color: white; border: none; padding: 15px; border-radius: 18px; font-weight: 800; font-size: 17px; cursor: pointer; box-shadow: 0 6px 16px rgba(9,132,227,0.35);">
+          🔑 ¡Ingresar a mi Cuenta!
+        </button>
+      </div>
+
+      <!-- CONTENIDO PESTAÑA 2: SOY NUEVO/A (REGISTRARSE) -->
+      <div id="tab-content-register" style="display: none;">
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px; font-weight: 500;">
+          Si es tu primera vez en CRIN, ingresa tu <strong>Nombre y Apellido</strong> para crear tu nuevo perfil:
+        </p>
+        <input type="text" id="new-student-name-input" class="input-text" placeholder="Ej: Mateo Rodríguez, Emma Silva..." style="font-size: 18px; text-align: center; font-weight: bold; padding: 14px; border: 3px solid #2ECC71; border-radius: 16px; margin-bottom: 18px; width: 100%; box-sizing: border-box; background: #FFFFFF; color: #1E293B;" onkeypress="if(event.key === 'Enter') submitNewStudentRegistration()" />
+        <button onclick="submitNewStudentRegistration()" style="width: 100%; background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); color: white; border: none; padding: 15px; border-radius: 18px; font-weight: 800; font-size: 17px; cursor: pointer; box-shadow: 0 6px 16px rgba(46,204,113,0.35);">
+          ✨ ¡Crear mi Primera Cuenta!
+        </button>
+      </div>
+
     </div>
   </div>
 
