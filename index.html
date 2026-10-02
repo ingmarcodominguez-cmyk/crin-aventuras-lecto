@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v108';
+    const CURRENT_APP_VERSION = 'v109';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1004,7 +1004,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v108</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v109</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1222,7 +1222,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v108</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v109</span>
         </div>
         
         <div class="panel-card">
@@ -2495,15 +2495,49 @@
           }
         }, 30);
 
-        gameState.stars += 10;
-        gameState.coins += 5;
-        if (activeChildProfile) {
-          activeChildProfile.stars = (activeChildProfile.stars || 0) + 10;
-          activeChildProfile.coins = (activeChildProfile.coins || 0) + 5;
-          saveActiveChildProfile();
+        const currentWord = targetItem ? targetItem.word : '';
+        const isAlreadyDone = isWordCompletedByActiveChild(activeTaskPackId, currentWord);
+        const is100PercentPackDone = isCurrentPack100PercentCompleted(activeTaskPackId);
+
+        let earnedStars = 0;
+        let earnedCoins = 0;
+        let winMessageText = "";
+
+        if (!isAlreadyDone) {
+          // PRIMERA VEZ QUE COMPLETA LA TAREA: OBTENER PREMIO COMPLETO
+          earnedStars = 10;
+          earnedCoins = 5;
+          markWordCompletedForActiveChild(activeTaskPackId, currentWord);
+          winMessageText = "¡Excelente! Completaste una tarea nueva y ganaste 10 estrellas y 5 monedas.";
+        } else if (is100PercentPackDone) {
+          // COMPLETÓ EL 100% Y REPITE PARA PRACTICAR: OBTENER PREMIO
+          earnedStars = 10;
+          earnedCoins = 5;
+          winMessageText = "¡Fantástico! Completaste todas las tareas y sigues practicando. ¡Ganaste 10 estrellas y 5 monedas!";
         } else {
-          updateStatsUI();
+          // TAREA YA HECHA PERO TODAVÍA HAY OTRAS PENDIENTES: NO SUMA PREMIOS
+          earnedStars = 0;
+          earnedCoins = 0;
+          winMessageText = "¡Excelente práctica! Esta tarea ya la habías completado. ¡Prueba las tareas pendientes para ganar más monedas!";
         }
+
+        if (earnedStars > 0 || earnedCoins > 0) {
+          gameState.stars += earnedStars;
+          gameState.coins += earnedCoins;
+          if (activeChildProfile) {
+            activeChildProfile.stars = (activeChildProfile.stars || 0) + earnedStars;
+            activeChildProfile.coins = (activeChildProfile.coins || 0) + earnedCoins;
+            saveActiveChildProfile();
+          } else {
+            updateStatsUI();
+          }
+        } else {
+          updateActiveTaskPackUI();
+        }
+
+        const winMsg = document.getElementById('win-message');
+        if (winMsg) winMsg.innerText = winMessageText;
+        speakText(winMessageText);
 
         setTimeout(() => {
           const winModal = document.getElementById('win-modal');
@@ -4268,6 +4302,60 @@
     
     // =========================================================================
     
+    
+    // =========================================================================
+    // LÓGICA DE SEGUIMIENTO DE TAREAS COMPLETADAS Y RECOMPENSAS INTELIGENTES (v109)
+    // =========================================================================
+
+    function getWordUniqueKey(packId, word) {
+      const p = packId || activeTaskPackId || 'task1';
+      const w = (word || '').toUpperCase().trim();
+      return `${p}_${w}`;
+    }
+
+    function isWordCompletedByActiveChild(packId, word) {
+      if (!activeChildProfile) return false;
+      if (!activeChildProfile.completedWords) activeChildProfile.completedWords = {};
+      const key = getWordUniqueKey(packId, word);
+      return !!activeChildProfile.completedWords[key];
+    }
+
+    function markWordCompletedForActiveChild(packId, word) {
+      if (!activeChildProfile) return;
+      if (!activeChildProfile.completedWords) activeChildProfile.completedWords = {};
+      const key = getWordUniqueKey(packId, word);
+      activeChildProfile.completedWords[key] = true;
+      saveActiveChildProfile();
+    }
+
+    function isCurrentPack100PercentCompleted(packId) {
+      const pId = packId || activeTaskPackId;
+      const pack = allTaskPacks[pId];
+      if (!pack || !Array.isArray(pack.wordsData) || pack.wordsData.length === 0) return false;
+
+      for (let item of pack.wordsData) {
+        if (item.word && !isWordCompletedByActiveChild(pId, item.word)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function getCompletedWordsCountInPack(packId) {
+      const pId = packId || activeTaskPackId;
+      const pack = allTaskPacks[pId];
+      if (!pack || !Array.isArray(pack.wordsData)) return { completed: 0, total: 0 };
+
+      let completed = 0;
+      pack.wordsData.forEach(item => {
+        if (item.word && isWordCompletedByActiveChild(pId, item.word)) {
+          completed++;
+        }
+      });
+      return { completed, total: pack.wordsData.length };
+    }
+
+
     // =========================================================================
     // SISTEMA DE INGRESO Y REGISTRO POR PESTAÑAS (v108)
     // =========================================================================
