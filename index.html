@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v101';
+    const CURRENT_APP_VERSION = 'v102';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1004,7 +1004,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v101</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v102</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1216,7 +1216,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v101</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v102</span>
         </div>
         
         <div class="panel-card">
@@ -1272,6 +1272,21 @@
 
           <!-- Lista de Cuentos Inline Directamente en el Panel -->
           <div id="inline-dev-word-list-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
+        </div>
+
+        <!-- SECCIÓN DE SELECCIÓN Y CONFIGURACIÓN DE VOZ DEL NARRADOR -->
+        <div class="panel-card" style="background: linear-gradient(135deg, #6C5CE7 0%, #4834D4 100%); color: white; border-radius: 20px; padding: 18px 20px; margin-top: 16px; box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);">
+          <div style="font-weight: 800; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="display: flex; align-items: center; gap: 8px;">🗣️ Selección de Voz del Narrador</span>
+            <span style="font-size: 10px; background: rgba(255,255,255,0.25); border-radius: 8px; padding: 2px 6px; font-weight: bold;">AUDIO HD</span>
+          </div>
+          <p style="font-size: 12px; opacity: 0.95; margin: 0 0 12px 0;">Elige la voz del sistema instalada en este equipo (Google, Sabina, Helena, etc.) y pruébala en tiempo real:</p>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select id="therapist-voice-select" onchange="onTherapistVoiceChanged(this.value)" style="flex: 1; min-width: 210px; padding: 10px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #1E293B; background: white; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"></select>
+            <button onclick="onTherapistVoiceChanged(document.getElementById('therapist-voice-select').value)" style="background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 10px rgba(46,204,113,0.3);">
+              🔊 Probar Voz
+            </button>
+          </div>
         </div>
 
         <!-- SECCIÓN DE REVISIÓN Y VALIDACIÓN DEL DOCENTE (PASO 1, PASO 2 Y WIZARD) -->
@@ -1601,16 +1616,85 @@
     window.addEventListener('pointerdown', unlockAudioSystem, { passive: true });
     window.addEventListener('click', unlockAudioSystem, { passive: true });
 
+    let preferredVoiceName = '';
+
+    function loadPreferredVoiceFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('crin_preferred_voice_name');
+        if (saved) preferredVoiceName = saved;
+      } catch(e) {}
+    }
+
     // Cargar voces en español nativo en cuanto el navegador las tenga listas
     function initVoices() {
-      if ('speechSynthesis' in window) {
-        const voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          cachedSpanishVoice = voices.find(v => v.lang && (v.lang.toLowerCase().includes('es-') || v.lang.toLowerCase().includes('es_') || v.lang.toLowerCase() === 'es'))
-            || voices.find(v => (v.lang && v.lang.toLowerCase().startsWith('es')) || (v.name && v.name.toLowerCase().includes('spanish')));
+      if (!('speechSynthesis' in window)) return;
+
+      loadPreferredVoiceFromLocalStorage();
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return;
+
+      const spanishVoices = voices.filter(v => 
+        (v.lang && (v.lang.toLowerCase().includes('es-') || v.lang.toLowerCase().includes('es_') || v.lang.toLowerCase() === 'es')) ||
+        (v.name && v.name.toLowerCase().includes('spanish'))
+      );
+
+      const targetList = spanishVoices.length > 0 ? spanishVoices : voices;
+      populateVoiceSelectorDropdown(targetList);
+
+      if (preferredVoiceName) {
+        const foundSaved = voices.find(v => v.name === preferredVoiceName);
+        if (foundSaved) {
+          cachedSpanishVoice = foundSaved;
+          return;
         }
       }
+
+      if (spanishVoices.length > 0) {
+        const preferredVoice = spanishVoices.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes('google') || name.includes('natural') || name.includes('online') || name.includes('neural') || name.includes('sabina') || name.includes('helena') || name.includes('paloma') || name.includes('dalia') || name.includes('sofia');
+        }) || spanishVoices.find(v => {
+          const name = v.name.toLowerCase();
+          return !name.includes('pablo') && !name.includes('raul');
+        }) || spanishVoices[0];
+
+        cachedSpanishVoice = preferredVoice;
+      }
     }
+
+    function populateVoiceSelectorDropdown(voiceList) {
+      const select = document.getElementById('therapist-voice-select');
+      if (!select) return;
+
+      const currentVal = cachedSpanishVoice ? cachedSpanishVoice.name : '';
+      select.innerHTML = '';
+
+      voiceList.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.innerText = `${v.name} (${v.lang})`;
+        if (v.name === currentVal || v.name === preferredVoiceName) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function onTherapistVoiceChanged(voiceName) {
+      if (!voiceName) return;
+      preferredVoiceName = voiceName;
+      try {
+        localStorage.setItem('crin_preferred_voice_name', voiceName);
+      } catch(e) {}
+
+      if ('speechSynthesis' in window) {
+        const voices = window.speechSynthesis.getVoices();
+        const found = voices.find(v => v.name === voiceName);
+        if (found) {
+          cachedSpanishVoice = found;
+        }
+      }
+      speakText("¡Hola! Esta es la nueva voz para tus cuentos y aventuras.");
+    }
+
     if ('speechSynthesis' in window) {
       initVoices();
       window.speechSynthesis.onvoiceschanged = initVoices;
