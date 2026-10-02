@@ -1597,11 +1597,35 @@
       }
     }
     let audioUnlocked = false;
+    let globalTtsPlayer = null;
 
-    // Desbloquear audio en el primer clic o toque del usuario (Requisito de Seguridad de Chrome)
+    function getGlobalTtsPlayer() {
+      if (!globalTtsPlayer) {
+        globalTtsPlayer = document.getElementById('global-tts-player');
+        if (!globalTtsPlayer) {
+          globalTtsPlayer = new Audio();
+          globalTtsPlayer.id = 'global-tts-player';
+          document.body.appendChild(globalTtsPlayer);
+        }
+      }
+      return globalTtsPlayer;
+    }
+
+    // Desbloquear audio en el primer clic o toque del usuario (Requisito de Seguridad de Chrome/Windows)
     function unlockAudioSystem() {
       if (audioUnlocked) return;
       audioUnlocked = true;
+
+      const player = getGlobalTtsPlayer();
+      if (player) {
+        try {
+          player.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+          const p = player.play();
+          if (p !== undefined) {
+            p.then(() => { player.pause(); }).catch(e => {});
+          }
+        } catch(e) {}
+      }
 
       if ('speechSynthesis' in window) {
         try {
@@ -1800,10 +1824,10 @@
 
       let speechStarted = false;
 
-      // OPCIÓN 1: Audio nativo en español fluido de alta fidelidad (Google TTS CDN)
+      // OPCIÓN 1: Audio nativo en español fluido de alta fidelidad (Google TTS CDN pre-desbloqueado)
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
-        const audio = new Audio();
+        const audio = getGlobalTtsPlayer();
         currentHtmlAudio = audio;
         audio.src = audioUrl;
         audio.playbackRate = 0.95;
@@ -1813,6 +1837,15 @@
           if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
           currentHtmlAudio = null;
           safeCallback();
+        };
+
+        audio.onerror = function() {
+          if (thisSession !== currentSpeechSessionId) return;
+          if (!speechStarted) {
+            speechStarted = true;
+            currentHtmlAudio = null;
+            fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+          }
         };
 
         const playPromise = audio.play();
@@ -1850,7 +1883,7 @@
         try {
           responsiveVoice.cancel();
           responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
-            rate: 0.95,
+            rate: 0.90,
             pitch: 1.0,
             onend: function() {
               if (thisSession !== currentSpeechSessionId) return;
@@ -1862,7 +1895,7 @@
         } catch(e) {}
       }
 
-      // 3. Respaldo local WebSpeech API
+      // 3. Respaldo local WebSpeech API (Velocidad pausada 0.82 y tono cálido 1.05)
       if ('speechSynthesis' in window) {
         try {
           if (!cachedSpanishVoice) initVoices();
@@ -1872,7 +1905,8 @@
           const utterance = new SpeechSynthesisUtterance(textToSpeak);
           utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
           if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
-          utterance.rate = 0.95;
+          utterance.rate = 0.82;
+          utterance.pitch = 1.05;
 
           utterance.onend = function() {
             if (thisSession !== currentSpeechSessionId) return;
