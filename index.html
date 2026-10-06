@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v129';
+    const CURRENT_APP_VERSION = 'v130';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '129');
+      u.searchParams.set('v', '130');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '129' && urlVer !== 'v129')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '130' && urlVer !== 'v130')) && !hasBust) {
         forceAppUpdate();
       }
     } catch(e) {}
@@ -1165,7 +1165,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v129</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v129</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v130</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v130</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1433,7 +1433,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v129</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v130</span>
         </div>
         
         <div class="panel-card">
@@ -5837,43 +5837,73 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      const fileNameLower = (file.name || '').toLowerCase();
+      let defaultPositionFromFile = 'inicial';
+      if (fileNameLower.includes('intermedia') || fileNameLower.includes('intermedias') || fileNameLower.includes('final') || fileNameLower.includes('finales') || fileNameLower.includes('med')) {
+        defaultPositionFromFile = 'intermedia_final';
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (typeof imported === 'object' && imported !== null) {
+            
+            let rootTaskName = imported.taskName || imported.name || imported.title || imported.packName || null;
+            let rootPosition = imported.position || defaultPositionFromFile;
+            if (rootPosition === 'intermedia' || rootPosition === 'final') {
+              rootPosition = 'intermedia_final';
+            }
+
+            let wordSourceObj = imported;
+            const reservedKeys = ['taskname', 'name', 'title', 'packname', 'position', 'words', 'cuentos', 'stories'];
+            if (imported.words && typeof imported.words === 'object') {
+              wordSourceObj = imported.words;
+            } else if (imported.cuentos && typeof imported.cuentos === 'object') {
+              wordSourceObj = imported.cuentos;
+            } else if (imported.stories && typeof imported.stories === 'object') {
+              wordSourceObj = imported.stories;
+            }
+
+            const wordsToProcess = Object.keys(wordSourceObj).filter(k => {
+              const lowerK = k.toLowerCase().trim();
+              return !reservedKeys.includes(lowerK) || (wordSourceObj !== imported);
+            });
+
             // 1. Guardar cuentos e información de emojis y posiciones importados
-            Object.keys(imported).forEach(rawWord => {
+            wordsToProcess.forEach(rawWord => {
               const clean = rawWord.toUpperCase().trim();
               if (!clean) return;
-              const val = imported[rawWord];
+              const val = wordSourceObj[rawWord];
               if (typeof val === 'string') {
                 customStories[clean] = {
                   chapterTitle: `📜 Cap.: ${clean}`,
                   narration: val,
                   emoji: getEmojiForWord(clean),
-                  position: 'inicial'
+                  position: rootPosition
                 };
               } else if (typeof val === 'object' && val !== null) {
+                let wordPos = val.position || rootPosition;
+                if (wordPos === 'intermedia' || wordPos === 'final') wordPos = 'intermedia_final';
                 customStories[clean] = {
                   chapterTitle: val.chapterTitle || val.title || `📜 Cap.: ${clean}`,
                   narration: val.narration || val.story || '',
                   emoji: (val.emoji && typeof val.emoji === 'string' && val.emoji.trim().length > 0 && val.emoji.trim() !== '⭐') ? val.emoji.trim() : getEmojiForWord(clean),
-                  position: val.position || 'inicial'
+                  position: wordPos
                 };
               }
             });
             saveCustomStoriesToLocalStorage();
 
             // 2. Extraer palabras desde las llaves del JSON
-            const importedWords = Object.keys(imported).map(w => w.toUpperCase().trim()).filter(w => w.length > 0);
+            const importedWords = wordsToProcess.map(w => w.toUpperCase().trim()).filter(w => w.length > 0);
 
             if (importedWords.length > 0) {
               const iniciales = [];
               const intermedias = [];
 
               importedWords.forEach(w => {
-                const pos = customStories[w]?.position || 'inicial';
+                const pos = customStories[w]?.position || rootPosition;
                 if (pos === 'intermedia' || pos === 'final' || pos === 'intermedia_final') {
                   intermedias.push(w);
                 } else {
@@ -5882,11 +5912,13 @@
               });
 
               let firstPackId = null;
+              const cleanFileName = file.name ? file.name.replace(/\.json$/i, '').replace(/_/g, ' ') : '';
 
-              if (iniciales.length > 0) {
+              if (iniciales.length > 0 && defaultPositionFromFile !== 'intermedia_final') {
                 const packId = 'import_init_' + Date.now();
                 const icon = getEmojiForWord(iniciales[0]);
-                const packName = `${icon} Tarea Importada (Sílabas Iniciales): ${iniciales.join(', ')}`;
+                const packTitle = rootTaskName || (cleanFileName ? `🗂️ ${cleanFileName}` : `${icon} Tarea Importada (Sílabas Iniciales): ${iniciales.join(', ')}`);
+                const packName = (packTitle.includes('Sílabas') || packTitle.includes('Tarea') || rootTaskName) ? packTitle : `${icon} Tarea Importada (Sílabas Iniciales): ${iniciales.join(', ')}`;
                 const packObj = {
                   id: packId,
                   name: packName,
@@ -5898,14 +5930,18 @@
                 firstPackId = packId;
               }
 
-              if (intermedias.length > 0) {
+              if (intermedias.length > 0 || defaultPositionFromFile === 'intermedia_final') {
+                const medWords = intermedias.length > 0 ? intermedias : importedWords;
                 const packId = 'import_med_' + Date.now();
-                const icon = getEmojiForWord(intermedias[0]);
-                const packName = `${icon} Tarea Importada (Sílabas Intermedias / Finales): ${intermedias.join(', ')}`;
+                const icon = getEmojiForWord(medWords[0]);
+                let defaultMedName = rootTaskName ? `${icon} ${rootTaskName}` : `${icon} Tarea Importada (Sílabas Intermedias / Finales): ${medWords.join(', ')}`;
+                if (!rootTaskName && cleanFileName && (cleanFileName.toLowerCase().includes('intermedia') || cleanFileName.toLowerCase().includes('med') || cleanFileName.toLowerCase().includes('final'))) {
+                  defaultMedName = `${icon} ${cleanFileName}: ${medWords.join(', ')}`;
+                }
                 const packObj = {
                   id: packId,
-                  name: packName,
-                  words: intermedias,
+                  name: defaultMedName,
+                  words: medWords,
                   position: 'intermedia_final'
                 };
                 allTaskPacks[packId] = packObj;
@@ -5917,7 +5953,7 @@
                 const packId = 'import_pack_' + Date.now();
                 const packObj = {
                   id: packId,
-                  name: `🗂️ Tarea Importada: ${importedWords.join(', ')}`,
+                  name: rootTaskName || `🗂️ Tarea Importada: ${importedWords.join(', ')}`,
                   words: importedWords
                 };
                 allTaskPacks[packId] = packObj;
@@ -5937,7 +5973,7 @@
               renderDevWordList();
 
               const summaryText = importedWords.map(w => `${getEmojiForWord(w)} ${w}`).join(' • ');
-              alert(`🎉 ¡Tarea importada e integrada con éxito!\n\nSe han generado las 4 actividades (Bosque de las Letras, Cueva de las Sílabas, Castillo y Cuento Mágico) para:\n${summaryText}`);
+              alert(`🎉 ¡Tarea importada e integrada con éxito!\n\nSe ha generado el paquete de tarea "${allTaskPacks[firstPackId].name}" con sus 4 misiones para:\n${summaryText}`);
             } else {
               renderDevWordList();
               alert('🎉 Cuentos e información de palabras importados con éxito.');
