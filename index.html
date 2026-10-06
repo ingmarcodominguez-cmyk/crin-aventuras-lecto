@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v119';
+    const CURRENT_APP_VERSION = 'v120';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v119</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v120</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1386,7 +1386,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v119</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v120</span>
         </div>
         
         <div class="panel-card">
@@ -2754,8 +2754,7 @@
         const currentIdx = activitySequence.indexOf(gameState.currentMode);
         if (currentIdx !== -1) {
           if (activeChildProfile) {
-            activeChildProfile.unlockedSequenceIndex = Math.max(activeChildProfile.unlockedSequenceIndex || 0, currentIdx + 1);
-            saveActiveChildProfile();
+            setUnlockedSequenceForPack(activeTaskPackId, currentIdx + 1);
           }
           if (currentIdx < activitySequence.length - 1) {
             const nextMode = activitySequence[currentIdx + 1];
@@ -3764,7 +3763,20 @@
         const pack = allTaskPacks[key];
         const opt = document.createElement('option');
         opt.value = pack.id;
-        opt.innerText = pack.name;
+
+        let statusBadge = '';
+        if (activeChildProfile && typeof getCompletedWordsCountInPack === 'function') {
+          const progress = getCompletedWordsCountInPack(pack.id);
+          const unlocked = getUnlockedSequenceForPack(pack.id);
+          if (progress.total > 0 && progress.completed >= progress.total) {
+            statusBadge = ' (✅ Completada)';
+          } else if (unlocked > 0 || progress.completed > 0) {
+            statusBadge = ` (⏳ En progreso - ${progress.completed}/${progress.total})`;
+          } else {
+            statusBadge = ' (⭐ Nueva)';
+          }
+        }
+        opt.innerText = pack.name + statusBadge;
         select.appendChild(opt);
       });
 
@@ -3794,6 +3806,9 @@
       } catch(e) {}
       updateActiveTaskPackUI();
       buildActiveDatasets();
+      if (typeof renderMapNodes === 'function') renderMapNodes();
+      populateTaskSelectOptions();
+    }
     }
 
     function updateActiveTaskPackUI() {
@@ -4596,31 +4611,63 @@
       saveActiveChildProfile();
     }
 
-    function isCurrentPack100PercentCompleted(packId) {
-      const pId = packId || activeTaskPackId;
-      const pack = allTaskPacks[pId];
-      if (!pack || !Array.isArray(pack.wordsData) || pack.wordsData.length === 0) return false;
-
-      for (let item of pack.wordsData) {
-        if (item.word && !isWordCompletedByActiveChild(pId, item.word)) {
-          return false;
+    function getUnlockedSequenceForPack(packId) {
+      const pId = packId || activeTaskPackId || 'task1';
+      if (!activeChildProfile) return 0;
+      if (!activeChildProfile.unlockedSequenceByPack) {
+        activeChildProfile.unlockedSequenceByPack = {};
+      }
+      if (activeChildProfile.unlockedSequenceByPack[pId] === undefined) {
+        if (pId === 'task1' && activeChildProfile.unlockedSequenceIndex !== undefined) {
+          activeChildProfile.unlockedSequenceByPack[pId] = activeChildProfile.unlockedSequenceIndex;
+        } else {
+          activeChildProfile.unlockedSequenceByPack[pId] = 0;
         }
       }
-      return true;
+      return activeChildProfile.unlockedSequenceByPack[pId] || 0;
+    }
+
+    function setUnlockedSequenceForPack(packId, val) {
+      const pId = packId || activeTaskPackId || 'task1';
+      if (!activeChildProfile) return;
+      if (!activeChildProfile.unlockedSequenceByPack) {
+        activeChildProfile.unlockedSequenceByPack = {};
+      }
+      activeChildProfile.unlockedSequenceByPack[pId] = Math.max(
+        activeChildProfile.unlockedSequenceByPack[pId] || 0,
+        val
+      );
+      activeChildProfile.unlockedSequenceIndex = activeChildProfile.unlockedSequenceByPack[pId];
+      saveActiveChildProfile();
     }
 
     function getCompletedWordsCountInPack(packId) {
       const pId = packId || activeTaskPackId;
       const pack = allTaskPacks[pId];
-      if (!pack || !Array.isArray(pack.wordsData)) return { completed: 0, total: 0 };
+      let wordsList = [];
+      if (pId === 'custom') {
+        wordsList = customWordsList.map(w => w.word);
+      } else if (pack && Array.isArray(pack.words)) {
+        wordsList = pack.words;
+      } else if (pack && Array.isArray(pack.wordsData)) {
+        wordsList = pack.wordsData.map(w => w.word);
+      }
+
+      if (!wordsList || wordsList.length === 0) return { completed: 0, total: 0 };
 
       let completed = 0;
-      pack.wordsData.forEach(item => {
-        if (item.word && isWordCompletedByActiveChild(pId, item.word)) {
+      wordsList.forEach(w => {
+        if (w && isWordCompletedByActiveChild(pId, w)) {
           completed++;
         }
       });
-      return { completed, total: pack.wordsData.length };
+      return { completed, total: wordsList.length };
+    }
+
+    function isCurrentPack100PercentCompleted(packId) {
+      const pId = packId || activeTaskPackId;
+      const progress = getCompletedWordsCountInPack(pId);
+      return progress.total > 0 && progress.completed >= progress.total;
     }
 
 
@@ -4852,9 +4899,7 @@
     function handleMapNodeClick(nodeIndex) {
       const modeKeys = ['global', 'syllable', 'homework', 'story'];
       const targetMode = modeKeys[nodeIndex];
-      const currentUnlocked = (activeChildProfile && activeChildProfile.unlockedSequenceIndex !== undefined)
-        ? activeChildProfile.unlockedSequenceIndex
-        : 0;
+      const currentUnlocked = getUnlockedSequenceForPack(activeTaskPackId);
 
       if (nodeIndex <= currentUnlocked) {
         startQuest(targetMode);
@@ -4864,9 +4909,7 @@
     }
 
     function renderMapNodes() {
-      const currentUnlocked = (activeChildProfile && activeChildProfile.unlockedSequenceIndex !== undefined)
-        ? activeChildProfile.unlockedSequenceIndex
-        : 0;
+      const currentUnlocked = getUnlockedSequenceForPack(activeTaskPackId);
 
       for (let i = 0; i < 4; i++) {
         const nodeEl = document.getElementById(`map-node-${i}`);
@@ -4912,8 +4955,7 @@
       if (activeChildProfile) {
         activeChildProfile.coins = Math.max(0, (activeChildProfile.coins || 0) - 10);
         activeChildProfile.stars = Math.max(0, (activeChildProfile.stars || 0) - 2);
-        activeChildProfile.unlockedSequenceIndex = Math.max(activeChildProfile.unlockedSequenceIndex || 0, nodeIndex);
-        saveActiveChildProfile();
+        setUnlockedSequenceForPack(activeTaskPackId, nodeIndex);
       }
 
       speakText("Penalización aplicada. Suerte en el desafío.");
