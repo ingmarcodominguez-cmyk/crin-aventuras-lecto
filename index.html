@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v118';
+    const CURRENT_APP_VERSION = 'v119';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v118</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v119</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1386,7 +1386,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v118</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v119</span>
         </div>
         
         <div class="panel-card">
@@ -2893,12 +2893,16 @@
       'PALA': '🪏', 'PERA': '🍐', 'PIÑA': '🍍', 'PILA': '🔋', 'PINO': '🌲', 'PUERTA': '🚪', 'PUENTE': '🌉', 'PLUMA': '🪶', 'PLATO': '🍽️',
       'CENA': '🍽️', 'CINE': '🎬', 'CUNA': '🛏️', 'COPA': '🏆', 'COLA': '🐕', 'COMA': '✍️', 'COCHE': '🚗', 'CAMA': '🛌', 'CARA': '😃', 'COCO': '🥥', 'CERA': '🕯️',
       'TAZA': '☕', 'TELA': '🧵', 'TÍTERE': '🎭', 'TITERE': '🎭', 'TAPA': '📦', 'MOTO': '🏍️', 'MATE': '🧉', 'MAPA': '🗺️',
-      'BOTA': '👢', 'BOLA': '🔮', 'DADO': '🎲', 'DEDO': '☝️', 'FOTO': '🖼️', 'LATA': '🥫', 'POZO': '🕳️', 'PIPA': '🫧', 'PITO': '🎷', 'CUENTO': '📖',
+      'BOTA': '👢', 'BOLA': '🔮', 'DADO': '🎲', 'DEDO': '☝️', 'FOTO': '📸', 'LATA': '🥫', 'POZO': '🕳️', 'PIPA': '🫧', 'PITO': '🎷', 'CUENTO': '📖',
+      'FARO': '🚨', 'FELINO': '🐱', 'FICHA': '🎲', 'FUENTE': '⛲', 'GAFA': '🕶️', 'GAFAS': '🕶️', 'CAFÉ': '☕', 'CAFE': '☕', 'CONFITE': '🍬', 'RIFA': '🎟️', 'FUEGO': '🔥', 'FIDEOS': '🍝', 'FOCA': '🦭', 'FANTASMA': '👻',
       'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '👴', 'TIO': '👴', 'TÍA': '👵', 'TIA': '👵'
     };
 
     function getEmojiForWord(word) {
       const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      if (typeof customStories === 'object' && customStories && customStories[clean] && customStories[clean].emoji) {
+        return customStories[clean].emoji;
+      }
       if (emojiMap[clean]) return emojiMap[clean];
 
       const category = getWordCategory(clean);
@@ -3439,6 +3443,54 @@
       'SALA': {
         chapterTitle: '📜 Cap.: La Sala de Cristal',
         narration: 'Entramos a la gran sala de cristal del castillo donde los destellos de luz iluminaban el ambiente.'
+      },
+      'FARO': {
+        chapterTitle: '📜 Cap.: El Faro del Bosque',
+        narration: 'En la costa del bosque mágico, un imponente faro iluminaba el mar con su brillante luz dorada.'
+      },
+      'FELINO': {
+        chapterTitle: '📜 Cap.: El Felino Silencioso',
+        narration: 'Entre las ramas de los árboles, vimos a un elegante felino caminando sigilosamente con mucha gracia.'
+      },
+      'FICHA': {
+        chapterTitle: '📜 Cap.: La Ficha Dorada',
+        narration: 'Sobre una mesa de madera encontramos una brillante ficha de juego que desbloqueaba la siguiente puerta.'
+      },
+      'FUENTE': {
+        chapterTitle: '📜 Cap.: La Fuente Mágica',
+        narration: 'En el centro de la plaza cantaba una hermosa fuente de agua cristalina que refrescaba a los viajeros.'
+      },
+      'GAFA': {
+        chapterTitle: '📜 Cap.: La Gafa Mágica',
+        narration: 'Nuestro explorador se puso una gafa especial para descubrir los mensajes ocultos en los árboles.'
+      },
+      'GAFAS': {
+        chapterTitle: '📜 Cap.: Las Gafas Mágicas',
+        narration: 'Nuestro explorador se puso unas gafas especiales para descubrir los mensajes ocultos en los árboles.'
+      },
+      'CAFÉ': {
+        chapterTitle: '📜 Cap.: El Café Tibio',
+        narration: 'En el acogedor refugio del bosque nos sirvieron una taza de café tibio con rico aroma.'
+      },
+      'CAFE': {
+        chapterTitle: '📜 Cap.: El Café Tibio',
+        narration: 'En el acogedor refugio del bosque nos sirvieron una taza de café tibio con rico aroma.'
+      },
+      'CONFITE': {
+        chapterTitle: '📜 Cap.: El Confite Dulce',
+        narration: 'Los duendecillos nos regalaron un colorido confite dulce que nos llenó de energía y alegría.'
+      },
+      'SOFÁ': {
+        chapterTitle: '📜 Cap.: El Sofá Confortable',
+        narration: 'En la gran sala del castillo nos sentamos en un mullido sofá para escuchar los cuentos de la noche.'
+      },
+      'SOFA': {
+        chapterTitle: '📜 Cap.: El Sofá Confortable',
+        narration: 'En la gran sala del castillo nos sentamos en un mullido sofá para escuchar los cuentos de la noche.'
+      },
+      'RIFA': {
+        chapterTitle: '📜 Cap.: La Rifa del Pueblo',
+        narration: 'En la fiesta de la colina participamos en la gran rifa del pueblo y ganamos el premio mayor.'
       }
     };
 
@@ -3682,8 +3734,15 @@
       },
       task10: {
         id: 'task10',
-        name: '🚨 Tarea 10 (F): FARO, FELINO, FICHA, FOTO, FUENTE',
-        words: ['FARO', 'FELINO', 'FICHA', 'FOTO', 'FUENTE']
+        name: '🚨 Tarea 10 (F - Sílabas Iniciales): FARO, FELINO, FICHA, FOTO, FUENTE',
+        words: ['FARO', 'FELINO', 'FICHA', 'FOTO', 'FUENTE'],
+        position: 'inicial'
+      },
+      task11: {
+        id: 'task11',
+        name: '☕ Tarea 11 (F - Sílabas Intermedias/Finales): GAFA, CAFÉ, CONFITE, SOFÁ, RIFA',
+        words: ['GAFA', 'CAFÉ', 'CONFITE', 'SOFÁ', 'RIFA'],
+        position: 'intermedia_final'
       },
       custom: {
         id: 'custom',
@@ -5202,38 +5261,97 @@
         try {
           const imported = JSON.parse(e.target.result);
           if (typeof imported === 'object' && imported !== null) {
-            // 1. Guardar cuentos importados
-            customStories = { ...customStories, ...imported };
+            // 1. Guardar cuentos e información de emojis y posiciones importados
+            Object.keys(imported).forEach(rawWord => {
+              const clean = rawWord.toUpperCase().trim();
+              if (!clean) return;
+              const val = imported[rawWord];
+              if (typeof val === 'string') {
+                customStories[clean] = {
+                  chapterTitle: `📜 Cap.: ${clean}`,
+                  narration: val,
+                  emoji: getEmojiForWord(clean),
+                  position: 'inicial'
+                };
+              } else if (typeof val === 'object' && val !== null) {
+                customStories[clean] = {
+                  chapterTitle: val.chapterTitle || val.title || `📜 Cap.: ${clean}`,
+                  narration: val.narration || val.story || '',
+                  emoji: val.emoji || getEmojiForWord(clean),
+                  position: val.position || 'inicial'
+                };
+              }
+            });
             saveCustomStoriesToLocalStorage();
 
-            // 2. Extraer palabras desde las llaves del JSON (ej: FARO, FELINO, FICHA, FOTO, FUENTE)
+            // 2. Extraer palabras desde las llaves del JSON
             const importedWords = Object.keys(imported).map(w => w.toUpperCase().trim()).filter(w => w.length > 0);
 
             if (importedWords.length > 0) {
-              // 3. Crear automáticamente el nuevo Paquete de Tareas para las 4 actividades
-              const packId = 'import_pack_' + Date.now();
-              const wordsSummaryStr = importedWords.slice(0, 4).join(', ');
-              const packName = `🗂️ Tarea Importada (${importedWords[0][0] || 'F'}): ${wordsSummaryStr}`;
+              const iniciales = [];
+              const intermedias = [];
 
-              allTaskPacks[packId] = {
-                id: packId,
-                name: packName,
-                words: importedWords
-              };
+              importedWords.forEach(w => {
+                const pos = customStories[w]?.position || 'inicial';
+                if (pos === 'intermedia' || pos === 'final' || pos === 'intermedia_final') {
+                  intermedias.push(w);
+                } else {
+                  iniciales.push(w);
+                }
+              });
+
+              let firstPackId = null;
+
+              if (iniciales.length > 0) {
+                const packId = 'import_init_' + Date.now();
+                const icon = getEmojiForWord(iniciales[0]);
+                const packName = `${icon} Tarea Importada (Sílabas Iniciales): ${iniciales.join(', ')}`;
+                allTaskPacks[packId] = {
+                  id: packId,
+                  name: packName,
+                  words: iniciales,
+                  position: 'inicial'
+                };
+                firstPackId = packId;
+              }
+
+              if (intermedias.length > 0) {
+                const packId = 'import_med_' + Date.now();
+                const icon = getEmojiForWord(intermedias[0]);
+                const packName = `${icon} Tarea Importada (Sílabas Intermedias / Finales): ${intermedias.join(', ')}`;
+                allTaskPacks[packId] = {
+                  id: packId,
+                  name: packName,
+                  words: intermedias,
+                  position: 'intermedia_final'
+                };
+                if (!firstPackId) firstPackId = packId;
+              }
+
+              if (!firstPackId) {
+                const packId = 'import_pack_' + Date.now();
+                allTaskPacks[packId] = {
+                  id: packId,
+                  name: `🗂️ Tarea Importada: ${importedWords.join(', ')}`,
+                  words: importedWords
+                };
+                firstPackId = packId;
+              }
 
               // 4. Activar esta tarea inmediatamente para toda la aplicación
-              activeTaskPackId = packId;
-              try { localStorage.setItem('crin_active_task_pack', packId); } catch(err) {}
+              activeTaskPackId = firstPackId;
+              try { localStorage.setItem('crin_active_task_pack', activeTaskPackId); } catch(err) {}
 
               populateTaskSelectOptions();
               updateActiveTaskPackUI();
               buildActiveDatasets();
               renderDevWordList();
 
-              alert(`🎉 ¡Tarea creada e importada con éxito!\n\nSe han creado e integrado las 4 actividades (Bosque, Cueva, Castillo y Cuento) para las palabras:\n${importedWords.join(' • ')}`);
+              const summaryText = importedWords.map(w => `${getEmojiForWord(w)} ${w}`).join(' • ');
+              alert(`🎉 ¡Tarea importada e integrada con éxito!\n\nSe han generado las 4 actividades (Bosque de las Letras, Cueva de las Sílabas, Castillo y Cuento Mágico) para:\n${summaryText}`);
             } else {
               renderDevWordList();
-              alert('🎉 Cuentos importados con éxito.');
+              alert('🎉 Cuentos e información de palabras importados con éxito.');
             }
           }
         } catch(err) {
