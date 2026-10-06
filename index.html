@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v128';
+    const CURRENT_APP_VERSION = 'v129';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v128</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v129</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1161,7 +1161,12 @@
               <option value="task19">🚂 Tarea 19 (Transportes y Escuela): AUTO, BICI, TREN, LIBRO, LÁPIZ</option>
               <option value="task20">🐍 Tarea 20 (S - Aventura Mágica): SERPIENTE, SIRENA, SOMBRERO, SOMBRILLA, FANTASMA</option>
               <option value="task21">🔥 Tarea 21 (F - Fuego, Fideitos y Foca): FUEGO, FIDEOS, FOCA, PUENTE, PLUMA</option>
-              <option value="task_all_stories">📚 Tarea Maestro: TODAS LAS PALABRAS DE CUENTOS (70+ Palabras)</option>
+              <option value="task22">👨‍👩‍👧 Tarea 22 (Familia y Personas): NIÑO, NIÑA, ABUELO, ABUELA, TÍO, TÍA, MADRE, PADRE, PAPÁ</option>
+              <option value="task23">🎨 Tarea 23 (Colores Mágicos): ROJO, AZUL, AMARILLO, ROSA, NEGRO, GRIS, DORADO</option>
+              <option value="task24">✋ Tarea 24 (Cuerpo y Música): MANO, BOCA, PATA, MIRADA, CORAZÓN, MÚSICA</option>
+              <option value="task25">🌳 Tarea 25 (Naturaleza y Bosque): FLOR, ÁRBOL, PEZ, PÁJARO, LEÓN</option>
+              <option value="task26">🚪 Tarea 26 (Objetos del Castillo): CERA, COMA, COPITA, PIÑA, PLATO, PUERTA</option>
+              <option value="task_all_stories">📚 Tarea Maestro: TODAS LAS PALABRAS DEL JUEGO (100+ Palabras)</option>
               <option value="custom">⭐ Tarea Semanal Personalizada (Panel CRIN)</option>
             </select>
             <div id="active-task-words-info" style="font-size: 11px; margin-top: 6px; opacity: 0.95; font-weight: 500;">
@@ -1399,7 +1404,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v128</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v129</span>
         </div>
         
         <div class="panel-card">
@@ -3676,6 +3681,178 @@
       'PLUMA': {
         chapterTitle: '📜 Cap.: La Pluma Dorada',
         narration: 'Encontramos una pluma suave y dorada que flotaba suavemente en el aire.'
+      },
+      'NIÑO': {
+        chapterTitle: '📜 Cap.: El Niño Explorador',
+        narration: 'Un alegre niño explorador nos guió con entusiasmo por el camino de la colina.'
+      },
+      'NINO': {
+        chapterTitle: '📜 Cap.: El Niño Explorador',
+        narration: 'Un alegre niño explorador nos guió con entusiasmo por el camino de la colina.'
+      },
+      'NIÑA': {
+        chapterTitle: '📜 Cap.: La Niña Aventurera',
+        narration: 'Una valiente niña aventurera descubrió las huellas doradas en el bosque.'
+      },
+      'NINA': {
+        chapterTitle: '📜 Cap.: La Niña Aventurera',
+        narration: 'Una valiente niña aventurera descubrió las huellas doradas en el bosque.'
+      },
+      'ABUELO': {
+        chapterTitle: '📜 Cap.: El Abuelo Sabio',
+        narration: 'El querido abuelo nos contó historias fascinantes junto a la chimenea.'
+      },
+      'ABUELA': {
+        chapterTitle: '📜 Cap.: La Abuela Cariñosa',
+        narration: 'La linda abuela nos preparó galletas dulces antes de emprender el viaje.'
+      },
+      'TÍO': {
+        chapterTitle: '📜 Cap.: El Tío Aventurero',
+        narration: 'El simpático tío nos trajo un mapa antiguo lleno de secretos y tesoros.'
+      },
+      'TIO': {
+        chapterTitle: '📜 Cap.: El Tío Aventurero',
+        narration: 'El simpático tío nos trajo un mapa antiguo lleno de secretos y tesoros.'
+      },
+      'TÍA': {
+        chapterTitle: '📜 Cap.: La Tía Sonriente',
+        narration: 'La bondadosa tía cantaba una hermosa canción mientras caminábamos.'
+      },
+      'TIA': {
+        chapterTitle: '📜 Cap.: La Tía Sonriente',
+        narration: 'La bondadosa tía cantaba una hermosa canción mientras caminábamos.'
+      },
+      'MADRE': {
+        chapterTitle: '📜 Cap.: La Madre Protectora',
+        narration: 'La madre nos despidió con una gran sonrisa y un fuerte abrazo de amor.'
+      },
+      'PADRE': {
+        chapterTitle: '📜 Cap.: El Padre Guiador',
+        narration: 'El padre nos enseñó a seguir el mapa y a orientarnos por las estrellas.'
+      },
+      'PAPÁ': {
+        chapterTitle: '📜 Cap.: El Papá Cariñoso',
+        narration: 'El alegre papá sonrió con orgullo al vernos alcanzar la cima del cerro.'
+      },
+      'PAPA': {
+        chapterTitle: '📜 Cap.: El Papá Cariñoso',
+        narration: 'El alegre papá sonrió con orgullo al vernos alcanzar la cima del cerro.'
+      },
+      'ROJO': {
+        chapterTitle: '📜 Cap.: El Destello Rojo',
+        narration: 'Entre la vegetación brilló un destello de color rojo como el fuego radiante.'
+      },
+      'AZUL': {
+        chapterTitle: '📜 Cap.: El Mágico Color Azul',
+        narration: 'El cielo transparente y las aguas del río brillaban con un intenso color azul.'
+      },
+      'AMARILLO': {
+        chapterTitle: '📜 Cap.: El Sol Amarillo',
+        narration: 'Los rayos de sol bañaron los campos con un cálido manto de color amarillo.'
+      },
+      'ROSA': {
+        chapterTitle: '📜 Cap.: La Flor Rosa',
+        narration: 'Encontraron una delicada flor de color rosa que desprendía un suave aroma.'
+      },
+      'NEGRO': {
+        chapterTitle: '📜 Cap.: El Misterio Negro',
+        narration: 'El sombrero del sabio era de un elegante color negro brillante.'
+      },
+      'GRIS': {
+        chapterTitle: '📜 Cap.: El Delfín Gris',
+        narration: 'Un simpático delfín de color gris saludaba dando saltos sobre el agua.'
+      },
+      'DORADO': {
+        chapterTitle: '📜 Cap.: El Tesoro Dorado',
+        narration: 'En la cámara secreta del castillo descubrieron un gran cofre con brillo dorado.'
+      },
+      'MANO': {
+        chapterTitle: '📜 Cap.: La Mano Amiga',
+        narration: 'Nos tomamos de la mano para cruzar juntos el sendero entre las rocas.'
+      },
+      'BOCA': {
+        chapterTitle: '📜 Cap.: La Gran Sonrisa',
+        narration: 'Abrimos la boca de asombro al ver la majestuosidad de la cueva cristalina.'
+      },
+      'PATA': {
+        chapterTitle: '📜 Cap.: La Pata Suave',
+        narration: 'El cachorrito estiró su suave pata saludando a los viajeros con ternura.'
+      },
+      'MIRADA': {
+        chapterTitle: '📜 Cap.: La Mirada Brilante',
+        narration: 'Su mirada curiosa observaba con atención cada rincón de la gran aventura.'
+      },
+      'CORAZÓN': {
+        chapterTitle: '📜 Cap.: El Corazón Valiente',
+        narration: 'Con el corazón lleno de valentía y alegría superaron todos los desafíos.'
+      },
+      'CORAZON': {
+        chapterTitle: '📜 Cap.: El Corazón Valiente',
+        narration: 'Con el corazón lleno de valentía y alegría superaron todos los desafíos.'
+      },
+      'MÚSICA': {
+        chapterTitle: '📜 Cap.: La Música Mágica',
+        narration: 'Sonaba una suave música en el aire que llenaba de paz todo el bosque.'
+      },
+      'MUSICA': {
+        chapterTitle: '📜 Cap.: La Música Mágica',
+        narration: 'Sonaba una suave música en el aire que llenaba de paz todo el bosque.'
+      },
+      'FLOR': {
+        chapterTitle: '📜 Cap.: La Flor Silvestre',
+        narration: 'A la orilla del camino brotaba una linda flor con pétalos resplandecientes.'
+      },
+      'ÁRBOL': {
+        chapterTitle: '📜 Cap.: El Árbol Frondoso',
+        narration: 'Nos cobijamos bajo las tupidas ramas del gran árbol para escuchar a las aves.'
+      },
+      'ARBOL': {
+        chapterTitle: '📜 Cap.: El Árbol Frondoso',
+        narration: 'Nos cobijamos bajo las tupidas ramas del gran árbol para escuchar a las aves.'
+      },
+      'PEZ': {
+        chapterTitle: '📜 Cap.: El Pez Plateado',
+        narration: 'Un veloz pez plateado nadaba alegremente entre las piedras del riachuelo.'
+      },
+      'PÁJARO': {
+        chapterTitle: '📜 Cap.: El Pájaro Cantor',
+        narration: 'Un hermoso pájaro de plumas alegres entonó su canto desde lo alto de la rama.'
+      },
+      'PAJARO': {
+        chapterTitle: '📜 Cap.: El Pájaro Cantor',
+        narration: 'Un hermoso pájaro de plumas alegres entonó su canto desde lo alto de la rama.'
+      },
+      'LEÓN': {
+        chapterTitle: '📜 Cap.: El León Sabio',
+        narration: 'El rey león descansaba en la cima del monte contemplando su hermoso reino.'
+      },
+      'LEON': {
+        chapterTitle: '📜 Cap.: El León Sabio',
+        narration: 'El rey león descansaba en la cima del monte contemplando su hermoso reino.'
+      },
+      'CERA': {
+        chapterTitle: '📜 Cap.: La Vela de Cera',
+        narration: 'Encendieron la suave vela de cera para iluminar la inscripción secreta.'
+      },
+      'COMA': {
+        chapterTitle: '📜 Cap.: La Coma Mágica',
+        narration: 'Colocaron la coma dorada en la frase para dar una pausa y revelar la adivinanza.'
+      },
+      'COPITA': {
+        chapterTitle: '📜 Cap.: La Copita Cristalina',
+        narration: 'Brindaron con agua pura servida en una pequeña copita cristalina.'
+      },
+      'PIÑA': {
+        chapterTitle: '📜 Cap.: La Piña Tropical',
+        narration: 'Saboreamos la dulzura de la piña fresca recién cosechada en el huerto.'
+      },
+      'PLATO': {
+        chapterTitle: '📜 Cap.: El Plato Dorado',
+        narration: 'Sirvieron la cena sobre un hermoso plato con orlas doradas.'
+      },
+      'PUERTA': {
+        chapterTitle: '📜 Cap.: La Puerta del Castillo',
+        narration: 'Empujamos con emoción la gran puerta de madera que abría el camino final.'
       }
     };
 
@@ -3984,9 +4161,34 @@
         name: '🔥 Tarea 21 (F - Fuego, Fideitos y Foca): FUEGO, FIDEOS, FOCA, PUENTE, PLUMA',
         words: ['FUEGO', 'FIDEOS', 'FOCA', 'PUENTE', 'PLUMA']
       },
+      task22: {
+        id: 'task22',
+        name: '👨‍👩‍👧 Tarea 22 (Familia y Personas): NIÑO, NIÑA, ABUELO, ABUELA, TÍO, TÍA, MADRE, PADRE, PAPÁ',
+        words: ['NIÑO', 'NIÑA', 'ABUELO', 'ABUELA', 'TÍO', 'TÍA', 'MADRE', 'PADRE', 'PAPÁ']
+      },
+      task23: {
+        id: 'task23',
+        name: '🎨 Tarea 23 (Colores Mágicos): ROJO, AZUL, AMARILLO, ROSA, NEGRO, GRIS, DORADO',
+        words: ['ROJO', 'AZUL', 'AMARILLO', 'ROSA', 'NEGRO', 'GRIS', 'DORADO']
+      },
+      task24: {
+        id: 'task24',
+        name: '✋ Tarea 24 (Cuerpo y Música): MANO, BOCA, PATA, MIRADA, CORAZÓN, MÚSICA',
+        words: ['MANO', 'BOCA', 'PATA', 'MIRADA', 'CORAZÓN', 'MÚSICA']
+      },
+      task25: {
+        id: 'task25',
+        name: '🌳 Tarea 25 (Naturaleza y Bosque): FLOR, ÁRBOL, PEZ, PÁJARO, LEÓN',
+        words: ['FLOR', 'ÁRBOL', 'PEZ', 'PÁJARO', 'LEÓN']
+      },
+      task26: {
+        id: 'task26',
+        name: '🚪 Tarea 26 (Objetos del Castillo): CERA, COMA, COPITA, PIÑA, PLATO, PUERTA',
+        words: ['CERA', 'COMA', 'COPITA', 'PIÑA', 'PLATO', 'PUERTA']
+      },
       task_all_stories: {
         id: 'task_all_stories',
-        name: '📚 Tarea Maestro: TODAS LAS PALABRAS DE CUENTOS (70+ Palabras)',
+        name: '📚 Tarea Maestro: TODAS LAS PALABRAS DEL JUEGO (100+ Palabras)',
         words: [
           'ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ', 'VERDE', 'BLANCO', 'RANA', 'PATO',
           'LANA', 'LENTA', 'LINDA', 'LOMA', 'LUNA', 'PALA', 'PERA', 'PIE', 'POMELO', 'PUMA',
@@ -3998,7 +4200,12 @@
           'TECHO', 'TIJERA', 'TOPO', 'TUNEL', 'AGUA', 'MESA', 'LIMA', 'SOL', 'ESTRELLA',
           'GATO', 'PERRO', 'OSO', 'RATÓN', 'MONO', 'MANZANA', 'BANANO', 'LECHE', 'PAN', 'SOPA',
           'AUTO', 'BICI', 'TREN', 'LIBRO', 'LÁPIZ', 'SERPIENTE', 'SIRENA', 'SOMBRERO', 'SOMBRILLA',
-          'FUEGO', 'FIDEOS', 'FOCA', 'FANTASMA'
+          'FUEGO', 'FIDEOS', 'FOCA', 'FANTASMA', 'PUENTE', 'PLUMA', 'PINO', 'PILA', 'CARA', 'COCO',
+          'NIÑO', 'NIÑA', 'ABUELO', 'ABUELA', 'TÍO', 'TÍA', 'MADRE', 'PADRE', 'PAPÁ',
+          'ROJO', 'AZUL', 'AMARILLO', 'ROSA', 'NEGRO', 'GRIS', 'DORADO',
+          'MANO', 'BOCA', 'PATA', 'MIRADA', 'CORAZÓN', 'MÚSICA',
+          'FLOR', 'ÁRBOL', 'PEZ', 'PÁJARO', 'LEÓN',
+          'CERA', 'COMA', 'COPITA', 'PIÑA', 'PLATO', 'PUERTA'
         ]
       },
       custom: {
