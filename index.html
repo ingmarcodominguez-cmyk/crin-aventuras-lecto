@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v123';
+    const CURRENT_APP_VERSION = 'v124';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v123</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v124</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1386,7 +1386,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v123</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v124</span>
         </div>
         
         <div class="panel-card">
@@ -3445,20 +3445,24 @@
         narration: 'Entramos a la gran sala de cristal del castillo donde los destellos de luz iluminaban el ambiente.'
       },
       'FARO': {
-        chapterTitle: '📜 Cap.: El Faro del Bosque',
-        narration: 'En la costa del bosque mágico, un imponente faro iluminaba el mar con su brillante luz dorada.'
+        chapterTitle: '📖 El Faro del Bosque de {nombre}',
+        narration: 'Caminando por el bosque, {nombre} encontró un pequeño faro junto a un sendero.'
       },
       'FELINO': {
-        chapterTitle: '📜 Cap.: El Felino Silencioso',
-        narration: 'Entre las ramas de los árboles, vimos a un elegante felino caminando sigilosamente con mucha gracia.'
+        chapterTitle: '📖 El Felino del Bosque',
+        narration: 'Junto al faro, {nombre} vio un felino que salió lentamente de entre los árboles.'
       },
       'FICHA': {
-        chapterTitle: '📜 Cap.: La Ficha Dorada',
-        narration: 'Sobre una mesa de madera encontramos una brillante ficha de juego que desbloqueaba la siguiente puerta.'
+        chapterTitle: '📖 La Ficha Secreta',
+        narration: 'El felino llevó a {nombre} hasta una ficha de madera con una estrella dibujada.'
+      },
+      'FOTO': {
+        chapterTitle: '📖 La Foto Escondida',
+        narration: 'Siguiendo las estrellas de los árboles, {nombre} encontró una foto escondida debajo de una piedra.'
       },
       'FUENTE': {
-        chapterTitle: '📜 Cap.: La Fuente Mágica',
-        narration: 'En el centro de la plaza cantaba una hermosa fuente de agua cristalina que refrescaba a los viajeros.'
+        chapterTitle: '📖 La Fuente Escondida',
+        narration: 'La foto mostró a {nombre} el camino hasta una fuente escondida entre los árboles.'
       },
       'GAFA': {
         chapterTitle: '📜 Cap.: La Gafa Mágica',
@@ -3492,25 +3496,29 @@
         chapterTitle: '📜 Cap.: La Rifa del Pueblo',
         narration: 'En la fiesta de la colina participamos en la gran rifa del pueblo y ganamos el premio mayor.'
       },
+      'TAZA': {
+        chapterTitle: '📖 La Taza del Bosque de {nombre}',
+        narration: 'Caminando por el bosque, {nombre} encontró una pequeña TAZA junto a un árbol.'
+      },
       'TECHO': {
-        chapterTitle: '📜 Cap.: La Casita del Techo Rojo',
-        narration: 'Junto al sendero del bosque hallamos una linda casita con un techo rojo y una luz encendida.'
+        chapterTitle: '📖 La Casita del Bosque',
+        narration: 'Junto al árbol había una casita con un TECHO rojo y una puerta entreabierta.'
       },
       'TIJERA': {
-        chapterTitle: '📜 Cap.: La Tijera Dorada',
-        narration: 'En el escritorio de madera encontramos una tijera dorada con la que cortamos la cinta del misterio.'
+        chapterTitle: '📖 La Tijera Secreta',
+        narration: 'Dentro de la casita, {nombre} encontró una TIJERA junto a un mapa dibujado en un papel.'
       },
       'TOPO': {
-        chapterTitle: '📜 Cap.: El Topo del Sendero',
-        narration: 'Al salir de la casita, un simpático topo asomó la cabeza y nos señaló el camino correcto.'
+        chapterTitle: '📖 El Topo del Sendero',
+        narration: 'Al salir de la casita, un TOPO apareció y señaló con sus patas el comienzo del sendero.'
       },
       'TUNEL': {
-        chapterTitle: '📜 Cap.: El Túnel Secreto',
-        narration: 'Siguiendo las pisadas del topo, descubrimos un gran túnel secreto iluminado con faroles.'
+        chapterTitle: '📖 El Túnel Secreto',
+        narration: 'Siguiendo al topo, {nombre} llegó hasta un TUNEL escondido entre las raíces de los árboles.'
       },
       'TÚNEL': {
-        chapterTitle: '📜 Cap.: El Túnel Secreto',
-        narration: 'Siguiendo las pisadas del topo, descubrimos un gran túnel secreto iluminado con faroles.'
+        chapterTitle: '📖 El Túnel Secreto',
+        narration: 'Siguiendo al topo, {nombre} llegó hasta un TUNEL escondido entre las raíces de los árboles.'
       }
     };
 
