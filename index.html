@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v126';
+    const CURRENT_APP_VERSION = 'v127';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v126</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v127</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1389,7 +1389,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v126</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v127</span>
         </div>
         
         <div class="panel-card">
@@ -2902,10 +2902,16 @@
     };
 
     function getEmojiForWord(word) {
+      if (!word) return '⭐';
       const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
-      if (typeof customStories === 'object' && customStories && customStories[clean] && customStories[clean].emoji) {
-        return customStories[clean].emoji;
+
+      if (typeof customStories === 'object' && customStories && customStories[clean] && typeof customStories[clean].emoji === 'string') {
+        const custEmoji = customStories[clean].emoji.trim();
+        if (custEmoji.length > 0 && custEmoji !== '⭐') {
+          return custEmoji;
+        }
       }
+
       if (emojiMap[clean]) return emojiMap[clean];
 
       const category = getWordCategory(clean);
@@ -2924,6 +2930,12 @@
       if (clean.includes('SAPO') || clean.includes('RANA')) return '🐸';
       if (clean.includes('SEÑOR') || clean.includes('SENOR')) return '👨';
       if (clean.includes('SEÑORA') || clean.includes('SENORA')) return '👵';
+
+      const firstLetterMap = {
+        'F': '🚨', 'T': '✂️', 'C': '📦', 'P': '📦', 'L': '🌙', 'M': '🗺️', 'B': '👢', 'D': '🎲', 'R': '🐸', 'S': '🐸', 'Z': '👞', 'G': '🕶️'
+      };
+      const firstLetter = clean.charAt(0);
+      if (firstLetterMap[firstLetter]) return firstLetterMap[firstLetter];
 
       return '⭐';
     }
@@ -2958,11 +2970,11 @@
     function getWordCategory(word) {
       const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
       const colors = ['VERDE', 'BLANCO', 'ROJO', 'AZUL', 'AMARILLO', 'ROSA', 'NEGRO', 'GRIS', 'VIOLETA', 'DORADO', 'CELESTE'];
-      const animals = ['PUMA', 'RANA', 'SAPO', 'SPO', 'SERPIENTE', 'PATO', 'GATO', 'PERRO', 'MARIPOSA', 'PEZ', 'PAJARO', 'PÁJARO', 'LEON', 'LEÓN', 'OSO', 'RATON', 'RATÓN', 'ZORRO', 'CONEJO', 'MONO', 'VACA', 'OVEJA', 'GALLINA', 'JIRAFA', 'CEBRA', 'TORTUGA', 'TIGRE', 'CABALLO', 'LOBO', 'TOTO'];
-      const food_meal = ['CENA', 'DESAYUNO', 'ALMUERZO', 'MERIENDA', 'SOPA', 'LECHE', 'PAN', 'QUESO', 'PIZZA', 'POSTRE', 'PASTEL', 'TORTA', 'FRUTA', 'PERA', 'PIÑA', 'POMELO', 'LIMA', 'MANZANA', 'BANANO', 'PLATANO', 'PLÁTANO', 'UVA', 'UVAS', 'MELON', 'MELÓN', 'COCO', 'TAZA', 'MATE'];
+      const animals = ['PUMA', 'RANA', 'SAPO', 'SPO', 'SERPIENTE', 'PATO', 'GATO', 'PERRO', 'MARIPOSA', 'PEZ', 'PAJARO', 'PÁJARO', 'LEON', 'LEÓN', 'OSO', 'RATON', 'RATÓN', 'ZORRO', 'CONEJO', 'MONO', 'VACA', 'OVEJA', 'GALLINA', 'JIRAFA', 'CEBRA', 'TORTUGA', 'TIGRE', 'CABALLO', 'LOBO', 'TOTO', 'TOPO', 'FELINO', 'FOCA'];
+      const food_meal = ['CENA', 'DESAYUNO', 'ALMUERZO', 'MERIENDA', 'SOPA', 'LECHE', 'PAN', 'QUESO', 'PIZZA', 'POSTRE', 'PASTEL', 'TORTA', 'FRUTA', 'PERA', 'PIÑA', 'POMELO', 'LIMA', 'MANZANA', 'BANANO', 'PLATANO', 'PLÁTANO', 'UVA', 'UVAS', 'MELON', 'MELÓN', 'COCO', 'TAZA', 'MATE', 'CAFÉ', 'CAFE', 'CONFITE'];
       const place_venue = ['CINE', 'PARQUE', 'TEATRO', 'ESCUELA', 'PLAZA', 'MUSEO', 'CASA', 'JARDÍN', 'JARDIN', 'BOSQUE', 'PLAYA', 'CAMPO', 'PUEBLO', 'CASTILLO', 'CIUDAD', 'LOMA', 'MONTAÑA', 'ISLA', 'POZO'];
-      const furniture_home = ['CUNA', 'CAMA', 'MESA', 'SILLA', 'SOFÁ', 'SOFA', 'ROPERO', 'PUERTA', 'VENTANA', 'PIZARRA', 'SALA', 'SILLÓN', 'SILLON'];
-      const tool_object = ['PALA', 'COPA', 'VASO', 'TAZA', 'LÁPIZ', 'LAPIZ', 'LIBRO', 'RELOJ', 'PELOTA', 'MOCHILA', 'BOTELLA', 'COCHE', 'AUTO', 'BICI', 'TREN', 'PILA', 'PUENTE', 'PLUMA', 'PLATO', 'COPITA', 'CERA', 'COMA', 'TELA', 'TÍTERE', 'TITERE', 'TAPA', 'MOTO', 'MAPA', 'BOTA', 'BOLA', 'DADO', 'DEDO', 'FOTO', 'LATA', 'PIPA', 'PITO', 'CUENTO', 'SOMBRERO', 'SOMBRILLA', 'SEMÁFORO', 'SEMAFORO'];
+      const furniture_home = ['CUNA', 'CAMA', 'MESA', 'SILLA', 'SOFÁ', 'SOFA', 'ROPERO', 'PUERTA', 'VENTANA', 'PIZARRA', 'SALA', 'SILLÓN', 'SILLON', 'TECHO'];
+      const tool_object = ['PALA', 'COPA', 'VASO', 'TAZA', 'LÁPIZ', 'LAPIZ', 'LIBRO', 'RELOJ', 'PELOTA', 'MOCHILA', 'BOTELLA', 'COCHE', 'AUTO', 'BICI', 'TREN', 'PILA', 'PUENTE', 'PLUMA', 'PLATO', 'COPITA', 'CERA', 'COMA', 'TELA', 'TÍTERE', 'TITERE', 'TAPA', 'MOTO', 'MAPA', 'BOTA', 'BOLA', 'DADO', 'DEDO', 'FOTO', 'LATA', 'PIPA', 'PITO', 'CUENTO', 'SOMBRERO', 'SOMBRILLA', 'SEMÁFORO', 'SEMAFORO', 'TIJERA', 'TUNEL', 'TÚNEL', 'FARO', 'FICHA', 'FUENTE', 'GAFA', 'GAFAS', 'RIFA'];
       const body = ['PIE', 'MANO', 'BOCA', 'NARIZ', 'OJO', 'CARA', 'CABEZA', 'PATA', 'OREJA', 'BRAZO', 'COLA', 'DEDO'];
       const nature = ['SOL', 'LUNA', 'ESTRELLA', 'AGUA', 'FLOR', 'ARBOL', 'ÁRBOL', 'NUBE', 'RÍO', 'RIO', 'BOSQUE', 'MAR', 'MONTAÑA', 'HOJA', 'PIEDRA', 'PINO'];
 
@@ -3532,12 +3544,13 @@
       const category = getWordCategory(clean);
 
       if (customStories && customStories[clean]) {
+        const custEm = (customStories[clean].emoji && typeof customStories[clean].emoji === 'string' && customStories[clean].emoji.trim() !== '⭐' && customStories[clean].emoji.trim().length > 0) ? customStories[clean].emoji.trim() : null;
         return {
           chapterTitle: customStories[clean].chapterTitle,
           narration: customStories[clean].narration,
           syllables: syllables || splitSpanishSyllables(clean),
           word: clean,
-          emoji: emoji || getEmojiForWord(clean),
+          emoji: custEm || (emoji && emoji !== '⭐' ? emoji : getEmojiForWord(clean)),
           obstacle: '📦',
           bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
         };
@@ -5112,6 +5125,13 @@
         const saved = localStorage.getItem('crin_custom_stories');
         if (saved) {
           customStories = JSON.parse(saved);
+          if (typeof customStories === 'object' && customStories !== null) {
+            Object.keys(customStories).forEach(clean => {
+              if (customStories[clean] && (!customStories[clean].emoji || customStories[clean].emoji === '⭐' || (typeof customStories[clean].emoji === 'string' && customStories[clean].emoji.trim() === ''))) {
+                delete customStories[clean].emoji;
+              }
+            });
+          }
         } else {
           customStories = {};
         }
@@ -5395,7 +5415,7 @@
                 customStories[clean] = {
                   chapterTitle: val.chapterTitle || val.title || `📜 Cap.: ${clean}`,
                   narration: val.narration || val.story || '',
-                  emoji: val.emoji || getEmojiForWord(clean),
+                  emoji: (val.emoji && typeof val.emoji === 'string' && val.emoji.trim().length > 0 && val.emoji.trim() !== '⭐') ? val.emoji.trim() : getEmojiForWord(clean),
                   position: val.position || 'inicial'
                 };
               }
