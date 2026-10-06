@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v122';
+    const CURRENT_APP_VERSION = 'v123';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v122</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v123</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1386,7 +1386,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v122</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v123</span>
         </div>
         
         <div class="panel-card">
@@ -2894,6 +2894,7 @@
       'TAZA': '☕', 'TELA': '🧵', 'TÍTERE': '🎭', 'TITERE': '🎭', 'TAPA': '📦', 'MOTO': '🏍️', 'MATE': '🧉', 'MAPA': '🗺️',
       'BOTA': '👢', 'BOLA': '🔮', 'DADO': '🎲', 'DEDO': '☝️', 'FOTO': '📸', 'LATA': '🥫', 'POZO': '🕳️', 'PIPA': '🫧', 'PITO': '🎷', 'CUENTO': '📖',
       'FARO': '🚨', 'FELINO': '🐱', 'FICHA': '🎲', 'FUENTE': '⛲', 'GAFA': '🕶️', 'GAFAS': '🕶️', 'CAFÉ': '☕', 'CAFE': '☕', 'CONFITE': '🍬', 'RIFA': '🎟️', 'FUEGO': '🔥', 'FIDEOS': '🍝', 'FOCA': '🦭', 'FANTASMA': '👻',
+      'TECHO': '🏠', 'TIJERA': '✂️', 'TOPO': '🦔', 'TUNEL': '🕳️', 'TÚNEL': '🕳️',
       'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '👴', 'TIO': '👴', 'TÍA': '👵', 'TIA': '👵'
     };
 
@@ -3490,6 +3491,26 @@
       'RIFA': {
         chapterTitle: '📜 Cap.: La Rifa del Pueblo',
         narration: 'En la fiesta de la colina participamos en la gran rifa del pueblo y ganamos el premio mayor.'
+      },
+      'TECHO': {
+        chapterTitle: '📜 Cap.: La Casita del Techo Rojo',
+        narration: 'Junto al sendero del bosque hallamos una linda casita con un techo rojo y una luz encendida.'
+      },
+      'TIJERA': {
+        chapterTitle: '📜 Cap.: La Tijera Dorada',
+        narration: 'En el escritorio de madera encontramos una tijera dorada con la que cortamos la cinta del misterio.'
+      },
+      'TOPO': {
+        chapterTitle: '📜 Cap.: El Topo del Sendero',
+        narration: 'Al salir de la casita, un simpático topo asomó la cabeza y nos señaló el camino correcto.'
+      },
+      'TUNEL': {
+        chapterTitle: '📜 Cap.: El Túnel Secreto',
+        narration: 'Siguiendo las pisadas del topo, descubrimos un gran túnel secreto iluminado con faroles.'
+      },
+      'TÚNEL': {
+        chapterTitle: '📜 Cap.: El Túnel Secreto',
+        narration: 'Siguiendo las pisadas del topo, descubrimos un gran túnel secreto iluminado con faroles.'
       }
     };
 
@@ -3742,6 +3763,12 @@
         name: '☕ Tarea 11 (F - Sílabas Intermedias/Finales): GAFA, CAFÉ, CONFITE, SOFÁ, RIFA',
         words: ['GAFA', 'CAFÉ', 'CONFITE', 'SOFÁ', 'RIFA'],
         position: 'intermedia_final'
+      },
+      task12: {
+        id: 'task12',
+        name: '✂️ Tarea 12 (T - Sílabas Iniciales): TAZA, TECHO, TIJERA, TOPO, TUNEL',
+        words: ['TAZA', 'TECHO', 'TIJERA', 'TOPO', 'TUNEL'],
+        position: 'inicial'
       },
       custom: {
         id: 'custom',
