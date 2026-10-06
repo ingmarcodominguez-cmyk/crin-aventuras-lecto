@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v127';
+    const CURRENT_APP_VERSION = 'v128';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v127</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v128</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1152,6 +1152,16 @@
               <option value="task10">🚨 Tarea 10 (F - Sílabas Iniciales): FARO, FELINO, FICHA, FOTO, FUENTE</option>
               <option value="task11">☕ Tarea 11 (F - Sílabas Intermedias/Finales): GAFA, CAFÉ, CONFITE, SOFÁ, RIFA</option>
               <option value="task12">✂️ Tarea 12 (T - Sílabas Iniciales): TAZA, TECHO, TIJERA, TOPO, TUNEL</option>
+              <option value="task13">🎷 Tarea 13 (P y T - Silabario de PIPA y PITO): PIPA, PITO, PINO, PILA, POZO</option>
+              <option value="task14">🧸 Tarea 14 (T - Cuentos de TITO, TOTO, TITA, TETE): TITO, TOTO, TITA, TETE, TÍTERE</option>
+              <option value="task15">🛏️ Tarea 15 (C - CAMA, COCHE, COLA, CARA, COCO): CAMA, COCHE, COLA, CARA, COCO</option>
+              <option value="task16">💧 Tarea 16 (Naturaleza y Casa): AGUA, MESA, LIMA, SOL, ESTRELLA</option>
+              <option value="task17">🐱 Tarea 17 (Mundo de Animales): GATO, PERRO, OSO, RATÓN, MONO</option>
+              <option value="task18">🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANO, LECHE, PAN, SOPA</option>
+              <option value="task19">🚂 Tarea 19 (Transportes y Escuela): AUTO, BICI, TREN, LIBRO, LÁPIZ</option>
+              <option value="task20">🐍 Tarea 20 (S - Aventura Mágica): SERPIENTE, SIRENA, SOMBRERO, SOMBRILLA, FANTASMA</option>
+              <option value="task21">🔥 Tarea 21 (F - Fuego, Fideitos y Foca): FUEGO, FIDEOS, FOCA, PUENTE, PLUMA</option>
+              <option value="task_all_stories">📚 Tarea Maestro: TODAS LAS PALABRAS DE CUENTOS (70+ Palabras)</option>
               <option value="custom">⭐ Tarea Semanal Personalizada (Panel CRIN)</option>
             </select>
             <div id="active-task-words-info" style="font-size: 11px; margin-top: 6px; opacity: 0.95; font-weight: 500;">
@@ -1389,7 +1399,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v127</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v128</span>
         </div>
         
         <div class="panel-card">
@@ -3534,6 +3544,138 @@
       'TÚNEL': {
         chapterTitle: '📖 El Túnel Secreto',
         narration: 'Siguiendo al topo, {nombre} llegó hasta un TUNEL escondido entre las raíces de los árboles.'
+      },
+      'PINO': {
+        chapterTitle: '📜 Cap.: El Pino Gigante',
+        narration: 'Bajo la sombra del pino gigante, descubrimos piñas doradas que brillaban al sol.'
+      },
+      'PILA': {
+        chapterTitle: '📜 Cap.: La Pila Luminosa',
+        narration: 'Colocamos una pila nueva en la linterna para iluminar la cueva secreta.'
+      },
+      'CARA': {
+        chapterTitle: '📜 Cap.: La Cara Sonriente',
+        narration: 'Nos lavamos la cara en el arroyo fresco y dibujamos una gran sonrisa de alegría.'
+      },
+      'COCO': {
+        chapterTitle: '📜 Cap.: El Coco Dulce',
+        narration: 'Encontramos un coco fresco en la palmera y disfrutamos de su dulce jugo.'
+      },
+      'SOL': {
+        chapterTitle: '📜 Cap.: El Sol Brillante',
+        narration: 'El sol radiante iluminaba el valle llenando de calidez nuestra caminata.'
+      },
+      'ESTRELLA': {
+        chapterTitle: '📜 Cap.: La Estrella de la Suerte',
+        narration: 'Una brillante estrella cayó del cielo señalando la ubicación del tesoro.'
+      },
+      'GATO': {
+        chapterTitle: '📜 Cap.: El Gato Curioso',
+        narration: 'Un tierno gato ronroneó cerca del camino acompañando nuestros pasos.'
+      },
+      'PERRO': {
+        chapterTitle: '📜 Cap.: El Perro Amigo',
+        narration: 'El fiel perro corrió felizmente guiándonos hacia el final del sendero.'
+      },
+      'OSO': {
+        chapterTitle: '📜 Cap.: El Oso Cariñoso',
+        narration: 'Un gran oso comía miel entre los árboles y nos saludó con un gesto amigable.'
+      },
+      'RATÓN': {
+        chapterTitle: '📜 Cap.: El Ratón Astuto',
+        narration: 'Un pequeño ratón nos mostró el pasadizo secreto tras la gran roca.'
+      },
+      'RATON': {
+        chapterTitle: '📜 Cap.: El Ratón Astuto',
+        narration: 'Un pequeño ratón nos mostró el pasadizo secreto tras la gran roca.'
+      },
+      'MONO': {
+        chapterTitle: '📜 Cap.: El Mono Travieso',
+        narration: 'El mono travieso saltaba de rama en rama jugando con las frutas mágicas.'
+      },
+      'MANZANA': {
+        chapterTitle: '📜 Cap.: La Manzana Roja',
+        narration: 'Recogimos una jugosa manzana roja del árbol saboreando su dulzura.'
+      },
+      'BANANO': {
+        chapterTitle: '📜 Cap.: El Banano Dorado',
+        narration: 'Pelamos un banano amarillo y dulce para compartir una rica merienda.'
+      },
+      'LECHE': {
+        chapterTitle: '📜 Cap.: La Leche Fresca',
+        narration: 'Disfrutamos de un vaso de leche tibia para reponer nuestras energías.'
+      },
+      'PAN': {
+        chapterTitle: '📜 Cap.: El Pan Calientito',
+        narration: 'El aroma a pan recién horneado nos guió hasta la cocina del castillo.'
+      },
+      'SOPA': {
+        chapterTitle: '📜 Cap.: La Sopa Deliciosa',
+        narration: 'Servimos una sopa reconfortante de verduras en la mesa del refugio.'
+      },
+      'AUTO': {
+        chapterTitle: '📜 Cap.: El Auto de Carreras',
+        narration: 'Subimos al auto de colores para viajar veloces por el camino de montaña.'
+      },
+      'BICI': {
+        chapterTitle: '📜 Cap.: La Bici Veloz',
+        narration: 'Pedaleamos alegres en la bici disfrutando del viento fresco del parque.'
+      },
+      'TREN': {
+        chapterTitle: '📜 Cap.: El Tren Expreso',
+        narration: 'El tren de vapor silbó alegremente cruzando el gran puente de piedra.'
+      },
+      'LIBRO': {
+        chapterTitle: '📜 Cap.: El Libro Encantado',
+        narration: 'Abrimos el libro encantado y sus páginas iluminadas nos contaron una bella historia.'
+      },
+      'LÁPIZ': {
+        chapterTitle: '📜 Cap.: El Lápiz Mágico',
+        narration: 'Con el lápiz mágico dibujamos la llave dorada que abría la última puerta.'
+      },
+      'LAPIZ': {
+        chapterTitle: '📜 Cap.: El Lápiz Mágico',
+        narration: 'Con el lápiz mágico dibujamos la llave dorada que abría la última puerta.'
+      },
+      'SERPIENTE': {
+        chapterTitle: '📜 Cap.: La Serpiente Guardiana',
+        narration: 'La serpiente brillante guardaba la entrada al templo mostrando el camino sabio.'
+      },
+      'SIRENA': {
+        chapterTitle: '📜 Cap.: La Sirena del Lago',
+        narration: 'En la orilla del lago, la dulce sirena cantaba una melodía de paz.'
+      },
+      'SOMBRERO': {
+        chapterTitle: '📜 Cap.: El Sombrero del Mago',
+        narration: 'Nos pusimos el sombrero del mago y de él brotaron destellos de mil colores.'
+      },
+      'SOMBRILLA': {
+        chapterTitle: '📜 Cap.: La Sombrilla Mágica',
+        narration: 'Abrimos la sombrilla mágica que nos protegió de la lluvia de estrellas.'
+      },
+      'FUEGO': {
+        chapterTitle: '📜 Cap.: El Fuego Acogedor',
+        narration: 'Nos sentamos junto al fuego de campamento cantando canciones de aventura.'
+      },
+      'FIDEOS': {
+        chapterTitle: '📜 Cap.: Los Fideos Ricos',
+        narration: 'Preparamos un rico plato de fideos calientitos para cenar con todo el grupo.'
+      },
+      'FOCA': {
+        chapterTitle: '📜 Cap.: La Foca Juguetona',
+        narration: 'La foca juguetona aplaudía desde las rocas saludando nuestro barco.'
+      },
+      'FANTASMA': {
+        chapterTitle: '📜 Cap.: El Fantasma Simpático',
+        narration: 'En el torreón del castillo conocimos a un fantasma simpático que nos hizo reír.'
+      },
+      'PUENTE': {
+        chapterTitle: '📜 Cap.: El Puente de Piedra',
+        narration: 'Cruzamos con cuidado el puente de piedra que unía las dos laderas de la montaña.'
+      },
+      'PLUMA': {
+        chapterTitle: '📜 Cap.: La Pluma Dorada',
+        narration: 'Encontramos una pluma suave y dorada que flotaba suavemente en el aire.'
       }
     };
 
@@ -3793,6 +3935,71 @@
         name: '✂️ Tarea 12 (T - Sílabas Iniciales): TAZA, TECHO, TIJERA, TOPO, TUNEL',
         words: ['TAZA', 'TECHO', 'TIJERA', 'TOPO', 'TUNEL'],
         position: 'inicial'
+      },
+      task13: {
+        id: 'task13',
+        name: '🎷 Tarea 13 (P y T - Silabario de PIPA y PITO): PIPA, PITO, PINO, PILA, POZO',
+        words: ['PIPA', 'PITO', 'PINO', 'PILA', 'POZO'],
+        position: 'inicial'
+      },
+      task14: {
+        id: 'task14',
+        name: '🧸 Tarea 14 (T - Cuentos de TITO, TOTO, TITA, TETE): TITO, TOTO, TITA, TETE, TÍTERE',
+        words: ['TITO', 'TOTO', 'TITA', 'TETE', 'TÍTERE'],
+        position: 'inicial'
+      },
+      task15: {
+        id: 'task15',
+        name: '🛏️ Tarea 15 (C - CAMA, COCHE, COLA, CARA, COCO): CAMA, COCHE, COLA, CARA, COCO',
+        words: ['CAMA', 'COCHE', 'COLA', 'CARA', 'COCO'],
+        position: 'inicial'
+      },
+      task16: {
+        id: 'task16',
+        name: '💧 Tarea 16 (Naturaleza y Casa): AGUA, MESA, LIMA, SOL, ESTRELLA',
+        words: ['AGUA', 'MESA', 'LIMA', 'SOL', 'ESTRELLA']
+      },
+      task17: {
+        id: 'task17',
+        name: '🐱 Tarea 17 (Mundo de Animales): GATO, PERRO, OSO, RATÓN, MONO',
+        words: ['GATO', 'PERRO', 'OSO', 'RATÓN', 'MONO']
+      },
+      task18: {
+        id: 'task18',
+        name: '🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANO, LECHE, PAN, SOPA',
+        words: ['MANZANA', 'BANANO', 'LECHE', 'PAN', 'SOPA']
+      },
+      task19: {
+        id: 'task19',
+        name: '🚂 Tarea 19 (Transportes y Escuela): AUTO, BICI, TREN, LIBRO, LÁPIZ',
+        words: ['AUTO', 'BICI', 'TREN', 'LIBRO', 'LÁPIZ']
+      },
+      task20: {
+        id: 'task20',
+        name: '🐍 Tarea 20 (S - Aventura Mágica): SERPIENTE, SIRENA, SOMBRERO, SOMBRILLA, FANTASMA',
+        words: ['SERPIENTE', 'SIRENA', 'SOMBRERO', 'SOMBRILLA', 'FANTASMA']
+      },
+      task21: {
+        id: 'task21',
+        name: '🔥 Tarea 21 (F - Fuego, Fideitos y Foca): FUEGO, FIDEOS, FOCA, PUENTE, PLUMA',
+        words: ['FUEGO', 'FIDEOS', 'FOCA', 'PUENTE', 'PLUMA']
+      },
+      task_all_stories: {
+        id: 'task_all_stories',
+        name: '📚 Tarea Maestro: TODAS LAS PALABRAS DE CUENTOS (70+ Palabras)',
+        words: [
+          'ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ', 'VERDE', 'BLANCO', 'RANA', 'PATO',
+          'LANA', 'LENTA', 'LINDA', 'LOMA', 'LUNA', 'PALA', 'PERA', 'PIE', 'POMELO', 'PUMA',
+          'CASA', 'CENA', 'CINE', 'COPA', 'CUNA', 'COLA', 'CAMA', 'COCHE',
+          'TAZA', 'TELA', 'TÍTERE', 'TAPA', 'TOTO', 'TITA', 'TETE', 'TITO', 'MOTO',
+          'MATE', 'MAPA', 'BOTA', 'BOLA', 'DADO', 'DEDO', 'FOTO', 'LATA', 'POZO',
+          'PIPA', 'PITO', 'CUENTO', 'SAPO', 'SEÑORA', 'SEÑOR', 'SILLA', 'SALA',
+          'FARO', 'FELINO', 'FICHA', 'FUENTE', 'GAFA', 'CAFÉ', 'CONFITE', 'SOFÁ', 'RIFA',
+          'TECHO', 'TIJERA', 'TOPO', 'TUNEL', 'AGUA', 'MESA', 'LIMA', 'SOL', 'ESTRELLA',
+          'GATO', 'PERRO', 'OSO', 'RATÓN', 'MONO', 'MANZANA', 'BANANO', 'LECHE', 'PAN', 'SOPA',
+          'AUTO', 'BICI', 'TREN', 'LIBRO', 'LÁPIZ', 'SERPIENTE', 'SIRENA', 'SOMBRERO', 'SOMBRILLA',
+          'FUEGO', 'FIDEOS', 'FOCA', 'FANTASMA'
+        ]
       },
       custom: {
         id: 'custom',
