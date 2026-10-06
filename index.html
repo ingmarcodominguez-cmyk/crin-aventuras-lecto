@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v124';
+    const CURRENT_APP_VERSION = 'v125';
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) { registration.unregister(); }
@@ -1136,7 +1136,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v124</span></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v125</span></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1149,6 +1149,9 @@
               <option value="task7">🐸 Tarea 7: SAPO, SEÑORA, SEÑOR, SILLA, SALA</option>
               <option value="task8">🎲 Tarea 8: MATE, MAPA, BOTA, BOLA, DADO</option>
               <option value="task9">📖 Tarea 9: DEDO, FOTO, LATA, POZO, CUENTO</option>
+              <option value="task10">🚨 Tarea 10 (F - Sílabas Iniciales): FARO, FELINO, FICHA, FOTO, FUENTE</option>
+              <option value="task11">☕ Tarea 11 (F - Sílabas Intermedias/Finales): GAFA, CAFÉ, CONFITE, SOFÁ, RIFA</option>
+              <option value="task12">✂️ Tarea 12 (T - Sílabas Iniciales): TAZA, TECHO, TIJERA, TOPO, TUNEL</option>
               <option value="custom">⭐ Tarea Semanal Personalizada (Panel CRIN)</option>
             </select>
             <div id="active-task-words-info" style="font-size: 11px; margin-top: 6px; opacity: 0.95; font-weight: 500;">
@@ -1386,7 +1389,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v124</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v125</span>
         </div>
         
         <div class="panel-card">
