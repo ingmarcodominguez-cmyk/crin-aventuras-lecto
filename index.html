@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v133';
+    const CURRENT_APP_VERSION = 'v134';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '133');
+      u.searchParams.set('v', '134');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '133' && urlVer !== 'v133')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '134' && urlVer !== 'v134')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v133</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v133</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v134</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v134</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1210,6 +1210,20 @@
                 🗑️ Eliminar Tarea
               </button>
             </div>
+          </div>
+
+          <!-- 🐾 ACTIVIDAD ESPECIAL: CARRERA DE LA MASCOTA -->
+          <div onclick="openPetRallyScreen()" style="background: linear-gradient(135deg, #FF9F43 0%, #FF5252 100%); color: white; padding: 14px 16px; border-radius: 20px; box-shadow: 0 6px 16px rgba(255, 82, 82, 0.3); margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #FFEAA7; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="font-size: 38px; background: rgba(255,255,255,0.25); border-radius: 50%; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🐶</div>
+              <div>
+                <div style="font-size: 15px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🐾 Carrera de la Mascota</div>
+                <div style="font-size: 11px; opacity: 0.95; font-weight: 600;">¡Búsqueda de Dibujos por Letra Objetivo!</div>
+              </div>
+            </div>
+            <button style="background: #FFFFFF; color: #D63031; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
+              <span>▶️ JUGAR</span>
+            </button>
           </div>
 
           <!-- MUNDO 1: EL CUENTO DEL BOSQUE (DESBLOQUEADO INICIALMENTE) -->
@@ -1442,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v133</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v134</span>
         </div>
         
         <div class="panel-card">
@@ -1468,6 +1482,34 @@
             <button onclick="triggerImportDevStories()" style="width: 100%; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(14,165,233,0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
               <span>📥 Cargar Tarea Completa desde Archivo JSON (Palabras + Cuentos)</span>
             </button>
+          </div>
+        </div>
+
+        <!-- ACTIVIDAD ESPECIAL: CARRERA DE LA MASCOTA -->
+        <div class="panel-card" style="background: linear-gradient(135deg, #FFF5F5 0%, #FFF0F0 100%); border: 3px solid #FF6B6B; border-radius: 20px; padding: 16px; margin-top: 14px; box-shadow: 0 6px 16px rgba(255, 107, 107, 0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-weight: 800; font-size: 15px; color: #D63031; display: flex; align-items: center; gap: 6px;">
+              <span>🐶 Carrera de la Mascota (Búsqueda de Dibujos por Letra)</span>
+            </div>
+            <span style="font-size: 10px; background: #FF6B6B; color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold;">Especial CRIN</span>
+          </div>
+          <p style="font-size: 11px; color: #4A5568; margin: 0 0 10px 0;">El alumno envía su mascota corriendo hasta el dibujo. Al llegar, se revela el nombre de la palabra y se valida si contiene la letra consigna.</p>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label style="font-size: 12px; font-weight: bold; color: #2D3436;">Letra Objetivo:</label>
+            <select id="therapist-rally-letter" style="padding: 6px 12px; border-radius: 10px; border: 2px solid #FF6B6B; font-weight: bold; font-size: 14px; background: white; color: #D63031; cursor: pointer;">
+              <option value="L">Letra L (Lata, Lápiz, Caramelo...)</option>
+              <option value="M">Letra M (Manzana, Mono, Mama...)</option>
+              <option value="P">Letra P (Pelota, Pera, Pato...)</option>
+              <option value="S">Letra S (Sol, Sapo, Sirena...)</option>
+              <option value="T">Letra T (Teléfono, Taza, Tintero...)</option>
+              <option value="C">Letra C (Casa, Caramelo, Coche...)</option>
+              <option value="F">Letra F (Faro, Foco, Sofá...)</option>
+              <option value="D">Letra D (Dado, Dedo, Helado...)</option>
+            </select>
+            <button onclick="launchRallyFromTherapist()" style="flex: 1; min-width: 180px; background: linear-gradient(135deg, #FF6B6B, #EE5253); color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(238,82,83,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>🚀 Iniciar Carrera con la Letra Seleccionada</span>
+            </button>
+          </div>
         </div>
 
         <!-- GESTOR Y ELIMINADOR DE TAREAS IMPORTADAS DESDE JSON -->
@@ -1614,6 +1656,72 @@
           <label style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
             <input type="checkbox" id="dyslexic-font" onchange="toggleFont()" /> Usar tipografía adaptada (Alta legibilidad)
           </label>
+        </div>
+      </div>
+
+      <!-- 🐶 SCREEN 6: CARRERA DE LA MASCOTA (BÚSQUEDA DE DIBUJOS POR LETRA) -->
+      <div id="screen-pet-rally" class="screen">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #E0F2FE 0%, #F0FDF4 100%); padding: 12px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+          
+          <!-- BARRA SUPERIOR DE NAVEGACIÓN -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; background: white; padding: 8px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <button onclick="switchScreen('map')" style="background: #F1F5F9; border: none; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: bold; color: #475569; cursor: pointer;">⬅️ Salir</button>
+            <div style="text-align: center;">
+              <div style="font-size: 14px; font-weight: 900; color: #0284C7; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                <span>🐶 Carrera de la Mascota</span>
+              </div>
+              <div id="rally-target-letter-badge" style="font-size: 11px; font-weight: 700; color: #059669;">Buscando la Letra: <span id="rally-active-letter-txt" style="font-size: 14px; background: #FEF08A; color: #854D0E; padding: 1px 8px; border-radius: 8px; border: 1px solid #FDE047;">L</span></div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="rally-change-letter-select" onchange="changeRallyTargetLetter(this.value)" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: bold; font-size: 12px; background: #F8FAFC; cursor: pointer;">
+                <option value="L">Letra L</option>
+                <option value="M">Letra M</option>
+                <option value="P">Letra P</option>
+                <option value="S">Letra S</option>
+                <option value="T">Letra T</option>
+                <option value="C">Letra C</option>
+                <option value="F">Letra F</option>
+                <option value="D">Letra D</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BANNER CON SIGNA NARRADA -->
+          <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 10px 14px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 24px;" id="rally-pet-banner-icon">🐶</span>
+              <span id="rally-consigna-txt" style="font-size: 13px; font-weight: 800; line-height: 1.3;">¡Lleva a tu mascota a los dibujos que tengan la letra L!</span>
+            </div>
+            <button onclick="speakRallyConsigna()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; padding: 6px 10px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; white-space: nowrap;">
+              🔊 Oír
+            </button>
+          </div>
+
+          <!-- TABLERO / ARENA DE CARDS Y MASCOTA NAVEGANTE -->
+          <div id="rally-arena" style="position: relative; flex: 1; width: 100%; min-height: 280px; background: #FFFFFF; border: 3px solid #BAE6FD; border-radius: 20px; padding: 12px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+            
+            <!-- GRID DE DIBUJOS (CARDS) -->
+            <div id="rally-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; width: 100%; height: 100%; z-index: 2; align-content: space-around;">
+              <!-- Tarjetas dinámicas -->
+            </div>
+
+            <!-- SPRITE DE LA MASCOTA ANIMADA -->
+            <div id="rally-pet-sprite" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; background: #FEF08A; border: 3px solid #EAB308; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 18px rgba(0,0,0,0.25); z-index: 10; transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; transform: translate(-50%, -50%); left: 50%; top: 90%;">
+              🐶
+            </div>
+
+          </div>
+
+          <!-- FOOTER STATUS / BOTÓN NUEVO JUEGO -->
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <div id="rally-found-counter" style="font-size: 12px; font-weight: 800; color: #0369A1;">
+              ⭐ Dibujos Encontrados: <span id="rally-found-count">0</span> / <span id="rally-total-target-count">0</span>
+            </div>
+            <button onclick="setupRallyGameBoard()" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">
+              🔄 Mezclar Tablero
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -5490,6 +5598,321 @@
       const modal = document.getElementById('skip-warning-modal');
       if (modal) modal.style.display = 'none';
       pendingSkipTarget = null;
+    }
+
+    // =========================================================================
+    // 🐶 LÓGICA DE LA ACTIVIDAD: CARRERA DE LA MASCOTA (BÚSQUEDA POR LETRA)
+    // =========================================================================
+
+    const RALLY_DRAWINGS_BANK = [
+      { word: 'LATA', emoji: '🥫', letters: ['L'] },
+      { word: 'LÁPIZ', emoji: '✏️', letters: ['L'] },
+      { word: 'HOJA', emoji: '🍃', letters: ['H', 'A'] },
+      { word: 'PERA', emoji: '🍐', letters: ['P', 'R', 'A'] },
+      { word: 'TELÉFONO', emoji: '📞', letters: ['T', 'L', 'F', 'N'] },
+      { word: 'LLAVE', emoji: '🔑', letters: ['L', 'V'] },
+      { word: 'ESTRELLA', emoji: '⭐️', letters: ['S', 'T', 'R', 'L'] },
+      { word: 'HELADO', emoji: '🍦', letters: ['H', 'L', 'D'] },
+      { word: 'LIMÓN', emoji: '🍋', letters: ['L', 'M', 'N'] },
+      { word: 'PELOTA', emoji: '⚽', letters: ['P', 'L', 'T'] },
+      { word: 'CARAMELO', emoji: '🍬', letters: ['C', 'R', 'M', 'L'] },
+      { word: 'GATO', emoji: '🐱', letters: ['G', 'T'] },
+      { word: 'PERRO', emoji: '🐶', letters: ['P', 'R'] },
+      { word: 'SOL', emoji: '☀️', letters: ['S', 'L'] },
+      { word: 'LUNA', emoji: '🌙', letters: ['L', 'N'] },
+      { word: 'PATO', emoji: '🦆', letters: ['P', 'T'] },
+      { word: 'RANA', emoji: '🐸', letters: ['R', 'N'] },
+      { word: 'CASA', emoji: '🏠', letters: ['C', 'S'] },
+      { word: 'BANANA', emoji: '🍌', letters: ['B', 'N'] },
+      { word: 'MANZANA', emoji: '🍎', letters: ['M', 'N', 'Z'] },
+      { word: 'AUTO', emoji: '🚗', letters: ['A', 'T'] },
+      { word: 'LIBRO', emoji: '📚', letters: ['L', 'B', 'R'] },
+      { word: 'LEÓN', emoji: '🦁', letters: ['L', 'N'] },
+      { word: 'PAN', emoji: '🍞', letters: ['P', 'N'] },
+      { word: 'LECHE', emoji: '🥛', letters: ['L', 'C', 'H'] },
+      { word: 'PITO', emoji: '🪈', letters: ['P', 'T'] },
+      { word: 'TIJERA', emoji: '✂️', letters: ['T', 'J', 'R'] },
+      { word: 'TAZA', emoji: '☕', letters: ['T', 'Z'] }
+    ];
+
+    let rallyGameState = {
+      targetLetter: 'L',
+      items: [],
+      foundCount: 0,
+      totalTargetCount: 0,
+      isAnimating: false
+    };
+
+    function openPetRallyScreen(letter) {
+      if (letter) rallyGameState.targetLetter = letter.toUpperCase();
+      switchScreen('pet-rally');
+      setupRallyGameBoard();
+    }
+
+    function launchRallyFromTherapist() {
+      const select = document.getElementById('therapist-rally-letter');
+      const letter = select ? select.value : 'L';
+      openPetRallyScreen(letter);
+    }
+
+    function changeRallyTargetLetter(letter) {
+      rallyGameState.targetLetter = letter.toUpperCase();
+      setupRallyGameBoard();
+    }
+
+    function speakRallyConsigna() {
+      const childName = getStudentFirstName();
+      const txt = `Atención ${childName}. Mueve a tu mascota hasta los dibujos que tengan la letra ${rallyGameState.targetLetter}.`;
+      speakText(txt);
+    }
+
+    function setupRallyGameBoard() {
+      const targetL = rallyGameState.targetLetter;
+      const petSprite = document.getElementById('rally-pet-sprite');
+      const petBannerIcon = document.getElementById('rally-pet-banner-icon');
+
+      const currentPetEmoji = (activeChildProfile && activeChildProfile.pet) ? activeChildProfile.pet : (gameState.pet || '🐶');
+
+      if (petSprite) {
+        petSprite.innerText = currentPetEmoji;
+        petSprite.style.left = '50%';
+        petSprite.style.top = '90%';
+        petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
+      }
+
+      if (petBannerIcon) petBannerIcon.innerText = currentPetEmoji;
+
+      const letterTxt = document.getElementById('rally-active-letter-txt');
+      if (letterTxt) letterTxt.innerText = targetL;
+
+      const letterSelect = document.getElementById('rally-change-letter-select');
+      if (letterSelect) letterSelect.value = targetL;
+
+      const consignaTxt = document.getElementById('rally-consigna-txt');
+      if (consignaTxt) consignaTxt.innerText = `¡Lleva a tu mascota ${currentPetEmoji} a los dibujos que tengan la letra ${targetL}!`;
+
+      // Recopilar candidatos con la letra objetivo y distractores
+      let targetCandidates = RALLY_DRAWINGS_BANK.filter(item => hasLetter(item.word, targetL));
+      let distractorCandidates = RALLY_DRAWINGS_BANK.filter(item => !hasLetter(item.word, targetL));
+
+      // Mezclar
+      targetCandidates = shuffleArray([...targetCandidates]);
+      distractorCandidates = shuffleArray([...distractorCandidates]);
+
+      // Seleccionar 5 con la letra y 4 distractores
+      const selectedTargets = targetCandidates.slice(0, 5);
+      const selectedDistractors = distractorCandidates.slice(0, 4);
+
+      let boardItems = [...selectedTargets, ...selectedDistractors];
+      boardItems = shuffleArray(boardItems);
+
+      rallyGameState.items = boardItems.map((item, index) => ({
+        ...item,
+        id: index,
+        hasTargetLetter: hasLetter(item.word, targetL),
+        revealed: false,
+        found: false
+      }));
+
+      rallyGameState.totalTargetCount = selectedTargets.length;
+      rallyGameState.foundCount = 0;
+      rallyGameState.isAnimating = false;
+
+      renderRallyBoard();
+      speakRallyConsigna();
+    }
+
+    function hasLetter(word, letter) {
+      if (!word || !letter) return false;
+      const normWord = word.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+      const normLetter = letter.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+      return normWord.includes(normLetter);
+    }
+
+    function renderRallyBoard() {
+      const grid = document.getElementById('rally-cards-grid');
+      const foundCountEl = document.getElementById('rally-found-count');
+      const totalCountEl = document.getElementById('rally-total-target-count');
+
+      if (foundCountEl) foundCountEl.innerText = rallyGameState.foundCount;
+      if (totalCountEl) totalCountEl.innerText = rallyGameState.totalTargetCount;
+
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      rallyGameState.items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.id = `rally-card-${index}`;
+        card.className = 'rally-card';
+        card.onclick = () => handleRallyCardClick(index);
+
+        card.style.cssText = `
+          background: ${item.found ? '#DCFCE7' : (item.revealed ? '#FEF3C7' : '#FFFFFF')};
+          border: 3px solid ${item.found ? '#22C55E' : (item.revealed ? '#F59E0B' : '#E2E8F0')};
+          border-radius: 16px;
+          padding: 8px 4px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          user-select: none;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+          transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+          position: relative;
+        `;
+
+        // Emoji grande
+        let html = `<div style="font-size: 38px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">${item.emoji}</div>`;
+
+        // REVELADO AL ARRIBO DE LA MASCOTA
+        if (item.revealed || item.found) {
+          const highlightedWord = highlightTargetLetterInWord(item.word, rallyGameState.targetLetter);
+          html += `<div style="margin-top: 4px; font-weight: 800; font-size: 12px; color: #1E293B; text-align: center;">${highlightedWord}</div>`;
+        } else {
+          html += `<div style="margin-top: 4px; font-weight: bold; font-size: 11px; color: #94A3B8;">❓ Toca aquí</div>`;
+        }
+
+        if (item.found) {
+          html += `<div style="position: absolute; top: -6px; right: -6px; background: #22C55E; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✓</div>`;
+        }
+
+        card.innerHTML = html;
+        grid.appendChild(card);
+      });
+    }
+
+    function highlightTargetLetterInWord(word, targetLetter) {
+      if (!word) return '';
+      const targetUpper = targetLetter.toUpperCase();
+      let result = '';
+      for (let char of word) {
+        const normChar = char.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase();
+        if (normChar === targetUpper) {
+          result += `<span style="background: #FDE047; color: #B45309; padding: 0 3px; border-radius: 4px; border: 1px solid #F59E0B; font-size: 13px;">${char}</span>`;
+        } else {
+          result += char;
+        }
+      }
+      return result;
+    }
+
+    function handleRallyCardClick(index) {
+      if (rallyGameState.isAnimating) return;
+      const item = rallyGameState.items[index];
+      if (!item) return;
+
+      const cardEl = document.getElementById(`rally-card-${index}`);
+      const arena = document.getElementById('rally-arena');
+      const petSprite = document.getElementById('rally-pet-sprite');
+
+      if (!cardEl || !arena || !petSprite) return;
+
+      rallyGameState.isAnimating = true;
+
+      const cardRect = cardEl.getBoundingClientRect();
+      const arenaRect = arena.getBoundingClientRect();
+
+      const targetX = cardRect.left + (cardRect.width / 2) - arenaRect.left;
+      const targetY = cardRect.top + (cardRect.height / 2) - arenaRect.top;
+
+      // Mascota corre hacia el dibujo
+      petSprite.style.left = targetX + 'px';
+      petSprite.style.top = targetY + 'px';
+      petSprite.style.transform = 'translate(-50%, -50%) scale(1.25)';
+
+      setTimeout(() => {
+        petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
+        item.revealed = true;
+        renderRallyBoard();
+
+        if (item.hasTargetLetter) {
+          if (!item.found) {
+            item.found = true;
+            rallyGameState.foundCount++;
+            if (activeChildProfile) {
+              activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
+              activeChildProfile.stars = (activeChildProfile.stars || 0) + 2;
+              saveActiveChildProfile();
+              updateCoinsAndStarsDisplay();
+            }
+          }
+
+          renderRallyBoard();
+          createConfettiAt(targetX, targetY);
+
+          speakText(`Súper. ${item.word} tiene la letra ${rallyGameState.targetLetter}.`, () => {
+            rallyGameState.isAnimating = false;
+            checkRallyVictory();
+          });
+
+        } else {
+          const cardToShake = document.getElementById(`rally-card-${index}`);
+          if (cardToShake) {
+            cardToShake.style.transform = 'translateX(-5px)';
+            setTimeout(() => cardToShake.style.transform = 'translateX(5px)', 100);
+            setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
+          }
+
+          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}. Prueba con otro dibujo.`, () => {
+            rallyGameState.isAnimating = false;
+          });
+        }
+
+      }, 650);
+    }
+
+    function createConfettiAt(x, y) {
+      try {
+        const arena = document.getElementById('rally-arena');
+        if (!arena) return;
+        const colors = ['#FFD700', '#FF4757', '#2ED573', '#1E90FF', '#FFA502'];
+        for (let i = 0; i < 12; i++) {
+          const spark = document.createElement('div');
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          const size = Math.floor(Math.random() * 8) + 6;
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 60 + 20;
+          const targetX = x + Math.cos(angle) * dist;
+          const targetY = y + Math.sin(angle) * dist;
+
+          spark.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            z-index: 100;
+            pointer-events: none;
+            transition: left 0.5s ease-out, top 0.5s ease-out, opacity 0.5s ease-out, transform 0.5s ease-out;
+            opacity: 1;
+            transform: scale(1);
+          `;
+          arena.appendChild(spark);
+
+          setTimeout(() => {
+            spark.style.left = targetX + 'px';
+            spark.style.top = targetY + 'px';
+            spark.style.opacity = '0';
+            spark.style.transform = 'scale(0.2)';
+          }, 20);
+
+          setTimeout(() => spark.remove(), 600);
+        }
+      } catch(e) {}
+    }
+
+    function checkRallyVictory() {
+      if (rallyGameState.foundCount >= rallyGameState.totalTargetCount && rallyGameState.totalTargetCount > 0) {
+        setTimeout(() => {
+          triggerConfettiEffect();
+          speakText(`Felicidades. Encontraste todos los dibujos con la letra ${rallyGameState.targetLetter}. Eres un súper campeón.`, () => {
+            alert(`🎉 ¡EXCELENTE BÚSQUEDA!\n\nEncontraste todos los dibujos con la letra "${rallyGameState.targetLetter}".\nGanaste +50 Monedas 🪙 y +10 Estrellas ⭐`);
+          });
+        }, 500);
+      }
     }
 
     function updateStudentNameUI() {
