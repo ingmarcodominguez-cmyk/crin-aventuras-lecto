@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v142';
+    const CURRENT_APP_VERSION = 'v143';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '142');
+      u.searchParams.set('v', '143');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '142' && urlVer !== 'v142')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '143' && urlVer !== 'v143')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v142</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v142</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v143</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v143</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v142</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v143</span>
         </div>
         
         <div class="panel-card">
@@ -5921,6 +5921,7 @@
       rallyGameState.totalTargetCount = selectedTargets.length;
       rallyGameState.foundCount = 0;
       rallyGameState.isAnimating = false;
+      isRallyVictoryTriggered = false;
 
       renderRallyBoard();
       speakRallyConsigna();
@@ -5997,6 +5998,7 @@
     }
 
     let rallySafetyTimer = null;
+    let isRallyVictoryTriggered = false;
 
     function resetPetToHome() {
       const petSprite = document.getElementById('rally-pet-sprite');
@@ -6104,6 +6106,11 @@
           };
         }
       });
+
+      // Verificar automáticamente la victoria al completar las palabras objetivo
+      if (rallyGameState.totalTargetCount > 0 && actualFound >= rallyGameState.totalTargetCount) {
+        checkRallyVictory();
+      }
     }
 
     function highlightTargetLetterInWord(word, targetLetter) {
@@ -6332,7 +6339,8 @@
       const foundCountEl = document.getElementById('rally-found-count');
       if (foundCountEl) foundCountEl.innerText = found;
 
-      if (total > 0 && found >= total) {
+      if (total > 0 && found >= total && !isRallyVictoryTriggered) {
+        isRallyVictoryTriggered = true;
         setTimeout(() => {
           triggerConfettiEffect();
 
@@ -6351,7 +6359,7 @@
           if (modal) modal.style.display = 'flex';
 
           speakText(`¡Felicidades ${getStudentFirstName()}! Desbloqueaste todos los dibujos con la letra ${rallyGameState.targetLetter}. ¡Eres un súper campeón!`);
-        }, 400);
+        }, 200);
       }
     }
 
