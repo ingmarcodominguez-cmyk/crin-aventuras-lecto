@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v138';
+    const CURRENT_APP_VERSION = 'v139';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '138');
+      u.searchParams.set('v', '139');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '138' && urlVer !== 'v138')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '139' && urlVer !== 'v139')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v138</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v138</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v139</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v139</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v138</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v139</span>
         </div>
         
         <div class="panel-card">
@@ -5934,6 +5934,58 @@
       return normWord.includes(normLetter);
     }
 
+    function playGameAudioEffect(type) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        
+        if (type === 'running') {
+          const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 523.25, 659.25, 783.99];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.09, ctx.currentTime + idx * 0.13);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.13 + 0.11);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + idx * 0.13);
+            osc.stop(ctx.currentTime + idx * 0.13 + 0.12);
+          });
+        } else if (type === 'correct') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.1 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + idx * 0.1);
+            osc.stop(ctx.currentTime + idx * 0.1 + 0.26);
+          });
+        } else if (type === 'wrong') {
+          const notes = [300, 220];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.06, ctx.currentTime + idx * 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.15 + 0.14);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + idx * 0.15);
+            osc.stop(ctx.currentTime + idx * 0.15 + 0.15);
+          });
+        }
+      } catch(e) {}
+    }
+
     function renderRallyBoard() {
       const grid = document.getElementById('rally-cards-grid');
       const foundCountEl = document.getElementById('rally-found-count');
@@ -5970,19 +6022,22 @@
 
         const displayEmoji = item.emoji || getEmojiForWord(item.word) || '🎨';
 
-        // Emoji grande con fuente emoji estándar garantizada
         let html = `
           <div style="font-size: 42px; line-height: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));">
             ${displayEmoji}
           </div>
         `;
 
-        // REVELADO AL ARRIBO DE LA MASCOTA
         if (item.revealed || item.found) {
           const highlightedWord = highlightTargetLetterInWord(item.word, rallyGameState.targetLetter);
           html += `<div style="margin-top: 6px; font-weight: 800; font-size: 13px; color: #1E293B; text-align: center; letter-spacing: 0.5px;">${highlightedWord}</div>`;
         } else {
-          html += `<div style="margin-top: 6px; font-weight: bold; font-size: 11px; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 8px;">❓ Toca aquí</div>`;
+          html += `
+            <div class="rally-card-unrevealed-label" style="margin-top: 6px; font-weight: bold; font-size: 11px; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 8px; text-align: center;">
+              <span class="default-txt">❓ Toca aquí</span>
+              <span class="therapist-preview-txt" style="display: none; opacity: 0.35; color: #1E293B; font-weight: 800;">${item.word}</span>
+            </div>
+          `;
         }
 
         if (item.found) {
@@ -5990,6 +6045,26 @@
         }
 
         card.innerHTML = html;
+
+        if (!item.revealed && !item.found) {
+          card.onmouseenter = () => {
+            const def = card.querySelector('.default-txt');
+            const prev = card.querySelector('.therapist-preview-txt');
+            if (def && prev) {
+              def.style.display = 'none';
+              prev.style.display = 'inline';
+            }
+          };
+          card.onmouseleave = () => {
+            const def = card.querySelector('.default-txt');
+            const prev = card.querySelector('.therapist-preview-txt');
+            if (def && prev) {
+              def.style.display = 'inline';
+              prev.style.display = 'none';
+            }
+          };
+        }
+
         grid.appendChild(card);
       });
     }
@@ -6022,10 +6097,13 @@
 
       rallyGameState.isAnimating = true;
 
-      // Garantía de seguridad: desbloquear isAnimating tras máximo 2.2s incluso si el callback de voz falla
+      // Musiquita retro de carrera
+      playGameAudioEffect('running');
+
+      // Desbloqueo de seguridad tras 3 segundos máximo
       setTimeout(() => {
         rallyGameState.isAnimating = false;
-      }, 2200);
+      }, 3000);
 
       const cardRect = cardEl.getBoundingClientRect();
       const arenaRect = arena.getBoundingClientRect();
@@ -6033,21 +6111,20 @@
       const targetX = cardRect.left + (cardRect.width / 2) - arenaRect.left;
       const targetY = cardRect.top + (cardRect.height / 2) - arenaRect.top;
 
-      // Mascota corre suave y más lento hacia el dibujo (1.4 segundos de transición)
-      petSprite.style.transition = 'left 1.4s ease-in-out, top 1.4s ease-in-out';
+      // 1. Mascota corre despacio hacia el dibujo (1.2s)
+      petSprite.style.transition = 'left 1.2s ease-in-out, top 1.2s ease-in-out';
       petSprite.style.left = targetX + 'px';
       petSprite.style.top = targetY + 'px';
-      petSprite.style.transform = 'translate(-50%, -50%) scale(1.3)';
 
-      // Efecto de trote / rebote mientras la mascota va corriendo hacia el dibujo
+      // Rebote de trote mientras corre
       let bounceCount = 0;
       const bounceInterval = setInterval(() => {
         bounceCount++;
-        const offsetY = (bounceCount % 2 === 0) ? -12 : 0;
-        petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.3)`;
-      }, 140);
+        const offsetY = (bounceCount % 2 === 0) ? -10 : 0;
+        petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.25)`;
+      }, 130);
 
-      // Al completar la carrera (1.4s)
+      // 2. Al llegar al dibujo (1.2s)
       setTimeout(() => {
         clearInterval(bounceInterval);
         petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -6055,12 +6132,12 @@
         renderRallyBoard();
 
         if (item.hasTargetLetter) {
-          // COINCIDENCIA CORRECTA
+          playGameAudioEffect('correct');
+
           if (!item.found) {
             item.found = true;
             rallyGameState.foundCount++;
             
-            // Otorgar Monedas y Estrellas
             if (activeChildProfile) {
               activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
               activeChildProfile.stars = (activeChildProfile.stars || 0) + 2;
@@ -6068,23 +6145,18 @@
               updateCoinsAndStarsDisplay();
             }
 
-            // Cartel flotante de recompensa +10 Monedas +2 Estrellas
             showRewardFloatingPopup(targetX, targetY, '+10 🪙 +2 ⭐');
           }
 
           renderRallyBoard();
-          
-          // Confite y chispas sobre la tarjeta + Lluvia de confetti en pantalla
           createConfettiAt(targetX, targetY);
           triggerConfettiEffect();
 
-          speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`, () => {
-            rallyGameState.isAnimating = false;
-            checkRallyVictory();
-          });
+          speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`);
 
         } else {
-          // NO TIENE LA LETRA
+          playGameAudioEffect('wrong');
+
           const cardToShake = document.getElementById(`rally-card-${index}`);
           if (cardToShake) {
             cardToShake.style.transform = 'translateX(-6px)';
@@ -6092,12 +6164,33 @@
             setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
           }
 
-          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}. ¡Prueba con otro dibujo!`, () => {
-            rallyGameState.isAnimating = false;
-          });
+          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}. ¡Prueba con otro dibujo!`);
         }
 
-      }, 1400);
+        // 3. LA MASCOTA BAJA DE REGRESO A SU POSICIÓN INICIAL PARA DEJAR VER LA PALABRA REVELADA
+        setTimeout(() => {
+          playGameAudioEffect('running');
+          petSprite.style.transition = 'left 1.2s ease-in-out, top 1.2s ease-in-out';
+          petSprite.style.left = '50%';
+          petSprite.style.top = '90%';
+
+          let returnBounceCount = 0;
+          const returnBounceInterval = setInterval(() => {
+            returnBounceCount++;
+            const offsetY = (returnBounceCount % 2 === 0) ? -10 : 0;
+            petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.1)`;
+          }, 130);
+
+          setTimeout(() => {
+            clearInterval(returnBounceInterval);
+            petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
+            rallyGameState.isAnimating = false;
+            checkRallyVictory();
+          }, 1250);
+
+        }, 1200);
+
+      }, 1200);
     }
 
     function showRewardFloatingPopup(x, y, text) {
