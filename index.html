@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v147';
+    const CURRENT_APP_VERSION = 'v148';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '147');
+      u.searchParams.set('v', '148');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '147' && urlVer !== 'v147')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '148' && urlVer !== 'v148')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v147</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v147</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v148</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v148</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v147</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v148</span>
         </div>
         
         <div class="panel-card">
@@ -1547,6 +1547,34 @@
           </div>
           <p style="font-size: 11px; color: #64748B; margin: 0 0 10px 0;">Aquí puedes ver todas las tareas que hayas cargado desde archivos JSON y eliminarlas individualmente o todas juntas para volver a cargarlas limpias:</p>
           <div id="imported-tasks-list-container" style="max-height: 220px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS (PALABRAS Y EMOJIS) -->
+        <div class="panel-card" style="background: #FFFFFF; border: 2px solid #8B5CF6; border-radius: 16px; padding: 16px; margin-top: 14px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-weight: 800; font-size: 15px; color: #6D28D9; display: flex; align-items: center; gap: 6px;">
+              <span>📖 Gestor y Editor del Diccionario de Dibujos</span>
+            </div>
+            <button onclick="resetCustomEmojiDictionary()" style="background: #F3E8FF; color: #7C3AED; border: 1px solid #C4B5FD; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+              🔄 Restablecer Diccionario Original
+            </button>
+          </div>
+          <p style="font-size: 11px; color: #4C1D95; margin: 0 0 10px 0;">Modifica cualquier dibujo/emoji asignado a una palabra o elimina palabras para que no aparezcan en los juegos (ej: TITA, TITO, TETE, TOTO eliminados por defecto).</p>
+          
+          <!-- BUSCADOR Y ADICIÓN -->
+          <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+            <input type="text" id="dict-search-input" onkeyup="renderDictionaryEditorTable()" placeholder="🔍 Buscar palabra (ej: LIMA, LUNA)..." style="flex: 1; min-width: 170px; padding: 8px 12px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 12px; font-weight: bold;" />
+            <input type="text" id="dict-add-word-input" placeholder="Nueva Palabra" style="width: 130px; padding: 8px 10px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 12px; font-weight: bold; text-transform: uppercase;" />
+            <input type="text" id="dict-add-emoji-input" placeholder="Emoji" style="width: 70px; padding: 8px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 14px; text-align: center;" />
+            <button onclick="addOrUpdateDictWordFromEditor()" style="background: #7C3AED; color: white; border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">
+              ➕ Guardar Dibujo
+            </button>
+          </div>
+
+          <!-- TABLA DICCIONARIO EDITABLE -->
+          <div id="dictionary-editor-container" style="max-height: 280px; overflow-y: auto; background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 12px; padding: 10px;">
+            <!-- Carga dinámica -->
+          </div>
         </div>
 
         <!-- MODO DESARROLLADOR: EDITOR INLINE DE CUENTOS Y TAREAS -->
@@ -2386,7 +2414,10 @@
         if (screenName === 'map') navButtons[0].classList.add('active');
         if (screenName === 'avatar') navButtons[1].classList.add('active');
         if (screenName === 'rewards') navButtons[2].classList.add('active');
-        if (screenName === 'therapist') navButtons[3].classList.add('active');
+        if (screenName === 'therapist') {
+          navButtons[3].classList.add('active');
+          if (typeof renderDictionaryEditorTable === 'function') renderDictionaryEditorTable();
+        }
       }
     }
 
@@ -3101,6 +3132,9 @@
       return syllables.filter(s => s.length > 0);
     }
 
+    let customEmojiOverrides = {};
+    let deletedWordsList = ['TITA', 'TITO', 'TETE', 'TOTO'];
+
     const emojiMap = {
       'LUNA': '🌙', 'NOCHE': '🌌', 'SOL': '☀️', 'ESTRELLA': '⭐', 'BLANCO': '⬜', 'NEGRO': '⬛',
       'LECHE': '🥛', 'AGUA': '💧', 'SOPA': '🍲', 'CENA': '🍕', 'PLATO': '🍽️', 'PAN': '🍞',
@@ -3114,12 +3148,20 @@
       'CASA': '🏠', 'TECHO': '🛖', 'PUERTA': '🚪', 'PUENTE': '🌉', 'CAMA': '🛌', 'CUNA': '🛏️', 'SILLA': '🪑', 'MESA': '🪵', 'SALA': '📺', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'COPA': '🏆',
       'AUTO': '🚗', 'COCHE': '🏎️', 'BICI': '🚲', 'MOTO': '🏍️', 'TREN': '🚂',
       'PELOTA': '⚽', 'BOLA': '🔮', 'ZAPATO': '👞', 'BOTA': '👢', 'PLUMA': '🪶', 'PALA': '🪏', 'MANO': '✋', 'BOCA': '👄', 'DEDO': '☝️', 'PIE': '🦶', 'PATA': '🐾', 'CARA': '😃', 'CORAZÓN': '❤️', 'CORAZON': '❤️', 'MIRADA': '👀', 'MÚSICA': '🎵', 'MUSICA': '🎵', 'COMA': '✍️',
-      'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': '💎', 'AMARILLO': '🟡', 'ROJO': '🔴', 'AZUL': '🔵', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': '🌟', 'LENTA': '🐢', 'LINDA': '✨', 'POMELO': '🍊', 'FUENTE': '⛲', 'HELADO': '🍦', 'TELÉFONO': '📞', 'CINE': '🍿', 'FOTO': '📷', 'TITO': '🧒', 'TOTO': '🦮', 'TITA': '👩‍🦰', 'TETE': '🍼', 'COPITA': '🍸'
+      'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': '💎', 'AMARILLO': '🟡', 'ROJO': '🔴', 'AZUL': '🔵', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': '🌟', 'LENTA': '🐢', 'LINDA': '✨', 'POMELO': '🍊', 'FUENTE': '⛲', 'HELADO': '🍦', 'TELÉFONO': '📞', 'CINE': '🍿', 'FOTO': '📷', 'COPITA': '🍸'
     };
 
     function getEmojiForWord(word) {
       if (!word) return '⭐';
       const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+
+      if (typeof deletedWordsList !== 'undefined' && Array.isArray(deletedWordsList) && deletedWordsList.includes(clean)) {
+        return '';
+      }
+
+      if (typeof customEmojiOverrides === 'object' && customEmojiOverrides && customEmojiOverrides[clean]) {
+        return customEmojiOverrides[clean];
+      }
 
       if (typeof customStories === 'object' && customStories && customStories[clean] && typeof customStories[clean].emoji === 'string') {
         const custEmoji = customStories[clean].emoji.trim();
@@ -3149,6 +3191,174 @@
       if (clean.includes('SEÑORA') || clean.includes('SENORA')) return '👩‍🦳';
 
       return '⭐';
+    }
+
+    function loadCustomEmojiDictionary() {
+      try {
+        const savedMap = localStorage.getItem('crin_custom_emoji_map');
+        if (savedMap) {
+          const parsed = JSON.parse(savedMap);
+          if (typeof parsed === 'object' && parsed !== null) {
+            customEmojiOverrides = parsed;
+          }
+        }
+        const savedDel = localStorage.getItem('crin_deleted_words');
+        if (savedDel) {
+          const parsedDel = JSON.parse(savedDel);
+          if (Array.isArray(parsedDel)) {
+            deletedWordsList = parsedDel;
+          }
+        }
+      } catch(e) {}
+    }
+
+    function saveCustomEmojiDictionary() {
+      try {
+        localStorage.setItem('crin_custom_emoji_map', JSON.stringify(customEmojiOverrides));
+        localStorage.setItem('crin_deleted_words', JSON.stringify(deletedWordsList));
+      } catch(e) {}
+    }
+
+    function isWordDeleted(word) {
+      if (!word) return true;
+      const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+      return deletedWordsList && Array.isArray(deletedWordsList) && deletedWordsList.includes(clean);
+    }
+
+    function deleteWordFromDictionary(word) {
+      const clean = word.toUpperCase().trim();
+      if (!deletedWordsList.includes(clean)) {
+        deletedWordsList.push(clean);
+      }
+      if (customEmojiOverrides[clean]) {
+        delete customEmojiOverrides[clean];
+      }
+      saveCustomEmojiDictionary();
+      renderDictionaryEditorTable();
+      if (typeof updateTherapistRallyPreview === 'function') {
+        const selL = document.getElementById('therapist-rally-letter');
+        if (selL) updateTherapistRallyPreview(selL.value);
+      }
+    }
+
+    function restoreWordToDictionary(word) {
+      const clean = word.toUpperCase().trim();
+      deletedWordsList = deletedWordsList.filter(w => w !== clean);
+      saveCustomEmojiDictionary();
+      renderDictionaryEditorTable();
+      if (typeof updateTherapistRallyPreview === 'function') {
+        const selL = document.getElementById('therapist-rally-letter');
+        if (selL) updateTherapistRallyPreview(selL.value);
+      }
+    }
+
+    function updateWordEmojiOverride(word, newEmoji) {
+      const clean = word.toUpperCase().trim();
+      if (!clean) return;
+      const em = (newEmoji || '').trim();
+      if (em.length > 0) {
+        customEmojiOverrides[clean] = em;
+        deletedWordsList = deletedWordsList.filter(w => w !== clean);
+      } else {
+        delete customEmojiOverrides[clean];
+      }
+      saveCustomEmojiDictionary();
+      renderDictionaryEditorTable();
+      if (typeof updateTherapistRallyPreview === 'function') {
+        const selL = document.getElementById('therapist-rally-letter');
+        if (selL) updateTherapistRallyPreview(selL.value);
+      }
+    }
+
+    function addOrUpdateDictWordFromEditor() {
+      const wInput = document.getElementById('dict-add-word-input');
+      const eInput = document.getElementById('dict-add-emoji-input');
+      if (!wInput) return;
+      const word = wInput.value.toUpperCase().trim();
+      const emoji = eInput ? eInput.value.trim() : '⭐';
+      if (!word) {
+        alert('Por favor escribe la palabra que deseas agregar o actualizar.');
+        return;
+      }
+      updateWordEmojiOverride(word, emoji || '⭐');
+      wInput.value = '';
+      if (eInput) eInput.value = '';
+    }
+
+    function resetCustomEmojiDictionary() {
+      if (confirm('¿Deseas restablecer el diccionario a sus valores predeterminados? (Las palabras eliminadas volverán a estar activas excepto TITA, TITO, TETE, TOTO)')) {
+        customEmojiOverrides = {};
+        deletedWordsList = ['TITA', 'TITO', 'TETE', 'TOTO'];
+        saveCustomEmojiDictionary();
+        renderDictionaryEditorTable();
+        if (typeof updateTherapistRallyPreview === 'function') {
+          const selL = document.getElementById('therapist-rally-letter');
+          if (selL) updateTherapistRallyPreview(selL.value);
+        }
+      }
+    }
+
+    function renderDictionaryEditorTable() {
+      const container = document.getElementById('dictionary-editor-container');
+      if (!container) return;
+
+      loadCustomEmojiDictionary();
+
+      const searchInput = document.getElementById('dict-search-input');
+      const query = searchInput ? searchInput.value.toUpperCase().trim() : '';
+
+      const wordSet = new Set();
+      Object.keys(emojiMap).forEach(w => wordSet.add(w));
+      Object.keys(customEmojiOverrides).forEach(w => wordSet.add(w));
+      deletedWordsList.forEach(w => wordSet.add(w));
+
+      const sortedWords = Array.from(wordSet).sort();
+
+      const filtered = sortedWords.filter(w => {
+        if (!query) return true;
+        return w.includes(query);
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="font-size: 12px; color: #6B7280; text-align: center; padding: 12px;">No se encontraron palabras para "${query}". Escribe la palabra arriba y toca "➕ Agregar / Modificar".</div>`;
+        return;
+      }
+
+      let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px;">';
+
+      filtered.forEach(w => {
+        const isDeleted = deletedWordsList.includes(w);
+        const currentEmoji = customEmojiOverrides[w] || emojiMap[w] || '⭐';
+        
+        if (isDeleted) {
+          html += `
+            <div style="background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+              <div style="font-weight: bold; font-size: 12px; color: #991B1B; text-decoration: line-through; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ❌ ${w}
+              </div>
+              <button onclick="restoreWordToDictionary('${w}')" style="background: #10B981; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                ↩️ Activar
+              </button>
+            </div>
+          `;
+        } else {
+          const isOverridden = !!customEmojiOverrides[w];
+          html += `
+            <div style="background: white; border: 1px solid ${isOverridden ? '#8B5CF6' : '#E2E8F0'}; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <div style="font-weight: bold; font-size: 12px; color: #1E293B; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${w}
+              </div>
+              <input type="text" value="${currentEmoji}" onchange="updateWordEmojiOverride('${w}', this.value)" style="width: 38px; text-align: center; font-size: 15px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 2px;" title="Editar dibujo para ${w}" />
+              <button onclick="deleteWordFromDictionary('${w}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Eliminar palabra de la app">
+                🗑️
+              </button>
+            </div>
+          `;
+        }
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
     }
 
     function getSpanishGender(word) {
@@ -5714,10 +5924,12 @@
       // 1. Banco predeterminado (Lata, Lápiz, Caramelo, Teléfono, Pelota, etc.)
       RALLY_DRAWINGS_BANK.forEach(item => {
         const cleanW = item.word.toUpperCase().trim();
-        map.set(cleanW, {
-          word: cleanW,
-          emoji: item.emoji || getEmojiForWord(cleanW) || '🎨'
-        });
+        if (!isWordDeleted(cleanW)) {
+          map.set(cleanW, {
+            word: cleanW,
+            emoji: getEmojiForWord(cleanW) || item.emoji || '🎨'
+          });
+        }
       });
 
       // 2. Palabras personalizadas agregadas por el terapeuta
@@ -5725,10 +5937,12 @@
         customRallyDrawingsBank.forEach(item => {
           if (item && item.word) {
             const cleanW = item.word.toUpperCase().trim();
-            map.set(cleanW, {
-              word: cleanW,
-              emoji: item.emoji || getEmojiForWord(cleanW) || '🎨'
-            });
+            if (!isWordDeleted(cleanW)) {
+              map.set(cleanW, {
+                word: cleanW,
+                emoji: getEmojiForWord(cleanW) || item.emoji || '🎨'
+              });
+            }
           }
         });
       }
@@ -5741,7 +5955,7 @@
             pack.words.forEach(w => {
               if (w && typeof w === 'string') {
                 const cleanW = w.toUpperCase().trim();
-                if (!map.has(cleanW)) {
+                if (!isWordDeleted(cleanW) && !map.has(cleanW)) {
                   map.set(cleanW, {
                     word: cleanW,
                     emoji: getEmojiForWord(cleanW) || '🎨'
@@ -5756,7 +5970,7 @@
       // 4. Palabras de historias personalizadas
       if (typeof customStories === 'object' && customStories !== null) {
         Object.keys(customStories).forEach(cleanW => {
-          if (!map.has(cleanW)) {
+          if (!isWordDeleted(cleanW) && !map.has(cleanW)) {
             map.set(cleanW, {
               word: cleanW,
               emoji: getEmojiForWord(cleanW) || '🎨'
