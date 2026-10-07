@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v149';
+    const CURRENT_APP_VERSION = 'v150';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '149');
+      u.searchParams.set('v', '150');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '149' && urlVer !== 'v149')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '150' && urlVer !== 'v150')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v149</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v149</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v150</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v150</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v149</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v150</span>
         </div>
         
         <div class="panel-card">
@@ -3309,59 +3309,178 @@
 
     let currentModalTargetWord = '';
 
+    const EMOJI_CATEGORIES = {
+      '🤠 Vestimenta': ['🤠', '🎩', '🧢', '🎓', '👑', '👒', '🪖', '🕶️', '👓', '👞', '👢', '🥾', '👟', '👠', '🧦'],
+      '🍎 Frutas y Comida': ['🍎', '🍐', '🍌', '🍋', '🍏', '🍊', '🍍', '🥥', '🥛', '💧', '🍲', '🍕', '🍽️', '🍞', '🍬', '🍭', '☕', '🍵', '🧉', '🍝', '🍦', '🍿', '🍸', '🍯', '🥫'],
+      '🐱 Animales': ['🐱', '🐕', '🐶', '🐻', '🦁', '🐆', '🐅', '🐭', '🐒', '🦆', '🐸', '🦎', '🐦', '🐟', '🦭', '🐍', '🧜‍♀️', '🦋', '🦔', '🐢', '🦮'],
+      '🏠 Casa y Objetos': ['🏠', '🛖', '🚪', '🌉', '🛌', '🛏️', '🪑', '🪵', '📺', '🛋️', '🏆', '🚗', '🏎️', '🚲', '🏍️', '🚂', '⚽', '🔮', '🪶', '🪏', '🔑', '✏️', '📖', '📜', '🗺️', '✂️', '🫧', '📢', '🎲', '🪙', '📦', '🧵', '🧶', '🎭', '👻', '🚨', '🎟️', '🔋', '📞', '📷'],
+      '☀️ Naturaleza y Cielo': ['🌙', '🌌', '☀️', '⭐', '☁️', '⬛', '⬜', '🍃', '🌳', '🌲', '🌸', '🌹', '⛰️', '🏔️', '🔥', '🕳️', '🚇', '🕯️', '✨', '⛲'],
+      '🎨 Colores y Formas': ['🔴', '🔵', '🟡', '🟢', '⬜', '⬛', '🩷', '🩶', '🌟', '💎', '❤️', '👀', '🎵', '✍️', '✋', '👄', '☝️', '🦶', '🐾', '😃'],
+      '👨 Personas': ['👩', '👨', '👦', '👧', '👴', '👵', '🧔', '👩‍🦱', '👨‍💼', '👩‍🦳', '🧒', '🍼']
+    };
+
     const SUGGESTED_EMOJIS_MAP = {
+      'SOMBRERO': ['🤠', '🎩', '🧢', '🎓', '👑', '👒', '🪖'],
+      'SOMBRILLA': ['☂️', '☔', '⛱️', '🌧️', '🌦️'],
       'LIMA': ['🍈', '🍏', '🟢', '🍋', '🫛'],
       'LIMÓN': ['🍋', '🍈', '🟡', '🍏'],
-      'LUNA': ['🌙', '🌕', '🌘', '🌌'],
+      'LIMON': ['🍋', '🍈', '🟡', '🍏'],
+      'LUNA': ['🌙', '🌕', '🌘', '🌌', '🌃'],
       'NOCHE': ['🌌', '🌙', '🌃', '🖤'],
-      'SOL': ['☀️', '🌞', '🌤️', '🟡'],
-      'ESTRELLA': ['⭐', '🌟', '✨', '💫'],
-      'CASA': ['🏠', '🏡', '🛖', '🏛️'],
+      'SOL': ['☀️', '🌞', '🌤️', '🟡', '🌅'],
+      'ESTRELLA': ['⭐', '🌟', '✨', '💫', '🌠'],
+      'CASA': ['🏠', '🏡', '🛖', '🏛️', '🏰'],
       'TECHO': ['🛖', '🏠', '⛺'],
-      'PUERTA': ['🚪', '🏠', '🔐'],
-      'AUTO': ['🚗', '🏎️', '🚘', '🚙'],
-      'COCHE': ['🏎️', '🚗', '🚙'],
-      'GATO': ['🐱', '🐈', '😸', '🐅'],
-      'PERRO': ['🐶', '🐕', '🐩', '🦮'],
-      'LEÓN': ['🦁', '🐆', '🐅', '👑'],
-      'PUMA': ['🐆', '🐅', '🐾', '🦁'],
+      'PUERTA': ['🚪', '🏠', '🔐', '🔑'],
+      'AUTO': ['🚗', '🏎️', '🚘', '🚙', '🛞'],
+      'COCHE': ['🏎️', '🚗', '🚙', '🚘'],
+      'BICI': ['🚲', '🛵', '🏍️'],
+      'MOTO': ['🏍️', '🛵', '🚲'],
+      'TREN': ['🚂', '🚆', '🚇', '🚊'],
+      'GATO': ['🐱', '🐈', '😸', '🐅', '🐾'],
       'FELINO': ['🐅', '🐆', '🐱', '🦁'],
+      'PERRO': ['🐶', '🐕', '🐩', '🦮', '🐾'],
+      'OSO': ['🐻', '🐼', '🐨', '🐾'],
+      'LEÓN': ['🦁', '🐆', '🐅', '👑'],
+      'LEON': ['🦁', '🐆', '🐅', '👑'],
+      'PUMA': ['🐆', '🐅', '🐾', '🦁'],
+      'RATÓN': ['🐭', '🐁', '🧀', '🐀'],
+      'RATON': ['🐭', '🐁', '🧀', '🐀'],
+      'MONO': ['🐒', '🐵', '🍌', '🦍'],
+      'MONITO': ['🐒', '🐵', '🍌'],
+      'PATO': ['🦆', '🪿', '🌊', '🐥'],
       'RANA': ['🐸', '🦎', '🟢', '🐊'],
       'SAPO': ['🦎', '🐸', '🟤', '🐊'],
-      'CAFÉ': ['☕', '🍵', '🫖', '🤎'],
-      'TAZA': ['🍵', '☕', '🥛', '🫖'],
-      'SALA': ['📺', '🛋️', '🏠', '🖼️'],
-      'SOFÁ': ['🛋️', '📺', '🪑'],
+      'PÁJARO': ['🐦', '🕊️', '🦅', '🦜'],
+      'PAJARO': ['🐦', '🕊️', '🦅', '🦜'],
+      'PEZ': ['🐟', '🐠', '🐡', '🌊'],
+      'FOCA': ['🦭', '🐧', '🧊', '🌊'],
+      'SERPIENTE': ['🐍', '🦎', '🐉'],
+      'SIRENA': ['🧜‍♀️', '🧜‍♂️', '🌊', '🧜'],
+      'MARIPOSA': ['🦋', '🌸', '🐝', '🐞'],
+      'TOPO': ['🦔', '🦡', '🐁', '🕳️'],
+      'COLA': ['🐕', '🐾', '🦨', '🐈'],
+      'HOJA': ['🍃', '🌿', '🌱', '🍁'],
+      'ÁRBOL': ['🌳', '🌲', '🌴', '🌱'],
+      'ARBOL': ['🌳', '🌲', '🌴', '🌱'],
+      'PINO': ['🌲', '🌳', '🎄', '🍃'],
       'FLOR': ['🌸', '🌹', '🌻', '🌺'],
       'ROSA': ['🌹', '🌸', '🩷', '🌺'],
       'LINDA': ['✨', '🌸', '💖', '🌟'],
-      'ABUELO': ['👴', '👨‍🦳', '🧔', '👴‍🦯'],
-      'ABUELA': ['👵', '👩‍🦳', '👩‍🦱', '👵‍🦯'],
-      'TÍO': ['🧔', '👨', '👨‍🦱', '👨‍🦰'],
-      'TÍA': ['👩‍🦱', '👩', '👩‍🦰', '👱‍♀️'],
-      'SEÑOR': ['👨‍💼', '👨', '🧔', '🤵'],
-      'SEÑORA': ['👩‍🦳', '👩', '👩‍💼', '👵'],
-      'MAMÁ': ['👩', '👩‍🍼', '🤱', '🩷'],
-      'PAPÁ': ['👨', '👨‍👦', '👨‍👧', '💙'],
-      'PELOTA': ['⚽', '🏀', '🏐', '🎾'],
-      'BOLA': ['🔮', '🎾', '🎱', '⚽'],
-      'ZAPATO': ['👞', '👟', '👠', '🥾'],
-      'BOTA': ['👢', '🥾', '👞', '🧦'],
+      'LOMA': ['⛰️', '🏔️', '🏞️', '🌄'],
+      'MONTAÑA': ['🏔️', '⛰️', '🗻', '🌄'],
+      'FUEGO': ['🔥', '💥', '⚡', '🕯️'],
+      'POZO': ['🕳️', '🚰', '💧', '🧱'],
+      'TÚNEL': ['🚇', '🚂', '🕳️', '⛰️'],
+      'TUNEL': ['🚇', '🚂', '🕳️', '⛰️'],
+      'CERA': ['🍯', '🐝', '🕯️', '🪔'],
+      'VELA': ['🕯️', '🪔', '🔥', '🎂'],
+      'LATA': ['🥫', '🥤', '🍺', '📦'],
+      'PILA': ['🔋', '🪫', '⚡', '🔌'],
+      'LLAVE': ['🔑', '🗝️', '🔐', '🚪'],
+      'LÁPIZ': ['✏️', '🖊️', '🖋️', '📝'],
+      'LAPIZ': ['✏️', '🖊️', '🖋️', '📝'],
+      'LIBRO': ['📖', '📚', '📕', '📜'],
+      'CUENTO': ['📜', '📖', '📚', '🧙‍♂️'],
+      'MAPA': ['🗺️', '🧭', '📜', '🌍'],
+      'TIJERA': ['✂️', '📐', '✏️', '📎'],
+      'PIPA': ['🫧', '🧼', '💨', '💭'],
+      'PITO': ['📢', '🎷', '🎺', '🔔'],
+      'DADO': ['🎲', '🎯', '🎰', '🧩'],
+      'FICHA': ['🪙', '🎲', '♟️', '🏵️'],
+      'TAPA': ['📦', '🧢', '🫙', '🔒'],
+      'TELA': ['🧵', '🧶', '👕', '🧺'],
+      'LANA': ['🧶', '🧵', '🐑', '🧦'],
+      'TÍTERE': ['🎭', '🧸', '🤡', '🪆'],
+      'TITERE': ['🎭', '🧸', '🤡', '🪆'],
+      'FANTASMA': ['👻', '💀', '🎃', '🔮'],
+      'FARO': ['🚨', '🏮', '🛕', '💡'],
+      'GAFAS': ['🕶️', '👓', '🥽', '😎'],
+      'GAFA': ['🕶️', '👓', '🥽', '😎'],
+      'RIFA': ['🎟️', '🎫', '🎁', '🎰'],
       'CAMA': ['🛌', '🛏️', '🌙'],
       'CUNA': ['🛏️', '👶', '🛌'],
       'SILLA': ['🪑', '🛋️', '🏠'],
       'MESA': ['🪵', '🪑', '🍽️'],
-      'PLATO': ['🍽️', '🥣', '🥗'],
-      'PAN': ['🍞', '🥐', '🥖'],
+      'SALA': ['📺', '🛋️', '🏠', '🖼️'],
+      'SOFÁ': ['🛋️', '📺', '🪑'],
+      'SOFA': ['🛋️', '📺', '🪑'],
+      'COPA': ['🏆', '🍸', '🥇', '🍷'],
+      'PELOTA': ['⚽', '🏀', '🏐', '🎾'],
+      'BOLA': ['🔮', '🎾', '🎱', '⚽'],
+      'ZAPATO': ['👞', '👟', '👠', '🥾'],
+      'BOTA': ['👢', '🥾', '👞', '🧦'],
+      'PLUMA': ['🪶', '🪺', '🐦', '✒️'],
+      'PALA': ['🪏', '⛏️', '🔨', '🧱'],
+      'MANO': ['✋', '🖐️', '👋', '✍️'],
+      'BOCA': ['👄', '🗣️', '😀', '👅'],
+      'DEDO': ['☝️', '👉', '👆', '👍'],
+      'PIE': ['🦶', '🦵', '👞', '🏃'],
+      'PATA': ['🐾', '🐕', '🐱', '🦶'],
+      'CARA': ['😃', '😊', '🙂', '🤩'],
+      'CORAZÓN': ['❤️', '🩷', '💖', '💗'],
+      'CORAZON': ['❤️', '🩷', '💖', '💗'],
+      'MIRADA': ['👀', '👁️', '🕶️', '🔍'],
+      'MÚSICA': ['🎵', '🎶', '🎼', '🎸'],
+      'MUSICA': ['🎵', '🎶', '🎼', '🎸'],
+      'COMA': ['✍️', '📝', '✒️', '✏️'],
+      'ABUELO': ['👴', '👨‍🦳', '🧔', '👴‍🦯'],
+      'ABUELA': ['👵', '👩‍🦳', '👩‍🦱', '👵‍🦯'],
+      'TÍO': ['🧔', '👨', '👨‍🦱', '👨‍🦰'],
+      'TIO': ['🧔', '👨', '👨‍🦱', '👨‍🦰'],
+      'TÍA': ['👩‍🦱', '👩', '👩‍🦰', '👱‍♀️'],
+      'TIA': ['👩‍🦱', '👩', '👩‍🦰', '👱‍♀️'],
+      'SEÑOR': ['👨‍💼', '👨', '🧔', '🤵'],
+      'SENOR': ['👨‍💼', '👨', '🧔', '🤵'],
+      'SEÑORA': ['👩‍🦳', '👩', '👩‍💼', '👵'],
+      'SENORA': ['👩‍🦳', '👩', '👩‍💼', '👵'],
+      'MAMÁ': ['👩', '👩‍🍼', '🤱', '🩷'],
+      'MAMA': ['👩', '👩‍🍼', '🤱', '🩷'],
+      'MADRE': ['👩', '👩‍🍼', '🤱', '🩷'],
+      'PAPÁ': ['👨', '👨‍👦', '👨‍👧', '💙'],
+      'PAPA': ['👨', '👨‍👦', '👨‍👧', '💙'],
+      'PADRE': ['👨', '👨‍👦', '👨‍👧', '💙'],
+      'NIÑO': ['👦', '🧒', '👶'],
+      'NINO': ['👦', '🧒', '👶'],
+      'NIÑA': ['👧', '🧒', '👶'],
+      'NINA': ['👧', '🧒', '👶'],
       'LECHE': ['🥛', '🧃', '🍼'],
       'AGUA': ['💧', '🌊', '🚰'],
       'SOPA': ['🍲', '🥣', '🍜'],
+      'CENA': ['🍕', '🍽️', '🍔', '🥗'],
+      'PLATO': ['🍽️', '🥣', '🥗'],
+      'PAN': ['🍞', '🥐', '🥖'],
+      'MANZANA': ['🍎', '🍏', '🍐'],
+      'PERA': ['🍐', '🍏', '🍎'],
+      'BANANA': ['🍌', '🍌'],
+      'BANANO': ['🍌', '🍌'],
+      'PLATANO': ['🍌', '🍌'],
+      'POMELO': ['🍊', '🍊', '🍋'],
+      'PIÑA': ['🍍', '🍍'],
+      'PINA': ['🍍', '🍍'],
+      'COCO': ['🥥', '🥥'],
+      'CARAMELO': ['🍬', '🍭', '🍫'],
+      'CONFITE': ['🍭', '🍬', '🍫'],
+      'CAFÉ': ['☕', '🍵', '🫖'],
+      'CAFE': ['☕', '🍵', '🫖'],
+      'TAZA': ['🍵', '☕', '🥛'],
+      'MATE': ['🧉', '☕', '🍵'],
+      'FIDEOS': ['🍝', '🍜', '🍲'],
       'BLANCO': ['⬜', '🤍', '🏳️'],
       'NEGRO': ['⬛', '🖤', '🏴'],
       'VERDE': ['💎', '🟩', '🟢', '🍏'],
       'ROJO': ['🔴', '🟥', '❤️', '🍎'],
       'AZUL': ['🔵', '🟦', '💙', '🌊'],
-      'AMARILLO': ['🟡', '🟨', '☀️', '⭐']
+      'AMARILLO': ['🟡', '🟨', '☀️', '⭐'],
+      'GRIS': ['🩶', '🐘', '☁️'],
+      'DORADO': ['🌟', '👑', '🏆'],
+      'LENTA': ['🐢', '🐌'],
+      'FUENTE': ['⛲', '💧', '🌊'],
+      'HELADO': ['🍦', '🍨', '🍧'],
+      'TELÉFONO': ['📞', '📱', '☎️'],
+      'CINE': ['🍿', '🎬', '🎥'],
+      'FOTO': ['📷', '📸', '🖼️'],
+      'COPITA': ['🍸', '🍷', '🥂']
     };
 
     function openEmojiSuggestionsModal(word) {
@@ -3376,21 +3495,49 @@
       if (titleEl) titleEl.innerText = currentModalTargetWord;
       if (inputEl) inputEl.value = customEmojiOverrides[currentModalTargetWord] || emojiMap[currentModalTargetWord] || '';
 
-      const suggestions = SUGGESTED_EMOJIS_MAP[currentModalTargetWord] || ['⭐', '🎨', '✨', '🖼️', '📦', '🍎', '🐶', '🏠', '🚗'];
+      const specificSuggestions = SUGGESTED_EMOJIS_MAP[currentModalTargetWord] || [];
       const defaultCurrent = customEmojiOverrides[currentModalTargetWord] || emojiMap[currentModalTargetWord];
 
       let html = '';
-      suggestions.forEach(em => {
-        const isSelected = defaultCurrent === em;
-        html += `
-          <button onclick="selectModalEmojiSuggestion('${em}')" style="background: ${isSelected ? '#F3E8FF' : '#F8FAFC'}; border: 2px solid ${isSelected ? '#8B5CF6' : '#E2E8F0'}; border-radius: 14px; width: 52px; height: 52px; font-size: 26px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" title="Seleccionar ${em}">
-            ${em}
-          </button>
-        `;
+
+      if (specificSuggestions.length > 0) {
+        html += '<div style="width: 100%; font-size: 12px; font-weight: bold; color: #6D28D9; text-align: center; margin-bottom: 6px;">🎯 Dibujos sugeridos para ' + currentModalTargetWord + ':</div>';
+        html += '<div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px;">';
+        specificSuggestions.forEach(em => {
+          const isSelected = defaultCurrent === em;
+          html += `
+            <button onclick="selectModalEmojiSuggestion('${em}')" style="background: ${isSelected ? '#F3E8FF' : '#F8FAFC'}; border: 2px solid ${isSelected ? '#8B5CF6' : '#E2E8F0'}; border-radius: 12px; width: 48px; height: 48px; font-size: 24px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" title="Seleccionar ${em}">
+              ${em}
+            </button>
+          `;
+        });
+        html += '</div>';
+      }
+
+      html += '<div style="width: 100%; font-size: 11px; font-weight: bold; color: #4B5563; text-align: center; margin-top: 6px; margin-bottom: 6px; border-top: 1px dashed #E5E7EB; padding-top: 10px;">🎨 O explorar por categorías:</div>';
+      html += '<div style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-bottom: 10px;">';
+      Object.keys(EMOJI_CATEGORIES).forEach(catName => {
+        html += `<button onclick="renderCategoryEmojisInModal('${catName}')" style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; color: #334155;">${catName}</button>`;
       });
+      html += '</div>';
+      html += '<div id="modal-category-emojis-container" style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-height: 110px; overflow-y: auto; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 8px;">';
+      EMOJI_CATEGORIES['🤠 Vestimenta'].forEach(em => {
+        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${em}</button>`;
+      });
+      html += '</div>';
 
       grid.innerHTML = html;
       modal.style.display = 'flex';
+    }
+
+    function renderCategoryEmojisInModal(catName) {
+      const container = document.getElementById('modal-category-emojis-container');
+      if (!container || !EMOJI_CATEGORIES[catName]) return;
+      let html = '';
+      EMOJI_CATEGORIES[catName].forEach(em => {
+        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${em}</button>`;
+      });
+      container.innerHTML = html;
     }
 
     function closeEmojiSuggestionsModal() {
