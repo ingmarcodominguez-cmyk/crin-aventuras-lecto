@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v136';
+    const CURRENT_APP_VERSION = 'v137';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '136');
+      u.searchParams.set('v', '137');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '136' && urlVer !== 'v136')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '137' && urlVer !== 'v137')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v136</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v136</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v137</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v137</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v136</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v137</span>
         </div>
         
         <div class="panel-card">
@@ -5994,56 +5994,116 @@
 
       rallyGameState.isAnimating = true;
 
+      // Garantía de seguridad: desbloquear isAnimating tras máximo 2.2s incluso si el callback de voz falla
+      setTimeout(() => {
+        rallyGameState.isAnimating = false;
+      }, 2200);
+
       const cardRect = cardEl.getBoundingClientRect();
       const arenaRect = arena.getBoundingClientRect();
 
       const targetX = cardRect.left + (cardRect.width / 2) - arenaRect.left;
       const targetY = cardRect.top + (cardRect.height / 2) - arenaRect.top;
 
-      // Mascota corre hacia el dibujo
+      // Mascota corre suave y más lento hacia el dibujo (1.4 segundos de transición)
+      petSprite.style.transition = 'left 1.4s ease-in-out, top 1.4s ease-in-out';
       petSprite.style.left = targetX + 'px';
       petSprite.style.top = targetY + 'px';
-      petSprite.style.transform = 'translate(-50%, -50%) scale(1.25)';
+      petSprite.style.transform = 'translate(-50%, -50%) scale(1.3)';
 
+      // Efecto de trote / rebote mientras la mascota va corriendo hacia el dibujo
+      let bounceCount = 0;
+      const bounceInterval = setInterval(() => {
+        bounceCount++;
+        const offsetY = (bounceCount % 2 === 0) ? -12 : 0;
+        petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.3)`;
+      }, 140);
+
+      // Al completar la carrera (1.4s)
       setTimeout(() => {
+        clearInterval(bounceInterval);
         petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
         item.revealed = true;
         renderRallyBoard();
 
         if (item.hasTargetLetter) {
+          // COINCIDENCIA CORRECTA
           if (!item.found) {
             item.found = true;
             rallyGameState.foundCount++;
+            
+            // Otorgar Monedas y Estrellas
             if (activeChildProfile) {
               activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
               activeChildProfile.stars = (activeChildProfile.stars || 0) + 2;
               saveActiveChildProfile();
               updateCoinsAndStarsDisplay();
             }
+
+            // Cartel flotante de recompensa +10 Monedas +2 Estrellas
+            showRewardFloatingPopup(targetX, targetY, '+10 🪙 +2 ⭐');
           }
 
           renderRallyBoard();
+          
+          // Confite y chispas sobre la tarjeta + Lluvia de confetti en pantalla
           createConfettiAt(targetX, targetY);
+          triggerConfettiEffect();
 
-          speakText(`Súper. ${item.word} tiene la letra ${rallyGameState.targetLetter}.`, () => {
+          speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`, () => {
             rallyGameState.isAnimating = false;
             checkRallyVictory();
           });
 
         } else {
+          // NO TIENE LA LETRA
           const cardToShake = document.getElementById(`rally-card-${index}`);
           if (cardToShake) {
-            cardToShake.style.transform = 'translateX(-5px)';
-            setTimeout(() => cardToShake.style.transform = 'translateX(5px)', 100);
+            cardToShake.style.transform = 'translateX(-6px)';
+            setTimeout(() => cardToShake.style.transform = 'translateX(6px)', 100);
             setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
           }
 
-          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}. Prueba con otro dibujo.`, () => {
+          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}. ¡Prueba con otro dibujo!`, () => {
             rallyGameState.isAnimating = false;
           });
         }
 
-      }, 650);
+      }, 1400);
+    }
+
+    function showRewardFloatingPopup(x, y, text) {
+      try {
+        const arena = document.getElementById('rally-arena');
+        if (!arena) return;
+        const pop = document.createElement('div');
+        pop.style.cssText = `
+          position: absolute;
+          left: ${x}px;
+          top: ${y}px;
+          transform: translate(-50%, -100%);
+          background: linear-gradient(135deg, #F59E0B, #10B981);
+          color: white;
+          padding: 4px 12px;
+          border-radius: 14px;
+          font-weight: 800;
+          font-size: 13px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+          pointer-events: none;
+          z-index: 1000;
+          transition: top 1s ease-out, opacity 1s ease-out;
+          opacity: 1;
+        `;
+        pop.innerText = text;
+        arena.appendChild(pop);
+
+        setTimeout(() => {
+          pop.style.top = (y - 50) + 'px';
+          pop.style.opacity = '0';
+        }, 30);
+
+        setTimeout(() => pop.remove(), 1050);
+      } catch(e) {}
     }
 
     function createConfettiAt(x, y) {
