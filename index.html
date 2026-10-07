@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v145';
+    const CURRENT_APP_VERSION = 'v147';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '145');
+      u.searchParams.set('v', '147');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '145' && urlVer !== 'v145')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '147' && urlVer !== 'v147')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v145</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v145</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v147</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v147</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v145</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v147</span>
         </div>
         
         <div class="panel-card">
@@ -3102,28 +3102,19 @@
     }
 
     const emojiMap = {
-      'PELOTA': '⚽', 'MARIPOSA': '🦋', 'AGUA': '💧', 'PATO': '🦆', 'GATO': '🐱',
-      'PERRO': '🐶', 'CASA': '🏠', 'SOL': '☀️', 'LUNA': '🌙', 'ESTRELLA': '⭐',
-      'MESA': '🍽️', 'SILLA': '🪑', 'FLOR': '🌸', 'AUTO': '🚗', 'BICI': '🚲', 'TREN': '🚂',
-      'MANZANA': '🍎', 'BANANO': '🍌', 'PLATANO': '🍌', 'ARBOL': '🌳', 'ÁRBOL': '🌳',
-      'PEZ': '🐟', 'PAJARO': '🐦', 'PÁJARO': '🐦', 'LEON': '🦁', 'LEÓN': '🦁',
-      'OSO': '🐻', 'RATON': '🐭', 'RATÓN': '🐭', 'MONO': '🐒', 'MONITO': '🐒', 'CORAZON': '❤️', 'CORAZÓN': '❤️',
-      'MIRADA': '👀', 'MÚSICA': '🎵', 'MUSICA': '🎵',
-      'LECHE': '🥛', 'PAN': '🍞', 'LIBRO': '📖', 'LAPIZ': '✏️', 'LÁPIZ': '✏️',
-      'ZAPATO': '👞', 'SOPA': '🍲', 'MAMA': '👩', 'MAMÁ': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨',
-      'RANA': '🐸', 'SAPO': '🐸', 'SPO': '🐸', 'SEÑORA': '👵', 'SENORA': '👵', 'SEÑOR': '👨', 'SENOR': '👨',
-      'SALA': '🛋️', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'SERPIENTE': '🐍', 'SIRENA': '🧜‍♀️', 'SOMBRERO': '🤠', 'SOMBRILLA': '☂️',
-      'VERDE': '💎', 'BLANCO': '☁️', 'ROJO': '🔴', 'AZUL': '🔵',
-      'AMARILLO': '🟡', 'ROSA': '🌸', 'NEGRO': '⬛', 'GRIS': '🩶', 'DORADO': '🌟',
-      'LANA': '🧶', 'LENTA': '🐢', 'LINDA': '🌸', 'LOMA': '⛰️', 'LUNA': '🌙',
-      'PUMA': '🐆', 'POMELO': '🍊', 'PIE': '🦶', 'LIMA': '🍋', 'MANO': '✋', 'BOCA': '👄', 'PATA': '🐾',
-      'PALA': '🪏', 'PERA': '🍐', 'PIÑA': '🍍', 'PILA': '🔋', 'PINO': '🌲', 'PUERTA': '🚪', 'PUENTE': '🌉', 'PLUMA': '🪶', 'PLATO': '🍽️',
-      'CENA': '🍽️', 'CINE': '🎬', 'CUNA': '🛏️', 'COPA': '🏆', 'COLA': '🐕', 'COMA': '✍️', 'COCHE': '🚗', 'CAMA': '🛌', 'CARA': '😃', 'COCO': '🥥', 'CERA': '🕯️',
-      'TAZA': '☕', 'TELA': '🧵', 'TÍTERE': '🎭', 'TITERE': '🎭', 'TAPA': '📦', 'MOTO': '🏍️', 'MATE': '🧉', 'MAPA': '🗺️',
-      'BOTA': '👢', 'BOLA': '🔮', 'DADO': '🎲', 'DEDO': '☝️', 'FOTO': '📸', 'LATA': '🥫', 'POZO': '🕳️', 'PIPA': '🫧', 'PITO': '🎷', 'CUENTO': '📖',
-      'FARO': '🚨', 'FELINO': '🐱', 'FICHA': '🎲', 'FUENTE': '⛲', 'GAFA': '🕶️', 'GAFAS': '🕶️', 'CAFÉ': '☕', 'CAFE': '☕', 'CONFITE': '🍬', 'RIFA': '🎟️', 'FUEGO': '🔥', 'FIDEOS': '🍝', 'FOCA': '🦭', 'FANTASMA': '👻',
-      'TECHO': '🏠', 'TIJERA': '✂️', 'TOPO': '🦔', 'TUNEL': '🕳️', 'TÚNEL': '🕳️',
-      'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '👴', 'TIO': '👴', 'TÍA': '👵', 'TIA': '👵'
+      'LUNA': '🌙', 'NOCHE': '🌌', 'SOL': '☀️', 'ESTRELLA': '⭐', 'BLANCO': '⬜', 'NEGRO': '⬛',
+      'LECHE': '🥛', 'AGUA': '💧', 'SOPA': '🍲', 'CENA': '🍕', 'PLATO': '🍽️', 'PAN': '🍞',
+      'MANZANA': '🍎', 'PERA': '🍐', 'BANANA': '🍌', 'BANANO': '🍌', 'PLATANO': '🍌', 'LIMÓN': '🍋', 'LIMON': '🍋', 'LIMA': '🍏', 'POMELO': '🍊', 'PIÑA': '🍍', 'PINA': '🍍', 'COCO': '🥥',
+      'CARAMELO': '🍬', 'CONFITE': '🍭', 'CAFÉ': '☕', 'CAFE': '☕', 'TAZA': '🍵', 'MATE': '🧉', 'FIDEOS': '🍝',
+      'GATO': '🐱', 'FELINO': '🐅', 'PERRO': '🐶', 'OSO': '🐻', 'PUMA': '🐆', 'LEÓN': '🦁', 'LEON': '🦁', 'RATÓN': '🐭', 'RATON': '🐭', 'MONO': '🐒', 'MONITO': '🐒',
+      'PATO': '🦆', 'RANA': '🐸', 'SAPO': '🦎', 'PÁJARO': '🐦', 'PAJARO': '🐦', 'PEZ': '🐟', 'FOCA': '🦭', 'SERPIENTE': '🐍', 'SIRENA': '🧜‍♀️', 'MARIPOSA': '🦋', 'TOPO': '🦔', 'COLA': '🐕',
+      'HOJA': '🍃', 'ÁRBOL': '🌳', 'ARBOL': '🌳', 'PINO': '🌲', 'FLOR': '🌸', 'ROSA': '🌹', 'LOMA': '⛰️', 'MONTAÑA': '🏔️', 'FUEGO': '🔥', 'POZO': '🕳️', 'TÚNEL': '🚇', 'TUNEL': '🚇', 'CERA': '🍯', 'VELA': '🕯️',
+      'LATA': '🥫', 'PILA': '🔋', 'LLAVE': '🔑', 'LÁPIZ': '✏️', 'LAPIZ': '✏️', 'LIBRO': '📖', 'CUENTO': '📜', 'MAPA': '🗺️', 'TIJERA': '✂️', 'SOMBRERO': '🤠', 'SOMBRILLA': '☂️', 'PIPA': '🫧', 'PITO': '📢',
+      'DADO': '🎲', 'FICHA': '🪙', 'TAPA': '📦', 'TELA': '🧵', 'LANA': '🧶', 'TÍTERE': '🎭', 'TITERE': '🎭', 'FANTASMA': '👻', 'FARO': '🚨', 'GAFAS': '🕶️', 'GAFA': '🕶️', 'RIFA': '🎟️',
+      'CASA': '🏠', 'TECHO': '🛖', 'PUERTA': '🚪', 'PUENTE': '🌉', 'CAMA': '🛌', 'CUNA': '🛏️', 'SILLA': '🪑', 'MESA': '🪵', 'SALA': '📺', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'COPA': '🏆',
+      'AUTO': '🚗', 'COCHE': '🏎️', 'BICI': '🚲', 'MOTO': '🏍️', 'TREN': '🚂',
+      'PELOTA': '⚽', 'BOLA': '🔮', 'ZAPATO': '👞', 'BOTA': '👢', 'PLUMA': '🪶', 'PALA': '🪏', 'MANO': '✋', 'BOCA': '👄', 'DEDO': '☝️', 'PIE': '🦶', 'PATA': '🐾', 'CARA': '😃', 'CORAZÓN': '❤️', 'CORAZON': '❤️', 'MIRADA': '👀', 'MÚSICA': '🎵', 'MUSICA': '🎵', 'COMA': '✍️',
+      'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': '💎', 'AMARILLO': '🟡', 'ROJO': '🔴', 'AZUL': '🔵', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': '🌟', 'LENTA': '🐢', 'LINDA': '✨', 'POMELO': '🍊', 'FUENTE': '⛲', 'HELADO': '🍦', 'TELÉFONO': '📞', 'CINE': '🍿', 'FOTO': '📷', 'TITO': '🧒', 'TOTO': '🦮', 'TITA': '👩‍🦰', 'TETE': '🍼', 'COPITA': '🍸'
     };
 
     function getEmojiForWord(word) {
@@ -3152,15 +3143,10 @@
       };
 
       if (categoryEmojiMap[category]) return categoryEmojiMap[category];
-      if (clean.includes('SAPO') || clean.includes('RANA')) return '🐸';
-      if (clean.includes('SEÑOR') || clean.includes('SENOR')) return '👨';
-      if (clean.includes('SEÑORA') || clean.includes('SENORA')) return '👵';
-
-      const firstLetterMap = {
-        'F': '🚨', 'T': '✂️', 'C': '📦', 'P': '📦', 'L': '🌙', 'M': '🗺️', 'B': '👢', 'D': '🎲', 'R': '🐸', 'S': '🐸', 'Z': '👞', 'G': '🕶️'
-      };
-      const firstLetter = clean.charAt(0);
-      if (firstLetterMap[firstLetter]) return firstLetterMap[firstLetter];
+      if (clean.includes('SAPO')) return '🦎';
+      if (clean.includes('RANA')) return '🐸';
+      if (clean.includes('SEÑOR') || clean.includes('SENOR')) return '👨‍💼';
+      if (clean.includes('SEÑORA') || clean.includes('SENORA')) return '👩‍🦳';
 
       return '⭐';
     }
@@ -6400,7 +6386,7 @@
           const modal = document.getElementById('rally-victory-modal');
           if (modal) modal.style.display = 'flex';
 
-          speakText(`¡Felicidades ${getStudentFirstName()}! Completaste tu tarea. Encontraste todos los dibujos con la letra ${rallyGameState.targetLetter}. ¡Eres un súper campeón!`);
+          speakText(`¡Felicidades ${getStudentFirstName()}! Completaste tu tarea.`);
         }, 150);
       }
     }
