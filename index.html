@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v150';
+    const CURRENT_APP_VERSION = 'v151';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '150');
+      u.searchParams.set('v', '151');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '150' && urlVer !== 'v150')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '151' && urlVer !== 'v151')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v150</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v150</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v151</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v151</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v150</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v151</span>
         </div>
         
         <div class="panel-card">
@@ -3141,6 +3141,44 @@
       return syllables.filter(s => s.length > 0);
     }
 
+    const MESA_SVG_ICON = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><path fill='%238B5E34' d='M6 22h52v8H6z'/><path fill='%236F4827' d='M10 30h6v26h-6zm38 0h6v26h-6z'/><path fill='%2358381E' d='M18 30h4v22h-4zm24 0h4v22h-4z'/></svg>";
+
+    function renderDrawingHTML(emoji, style = 'width: 1.2em; height: 1.2em; vertical-align: middle; object-fit: contain;') {
+      if (!emoji) return '⭐';
+      const str = String(emoji).trim();
+      if (str.startsWith('data:image') || str.startsWith('http://') || str.startsWith('https://') || str.endsWith('.png') || str.endsWith('.jpg') || str.endsWith('.svg') || str.endsWith('.webp')) {
+        return `<img src="${str}" style="${style}" alt="dibujo" />`;
+      }
+      return str;
+    }
+
+    function setDrawingElement(el, emoji) {
+      if (!el) return;
+      const str = String(emoji || '⭐').trim();
+      if (str.startsWith('data:image') || str.startsWith('http://') || str.startsWith('https://') || str.endsWith('.png') || str.endsWith('.jpg') || str.endsWith('.svg') || str.endsWith('.webp')) {
+        el.innerHTML = `<img src="${str}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: inline-block;" alt="dibujo" />`;
+      } else {
+        el.innerText = str;
+      }
+    }
+
+    function uploadDrawingImageToInput(inputId, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const inputEl = document.getElementById(inputId);
+        if (inputEl) {
+          inputEl.value = dataUrl;
+          inputEl.dispatchEvent(new Event('input'));
+        }
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
     let customEmojiOverrides = {};
     let deletedWordsList = ['TITA', 'TITO', 'TETE', 'TOTO'];
 
@@ -3154,7 +3192,8 @@
       'HOJA': '🍃', 'ÁRBOL': '🌳', 'ARBOL': '🌳', 'PINO': '🌲', 'FLOR': '🌸', 'ROSA': '🌹', 'LOMA': '⛰️', 'MONTAÑA': '🏔️', 'FUEGO': '🔥', 'POZO': '🕳️', 'TÚNEL': '🚇', 'TUNEL': '🚇', 'CERA': '🍯', 'VELA': '🕯️',
       'LATA': '🥫', 'PILA': '🔋', 'LLAVE': '🔑', 'LÁPIZ': '✏️', 'LAPIZ': '✏️', 'LIBRO': '📖', 'CUENTO': '📜', 'MAPA': '🗺️', 'TIJERA': '✂️', 'SOMBRERO': '🤠', 'SOMBRILLA': '☂️', 'PIPA': '🫧', 'PITO': '📢',
       'DADO': '🎲', 'FICHA': '🪙', 'TAPA': '📦', 'TELA': '🧵', 'LANA': '🧶', 'TÍTERE': '🎭', 'TITERE': '🎭', 'FANTASMA': '👻', 'FARO': '🚨', 'GAFAS': '🕶️', 'GAFA': '🕶️', 'RIFA': '🎟️',
-      'CASA': '🏠', 'TECHO': '🛖', 'PUERTA': '🚪', 'PUENTE': '🌉', 'CAMA': '🛌', 'CUNA': '🛏️', 'SILLA': '🪑', 'MESA': '🪵', 'SALA': '📺', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'COPA': '🏆',
+      'CASA': '🏠', 'TECHO': '🛖', 'PUERTA': '🚪', 'PUENTE': '🌉', 'CAMA': '🛌', 'CUNA': '🛏️', 'SILLA': '🪑', 'MESA': MESA_SVG_ICON,
+      'SALA': '📺', 'SOFÁ': '🛋️', 'SOFA': '🛋️', 'COPA': '🏆',
       'AUTO': '🚗', 'COCHE': '🏎️', 'BICI': '🚲', 'MOTO': '🏍️', 'TREN': '🚂',
       'PELOTA': '⚽', 'BOLA': '🔮', 'ZAPATO': '👞', 'BOTA': '👢', 'PLUMA': '🪶', 'PALA': '🪏', 'MANO': '✋', 'BOCA': '👄', 'DEDO': '☝️', 'PIE': '🦶', 'PATA': '🐾', 'CARA': '😃', 'CORAZÓN': '❤️', 'CORAZON': '❤️', 'MIRADA': '👀', 'MÚSICA': '🎵', 'MUSICA': '🎵', 'COMA': '✍️',
       'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': '👴', 'ABUELA': '👵', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': '💎', 'AMARILLO': '🟡', 'ROJO': '🔴', 'AZUL': '🔵', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': '🌟', 'LENTA': '🐢', 'LINDA': '✨', 'POMELO': '🍊', 'FUENTE': '⛲', 'HELADO': '🍦', 'TELÉFONO': '📞', 'CINE': '🍿', 'FOTO': '📷', 'COPITA': '🍸'
@@ -7315,22 +7354,29 @@
         const idKey = isInline ? `inl-${clean}` : `mod-${clean}`;
 
         card.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-weight: 800; font-size: 15px; color: #1E293B; display: flex; align-items: center; gap: 8px;">
-              <span id="${idKey}-header-emoji" style="font-size: 24px;">${emoji}</span>
-              <span style="font-size: 16px;">${clean}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <div style="font-weight: 800; font-size: 15px; color: #1E293B; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span id="${idKey}-header-emoji" style="font-size: 24px; min-width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">${renderDrawingHTML(emoji, 'width:32px; height:32px; object-fit:contain;')}</span>
+              <span style="font-size: 12px; color: #64748B;">Palabra Objetivo:</span>
+              <input type="text" id="${idKey}-word" value="${clean}" style="font-weight: 800; font-size: 15px; color: #1E293B; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 4px 8px; text-transform: uppercase; width: 140px;" oninput="updateDevCardPreview('${clean}', ${isInline})" title="Edita el nombre de la palabra objetivo (ej: cambiar CASUCHA a CASITA)" />
             </div>
             <span style="font-size: 10px; padding: 2px 7px; border-radius: 8px; font-weight: bold; background: ${isCustomized ? '#D1FAE5' : '#F1F5F9'}; color: ${isCustomized ? '#065F46' : '#64748B'};">
               ${isCustomized ? '✏️ Personalizado (Dev)' : '⚪ Predeterminado'}
             </span>
           </div>
 
-          <div style="display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-end;">
-            <div style="width: 75px;">
-              <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 3px;">Dibujo/Ícono:</label>
-              <input type="text" id="${idKey}-emoji" value="${emoji}" style="width: 100%; padding: 6px; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 18px; text-align: center; box-sizing: border-box;" oninput="updateDevCardPreview('${clean}', ${isInline})" />
+          <div style="display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="min-width: 140px; flex: 1;">
+              <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 3px;">Dibujo/Ícono o Foto:</label>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <input type="text" id="${idKey}-emoji" value="${emoji}" style="flex: 1; padding: 6px; border-radius: 8px; border: 1.5px solid #CBD5E1; font-size: 16px; text-align: center; box-sizing: border-box;" oninput="updateDevCardPreview('${clean}', ${isInline})" />
+                <label style="background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 6px 8px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                  📷 Subir Foto
+                  <input type="file" accept="image/*" onchange="uploadDrawingImageToInput('${idKey}-emoji', event)" style="display: none;" />
+                </label>
+              </div>
             </div>
-            <div style="flex: 1;">
+            <div style="flex: 2; min-width: 180px;">
               <label style="font-size: 11px; font-weight: bold; color: #475569; display: block; margin-bottom: 3px;">Título del Cuento:</label>
               <input type="text" id="${idKey}-title" value="${titleVal.replace(/"/g, '&quot;')}" style="width: 100%; padding: 7px 10px; border-radius: 8px; border: 1.5px solid #CBD5E1; font-weight: bold; font-size: 12px; box-sizing: border-box;" oninput="updateDevCardPreview('${clean}', ${isInline})" />
             </div>
@@ -7377,7 +7423,7 @@
       const prevNarr = document.getElementById(`${idKey}-prev-narr`);
 
       if (emojiInput && headerEmojiSpan) {
-        headerEmojiSpan.innerText = emojiInput.value.trim() || '⭐';
+        setDrawingElement(headerEmojiSpan, emojiInput.value.trim() || '⭐');
       }
       if (titleInput && prevTitle) {
         prevTitle.innerText = formatTextWithStudentName(titleInput.value).replace(/\{nombre\}/g, sampleName);
@@ -7390,15 +7436,34 @@
     function saveDevStoryFromInputs(word, isInline = false) {
       const clean = word.toUpperCase().trim();
       const idKey = isInline ? `inl-${clean}` : `mod-${clean}`;
+      const wordInput = document.getElementById(`${idKey}-word`);
       const titleInput = document.getElementById(`${idKey}-title`);
       const narrInput = document.getElementById(`${idKey}-narr`);
       const emojiInput = document.getElementById(`${idKey}-emoji`);
 
       if (!titleInput || !narrInput) return;
 
-      const emojiVal = (emojiInput && emojiInput.value.trim()) ? emojiInput.value.trim() : getEmojiForWord(clean);
+      const newClean = wordInput ? wordInput.value.toUpperCase().trim() : clean;
+      const targetWordKey = newClean || clean;
+      const emojiVal = (emojiInput && emojiInput.value.trim()) ? emojiInput.value.trim() : getEmojiForWord(targetWordKey);
 
-      customStories[clean] = {
+      if (targetWordKey !== clean) {
+        delete customStories[clean];
+        if (customEmojiOverrides[clean]) {
+          customEmojiOverrides[targetWordKey] = customEmojiOverrides[clean];
+          delete customEmojiOverrides[clean];
+        }
+        if (typeof allTaskPacks === 'object' && allTaskPacks !== null) {
+          Object.keys(allTaskPacks).forEach(k => {
+            const p = allTaskPacks[k];
+            if (p && Array.isArray(p.words)) {
+              p.words = p.words.map(w => w.toUpperCase().trim() === clean ? targetWordKey : w);
+            }
+          });
+        }
+      }
+
+      customStories[targetWordKey] = {
         chapterTitle: titleInput.value.trim(),
         narration: narrInput.value.trim(),
         emoji: emojiVal,
@@ -7406,11 +7471,13 @@
       };
 
       saveCustomStoriesToLocalStorage();
+      saveCustomEmojiDictionary();
       buildActiveDatasets();
       updateActiveTaskPackUI();
       renderDevWordList(false);
       renderDevWordList(true);
-      alert(`✅ Dibujo (${emojiVal}) y cuento para "${clean}" guardados correctamente.`);
+      renderDictionaryEditorTable();
+      alert(`✅ Palabra y cuento guardados correctamente como "${targetWordKey}".`);
     }
 
     function saveDevStory(word) {
