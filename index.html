@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v141';
+    const CURRENT_APP_VERSION = 'v142';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '141');
+      u.searchParams.set('v', '142');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '141' && urlVer !== 'v141')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '142' && urlVer !== 'v142')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v141</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v141</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v142</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v142</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v141</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v142</span>
         </div>
         
         <div class="panel-card">
@@ -5991,22 +5991,56 @@
       } catch(e) {}
     }
 
+    function countFoundTargets() {
+      if (!Array.isArray(rallyGameState.items)) return 0;
+      return rallyGameState.items.filter(item => item.hasTargetLetter && item.found).length;
+    }
+
+    let rallySafetyTimer = null;
+
+    function resetPetToHome() {
+      const petSprite = document.getElementById('rally-pet-sprite');
+      if (petSprite) {
+        petSprite.style.transition = 'left 0.5s ease-out, top 0.5s ease-out';
+        petSprite.style.left = '50%';
+        petSprite.style.top = '90%';
+        petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
+      }
+      rallyGameState.isAnimating = false;
+      if (rallySafetyTimer) {
+        clearTimeout(rallySafetyTimer);
+        rallySafetyTimer = null;
+      }
+      renderRallyBoard();
+    }
+
     function renderRallyBoard() {
       const grid = document.getElementById('rally-cards-grid');
       const foundCountEl = document.getElementById('rally-found-count');
       const totalCountEl = document.getElementById('rally-total-target-count');
 
-      if (foundCountEl) foundCountEl.innerText = rallyGameState.foundCount;
+      const actualFound = countFoundTargets();
+      rallyGameState.foundCount = actualFound;
+
+      if (foundCountEl) foundCountEl.innerText = actualFound;
       if (totalCountEl) totalCountEl.innerText = rallyGameState.totalTargetCount;
 
       if (!grid) return;
-      grid.innerHTML = '';
+
+      if (grid.children.length !== rallyGameState.items.length) {
+        grid.innerHTML = '';
+        rallyGameState.items.forEach((item, index) => {
+          const card = document.createElement('div');
+          card.id = `rally-card-${index}`;
+          card.className = 'rally-card';
+          card.onclick = () => handleRallyCardClick(index);
+          grid.appendChild(card);
+        });
+      }
 
       rallyGameState.items.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.id = `rally-card-${index}`;
-        card.className = 'rally-card';
-        card.onclick = () => handleRallyCardClick(index);
+        const card = document.getElementById(`rally-card-${index}`);
+        if (!card) return;
 
         card.style.cssText = `
           background: ${item.found ? '#DCFCE7' : (item.revealed ? '#FEF3C7' : '#FFFFFF')};
@@ -6069,8 +6103,6 @@
             }
           };
         }
-
-        grid.appendChild(card);
       });
     }
 
@@ -6102,78 +6134,88 @@
 
       rallyGameState.isAnimating = true;
 
+      // Timer de seguridad absoluto por si algo falla en el navegador
+      if (rallySafetyTimer) clearTimeout(rallySafetyTimer);
+      rallySafetyTimer = setTimeout(() => {
+        resetPetToHome();
+      }, 3200);
+
       // Musiquita retro de carrera
       playGameAudioEffect('running');
 
       const cardRect = cardEl.getBoundingClientRect();
       const arenaRect = arena.getBoundingClientRect();
 
-      const targetX = cardRect.left + (cardRect.width / 2) - arenaRect.left;
-      const targetY = cardRect.top + (cardRect.height / 2) - arenaRect.top;
+      let targetX = cardRect.left + (cardRect.width / 2) - arenaRect.left;
+      let targetY = cardRect.top + (cardRect.height / 2) - arenaRect.top;
 
-      // 1. Mascota corre despacio hacia el dibujo (1.0s)
-      petSprite.style.transition = 'left 1.0s ease-in-out, top 1.0s ease-in-out';
+      if (isNaN(targetX) || isNaN(targetY) || targetX <= 0 || targetY <= 0) {
+        targetX = arenaRect.width / 2;
+        targetY = arenaRect.height / 2;
+      }
+
+      // 1. Mascota corre hacia la tarjeta (800ms)
+      petSprite.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out';
       petSprite.style.left = targetX + 'px';
       petSprite.style.top = targetY + 'px';
 
-      // Rebote de trote mientras corre
       let bounceCount = 0;
       const bounceInterval = setInterval(() => {
         bounceCount++;
         const offsetY = (bounceCount % 2 === 0) ? -8 : 0;
         petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.2)`;
-      }, 120);
+      }, 110);
 
-      // 2. Al llegar al dibujo (1.0s)
+      // 2. Al llegar a la tarjeta (800ms)
       setTimeout(() => {
         clearInterval(bounceInterval);
         petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
-        
-        item.revealed = true;
 
-        // Verificar dinámicamente si la palabra contiene la letra objetivo
-        const isTarget = hasLetter(item.word, rallyGameState.targetLetter);
-        item.hasTargetLetter = isTarget;
+        try {
+          item.revealed = true;
+          const isTarget = hasLetter(item.word, rallyGameState.targetLetter);
+          item.hasTargetLetter = isTarget;
 
-        if (isTarget) {
-          if (!item.found) {
-            item.found = true;
-            rallyGameState.foundCount++;
-            
-            if (activeChildProfile) {
-              activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
-              activeChildProfile.stars = (activeChildProfile.stars || 0) + 2;
-              saveActiveChildProfile();
-              updateCoinsAndStarsDisplay();
+          if (isTarget) {
+            if (!item.found) {
+              item.found = true;
+
+              if (activeChildProfile) {
+                activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
+                activeChildProfile.stars = (activeChildProfile.stars || 0) + 2;
+                saveActiveChildProfile();
+                updateCoinsAndStarsDisplay();
+              }
+
+              showRewardFloatingPopup(targetX, targetY, '+10 🪙 +2 ⭐');
             }
 
-            showRewardFloatingPopup(targetX, targetY, '+10 🪙 +2 ⭐');
+            renderRallyBoard();
+            playGameAudioEffect('correct');
+            createConfettiAt(targetX, targetY);
+
+            speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`);
+          } else {
+            renderRallyBoard();
+            playGameAudioEffect('wrong');
+
+            const cardToShake = document.getElementById(`rally-card-${index}`);
+            if (cardToShake) {
+              cardToShake.style.transform = 'translateX(-6px)';
+              setTimeout(() => cardToShake.style.transform = 'translateX(6px)', 100);
+              setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
+            }
+
+            speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}.`);
           }
-
+        } catch(err) {
           renderRallyBoard();
-          playGameAudioEffect('correct');
-          createConfettiAt(targetX, targetY);
-
-          speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`);
-
-        } else {
-          renderRallyBoard();
-          playGameAudioEffect('wrong');
-
-          const cardToShake = document.getElementById(`rally-card-${index}`);
-          if (cardToShake) {
-            cardToShake.style.transform = 'translateX(-6px)';
-            setTimeout(() => cardToShake.style.transform = 'translateX(6px)', 100);
-            setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
-          }
-
-          speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}.`);
         }
 
-        // 3. LA MASCOTA BAJA DE REGRESO A SU POSICIÓN INICIAL DE MANERA OBLIGATORIA
+        // 3. Regreso de la mascota a su casa abajo (1000ms después)
         setTimeout(() => {
           playGameAudioEffect('running');
-          petSprite.style.transition = 'left 1.0s ease-in-out, top 1.0s ease-in-out';
+          petSprite.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out';
           petSprite.style.left = '50%';
           petSprite.style.top = '90%';
 
@@ -6182,22 +6224,26 @@
             returnBounceCount++;
             const offsetY = (returnBounceCount % 2 === 0) ? -8 : 0;
             petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.1)`;
-          }, 120);
+          }, 110);
 
           setTimeout(() => {
             clearInterval(returnBounceInterval);
             petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
             petSprite.style.left = '50%';
             petSprite.style.top = '90%';
-            rallyGameState.isAnimating = false;
 
-            // Verificar si se completó la tarea tras regresar abajo a base
+            if (rallySafetyTimer) {
+              clearTimeout(rallySafetyTimer);
+              rallySafetyTimer = null;
+            }
+
+            rallyGameState.isAnimating = false;
             checkRallyVictory();
-          }, 1050);
+          }, 850);
 
         }, 1000);
 
-      }, 1000);
+      }, 800);
     }
 
     function showRewardFloatingPopup(x, y, text) {
@@ -6279,7 +6325,14 @@
     const RALLY_LETTERS_SEQUENCE = ['L', 'M', 'P', 'S', 'T', 'C', 'F', 'D', 'R', 'N', 'B', 'V'];
 
     function checkRallyVictory() {
-      if (rallyGameState.foundCount >= rallyGameState.totalTargetCount && rallyGameState.totalTargetCount > 0) {
+      const found = countFoundTargets();
+      const total = rallyGameState.totalTargetCount;
+      rallyGameState.foundCount = found;
+
+      const foundCountEl = document.getElementById('rally-found-count');
+      if (foundCountEl) foundCountEl.innerText = found;
+
+      if (total > 0 && found >= total) {
         setTimeout(() => {
           triggerConfettiEffect();
 
@@ -6298,7 +6351,7 @@
           if (modal) modal.style.display = 'flex';
 
           speakText(`¡Felicidades ${getStudentFirstName()}! Desbloqueaste todos los dibujos con la letra ${rallyGameState.targetLetter}. ¡Eres un súper campeón!`);
-        }, 500);
+        }, 400);
       }
     }
 
