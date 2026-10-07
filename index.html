@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v148';
+    const CURRENT_APP_VERSION = 'v149';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '148');
+      u.searchParams.set('v', '149');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '148' && urlVer !== 'v148')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '149' && urlVer !== 'v149')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v148</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v148</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v149</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v149</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v148</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v149</span>
         </div>
         
         <div class="panel-card">
@@ -1555,9 +1555,18 @@
             <div style="font-weight: 800; font-size: 15px; color: #6D28D9; display: flex; align-items: center; gap: 6px;">
               <span>📖 Gestor y Editor del Diccionario de Dibujos</span>
             </div>
-            <button onclick="resetCustomEmojiDictionary()" style="background: #F3E8FF; color: #7C3AED; border: 1px solid #C4B5FD; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
-              🔄 Restablecer Diccionario Original
-            </button>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <button onclick="exportCustomDictionaryJSON()" style="background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                📤 Exportar JSON
+              </button>
+              <label style="background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center;">
+                📥 Importar JSON
+                <input type="file" id="import-dict-json-file" accept=".json" onchange="importCustomDictionaryJSON(event)" style="display: none;" />
+              </label>
+              <button onclick="resetCustomEmojiDictionary()" style="background: #F3E8FF; color: #7C3AED; border: 1px solid #C4B5FD; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                🔄 Restablecer Original
+              </button>
+            </div>
           </div>
           <p style="font-size: 11px; color: #4C1D95; margin: 0 0 10px 0;">Modifica cualquier dibujo/emoji asignado a una palabra o elimina palabras para que no aparezcan en los juegos (ej: TITA, TITO, TETE, TOTO eliminados por defecto).</p>
           
@@ -3298,6 +3307,168 @@
       }
     }
 
+    let currentModalTargetWord = '';
+
+    const SUGGESTED_EMOJIS_MAP = {
+      'LIMA': ['🍈', '🍏', '🟢', '🍋', '🫛'],
+      'LIMÓN': ['🍋', '🍈', '🟡', '🍏'],
+      'LUNA': ['🌙', '🌕', '🌘', '🌌'],
+      'NOCHE': ['🌌', '🌙', '🌃', '🖤'],
+      'SOL': ['☀️', '🌞', '🌤️', '🟡'],
+      'ESTRELLA': ['⭐', '🌟', '✨', '💫'],
+      'CASA': ['🏠', '🏡', '🛖', '🏛️'],
+      'TECHO': ['🛖', '🏠', '⛺'],
+      'PUERTA': ['🚪', '🏠', '🔐'],
+      'AUTO': ['🚗', '🏎️', '🚘', '🚙'],
+      'COCHE': ['🏎️', '🚗', '🚙'],
+      'GATO': ['🐱', '🐈', '😸', '🐅'],
+      'PERRO': ['🐶', '🐕', '🐩', '🦮'],
+      'LEÓN': ['🦁', '🐆', '🐅', '👑'],
+      'PUMA': ['🐆', '🐅', '🐾', '🦁'],
+      'FELINO': ['🐅', '🐆', '🐱', '🦁'],
+      'RANA': ['🐸', '🦎', '🟢', '🐊'],
+      'SAPO': ['🦎', '🐸', '🟤', '🐊'],
+      'CAFÉ': ['☕', '🍵', '🫖', '🤎'],
+      'TAZA': ['🍵', '☕', '🥛', '🫖'],
+      'SALA': ['📺', '🛋️', '🏠', '🖼️'],
+      'SOFÁ': ['🛋️', '📺', '🪑'],
+      'FLOR': ['🌸', '🌹', '🌻', '🌺'],
+      'ROSA': ['🌹', '🌸', '🩷', '🌺'],
+      'LINDA': ['✨', '🌸', '💖', '🌟'],
+      'ABUELO': ['👴', '👨‍🦳', '🧔', '👴‍🦯'],
+      'ABUELA': ['👵', '👩‍🦳', '👩‍🦱', '👵‍🦯'],
+      'TÍO': ['🧔', '👨', '👨‍🦱', '👨‍🦰'],
+      'TÍA': ['👩‍🦱', '👩', '👩‍🦰', '👱‍♀️'],
+      'SEÑOR': ['👨‍💼', '👨', '🧔', '🤵'],
+      'SEÑORA': ['👩‍🦳', '👩', '👩‍💼', '👵'],
+      'MAMÁ': ['👩', '👩‍🍼', '🤱', '🩷'],
+      'PAPÁ': ['👨', '👨‍👦', '👨‍👧', '💙'],
+      'PELOTA': ['⚽', '🏀', '🏐', '🎾'],
+      'BOLA': ['🔮', '🎾', '🎱', '⚽'],
+      'ZAPATO': ['👞', '👟', '👠', '🥾'],
+      'BOTA': ['👢', '🥾', '👞', '🧦'],
+      'CAMA': ['🛌', '🛏️', '🌙'],
+      'CUNA': ['🛏️', '👶', '🛌'],
+      'SILLA': ['🪑', '🛋️', '🏠'],
+      'MESA': ['🪵', '🪑', '🍽️'],
+      'PLATO': ['🍽️', '🥣', '🥗'],
+      'PAN': ['🍞', '🥐', '🥖'],
+      'LECHE': ['🥛', '🧃', '🍼'],
+      'AGUA': ['💧', '🌊', '🚰'],
+      'SOPA': ['🍲', '🥣', '🍜'],
+      'BLANCO': ['⬜', '🤍', '🏳️'],
+      'NEGRO': ['⬛', '🖤', '🏴'],
+      'VERDE': ['💎', '🟩', '🟢', '🍏'],
+      'ROJO': ['🔴', '🟥', '❤️', '🍎'],
+      'AZUL': ['🔵', '🟦', '💙', '🌊'],
+      'AMARILLO': ['🟡', '🟨', '☀️', '⭐']
+    };
+
+    function openEmojiSuggestionsModal(word) {
+      currentModalTargetWord = word.toUpperCase().trim();
+      const modal = document.getElementById('emoji-suggestions-modal');
+      const titleEl = document.getElementById('emoji-suggestions-word-name');
+      const grid = document.getElementById('emoji-suggestions-grid');
+      const inputEl = document.getElementById('emoji-custom-modal-input');
+
+      if (!modal || !grid) return;
+
+      if (titleEl) titleEl.innerText = currentModalTargetWord;
+      if (inputEl) inputEl.value = customEmojiOverrides[currentModalTargetWord] || emojiMap[currentModalTargetWord] || '';
+
+      const suggestions = SUGGESTED_EMOJIS_MAP[currentModalTargetWord] || ['⭐', '🎨', '✨', '🖼️', '📦', '🍎', '🐶', '🏠', '🚗'];
+      const defaultCurrent = customEmojiOverrides[currentModalTargetWord] || emojiMap[currentModalTargetWord];
+
+      let html = '';
+      suggestions.forEach(em => {
+        const isSelected = defaultCurrent === em;
+        html += `
+          <button onclick="selectModalEmojiSuggestion('${em}')" style="background: ${isSelected ? '#F3E8FF' : '#F8FAFC'}; border: 2px solid ${isSelected ? '#8B5CF6' : '#E2E8F0'}; border-radius: 14px; width: 52px; height: 52px; font-size: 26px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" title="Seleccionar ${em}">
+            ${em}
+          </button>
+        `;
+      });
+
+      grid.innerHTML = html;
+      modal.style.display = 'flex';
+    }
+
+    function closeEmojiSuggestionsModal() {
+      const modal = document.getElementById('emoji-suggestions-modal');
+      if (modal) modal.style.display = 'none';
+      currentModalTargetWord = '';
+    }
+
+    function selectModalEmojiSuggestion(em) {
+      if (!currentModalTargetWord) return;
+      updateWordEmojiOverride(currentModalTargetWord, em);
+      closeEmojiSuggestionsModal();
+    }
+
+    function applyCustomModalEmoji() {
+      const inputEl = document.getElementById('emoji-custom-modal-input');
+      if (!inputEl || !currentModalTargetWord) return;
+      const em = inputEl.value.trim();
+      if (em) {
+        updateWordEmojiOverride(currentModalTargetWord, em);
+      }
+      closeEmojiSuggestionsModal();
+    }
+
+    function exportCustomDictionaryJSON() {
+      loadCustomEmojiDictionary();
+      const data = {
+        version: 'CRIN_DICT_v1',
+        appVersion: typeof CURRENT_APP_VERSION !== 'undefined' ? CURRENT_APP_VERSION : 'v149',
+        exportedAt: new Date().toISOString(),
+        customEmojiOverrides,
+        deletedWordsList
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `crin_diccionario_personalizado_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importCustomDictionaryJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (typeof parsed === 'object' && parsed !== null) {
+            if (parsed.customEmojiOverrides && typeof parsed.customEmojiOverrides === 'object') {
+              customEmojiOverrides = { ...customEmojiOverrides, ...parsed.customEmojiOverrides };
+            }
+            if (parsed.deletedWordsList && Array.isArray(parsed.deletedWordsList)) {
+              deletedWordsList = Array.from(new Set([...deletedWordsList, ...parsed.deletedWordsList]));
+            }
+            saveCustomEmojiDictionary();
+            renderDictionaryEditorTable();
+            if (typeof updateTherapistRallyPreview === 'function') {
+              const selL = document.getElementById('therapist-rally-letter');
+              if (selL) updateTherapistRallyPreview(selL.value);
+            }
+            alert('🎉 ¡Diccionario personalizado importado e integrado con éxito!');
+          } else {
+            alert('⚠️ El archivo JSON no tiene un formato válido.');
+          }
+        } catch(err) {
+          alert('❌ Error al leer el archivo JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
     function renderDictionaryEditorTable() {
       const container = document.getElementById('dictionary-editor-container');
       if (!container) return;
@@ -3348,8 +3519,11 @@
               <div style="font-weight: bold; font-size: 12px; color: #1E293B; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                 ${w}
               </div>
-              <input type="text" value="${currentEmoji}" onchange="updateWordEmojiOverride('${w}', this.value)" style="width: 38px; text-align: center; font-size: 15px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 2px;" title="Editar dibujo para ${w}" />
-              <button onclick="deleteWordFromDictionary('${w}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Eliminar palabra de la app">
+              <button onclick="openEmojiSuggestionsModal('${w}')" style="background: ${isOverridden ? '#F3E8FF' : '#FAF5FF'}; border: 2px solid ${isOverridden ? '#8B5CF6' : '#DDD6FE'}; border-radius: 10px; padding: 3px 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);" title="Toca para cambiar dibujo con sugerencias">
+                <span>${currentEmoji}</span>
+                <span style="font-size: 9px; color: #7C3AED; font-weight: bold;">✏️</span>
+              </button>
+              <button onclick="deleteWordFromDictionary('${w}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Eliminar palabra de la app">
                 🗑️
               </button>
             </div>
@@ -7804,6 +7978,30 @@
         </button>
         <button onclick="confirmSkipPenalty()" style="width: 100%; background: #FFEAA7; border: 2px solid #FDCB6E; color: #D35400; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 14px; cursor: pointer;">
           Saltar y Pagar 10 🪙 + 2 ⭐
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POPUP: SUGERIDOR INTELIGENTE DE EMOJIS -->
+  <div id="emoji-suggestions-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); z-index: 2147483647; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: white; border-radius: 24px; max-width: 440px; width: 95%; margin: auto; padding: 22px; box-shadow: 0 25px 50px rgba(0,0,0,0.35); border: 4px solid #8B5CF6; text-align: center; animation: popIn 0.25s ease-out;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #F3E8FF; padding-bottom: 10px;">
+        <h3 style="margin: 0; font-size: 17px; color: #6D28D9; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+          <span>💡 Sugerencias de Dibujo</span>
+        </h3>
+        <button onclick="closeEmojiSuggestionsModal()" style="background: #F3F4F6; border: none; font-size: 16px; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-weight: bold; color: #6B7280;">✕</button>
+      </div>
+      <p style="font-size: 13px; color: #4B5563; margin: 0 0 16px 0;">Selecciona el dibujo que más te guste para <strong id="emoji-suggestions-word-name" style="color: #6D28D9; font-size: 15px;">...</strong>:</p>
+      
+      <div id="emoji-suggestions-grid" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 20px;">
+        <!-- Alternativas dinamicas -->
+      </div>
+
+      <div style="border-top: 1px dashed #E5E7EB; padding-top: 14px; display: flex; gap: 8px; align-items: center;">
+        <input type="text" id="emoji-custom-modal-input" placeholder="Otro emoji o pegarlo aquí..." style="flex: 1; padding: 10px 12px; border-radius: 12px; border: 1px solid #CBD5E1; font-size: 15px; text-align: center;" />
+        <button onclick="applyCustomModalEmoji()" style="background: #7C3AED; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 10px rgba(124,58,237,0.3);">
+          Aplicar
         </button>
       </div>
     </div>
