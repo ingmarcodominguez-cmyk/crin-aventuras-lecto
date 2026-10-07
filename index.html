@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v134';
+    const CURRENT_APP_VERSION = 'v135';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '134');
+      u.searchParams.set('v', '135');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '134' && urlVer !== 'v134')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '135' && urlVer !== 'v135')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v134</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v134</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v135</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v135</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v134</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v135</span>
         </div>
         
         <div class="panel-card">
@@ -1493,21 +1493,44 @@
             </div>
             <span style="font-size: 10px; background: #FF6B6B; color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold;">Especial CRIN</span>
           </div>
-          <p style="font-size: 11px; color: #4A5568; margin: 0 0 10px 0;">El alumno envía su mascota corriendo hasta el dibujo. Al llegar, se revela el nombre de la palabra y se valida si contiene la letra consigna.</p>
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <p style="font-size: 11px; color: #4A5568; margin: 0 0 10px 0;">El alumno envía su mascota corriendo hasta el dibujo. El sistema propone <strong>10 tarjetas con dibujos</strong> (7 con la letra consigna en cualquier posición y 3 distractores).</p>
+          
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
             <label style="font-size: 12px; font-weight: bold; color: #2D3436;">Letra Objetivo:</label>
-            <select id="therapist-rally-letter" style="padding: 6px 12px; border-radius: 10px; border: 2px solid #FF6B6B; font-weight: bold; font-size: 14px; background: white; color: #D63031; cursor: pointer;">
-              <option value="L">Letra L (Lata, Lápiz, Caramelo...)</option>
-              <option value="M">Letra M (Manzana, Mono, Mama...)</option>
-              <option value="P">Letra P (Pelota, Pera, Pato...)</option>
-              <option value="S">Letra S (Sol, Sapo, Sirena...)</option>
-              <option value="T">Letra T (Teléfono, Taza, Tintero...)</option>
-              <option value="C">Letra C (Casa, Caramelo, Coche...)</option>
-              <option value="F">Letra F (Faro, Foco, Sofá...)</option>
-              <option value="D">Letra D (Dado, Dedo, Helado...)</option>
+            <select id="therapist-rally-letter" onchange="updateTherapistRallyPreview(this.value)" style="padding: 6px 12px; border-radius: 10px; border: 2px solid #FF6B6B; font-weight: bold; font-size: 14px; background: white; color: #D63031; cursor: pointer;">
+              <option value="L">Letra L (Lata, Lápiz, Caramelo, Pelota...)</option>
+              <option value="M">Letra M (Manzana, Mono, Mama, Camiseta...)</option>
+              <option value="P">Letra P (Pelota, Pera, Pato, Pipa...)</option>
+              <option value="S">Letra S (Sol, Sapo, Sirena, Casa...)</option>
+              <option value="T">Letra T (Teléfono, Taza, Tijera, Pito...)</option>
+              <option value="C">Letra C (Casa, Caramelo, Coche, Leche...)</option>
+              <option value="F">Letra F (Faro, Foco, Sofá, Fideos...)</option>
+              <option value="D">Letra D (Dado, Dedo, Helado, Candado...)</option>
+              <option value="R">Letra R (Rana, Perro, Caramelo, Tijera...)</option>
+              <option value="N">Letra N (Luna, Manzana, Banano, León...)</option>
             </select>
             <button onclick="launchRallyFromTherapist()" style="flex: 1; min-width: 180px; background: linear-gradient(135deg, #FF6B6B, #EE5253); color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(238,82,83,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
               <span>🚀 Iniciar Carrera con la Letra Seleccionada</span>
+            </button>
+          </div>
+
+          <!-- PREVISUALIZACIÓN DE DIBUJOS DISPONIBLES EN EL BANCO PARA ESTA LETRA -->
+          <div style="background: white; border: 2px dashed #FCA5A5; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px;">
+            <div style="font-size: 11px; font-weight: bold; color: #991B1B; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+              <span id="therapist-rally-preview-title">🎨 Dibujos disponibles para la Letra L:</span>
+              <span id="therapist-rally-preview-count" style="background: #FEE2E2; color: #991B1B; padding: 1px 6px; border-radius: 6px; font-weight: bold;">15 Dibujos</span>
+            </div>
+            <div id="therapist-rally-preview-chips" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 90px; overflow-y: auto;">
+              <!-- Se cargará dinámicamente -->
+            </div>
+          </div>
+
+          <!-- AGREGAR NUEVO DIBUJO / PALABRA PERSONALIZADO -->
+          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="add-rally-drawing-word-input" placeholder="Agregar palabra con dibujo (ej: LORO, TIJERA)" style="flex: 1; min-width: 160px; padding: 6px 10px; border-radius: 8px; border: 1px solid #FCA5A5; font-size: 12px; font-weight: bold;" />
+            <input type="text" id="add-rally-drawing-emoji-input" placeholder="Dibujo/Emoji (ej: 🦜)" style="width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid #FCA5A5; font-size: 14px; text-align: center;" />
+            <button onclick="addCustomRallyDrawingFromTherapist()" style="background: #D63031; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+              ➕ Agregar Dibujo
             </button>
           </div>
         </div>
@@ -5605,35 +5628,37 @@
     // =========================================================================
 
     const RALLY_DRAWINGS_BANK = [
-      { word: 'LATA', emoji: '🥫', letters: ['L'] },
-      { word: 'LÁPIZ', emoji: '✏️', letters: ['L'] },
-      { word: 'HOJA', emoji: '🍃', letters: ['H', 'A'] },
-      { word: 'PERA', emoji: '🍐', letters: ['P', 'R', 'A'] },
-      { word: 'TELÉFONO', emoji: '📞', letters: ['T', 'L', 'F', 'N'] },
-      { word: 'LLAVE', emoji: '🔑', letters: ['L', 'V'] },
-      { word: 'ESTRELLA', emoji: '⭐️', letters: ['S', 'T', 'R', 'L'] },
-      { word: 'HELADO', emoji: '🍦', letters: ['H', 'L', 'D'] },
-      { word: 'LIMÓN', emoji: '🍋', letters: ['L', 'M', 'N'] },
-      { word: 'PELOTA', emoji: '⚽', letters: ['P', 'L', 'T'] },
-      { word: 'CARAMELO', emoji: '🍬', letters: ['C', 'R', 'M', 'L'] },
-      { word: 'GATO', emoji: '🐱', letters: ['G', 'T'] },
-      { word: 'PERRO', emoji: '🐶', letters: ['P', 'R'] },
-      { word: 'SOL', emoji: '☀️', letters: ['S', 'L'] },
-      { word: 'LUNA', emoji: '🌙', letters: ['L', 'N'] },
-      { word: 'PATO', emoji: '🦆', letters: ['P', 'T'] },
-      { word: 'RANA', emoji: '🐸', letters: ['R', 'N'] },
-      { word: 'CASA', emoji: '🏠', letters: ['C', 'S'] },
-      { word: 'BANANA', emoji: '🍌', letters: ['B', 'N'] },
-      { word: 'MANZANA', emoji: '🍎', letters: ['M', 'N', 'Z'] },
-      { word: 'AUTO', emoji: '🚗', letters: ['A', 'T'] },
-      { word: 'LIBRO', emoji: '📚', letters: ['L', 'B', 'R'] },
-      { word: 'LEÓN', emoji: '🦁', letters: ['L', 'N'] },
-      { word: 'PAN', emoji: '🍞', letters: ['P', 'N'] },
-      { word: 'LECHE', emoji: '🥛', letters: ['L', 'C', 'H'] },
-      { word: 'PITO', emoji: '🪈', letters: ['P', 'T'] },
-      { word: 'TIJERA', emoji: '✂️', letters: ['T', 'J', 'R'] },
-      { word: 'TAZA', emoji: '☕', letters: ['T', 'Z'] }
+      { word: 'LATA', emoji: '🥫' },
+      { word: 'LÁPIZ', emoji: '✏️' },
+      { word: 'HOJA', emoji: '🍃' },
+      { word: 'PERA', emoji: '🍐' },
+      { word: 'TELÉFONO', emoji: '📞' },
+      { word: 'LLAVE', emoji: '🔑' },
+      { word: 'ESTRELLA', emoji: '⭐️' },
+      { word: 'HELADO', emoji: '🍦' },
+      { word: 'LIMÓN', emoji: '🍋' },
+      { word: 'PELOTA', emoji: '⚽' },
+      { word: 'CARAMELO', emoji: '🍬' },
+      { word: 'GATO', emoji: '🐱' },
+      { word: 'PERRO', emoji: '🐶' },
+      { word: 'SOL', emoji: '☀️' },
+      { word: 'LUNA', emoji: '🌙' },
+      { word: 'PATO', emoji: '🦆' },
+      { word: 'RANA', emoji: '🐸' },
+      { word: 'CASA', emoji: '🏠' },
+      { word: 'BANANA', emoji: '🍌' },
+      { word: 'MANZANA', emoji: '🍎' },
+      { word: 'AUTO', emoji: '🚗' },
+      { word: 'LIBRO', emoji: '📚' },
+      { word: 'LEÓN', emoji: '🦁' },
+      { word: 'PAN', emoji: '🍞' },
+      { word: 'LECHE', emoji: '🥛' },
+      { word: 'PITO', emoji: '🪈' },
+      { word: 'TIJERA', emoji: '✂️' },
+      { word: 'TAZA', emoji: '☕' }
     ];
+
+    let customRallyDrawingsBank = [];
 
     let rallyGameState = {
       targetLetter: 'L',
@@ -5643,7 +5668,84 @@
       isAnimating: false
     };
 
+    function loadCustomRallyDrawings() {
+      try {
+        const saved = localStorage.getItem('crin_custom_rally_drawings');
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list)) customRallyDrawingsBank = list;
+        }
+      } catch(e) {}
+    }
+
+    function saveCustomRallyDrawings() {
+      try {
+        localStorage.setItem('crin_custom_rally_drawings', JSON.stringify(customRallyDrawingsBank));
+      } catch(e) {}
+    }
+
+    function getAllRallyDrawingCandidates() {
+      const map = new Map();
+
+      // 1. Banco predeterminado (Lata, Lápiz, Caramelo, Teléfono, Pelota, etc.)
+      RALLY_DRAWINGS_BANK.forEach(item => {
+        const cleanW = item.word.toUpperCase().trim();
+        map.set(cleanW, {
+          word: cleanW,
+          emoji: item.emoji || getEmojiForWord(cleanW) || '🎨'
+        });
+      });
+
+      // 2. Palabras personalizadas agregadas por el terapeuta
+      if (Array.isArray(customRallyDrawingsBank)) {
+        customRallyDrawingsBank.forEach(item => {
+          if (item && item.word) {
+            const cleanW = item.word.toUpperCase().trim();
+            map.set(cleanW, {
+              word: cleanW,
+              emoji: item.emoji || getEmojiForWord(cleanW) || '🎨'
+            });
+          }
+        });
+      }
+
+      // 3. Palabras de todos los paquetes de tareas cargados (Tareas 1 a 26 y JSON importados)
+      if (typeof allTaskPacks === 'object' && allTaskPacks !== null) {
+        Object.keys(allTaskPacks).forEach(key => {
+          const pack = allTaskPacks[key];
+          if (pack && Array.isArray(pack.words)) {
+            pack.words.forEach(w => {
+              if (w && typeof w === 'string') {
+                const cleanW = w.toUpperCase().trim();
+                if (!map.has(cleanW)) {
+                  map.set(cleanW, {
+                    word: cleanW,
+                    emoji: getEmojiForWord(cleanW) || '🎨'
+                  });
+                }
+              }
+            });
+          }
+        });
+      }
+
+      // 4. Palabras de historias personalizadas
+      if (typeof customStories === 'object' && customStories !== null) {
+        Object.keys(customStories).forEach(cleanW => {
+          if (!map.has(cleanW)) {
+            map.set(cleanW, {
+              word: cleanW,
+              emoji: getEmojiForWord(cleanW) || '🎨'
+            });
+          }
+        });
+      }
+
+      return Array.from(map.values());
+    }
+
     function openPetRallyScreen(letter) {
+      loadCustomRallyDrawings();
       if (letter) rallyGameState.targetLetter = letter.toUpperCase();
       switchScreen('pet-rally');
       setupRallyGameBoard();
@@ -5666,7 +5768,65 @@
       speakText(txt);
     }
 
+    function updateTherapistRallyPreview(letter) {
+      loadCustomRallyDrawings();
+      const targetL = (letter || 'L').toUpperCase();
+      const titleEl = document.getElementById('therapist-rally-preview-title');
+      const countEl = document.getElementById('therapist-rally-preview-count');
+      const chipsEl = document.getElementById('therapist-rally-preview-chips');
+
+      if (titleEl) titleEl.innerText = `🎨 Dibujos disponibles para la Letra ${targetL}:`;
+
+      const allCandidates = getAllRallyDrawingCandidates();
+      const targetCandidates = allCandidates.filter(item => hasLetter(item.word, targetL));
+
+      if (countEl) countEl.innerText = `${targetCandidates.length} Dibujos`;
+
+      if (chipsEl) {
+        if (targetCandidates.length === 0) {
+          chipsEl.innerHTML = `<span style="font-size: 11px; color: #991B1B;">No hay dibujos aún para la letra ${targetL}. ¡Puedes agregar uno abajo!</span>`;
+        } else {
+          chipsEl.innerHTML = targetCandidates.map(item => `
+            <span style="background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; border-radius: 12px; padding: 3px 8px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
+              <span>${item.emoji}</span> <span>${item.word}</span>
+            </span>
+          `).join('');
+        }
+      }
+    }
+
+    function addCustomRallyDrawingFromTherapist() {
+      const wordInput = document.getElementById('add-rally-drawing-word-input');
+      const emojiInput = document.getElementById('add-rally-drawing-emoji-input');
+
+      let wordVal = wordInput ? wordInput.value.trim().toUpperCase() : '';
+      let emojiVal = emojiInput ? emojiInput.value.trim() : '';
+
+      if (!wordVal) {
+        alert('Por favor ingresa una palabra.');
+        return;
+      }
+
+      if (!emojiVal) {
+        emojiVal = getEmojiForWord(wordVal) || '🎨';
+      }
+
+      loadCustomRallyDrawings();
+      customRallyDrawingsBank.push({ word: wordVal, emoji: emojiVal });
+      saveCustomRallyDrawings();
+
+      if (wordInput) wordInput.value = '';
+      if (emojiInput) emojiInput.value = '';
+
+      const targetSelect = document.getElementById('therapist-rally-letter');
+      const currentL = targetSelect ? targetSelect.value : 'L';
+      updateTherapistRallyPreview(currentL);
+
+      alert(`✅ ¡Dibujo agregado con éxito!\n\nPalabra: ${wordVal}\nDibujo: ${emojiVal}`);
+    }
+
     function setupRallyGameBoard() {
+      loadCustomRallyDrawings();
       const targetL = rallyGameState.targetLetter;
       const petSprite = document.getElementById('rally-pet-sprite');
       const petBannerIcon = document.getElementById('rally-pet-banner-icon');
@@ -5691,17 +5851,23 @@
       const consignaTxt = document.getElementById('rally-consigna-txt');
       if (consignaTxt) consignaTxt.innerText = `¡Lleva a tu mascota ${currentPetEmoji} a los dibujos que tengan la letra ${targetL}!`;
 
-      // Recopilar candidatos con la letra objetivo y distractores
-      let targetCandidates = RALLY_DRAWINGS_BANK.filter(item => hasLetter(item.word, targetL));
-      let distractorCandidates = RALLY_DRAWINGS_BANK.filter(item => !hasLetter(item.word, targetL));
+      // Obtener todos los candidatos de la app
+      const allCandidates = getAllRallyDrawingCandidates();
+
+      // Recopilar candidatos con la letra en cualquier posición y distractores
+      let targetCandidates = allCandidates.filter(item => hasLetter(item.word, targetL));
+      let distractorCandidates = allCandidates.filter(item => !hasLetter(item.word, targetL));
 
       // Mezclar
       targetCandidates = shuffleArray([...targetCandidates]);
       distractorCandidates = shuffleArray([...distractorCandidates]);
 
-      // Seleccionar 5 con la letra y 4 distractores
-      const selectedTargets = targetCandidates.slice(0, 5);
-      const selectedDistractors = distractorCandidates.slice(0, 4);
+      // EXACTAMENTE 10 DIBUJOS: 7 CON LA LETRA OBJETIVO Y 3 DISTRACTORES
+      let targetCount = Math.min(7, targetCandidates.length);
+      let distractorCount = Math.min(10 - targetCount, distractorCandidates.length);
+
+      const selectedTargets = targetCandidates.slice(0, targetCount);
+      const selectedDistractors = distractorCandidates.slice(0, distractorCount);
 
       let boardItems = [...selectedTargets, ...selectedDistractors];
       boardItems = shuffleArray(boardItems);
@@ -5720,6 +5886,7 @@
 
       renderRallyBoard();
       speakRallyConsigna();
+      updateTherapistRallyPreview(targetL);
     }
 
     function hasLetter(word, letter) {
@@ -5749,32 +5916,39 @@
         card.style.cssText = `
           background: ${item.found ? '#DCFCE7' : (item.revealed ? '#FEF3C7' : '#FFFFFF')};
           border: 3px solid ${item.found ? '#22C55E' : (item.revealed ? '#F59E0B' : '#E2E8F0')};
-          border-radius: 16px;
-          padding: 8px 4px;
+          border-radius: 18px;
+          padding: 10px 6px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           user-select: none;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
           transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
           position: relative;
+          min-height: 105px;
         `;
 
-        // Emoji grande
-        let html = `<div style="font-size: 38px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">${item.emoji}</div>`;
+        const displayEmoji = item.emoji || getEmojiForWord(item.word) || '🎨';
+
+        // Emoji grande con fuente emoji estándar garantizada
+        let html = `
+          <div style="font-size: 42px; line-height: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));">
+            ${displayEmoji}
+          </div>
+        `;
 
         // REVELADO AL ARRIBO DE LA MASCOTA
         if (item.revealed || item.found) {
           const highlightedWord = highlightTargetLetterInWord(item.word, rallyGameState.targetLetter);
-          html += `<div style="margin-top: 4px; font-weight: 800; font-size: 12px; color: #1E293B; text-align: center;">${highlightedWord}</div>`;
+          html += `<div style="margin-top: 6px; font-weight: 800; font-size: 13px; color: #1E293B; text-align: center; letter-spacing: 0.5px;">${highlightedWord}</div>`;
         } else {
-          html += `<div style="margin-top: 4px; font-weight: bold; font-size: 11px; color: #94A3B8;">❓ Toca aquí</div>`;
+          html += `<div style="margin-top: 6px; font-weight: bold; font-size: 11px; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 8px;">❓ Toca aquí</div>`;
         }
 
         if (item.found) {
-          html += `<div style="position: absolute; top: -6px; right: -6px; background: #22C55E; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✓</div>`;
+          html += `<div style="position: absolute; top: -6px; right: -6px; background: #22C55E; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✓</div>`;
         }
 
         card.innerHTML = html;
