@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v159';
+    const CURRENT_APP_VERSION = 'v160';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '159');
+      u.searchParams.set('v', '160');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '159' && urlVer !== 'v159')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '160' && urlVer !== 'v160')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v159</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v159</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v160</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v160</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v159</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v160</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1508,29 +1508,54 @@
           </div>
         </div>
         
-        <div class="panel-card">
-          <div class="form-group">
-            <label>Nombre del Alumno/a:</label>
-            <input type="text" id="student-name-input" class="input-text" value="Santi" placeholder="Ej: Santi, Sofía, Mateo" />
+        <!-- 📌 PASO 2: CREADOR Y CARGADOR DE TAREA SEMANAL (PALABRAS + CUENTOS) -->
+        <div class="panel-card" style="background: #FFFFFF; border: 3px solid #FF9F43; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(255,159,67,0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #FFEAA7; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: #D35400; display: flex; align-items: center; gap: 8px;">
+                <span>📝 PASO 2: Creador y Cargador de Tareas Semanales</span>
+                <span style="font-size: 10px; background: #FF9F43; color: white; border-radius: 8px; padding: 2px 8px; font-weight: bold;">PASO 2</span>
+              </div>
+              <p style="font-size: 11px; color: #D35400; margin: 4px 0 0 0;">
+                Escribe 4 palabras (nuevas o seleccionadas del diccionario) o carga una tarea completa desde un archivo JSON. Asigna el alumno/a de forma opcional.
+              </p>
+            </div>
           </div>
-          <div class="form-group" style="margin-top: 10px;">
-            <label style="font-weight: bold; color: var(--primary);">📝 Crear Nueva Tarea Semanal (4 Palabras):</label>
-            <input type="text" id="new-word-input" class="input-text" placeholder="Ej: LANA, LENTA, LINDA, LOMA" />
-            <span style="font-size: 11px; color: #666; margin-top: 4px; display: block;">💡 Escribe las palabras separadas por coma. El sistema construirá el borrador completo para tu validación.</span>
-          </div>
-          <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button class="btn-primary" onclick="generateTeacherDraft()" style="flex: 1; font-size: 13px; padding: 12px 10px; background: linear-gradient(135deg, #FF9F43, #EE5253); font-weight: bold;">
-              ✨ Generar / Personalizar Tarea
-            </button>
-            <button class="btn-primary" onclick="startGuidedDictationWizard()" style="flex: 1; font-size: 13px; padding: 12px 10px; background: linear-gradient(135deg, #10B981, #059669); font-weight: bold;">
-              🎙️ Dictar por Voz
-            </button>
-          </div>
-          
-          <div style="margin-top: 10px; border-top: 1px dashed #CBD5E1; padding-top: 10px;">
-            <button onclick="triggerImportDevStories()" style="width: 100%; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 12px; border-radius: 14px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(14,165,233,0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <span>📥 Cargar Tarea Completa desde Archivo JSON (Palabras + Cuentos)</span>
-            </button>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- INGRESO DE PALABRAS -->
+            <div class="form-group" style="margin: 0;">
+              <label style="font-weight: bold; font-size: 13px; color: #2D3436; display: flex; align-items: center; gap: 6px;">
+                <span>🔤 4 Palabras para la Tarea:</span>
+                <span style="font-size: 10px; color: #666; font-weight: normal;">(Separa por coma o elige del diccionario)</span>
+              </label>
+              <input type="text" id="new-word-input" class="input-text" placeholder="Ej: LANA, LENTA, LINDA, LOMA" style="padding: 10px 14px; border-radius: 12px; border: 2px solid #FDCB6E; font-size: 14px; font-weight: bold; margin-top: 4px;" />
+            </div>
+
+            <!-- ASIGNACIÓN A ALUMNO/A (INTEGRADO OPCIONAL) -->
+            <div class="form-group" style="margin: 0;">
+              <label style="font-weight: bold; font-size: 12px; color: #4A5568; display: flex; align-items: center; gap: 6px;">
+                <span>👤 Asignar a Alumno/a (Opcional):</span>
+              </label>
+              <input type="text" id="student-name-input" class="input-text" value="Santi" placeholder="Ej: Santi, Sofía, Mateo (o dejar en blanco)" style="padding: 8px 12px; border-radius: 10px; border: 1.5px solid #CBD5E1; font-size: 13px;" />
+            </div>
+
+            <!-- BOTONES PRINCIPALES DE ACCIÓN -->
+            <div style="display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
+              <button class="btn-primary" onclick="generateTeacherDraft()" style="flex: 1; min-width: 180px; font-size: 13px; padding: 12px 14px; background: linear-gradient(135deg, #FF9F43, #EE5253); font-weight: bold; border-radius: 14px; box-shadow: 0 4px 12px rgba(238,82,83,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>✨ Generar / Personalizar Tarea</span>
+              </button>
+              <button class="btn-primary" onclick="startGuidedDictationWizard()" style="flex: 1; min-width: 160px; font-size: 13px; padding: 12px 14px; background: linear-gradient(135deg, #10B981, #059669); font-weight: bold; border-radius: 14px; box-shadow: 0 4px 12px rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>🎙️ Dictar por Voz</span>
+              </button>
+            </div>
+            
+            <!-- CARGAR TAREA COMPLETA DESDE ARCHIVO JSON -->
+            <div style="border-top: 1px dashed #FDCB6E; padding-top: 10px; margin-top: 2px;">
+              <button onclick="triggerImportDevStories()" style="width: 100%; background: linear-gradient(135deg, #0EA5E9, #0284C7); color: white; border: none; padding: 12px 16px; border-radius: 14px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(14,165,233,0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>📥 Cargar Tarea Completa desde Archivo JSON (Palabras + Cuentos)</span>
+              </button>
+            </div>
           </div>
         </div>
 
