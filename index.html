@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v158';
+    const CURRENT_APP_VERSION = 'v159';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '158');
+      u.searchParams.set('v', '159');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '158' && urlVer !== 'v158')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '159' && urlVer !== 'v159')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v158</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v158</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v159</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v159</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,56 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v158</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v159</span>
+        </div>
+        
+        <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
+        <div class="panel-card" style="background: #FFFFFF; border: 3px solid #8B5CF6; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(139,92,246,0.2);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #F3E8FF; padding-bottom: 10px;">
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: #6D28D9; display: flex; align-items: center; gap: 8px;">
+                <span>🎨 PASO 1: Gestor y Editor del Diccionario de Dibujos y Palabras</span>
+                <span style="font-size: 10px; background: #8B5CF6; color: white; border-radius: 8px; padding: 2px 8px; font-weight: bold;">FUENTE ÚNICA</span>
+              </div>
+              <p style="font-size: 11px; color: #4C1D95; margin: 4px 0 0 0;">
+                Asigna un dibujo, emoji o foto a cualquier palabra. El dibujo guardado aquí se integrará automáticamente en <strong>TODOS</strong> los juegos y aventuras de la app.
+              </p>
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+              <button onclick="exportCustomDictionaryJSON()" style="background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Exportar diccionario completo como archivo JSON">
+                <span>📤 Exportar JSON</span>
+              </button>
+              <label style="background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Importar lista de palabras y dibujos desde JSON">
+                <span>📥 Importar JSON</span>
+                <input type="file" id="import-dict-json-file" accept=".json" onchange="importCustomDictionaryJSON(event)" style="display: none;" />
+              </label>
+              <button onclick="resetCustomEmojiDictionary()" style="background: #F3E8FF; color: #7C3AED; border: 1px solid #C4B5FD; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Restablecer a dibujos predeterminados">
+                <span>🔄 Restablecer Original</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- BUSCADOR, NUEVA PALABRA Y BOTÓN DE SUBIR FOTO -->
+          <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 14px; padding: 12px; margin-bottom: 12px;">
+            <div style="font-size: 11px; font-weight: bold; color: #6D28D9; margin-bottom: 8px;">➕ Agregar o Buscar Palabra y Dibujo:</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <input type="text" id="dict-search-input" onkeyup="renderDictionaryEditorTable()" placeholder="🔍 Buscar palabra (ej: LIMA, LUNA)..." style="flex: 1.5; min-width: 170px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid #DDD6FE; font-size: 12px; font-weight: bold;" />
+              <input type="text" id="dict-add-word-input" placeholder="Nueva Palabra" style="flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid #DDD6FE; font-size: 12px; font-weight: bold; text-transform: uppercase;" />
+              <input type="text" id="dict-add-emoji-input" placeholder="Emoji / Ruta" style="width: 110px; padding: 8px; border-radius: 10px; border: 1.5px solid #DDD6FE; font-size: 14px; text-align: center;" />
+              <label style="background: #E0E7FF; color: #4338CA; border: 1.5px solid #C7D2FE; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Subir foto o dibujo desde tu dispositivo">
+                <span>📷 Foto</span>
+                <input type="file" accept="image/*" onchange="uploadDrawingImageToInput('dict-add-emoji-input', event)" style="display: none;" />
+              </label>
+              <button onclick="addOrUpdateDictWordFromEditor()" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; border: none; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 3px 8px rgba(124,58,237,0.25);">
+                ➕ Guardar Dibujo
+              </button>
+            </div>
+          </div>
+
+          <!-- TABLA DICCIONARIO EDITABLE -->
+          <div id="dictionary-editor-container" style="max-height: 320px; overflow-y: auto; background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 14px; padding: 12px;">
+            <!-- Carga dinámica -->
+          </div>
         </div>
         
         <div class="panel-card">
@@ -1547,43 +1596,6 @@
           </div>
           <p style="font-size: 11px; color: #64748B; margin: 0 0 10px 0;">Aquí puedes ver todas las tareas que hayas cargado desde archivos JSON y eliminarlas individualmente o todas juntas para volver a cargarlas limpias:</p>
           <div id="imported-tasks-list-container" style="max-height: 220px; overflow-y: auto;"></div>
-        </div>
-
-        <!-- GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS (PALABRAS Y EMOJIS) -->
-        <div class="panel-card" style="background: #FFFFFF; border: 2px solid #8B5CF6; border-radius: 16px; padding: 16px; margin-top: 14px; box-shadow: 0 4px 12px rgba(139,92,246,0.15);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-            <div style="font-weight: 800; font-size: 15px; color: #6D28D9; display: flex; align-items: center; gap: 6px;">
-              <span>📖 Gestor y Editor del Diccionario de Dibujos</span>
-            </div>
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
-              <button onclick="exportCustomDictionaryJSON()" style="background: #E0E7FF; color: #4338CA; border: 1px solid #C7D2FE; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
-                📤 Exportar JSON
-              </button>
-              <label style="background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center;">
-                📥 Importar JSON
-                <input type="file" id="import-dict-json-file" accept=".json" onchange="importCustomDictionaryJSON(event)" style="display: none;" />
-              </label>
-              <button onclick="resetCustomEmojiDictionary()" style="background: #F3E8FF; color: #7C3AED; border: 1px solid #C4B5FD; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer;">
-                🔄 Restablecer Original
-              </button>
-            </div>
-          </div>
-          <p style="font-size: 11px; color: #4C1D95; margin: 0 0 10px 0;">Modifica cualquier dibujo/emoji asignado a una palabra o elimina palabras para que no aparezcan en los juegos (ej: TITA, TITO, TETE, TOTO eliminados por defecto).</p>
-          
-          <!-- BUSCADOR Y ADICIÓN -->
-          <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
-            <input type="text" id="dict-search-input" onkeyup="renderDictionaryEditorTable()" placeholder="🔍 Buscar palabra (ej: LIMA, LUNA)..." style="flex: 1; min-width: 170px; padding: 8px 12px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 12px; font-weight: bold;" />
-            <input type="text" id="dict-add-word-input" placeholder="Nueva Palabra" style="width: 130px; padding: 8px 10px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 12px; font-weight: bold; text-transform: uppercase;" />
-            <input type="text" id="dict-add-emoji-input" placeholder="Emoji" style="width: 70px; padding: 8px; border-radius: 10px; border: 1px solid #DDD6FE; font-size: 14px; text-align: center;" />
-            <button onclick="addOrUpdateDictWordFromEditor()" style="background: #7C3AED; color: white; border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer;">
-              ➕ Guardar Dibujo
-            </button>
-          </div>
-
-          <!-- TABLA DICCIONARIO EDITABLE -->
-          <div id="dictionary-editor-container" style="max-height: 280px; overflow-y: auto; background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 12px; padding: 10px;">
-            <!-- Carga dinámica -->
-          </div>
         </div>
 
         <!-- MODO DESARROLLADOR: EDITOR INLINE DE CUENTOS Y TAREAS -->
