@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v154';
+    const CURRENT_APP_VERSION = 'v155';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '154');
+      u.searchParams.set('v', '155');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '154' && urlVer !== 'v154')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '155' && urlVer !== 'v155')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v154</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v154</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v155</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v155</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v154</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v155</span>
         </div>
         
         <div class="panel-card">
@@ -3358,7 +3358,8 @@
       '🏠 Casa y Objetos': ['🏠', '🛖', '🚪', '🌉', '🛌', '🛏️', '🪑', '🪵', '📺', '🛋️', '🏆', '🚗', '🏎️', '🚲', '🏍️', '🚂', '⚽', '🔮', '🪶', '🪏', '🔑', '✏️', '📖', '📜', '🗺️', '✂️', '🫧', '📢', '🎲', '🪙', '📦', '🧵', '🧶', '🎭', '👻', '🚨', '🎟️', '🔋', '📞', '📷'],
       '☀️ Naturaleza y Cielo': ['🌙', '🌌', '☀️', '⭐', '☁️', '⬛', '⬜', '🍃', '🌳', '🌲', '🌸', '🌹', '⛰️', '🏔️', '🔥', '🕳️', '🚇', '🕯️', '✨', '⛲'],
       '🎨 Colores y Formas': ['🔴', '🔵', '🟡', '🟢', '⬜', '⬛', '🩷', '🩶', '🌟', '💎', '❤️', '👀', '🎵', '✍️', '✋', '👄', '☝️', '🦶', '🐾', '😃'],
-      '👨 Personas': ['👩', '👨', '👦', '👧', '👴', '👵', '🧔', '👩‍🦱', '👨‍💼', '👩‍🦳', '🧒', '🍼']
+      '👨 Personas': ['👩', '👨', '👦', '👧', '👴', '👵', '🧔', '👩‍🦱', '👨‍💼', '👩‍🦳', '🧒', '🍼'],
+      '🖼️ Fotos e Ilustraciones': ['assets/montana.png', 'assets/sapo.png', MESA_SVG_ICON, '💎']
     };
 
     const SUGGESTED_EMOJIS_MAP = {
@@ -3548,8 +3549,8 @@
         specificSuggestions.forEach(em => {
           const isSelected = defaultCurrent === em;
           html += `
-            <button onclick="selectModalEmojiSuggestion('${em}')" style="background: ${isSelected ? '#F3E8FF' : '#F8FAFC'}; border: 2px solid ${isSelected ? '#8B5CF6' : '#E2E8F0'}; border-radius: 12px; width: 48px; height: 48px; font-size: 24px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" title="Seleccionar ${em}">
-              ${em}
+            <button onclick="selectModalEmojiSuggestion('${em}')" style="background: ${isSelected ? '#F3E8FF' : '#F8FAFC'}; border: 2px solid ${isSelected ? '#8B5CF6' : '#E2E8F0'}; border-radius: 12px; width: 48px; height: 48px; font-size: 24px; cursor: pointer; transition: transform 0.15s; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" title="Seleccionar">
+              ${renderDrawingHTML(em, 'width: 28px; height: 28px; object-fit: contain;')}
             </button>
           `;
         });
@@ -3564,7 +3565,7 @@
       html += '</div>';
       html += '<div id="modal-category-emojis-container" style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-height: 110px; overflow-y: auto; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 8px;">';
       EMOJI_CATEGORIES['🤠 Vestimenta'].forEach(em => {
-        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${em}</button>`;
+        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${renderDrawingHTML(em, 'width: 22px; height: 22px; object-fit: contain;')}</button>`;
       });
       html += '</div>';
 
@@ -3577,7 +3578,7 @@
       if (!container || !EMOJI_CATEGORIES[catName]) return;
       let html = '';
       EMOJI_CATEGORIES[catName].forEach(em => {
-        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${em}</button>`;
+        html += `<button onclick="selectModalEmojiSuggestion('${em}')" style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">${renderDrawingHTML(em, 'width: 22px; height: 22px; object-fit: contain;')}</button>`;
       });
       container.innerHTML = html;
     }
@@ -3634,19 +3635,45 @@
         try {
           const parsed = JSON.parse(e.target.result);
           if (typeof parsed === 'object' && parsed !== null) {
+            let countImported = 0;
             if (parsed.customEmojiOverrides && typeof parsed.customEmojiOverrides === 'object') {
               customEmojiOverrides = { ...customEmojiOverrides, ...parsed.customEmojiOverrides };
+              countImported = Object.keys(parsed.customEmojiOverrides).length;
+            } else if (parsed.words && typeof parsed.words === 'object' && !Array.isArray(parsed.words)) {
+              Object.keys(parsed.words).forEach(w => {
+                const cleanW = w.toUpperCase().trim();
+                const val = parsed.words[w];
+                if (typeof val === 'string' && val.trim().length > 0) {
+                  customEmojiOverrides[cleanW] = val.trim();
+                  countImported++;
+                }
+              });
+            } else {
+              // Direct dictionary mapping format: { "SAPO": "...", "LOMA": "..." }
+              Object.keys(parsed).forEach(w => {
+                const cleanW = w.toUpperCase().trim();
+                const val = parsed[w];
+                if (typeof val === 'string' && val.trim().length > 0 && !['VERSION', 'APPVERSION', 'EXPORTEDAT'].includes(cleanW)) {
+                  customEmojiOverrides[cleanW] = val.trim();
+                  countImported++;
+                }
+              });
             }
+
             if (parsed.deletedWordsList && Array.isArray(parsed.deletedWordsList)) {
               deletedWordsList = Array.from(new Set([...deletedWordsList, ...parsed.deletedWordsList]));
             }
+
             saveCustomEmojiDictionary();
+            buildActiveDatasets();
             renderDictionaryEditorTable();
+            renderDevWordList();
+
             if (typeof updateTherapistRallyPreview === 'function') {
               const selL = document.getElementById('therapist-rally-letter');
               if (selL) updateTherapistRallyPreview(selL.value);
             }
-            alert('🎉 ¡Diccionario personalizado importado e integrado con éxito!');
+            alert(`🎉 ¡Se importaron e integraron ${countImported} dibujos/emojis a tus palabras exitosamente!`);
           } else {
             alert('⚠️ El archivo JSON no tiene un formato válido.');
           }
