@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v183';
+    const CURRENT_APP_VERSION = 'v184';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -23,9 +23,10 @@
             for (let name of names) caches.delete(name);
           });
         }
+        localStorage.removeItem('crin_custom_emoji_map');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '183');
+      u.searchParams.set('v', '184');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +48,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '183' && urlVer !== 'v183')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '184' && urlVer !== 'v184')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1170,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v183</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v183</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v184</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v184</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1457,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v183</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v184</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -3190,14 +3191,26 @@
 
     const imageCanvasCache = {};
 
+    function getAssetURLWithBust(url) {
+      if (!url) return '';
+      const str = String(url).trim();
+      if (str.startsWith('assets/') || str.includes('/assets/')) {
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '184';
+        if (str.includes('?')) return str + '&v=' + v;
+        return str + '?v=' + v;
+      }
+      return str;
+    }
+
     function getCachedCanvasImage(url) {
       if (!url) return null;
-      if (imageCanvasCache[url]) {
-        return (imageCanvasCache[url].complete && imageCanvasCache[url].naturalWidth > 0) ? imageCanvasCache[url] : null;
+      const bURL = getAssetURLWithBust(url);
+      if (imageCanvasCache[bURL]) {
+        return (imageCanvasCache[bURL].complete && imageCanvasCache[bURL].naturalWidth > 0) ? imageCanvasCache[bURL] : null;
       }
       const img = new Image();
-      img.src = url;
-      imageCanvasCache[url] = img;
+      img.src = bURL;
+      imageCanvasCache[bURL] = img;
       return null;
     }
 
@@ -3211,7 +3224,7 @@
       if (!emoji) return '⭐';
       const str = String(emoji).trim();
       if (isDrawingImageURL(str)) {
-        return `<img src="${str}" style="${style}" alt="dibujo" />`;
+        return `<img src="${getAssetURLWithBust(str)}" style="${style}" alt="dibujo" />`;
       }
       return str;
     }
@@ -3220,7 +3233,7 @@
       if (!el) return;
       const str = String(emoji || '⭐').trim();
       if (isDrawingImageURL(str)) {
-        el.innerHTML = `<img src="${str}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: inline-block;" alt="dibujo" />`;
+        el.innerHTML = `<img src="${getAssetURLWithBust(str)}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: inline-block;" alt="dibujo" />`;
       } else {
         el.innerText = str;
       }
@@ -3315,7 +3328,7 @@
           const parsed = JSON.parse(savedMap);
           if (typeof parsed === 'object' && parsed !== null) {
             Object.keys(parsed).forEach(w => {
-              if (emojiMap[w] && isDrawingImageURL(emojiMap[w]) && !isDrawingImageURL(parsed[w])) {
+              if (emojiMap[w] && isDrawingImageURL(emojiMap[w])) {
                 delete parsed[w];
               }
             });
