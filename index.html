@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v171';
+    const CURRENT_APP_VERSION = 'v172';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '171');
+      u.searchParams.set('v', '172');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '171' && urlVer !== 'v171')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '172' && urlVer !== 'v172')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v171</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v171</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v172</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v172</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v171</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v172</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1766,6 +1766,7 @@
             <div style="text-align: center;">
               <div style="font-size: 14px; font-weight: 900; color: #0284C7; display: flex; align-items: center; gap: 6px; justify-content: center;">
                 <span>🐶 Carrera de la Mascota</span>
+                <span id="rally-batch-badge" style="font-size: 10px; font-weight: 800; background: #0284C7; color: white; padding: 2px 8px; border-radius: 8px;">Tanda 1 de 3 (3 Dibujos)</span>
               </div>
               <div id="rally-target-letter-badge" style="font-size: 11px; font-weight: 700; color: #059669;">Buscando la Letra: <span id="rally-active-letter-txt" style="font-size: 14px; background: #FEF08A; color: #854D0E; padding: 1px 8px; border-radius: 8px; border: 1px solid #FDE047;">L</span></div>
             </div>
@@ -1795,28 +1796,34 @@
           </div>
 
           <!-- TABLERO / ARENA DE CARDS Y MASCOTA NAVEGANTE -->
-          <div id="rally-arena" style="position: relative; flex: 1; width: 100%; min-height: 280px; background: #FFFFFF; border: 3px solid #BAE6FD; border-radius: 20px; padding: 12px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+          <div id="rally-arena" style="position: relative; flex: 1; width: 100%; min-height: 300px; background: #FFFFFF; border: 3px solid #BAE6FD; border-radius: 20px; padding: 16px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
             
-            <!-- GRID DE DIBUJOS (CARDS) -->
-            <div id="rally-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 12px; width: 100%; height: 100%; z-index: 2; align-content: space-around;">
+            <!-- GRID DE DIBUJOS (CARDS DE TANDA ACTUAL) -->
+            <div id="rally-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; width: 100%; height: 100%; z-index: 2; align-content: center; justify-content: center;">
               <!-- Tarjetas dinámicas -->
             </div>
 
             <!-- SPRITE DE LA MASCOTA ANIMADA -->
-            <div id="rally-pet-sprite" style="position: absolute; width: 50px; height: 50px; border-radius: 50%; background: #FEF08A; border: 3px solid #EAB308; display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: 0 8px 18px rgba(0,0,0,0.25); z-index: 10; transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; transform: translate(-50%, -50%); left: 50%; top: 90%;">
+            <div id="rally-pet-sprite" style="position: absolute; width: 56px; height: 56px; border-radius: 50%; background: #FEF08A; border: 3px solid #EAB308; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 8px 18px rgba(0,0,0,0.25); z-index: 10; transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; transform: translate(-50%, -50%); left: 50%; top: 90%;">
               🐶
             </div>
 
           </div>
 
-          <!-- FOOTER STATUS / BOTÓN NUEVO JUEGO -->
-          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+          <!-- FOOTER STATUS / BOTÓN NUEVO JUEGO Y BOTÓN CONTINUAR TANDA -->
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; gap: 8px;">
             <div id="rally-found-counter" style="font-size: 13px; font-weight: 800; color: #0369A1;">
               ⭐ Dibujos Desbloqueados: <span id="rally-found-count">0</span> / <span id="rally-total-target-count">7</span>
             </div>
-            <button onclick="setupRallyGameBoard()" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(16,185,129,0.3);">
-              🔄 Mezclar Tablero
-            </button>
+            
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button id="rally-next-batch-btn" onclick="advanceRallyBatch()" style="background: linear-gradient(135deg, #FF9F43 0%, #FF5252 100%); color: white; border: 2px solid #FFEAA7; padding: 8px 16px; border-radius: 14px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 14px rgba(255,82,82,0.35); display: flex; align-items: center; gap: 6px;">
+                <span>Continuar ➡️</span>
+              </button>
+              <button onclick="setupRallyGameBoard()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 8px 12px; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer;">
+                🔄 Reiniciar Tablero
+              </button>
+            </div>
           </div>
 
         </div>
@@ -6360,8 +6367,27 @@
       items: [],
       foundCount: 0,
       totalTargetCount: 0,
-      isAnimating: false
+      isAnimating: false,
+      currentBatch: 0
     };
+
+    function getRallyBatchIndices(batchIndex) {
+      if (batchIndex === 0) return [0, 1, 2];
+      if (batchIndex === 1) return [3, 4, 5];
+      return [6, 7, 8, 9];
+    }
+
+    function advanceRallyBatch() {
+      if (rallyGameState.isAnimating) return;
+      if (rallyGameState.currentBatch < 2) {
+        rallyGameState.currentBatch++;
+        renderRallyBoard();
+        playGameAudioEffect('running');
+        const nextBatchNum = rallyGameState.currentBatch + 1;
+        const count = nextBatchNum === 3 ? 4 : 3;
+        speakText(`Tanda ${nextBatchNum}. Busca los dibujos que tengan la letra ${rallyGameState.targetLetter}.`);
+      }
+    }
 
     function loadCustomRallyDrawings() {
       try {
@@ -6526,6 +6552,7 @@
 
     function setupRallyGameBoard() {
       loadCustomRallyDrawings();
+      rallyGameState.currentBatch = 0;
       const targetL = rallyGameState.targetLetter;
       const petSprite = document.getElementById('rally-pet-sprite');
       const petBannerIcon = document.getElementById('rally-pet-banner-icon');
@@ -6690,6 +6717,29 @@
 
       if (!grid) return;
 
+      const curBatch = rallyGameState.currentBatch || 0;
+      const batchNum = curBatch + 1;
+      const batchItemsCount = curBatch === 2 ? 4 : 3;
+
+      // Update badge text for active batch
+      const batchBadge = document.getElementById('rally-batch-badge');
+      if (batchBadge) {
+        batchBadge.innerText = `Tanda ${batchNum} de 3 (${batchItemsCount} Dibujos)`;
+      }
+
+      // Update Next Batch Button visibility and text
+      const nextBtn = document.getElementById('rally-next-batch-btn');
+      if (nextBtn) {
+        if (curBatch < 2) {
+          nextBtn.style.display = 'flex';
+          nextBtn.innerHTML = `<span>Continuar (Tanda ${batchNum + 1}) ➡️</span>`;
+        } else {
+          nextBtn.style.display = 'none';
+        }
+      }
+
+      const activeIndices = getRallyBatchIndices(curBatch);
+
       if (grid.children.length !== rallyGameState.items.length) {
         grid.innerHTML = '';
         rallyGameState.items.forEach((item, index) => {
@@ -6705,38 +6755,43 @@
         const card = document.getElementById(`rally-card-${index}`);
         if (!card) return;
 
+        if (!activeIndices.includes(index)) {
+          card.style.display = 'none';
+          return;
+        }
+
         card.style.cssText = `
           background: ${item.found ? '#DCFCE7' : (item.revealed ? '#FEF3C7' : '#FFFFFF')};
-          border: 3px solid ${item.found ? '#22C55E' : (item.revealed ? '#F59E0B' : '#E2E8F0')};
-          border-radius: 18px;
-          padding: 10px 6px;
+          border: 4px solid ${item.found ? '#22C55E' : (item.revealed ? '#F59E0B' : '#BAE6FD')};
+          border-radius: 24px;
+          padding: 14px 10px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           user-select: none;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.1);
           transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
           position: relative;
-          min-height: 105px;
+          min-height: 160px;
         `;
 
         const rawDrawing = getEmojiForWord(item.word) || item.emoji || '🎨';
-        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 52px; max-height: 48px; object-fit: contain;');
+        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 95px; max-height: 90px; object-fit: contain;');
 
         let html = `
-          <div style="font-size: 42px; line-height: 1; min-height: 48px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18));">
+          <div style="font-size: 72px; line-height: 1; min-height: 90px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));">
             ${displayEmoji}
           </div>
         `;
 
         if (item.revealed || item.found) {
           const highlightedWord = highlightTargetLetterInWord(item.word, rallyGameState.targetLetter);
-          html += `<div style="margin-top: 6px; font-weight: 800; font-size: 13px; color: #1E293B; text-align: center; letter-spacing: 0.5px;">${highlightedWord}</div>`;
+          html += `<div style="margin-top: 10px; font-weight: 900; font-size: 18px; color: #1E293B; text-align: center; letter-spacing: 0.8px;">${highlightedWord}</div>`;
         } else {
           html += `
-            <div class="rally-card-unrevealed-label" style="margin-top: 6px; font-weight: bold; font-size: 11px; color: #94A3B8; background: #F1F5F9; padding: 2px 8px; border-radius: 8px; text-align: center;">
+            <div class="rally-card-unrevealed-label" style="margin-top: 10px; font-weight: bold; font-size: 13px; color: #64748B; background: #F1F5F9; padding: 4px 12px; border-radius: 12px; text-align: center;">
               <span class="default-txt">❓ Toca aquí</span>
               <span class="therapist-preview-txt" style="display: none; opacity: 0.35; color: #1E293B; font-weight: 800;">${item.word}</span>
             </div>
@@ -6744,7 +6799,7 @@
         }
 
         if (item.found) {
-          html += `<div style="position: absolute; top: -6px; right: -6px; background: #22C55E; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✓</div>`;
+          html += `<div style="position: absolute; top: -8px; right: -8px; background: #22C55E; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 3px 8px rgba(0,0,0,0.25);">✓</div>`;
         }
 
         card.innerHTML = html;
