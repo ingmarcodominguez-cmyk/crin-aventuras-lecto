@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v181';
+    const CURRENT_APP_VERSION = 'v182';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '181');
+      u.searchParams.set('v', '182');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '181' && urlVer !== 'v181')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '182' && urlVer !== 'v182')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v181</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v181</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v182</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v182</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v181</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v182</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1941,7 +1941,7 @@
         { word: 'MAMA', emoji: '👩', obstacle: '🏰' }
       ],
       syllable: [
-        { syllables: ['ZA', 'PA', 'TO'], word: 'ZAPATO', emoji: '👞', obstacle: '📦' },
+        { syllables: ['ZA', 'PA', 'TO'], word: 'ZAPATO', emoji: 'assets/zapato.png', obstacle: '📦' },
         { syllables: ['PE', 'RRO'], word: 'PERRO', emoji: '🐶', obstacle: '🚪' },
         { syllables: ['PE', 'LO', 'TA'], word: 'PELOTA', emoji: '⚽', obstacle: '🌉' },
         { syllables: ['MA', 'RI', 'PO', 'SA'], word: 'MARIPOSA', emoji: '🦋', obstacle: '🏰' }
@@ -1952,7 +1952,7 @@
           narration: 'Había una vez un explorador que caminaba por un bosque mágico. De pronto vio algo brillante escondido...',
           syllables: ['ZA', 'PA', 'TO'],
           word: 'ZAPATO',
-          emoji: '👞',
+          emoji: 'assets/zapato.png',
           obstacle: '📦',
           bgColors: ['#74B9FF', '#A8E6CF', '#55EFC4']
         },
@@ -3314,6 +3314,11 @@
         if (savedMap) {
           const parsed = JSON.parse(savedMap);
           if (typeof parsed === 'object' && parsed !== null) {
+            Object.keys(parsed).forEach(w => {
+              if (emojiMap[w] && isDrawingImageURL(emojiMap[w]) && !isDrawingImageURL(parsed[w])) {
+                delete parsed[w];
+              }
+            });
             customEmojiOverrides = parsed;
           }
         }
@@ -3423,7 +3428,7 @@
       '☀️ Naturaleza y Cielo': ['🌙', '🌌', '☀️', '⭐', '☁️', '⬛', '⬜', '🍃', '🌳', '🌲', '🌸', '🌹', '⛰️', '🏔️', '🔥', '🕳️', '🚇', '🕯️', '✨', '⛲'],
       '🎨 Colores y Formas': ['🔴', '🔵', '🟡', '🟢', '⬜', '⬛', '🩷', '🩶', '🌟', '💎', '❤️', '👀', '🎵', '✍️', '✋', '👄', '☝️', '🦶', '🐾', '😃'],
       '👨 Personas': ['👩', '👨', '👦', '👧', '👴', '👵', '🧔', '👩‍🦱', '👨‍💼', '👩‍🦳', '🧒', '🍼'],
-      '🖼️ Fotos e Ilustraciones': ['assets/montana.png', 'assets/sapo.png', 'assets/silbato.png', 'assets/mesa.png', 'assets/techo.png', 'assets/cola.png', 'assets/jirafa.png', 'assets/melon.png', 'assets/pimiento.png', 'assets/raton.png', 'assets/titere.png', 'assets/tomate.png', 'assets/zanahoria.png', 'assets/auto.png', 'assets/banana.png', 'assets/bicicleta.png', 'assets/bota.png', 'assets/cafe.png', 'assets/sandia.png', 'assets/caramelo.png', 'assets/chaleco.png', 'assets/estrella.png', 'assets/helado.png', 'assets/lana.png', 'assets/lapiz.png', 'assets/lata.png', 'assets/leche.png', 'assets/leon.png', 'assets/libro.png', 'assets/limon.png', 'assets/llave.png', 'assets/luna.png', 'assets/pelota.png', 'assets/sol.png', 'assets/telefono.png', 'assets/abuela.png', 'assets/abuelo.png', 'assets/agua.png', 'assets/amarillo.png', 'assets/anteojos.png', 'assets/arbol.png', 'assets/azul.png', 'assets/blanco.png', 'assets/boca.png', 'assets/cama.png', 'assets/casa.png', 'assets/cena.png', 'assets/cine.png', 'assets/coche_bebe.png', 'assets/coco.png', 'assets/copa.png', 'assets/corazon.png', 'assets/cuento.png', 'assets/cuna.png', 'assets/dado.png', 'assets/dedo.png', 'assets/dorado.png', 'assets/fantasma.png', 'assets/faro.png', 'assets/ficha.png', 'assets/fideo.png', 'assets/flor.png', 'assets/foca.png', 'assets/fuente.png', 'assets/foto.png', 'assets/fuego.png', 'assets/gato.png', 'assets/hoja.png', 'assets/jaula.png', 'assets/manzana.png', 'assets/mapa.png', 'assets/mano.png', 'assets/mariposa.png', 'assets/mate.png', 'assets/mono.png', 'assets/moto.png', 'assets/musica.png', 'assets/noche.png', 'assets/oso.png', 'assets/pajaro.png', 'assets/pala.png', 'assets/pan.png', MESA_SVG_ICON]
+      '🖼️ Fotos e Ilustraciones': ['assets/zapato.png', 'assets/zapatilla.png', 'assets/montana.png', 'assets/sapo.png', 'assets/silbato.png', 'assets/mesa.png', 'assets/techo.png', 'assets/cola.png', 'assets/jirafa.png', 'assets/melon.png', 'assets/pimiento.png', 'assets/raton.png', 'assets/titere.png', 'assets/tomate.png', 'assets/zanahoria.png', 'assets/auto.png', 'assets/banana.png', 'assets/bicicleta.png', 'assets/bota.png', 'assets/cafe.png', 'assets/sandia.png', 'assets/caramelo.png', 'assets/chaleco.png', 'assets/estrella.png', 'assets/helado.png', 'assets/lana.png', 'assets/lapiz.png', 'assets/lata.png', 'assets/leche.png', 'assets/leon.png', 'assets/libro.png', 'assets/limon.png', 'assets/llave.png', 'assets/luna.png', 'assets/pelota.png', 'assets/sol.png', 'assets/telefono.png', 'assets/abuela.png', 'assets/abuelo.png', 'assets/agua.png', 'assets/amarillo.png', 'assets/anteojos.png', 'assets/arbol.png', 'assets/azul.png', 'assets/blanco.png', 'assets/boca.png', 'assets/cama.png', 'assets/casa.png', 'assets/cena.png', 'assets/cine.png', 'assets/coche_bebe.png', 'assets/coco.png', 'assets/copa.png', 'assets/corazon.png', 'assets/cuento.png', 'assets/cuna.png', 'assets/dado.png', 'assets/dedo.png', 'assets/dorado.png', 'assets/fantasma.png', 'assets/faro.png', 'assets/ficha.png', 'assets/fideo.png', 'assets/flor.png', 'assets/foca.png', 'assets/fuente.png', 'assets/foto.png', 'assets/fuego.png', 'assets/gato.png', 'assets/hoja.png', 'assets/jaula.png', 'assets/manzana.png', 'assets/mapa.png', 'assets/mano.png', 'assets/mariposa.png', 'assets/mate.png', 'assets/mono.png', 'assets/moto.png', 'assets/musica.png', 'assets/noche.png', 'assets/oso.png', 'assets/pajaro.png', 'assets/pala.png', 'assets/pan.png', MESA_SVG_ICON]
     };
 
     const SUGGESTED_EMOJIS_MAP = {
@@ -3520,7 +3525,8 @@
       'COPA': ['assets/copa.png', '🏆', '🍸', '🥇', '🍷'],
       'PELOTA': ['assets/pelota.png', '⚽', '🏀', '🏐', '🎾'],
       'BOLA': ['🔮', '🎾', '🎱', '⚽'],
-      'ZAPATO': ['👞', '👟', '👠', '🥾'],
+      'ZAPATO': ['assets/zapato.png', '👞', '👟', '👠', '🥾'],
+      'ZAPATILLA': ['assets/zapatilla.png', '👟', '👞', '🥾'],
       'BOTA': ['assets/bota.png', '👢', '🥾', '👞', '🧦'],
       'PLUMA': ['🪶', '🪺', '🐦', '✒️'],
       'PALA': ['assets/pala.png', '🪏', '⛏️', '🔨', '🧱'],
@@ -6357,7 +6363,9 @@
       { word: 'LECHE', emoji: '🥛' },
       { word: 'PITO', emoji: '🪈' },
       { word: 'TIJERA', emoji: '✂️' },
-      { word: 'TAZA', emoji: '☕' }
+      { word: 'TAZA', emoji: '☕' },
+      { word: 'ZAPATO', emoji: 'assets/zapato.png' },
+      { word: 'ZAPATILLA', emoji: 'assets/zapatilla.png' }
     ];
 
     let customRallyDrawingsBank = [];
