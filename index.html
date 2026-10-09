@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v179';
+    const CURRENT_APP_VERSION = 'v180';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '179');
+      u.searchParams.set('v', '180');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '179' && urlVer !== 'v179')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '180' && urlVer !== 'v180')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v179</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v179</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v180</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v180</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v179</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v180</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1757,8 +1757,8 @@
       </div>
 
       <!-- 🐶 SCREEN 6: CARRERA DE LA MASCOTA (BÚSQUEDA DE DIBUJOS POR LETRA) -->
-      <div id="screen-pet-rally" class="screen">
-        <div class="game-screen-container" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #E0F2FE 0%, #F0FDF4 100%); padding: 12px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+      <div id="screen-pet-rally" class="screen" style="background: #FFFFFF;">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: #FFFFFF; padding: 12px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
           
           <!-- BARRA SUPERIOR DE NAVEGACIÓN -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; background: white; padding: 8px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
@@ -1795,8 +1795,8 @@
             </button>
           </div>
 
-          <!-- TABLERO / ARENA DE CARDS Y MASCOTA NAVEGANTE -->
-          <div id="rally-arena" style="position: relative; flex: 1; width: 100%; min-height: 300px; background: #FFFFFF; border: 3px solid #BAE6FD; border-radius: 20px; padding: 16px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+          <!-- TABLERO / ARENA DE CARDS Y MASCOTA NAVEGANTE (FONDO BLANCO PURO SIN BORDES) -->
+          <div id="rally-arena" style="position: relative; flex: 1; width: 100%; min-height: 300px; background: #FFFFFF; border: none; border-radius: 20px; padding: 16px; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
             
             <!-- GRID DE DIBUJOS (CARDS DE TANDA ACTUAL) -->
             <div id="rally-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; width: 100%; height: 100%; z-index: 2; align-content: center; justify-content: center;">
@@ -6760,7 +6760,7 @@
           return;
         }
 
-        // LIMPIO SIN RECUADRO: Se funda el fondo blanco de la pantalla con el dibujo, e ilustraciones mucho más grandes (135px/105px)
+        // LIMPIO SIN RECUADRO: Se funda el fondo blanco de la pantalla con el dibujo, e ilustraciones mucho más grandes (155px/115px)
         card.style.cssText = `
           background: #FFFFFF;
           border: none;
@@ -6775,14 +6775,14 @@
           user-select: none;
           transition: transform 0.2s;
           position: relative;
-          min-height: 180px;
+          min-height: 195px;
         `;
 
         const rawDrawing = getEmojiForWord(item.word) || item.emoji || '🎨';
-        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 135px; max-height: 125px; object-fit: contain;');
+        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 155px; max-height: 145px; object-fit: contain;');
 
         let html = `
-          <div style="font-size: 105px; line-height: 1; min-height: 125px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));">
+          <div style="font-size: 115px; line-height: 1; min-height: 145px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;">
             ${displayEmoji}
           </div>
         `;
