@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v178';
+    const CURRENT_APP_VERSION = 'v179';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -25,7 +25,7 @@
         }
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '178');
+      u.searchParams.set('v', '179');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -47,7 +47,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '178' && urlVer !== 'v178')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '179' && urlVer !== 'v179')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1169,7 +1169,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v178</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v178</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v179</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v179</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1456,7 +1456,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v178</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v179</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -6760,38 +6760,39 @@
           return;
         }
 
+        // LIMPIO SIN RECUADRO: Se funda el fondo blanco de la pantalla con el dibujo, e ilustraciones mucho más grandes (135px/105px)
         card.style.cssText = `
-          background: ${item.found ? '#DCFCE7' : (item.revealed ? '#FEF3C7' : '#FFFFFF')};
-          border: 4px solid ${item.found ? '#22C55E' : (item.revealed ? '#F59E0B' : '#BAE6FD')};
-          border-radius: 24px;
-          padding: 14px 10px;
+          background: #FFFFFF;
+          border: none;
+          box-shadow: none;
+          border-radius: 20px;
+          padding: 8px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           user-select: none;
-          box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-          transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+          transition: transform 0.2s;
           position: relative;
-          min-height: 160px;
+          min-height: 180px;
         `;
 
         const rawDrawing = getEmojiForWord(item.word) || item.emoji || '🎨';
-        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 95px; max-height: 90px; object-fit: contain;');
+        const displayEmoji = renderDrawingHTML(rawDrawing, 'max-width: 135px; max-height: 125px; object-fit: contain;');
 
         let html = `
-          <div style="font-size: 72px; line-height: 1; min-height: 90px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));">
+          <div style="font-size: 105px; line-height: 1; min-height: 125px; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));">
             ${displayEmoji}
           </div>
         `;
 
         if (item.revealed || item.found) {
           const highlightedWord = highlightTargetLetterInWord(item.word, rallyGameState.targetLetter);
-          html += `<div style="margin-top: 10px; font-weight: 900; font-size: 18px; color: #1E293B; text-align: center; letter-spacing: 0.8px;">${highlightedWord}</div>`;
+          html += `<div style="margin-top: 10px; font-weight: 900; font-size: 20px; color: #1E293B; text-align: center; letter-spacing: 0.8px; background: rgba(255,255,255,0.95); padding: 4px 14px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">${highlightedWord}</div>`;
         } else {
           html += `
-            <div class="rally-card-unrevealed-label" style="margin-top: 10px; font-weight: bold; font-size: 13px; color: #64748B; background: #F1F5F9; padding: 4px 12px; border-radius: 12px; text-align: center;">
+            <div class="rally-card-unrevealed-label" style="margin-top: 10px; font-weight: bold; font-size: 14px; color: #64748B; background: #F1F5F9; padding: 4px 14px; border-radius: 12px; text-align: center;">
               <span class="default-txt">❓ Toca aquí</span>
               <span class="therapist-preview-txt" style="display: none; opacity: 0.35; color: #1E293B; font-weight: 800;">${item.word}</span>
             </div>
@@ -6799,7 +6800,7 @@
         }
 
         if (item.found) {
-          html += `<div style="position: absolute; top: -8px; right: -8px; background: #22C55E; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; box-shadow: 0 3px 8px rgba(0,0,0,0.25);">✓</div>`;
+          html += `<div style="position: absolute; top: -4px; right: 8px; background: #22C55E; color: white; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; box-shadow: 0 3px 10px rgba(34,197,94,0.4);">✓</div>`;
         }
 
         card.innerHTML = html;
