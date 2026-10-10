@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v190';
+    const CURRENT_APP_VERSION = 'v191';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -26,7 +26,7 @@
         localStorage.removeItem('crin_custom_emoji_map');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '190');
+      u.searchParams.set('v', '191');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -48,7 +48,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '190' && urlVer !== 'v190')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '191' && urlVer !== 'v191')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1170,7 +1170,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v190</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v190</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v191</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v191</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1457,7 +1457,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v190</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v191</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -3195,7 +3195,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '190';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '191';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -3267,13 +3267,13 @@
       'GATO': 'assets/gato.png', 'FELINO': '🐅', 'PERRO': 'assets/perro.png', 'OSO': 'assets/oso.png', 'PUMA': '🐆', 'LEÓN': 'assets/leon.png', 'LEON': 'assets/leon.png', 'RATÓN': 'assets/raton.png', 'RATON': 'assets/raton.png', 'MONO': 'assets/mono.png', 'MONITO': 'assets/mono.png', 'JIRAFA': 'assets/jirafa.png',
       'PATO': 'assets/pato.png', 'RANA': '🐸', 'SAPO': 'assets/sapo.png', 'SPO': 'assets/sapo.png', 'PÁJARO': 'assets/pajaro.png', 'PAJARO': 'assets/pajaro.png', 'PEZ': 'assets/pez.png', 'FOCA': 'assets/foca.png', 'SERPIENTE': 'assets/serpiente.png', 'SIRENA': '🧜‍♀️', 'MARIPOSA': 'assets/mariposa.png', 'TOPO': 'assets/topo.png', 'COLA': 'assets/cola.png',
       'HOJA': 'assets/hoja.png', 'ÁRBOL': 'assets/arbol.png', 'ARBOL': 'assets/arbol.png', 'SEMILLA': 'assets/semilla.png', 'PINO': 'assets/pino.png', 'FLOR': 'assets/flor.png', 'ROSA': 'assets/rosa.png', 'LOMA': 'assets/loma.png', 'MONTAÑA': 'assets/montana.png', 'MONTANA': 'assets/montana.png', 'FUEGO': 'assets/fuego.png', 'ESTUFA': 'assets/estufa.png', 'POZO': 'assets/pozo.png', 'TÚNEL': 'assets/tunel.png', 'TUNEL': 'assets/tunel.png', 'CERA': '🍯', 'VELA': '🕯️', 'MELÓN': 'assets/melon.png', 'MELON': 'assets/melon.png', 'PIMIENTO': 'assets/pimiento.png', 'TOMATE': 'assets/tomate.png', 'ZANAHORIA': 'assets/zanahoria.png',
-      'LATA': 'assets/lata.png', 'PILA': 'assets/pila.png', 'LLAVE': 'assets/llave.png', 'LÁPIZ': 'assets/lapiz.png', 'LAPIZ': 'assets/lapiz.png', 'LIBRO': 'assets/libro.png', 'CUENTO': 'assets/cuento.png', 'MAPA': 'assets/mapa.png', 'TIJERA': '✂️', 'SOMBRERO': 'assets/sombrero.png', 'SOMBRILLA': 'assets/sombrilla.png', 'PIPA': 'assets/pipa.png', 'PITO': 'assets/silbato.png', 'SILBATO': 'assets/silbato.png', 'JAULA': 'assets/jaula.png',
+      'LATA': 'assets/lata.png', 'PILA': 'assets/pila.png', 'LLAVE': 'assets/llave.png', 'LÁPIZ': 'assets/lapiz.png', 'LAPIZ': 'assets/lapiz.png', 'LIBRO': 'assets/libro.png', 'CUENTO': 'assets/cuento.png', 'MAPA': 'assets/mapa.png', 'TIJERA': 'assets/tijera.png', 'SOMBRERO': 'assets/sombrero.png', 'SOMBRILLA': 'assets/sombrilla.png', 'PIPA': 'assets/pipa.png', 'PITO': 'assets/silbato.png', 'SILBATO': 'assets/silbato.png', 'JAULA': 'assets/jaula.png',
       'DADO': 'assets/dado.png', 'FICHA': 'assets/ficha.png', 'TAPA': '📦', 'CAJA': 'assets/caja.png', 'CAJÓN': 'assets/cajon.png', 'CAJON': 'assets/cajon.png', 'TELA': 'assets/tela.png', 'LANA': 'assets/lana.png', 'TÍTERE': 'assets/titere.png', 'TITERE': 'assets/titere.png', 'CHALECO': 'assets/chaleco.png', 'FANTASMA': 'assets/fantasma.png', 'FARO': 'assets/faro.png', 'GAFAS': 'assets/anteojos.png', 'GAFA': 'assets/anteojos.png', 'ANTEOJOS': 'assets/anteojos.png', 'RIFA': 'assets/rifa.png',
       'CASA': 'assets/casa.png', 'TECHO': 'assets/techo.png', 'PUERTA': '🚪', 'PUENTE': 'assets/puente.png', 'CAMA': 'assets/cama.png', 'CUNA': 'assets/cuna.png', 'SILLA': '🪑', 'MESA': 'assets/mesa.png',
       'SALA': '📺', 'SOFÁ': 'assets/sofa.png', 'SOFA': 'assets/sofa.png', 'COPA': 'assets/copa.png',
-      'AUTO': 'assets/auto.png', 'COCHE': 'assets/coche_bebe.png', 'COCHE_BEBE': 'assets/coche_bebe.png', 'BICI': 'assets/bicicleta.png', 'BICICLETA': 'assets/bicicleta.png', 'MOTO': 'assets/moto.png', 'TREN': 'assets/tren.png',
+      'AUTO': 'assets/auto.png', 'COCHE': 'assets/coche_bebe.png', 'COCHE_BEBE': 'assets/coche_bebe.png', 'BICI': 'assets/bicicleta.png', 'BICICLETA': 'assets/bicicleta.png', 'MOTO': 'assets/moto.png', 'TREN': 'assets/tren.png', 'BARCO': 'assets/barco.png',
       'PELOTA': 'assets/pelota.png', 'BOLA': '🔮', 'ZAPATO': 'assets/zapato.png', 'ZAPATILLA': 'assets/zapatilla.png', 'BOTA': 'assets/bota.png', 'PLUMA': 'assets/pluma.png', 'PALA': 'assets/pala.png', 'MANO': 'assets/mano.png', 'BOCA': 'assets/boca.png', 'DEDO': 'assets/dedo.png', 'PIE': 'assets/pie.png', 'PATA': '🐾', 'CARA': '😃', 'CORAZÓN': 'assets/corazon.png', 'CORAZON': 'assets/corazon.png', 'MIRADA': '👀', 'MÚSICA': 'assets/musica.png', 'MUSICA': 'assets/musica.png', 'COMA': '✍️',
-      'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': 'assets/abuelo.png', 'ABUELA': 'assets/abuela.png', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': 'assets/verde.png', 'AMARILLO': 'assets/amarillo.png', 'ROJO': 'assets/rojo.png', 'GLOBO': 'assets/globo.png', 'VIOLETA': 'assets/violeta.png', 'MORADO': 'assets/violeta.png', 'AZUL': 'assets/azul.png', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': 'assets/dorado.png', 'LENTA': '🐢', 'LINDA': 'assets/linda.png', 'POMELO': 'assets/pomelo.png', 'FUENTE': 'assets/fuente.png', 'HELADO': 'assets/helado.png', 'TELÉFONO': 'assets/telefono.png', 'TELEFONO': 'assets/telefono.png', 'CINE': 'assets/cine.png', 'FOTO': 'assets/foto.png', 'COPITA': 'assets/copita.png', 'BLUEY': 'assets/bluey.png', 'BOSQUE': 'assets/bosque.png', 'BUHO': 'assets/buho.png', 'BÚHO': 'assets/buho.png', 'CAJITA': 'assets/cajita.png', 'CAMINO': 'assets/camino.png', 'CAPIVARA': 'assets/capivara.png', 'CAPIBARA': 'assets/capivara.png', 'COHETE': 'assets/cohete.png', 'COSECHA': 'assets/cosecha.png', 'CUCHARA': 'assets/cuchara.png', 'CUCHILLO': 'assets/cuchillo.png', 'ELEFANTE': 'assets/elefante.png', 'JEFE': 'assets/jefe.png', 'MENSAJERO': 'assets/mensajero.png', 'MINUTO': 'assets/minuto.png', 'SÁBANA': 'assets/sabana.png', 'SABANA': 'assets/sabana.png', 'TENEDOR': 'assets/tenedor.png', 'VESTIDO': 'assets/vestido.png'
+      'MAMÁ': '👩', 'MAMA': '👩', 'MADRE': '👩', 'PAPÁ': '👨', 'PAPA': '👨', 'PADRE': '👨', 'NIÑO': '👦', 'NINO': '👦', 'NIÑA': '👧', 'NINA': '👧', 'ABUELO': 'assets/abuelo.png', 'ABUELA': 'assets/abuela.png', 'TÍO': '🧔', 'TIO': '🧔', 'TÍA': '👩‍🦱', 'TIA': '👩‍🦱', 'SEÑOR': '👨‍💼', 'SENOR': '👨‍💼', 'SEÑORA': '👩‍🦳', 'SENORA': '👩‍🦳', 'VERDE': 'assets/verde.png', 'AMARILLO': 'assets/amarillo.png', 'ROJO': 'assets/rojo.png', 'GLOBO': 'assets/globo.png', 'VIOLETA': 'assets/violeta.png', 'MORADO': 'assets/violeta.png', 'AZUL': 'assets/azul.png', 'ROSA_COLOR': '🩷', 'GRIS': '🩶', 'DORADO': 'assets/dorado.png', 'LENTA': '🐢', 'LINDA': 'assets/linda.png', 'POMELO': 'assets/pomelo.png', 'FUENTE': 'assets/fuente.png', 'HELADO': 'assets/helado.png', 'TELÉFONO': 'assets/telefono.png', 'TELEFONO': 'assets/telefono.png', 'CINE': 'assets/cine.png', 'FOTO': 'assets/foto.png', 'COPITA': 'assets/copita.png', 'BLUEY': 'assets/bluey.png', 'BOSQUE': 'assets/bosque.png', 'BUHO': 'assets/buho.png', 'BÚHO': 'assets/buho.png', 'CAJITA': 'assets/cajita.png', 'CAMINO': 'assets/camino.png', 'CAPIVARA': 'assets/capivara.png', 'CAPIBARA': 'assets/capivara.png', 'COHETE': 'assets/cohete.png', 'COSECHA': 'assets/cosecha.png', 'CUCHARA': 'assets/cuchara.png', 'CUCHILLO': 'assets/cuchillo.png', 'ELEFANTE': 'assets/elefante.png', 'JEFE': 'assets/jefe.png', 'MENSAJERO': 'assets/mensajero.png', 'MINUTO': 'assets/minuto.png', 'SÁBANA': 'assets/sabana.png', 'SABANA': 'assets/sabana.png', 'TENEDOR': 'assets/tenedor.png', 'VESTIDO': 'assets/vestido.png', 'NARANJA': 'assets/naranja.png', 'OVEJA': 'assets/oveja.png'
     };
 
     function getEmojiForWord(word) {
@@ -3441,7 +3441,7 @@
       '☀️ Naturaleza y Cielo': ['🌙', '🌌', '☀️', '⭐', '☁️', '⬛', '⬜', '🍃', '🌳', '🌲', '🌸', '🌹', '⛰️', '🏔️', '🔥', '🕳️', '🚇', '🕯️', '✨', '⛲'],
       '🎨 Colores y Formas': ['🔴', '🔵', '🟡', '🟢', '⬜', '⬛', '🩷', '🩶', '🌟', '💎', '❤️', '👀', '🎵', '✍️', '✋', '👄', '☝️', '🦶', '🐾', '😃'],
       '👨 Personas': ['👩', '👨', '👦', '👧', '👴', '👵', '🧔', '👩‍🦱', '👨‍💼', '👩‍🦳', '🧒', '🍼'],
-      '🖼️ Fotos e Ilustraciones': ['assets/buho.png', 'assets/cajita.png', 'assets/camino.png', 'assets/capivara.png', 'assets/cohete.png', 'assets/cosecha.png', 'assets/cuchara.png', 'assets/cuchillo.png', 'assets/elefante.png', 'assets/jefe.png', 'assets/linda.png', 'assets/loma.png', 'assets/mensajero.png', 'assets/minuto.png', 'assets/puente.png', 'assets/rifa.png', 'assets/sabana.png', 'assets/serpiente.png', 'assets/sofa.png', 'assets/sombrero.png', 'assets/taza.png', 'assets/tenedor.png', 'assets/vestido.png', 'assets/bluey.png', 'assets/globo.png', 'assets/violeta.png', 'assets/negro.png', 'assets/rojo.png', 'assets/zapato.png', 'assets/zapatilla.png', 'assets/montana.png', 'assets/sapo.png', 'assets/silbato.png', 'assets/mesa.png', 'assets/techo.png', 'assets/cola.png', 'assets/jirafa.png', 'assets/melon.png', 'assets/pimiento.png', 'assets/raton.png', 'assets/titere.png', 'assets/tomate.png', 'assets/zanahoria.png', 'assets/auto.png', 'assets/banana.png', 'assets/bicicleta.png', 'assets/bota.png', 'assets/cafe.png', 'assets/sandia.png', 'assets/caramelo.png', 'assets/chaleco.png', 'assets/estrella.png', 'assets/helado.png', 'assets/lana.png', 'assets/lapiz.png', 'assets/lata.png', 'assets/leche.png', 'assets/leon.png', 'assets/libro.png', 'assets/limon.png', 'assets/llave.png', 'assets/luna.png', 'assets/pelota.png', 'assets/sol.png', 'assets/telefono.png', 'assets/abuela.png', 'assets/abuelo.png', 'assets/agua.png', 'assets/amarillo.png', 'assets/anteojos.png', 'assets/arbol.png', 'assets/azul.png', 'assets/blanco.png', 'assets/boca.png', 'assets/cama.png', 'assets/casa.png', 'assets/cena.png', 'assets/cine.png', 'assets/coche_bebe.png', 'assets/coco.png', 'assets/copa.png', 'assets/corazon.png', 'assets/cuento.png', 'assets/cuna.png', 'assets/dado.png', 'assets/dedo.png', 'assets/dorado.png', 'assets/fantasma.png', 'assets/faro.png', 'assets/ficha.png', 'assets/fideo.png', 'assets/flor.png', 'assets/foca.png', 'assets/fuente.png', 'assets/foto.png', 'assets/fuego.png', 'assets/gato.png', 'assets/hoja.png', 'assets/jaula.png', 'assets/manzana.png', 'assets/mapa.png', 'assets/mano.png', 'assets/mariposa.png', 'assets/mate.png', 'assets/mono.png', 'assets/moto.png', 'assets/musica.png', 'assets/noche.png', 'assets/oso.png', 'assets/pajaro.png', 'assets/pala.png', 'assets/pan.png', MESA_SVG_ICON]
+      '🖼️ Fotos e Ilustraciones': ['assets/barco.png', 'assets/naranja.png', 'assets/oveja.png', 'assets/tijera.png', 'assets/buho.png', 'assets/cajita.png', 'assets/camino.png', 'assets/capivara.png', 'assets/cohete.png', 'assets/cosecha.png', 'assets/cuchara.png', 'assets/cuchillo.png', 'assets/elefante.png', 'assets/jefe.png', 'assets/linda.png', 'assets/loma.png', 'assets/mensajero.png', 'assets/minuto.png', 'assets/puente.png', 'assets/rifa.png', 'assets/sabana.png', 'assets/serpiente.png', 'assets/sofa.png', 'assets/sombrero.png', 'assets/taza.png', 'assets/tenedor.png', 'assets/vestido.png', 'assets/bluey.png', 'assets/globo.png', 'assets/violeta.png', 'assets/negro.png', 'assets/rojo.png', 'assets/zapato.png', 'assets/zapatilla.png', 'assets/montana.png', 'assets/sapo.png', 'assets/silbato.png', 'assets/mesa.png', 'assets/techo.png', 'assets/cola.png', 'assets/jirafa.png', 'assets/melon.png', 'assets/pimiento.png', 'assets/raton.png', 'assets/titere.png', 'assets/tomate.png', 'assets/zanahoria.png', 'assets/auto.png', 'assets/banana.png', 'assets/bicicleta.png', 'assets/bota.png', 'assets/cafe.png', 'assets/sandia.png', 'assets/caramelo.png', 'assets/chaleco.png', 'assets/estrella.png', 'assets/helado.png', 'assets/lana.png', 'assets/lapiz.png', 'assets/lata.png', 'assets/leche.png', 'assets/leon.png', 'assets/libro.png', 'assets/limon.png', 'assets/llave.png', 'assets/luna.png', 'assets/pelota.png', 'assets/sol.png', 'assets/telefono.png', 'assets/abuela.png', 'assets/abuelo.png', 'assets/agua.png', 'assets/amarillo.png', 'assets/anteojos.png', 'assets/arbol.png', 'assets/azul.png', 'assets/blanco.png', 'assets/boca.png', 'assets/cama.png', 'assets/casa.png', 'assets/cena.png', 'assets/cine.png', 'assets/coche_bebe.png', 'assets/coco.png', 'assets/copa.png', 'assets/corazon.png', 'assets/cuento.png', 'assets/cuna.png', 'assets/dado.png', 'assets/dedo.png', 'assets/dorado.png', 'assets/fantasma.png', 'assets/faro.png', 'assets/ficha.png', 'assets/fideo.png', 'assets/flor.png', 'assets/foca.png', 'assets/fuente.png', 'assets/foto.png', 'assets/fuego.png', 'assets/gato.png', 'assets/hoja.png', 'assets/jaula.png', 'assets/manzana.png', 'assets/mapa.png', 'assets/mano.png', 'assets/mariposa.png', 'assets/mate.png', 'assets/mono.png', 'assets/moto.png', 'assets/musica.png', 'assets/noche.png', 'assets/oso.png', 'assets/pajaro.png', 'assets/pala.png', 'assets/pan.png', MESA_SVG_ICON]
     };
 
     const SUGGESTED_EMOJIS_MAP = {
@@ -3513,7 +3513,10 @@
       'CUENTO': ['assets/cuento.png', '📜', '📖', '📚', '🧙‍♂️'],
       'MAPA': ['assets/mapa.png', '🗺️', '🧭', '📜', '🌍'],
       'JAULA': ['assets/jaula.png', '🛖', '📦', '🚪'],
-      'TIJERA': ['✂️', '📐', '✏️', '📎'],
+      'TIJERA': ['assets/tijera.png', '✂️', '📐', '✏️', '📎'],
+      'BARCO': ['assets/barco.png', '⛵', '🚢', '🚤', '🌊'],
+      'NARANJA': ['assets/naranja.png', '🍊', '🍊', '🍊'],
+      'OVEJA': ['assets/oveja.png', 'assets/lana.png', '🐑', '🐑'],
       'PIPA': ['🫧', '🧼', '💨', '💭'],
       'PITO': ['📢', '🎷', '🎺', '🔔'],
       'DADO': ['assets/dado.png', '🎲', '🎯', '🎰', '🧩'],
