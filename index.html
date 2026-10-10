@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v192';
+    const CURRENT_APP_VERSION = 'v193';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -24,9 +24,10 @@
           });
         }
         localStorage.removeItem('crin_custom_emoji_map');
+        localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '192');
+      u.searchParams.set('v', '193');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -48,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '192' && urlVer !== 'v192')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '193' && urlVer !== 'v193')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1170,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v192</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v192</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v193</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v193</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1457,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v192</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v193</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1560,55 +1561,7 @@
           </div>
         </div>
 
-        <!-- ACTIVIDAD ESPECIAL: CARRERA DE LA MASCOTA -->
-        <div class="panel-card" style="background: linear-gradient(135deg, #FFF5F5 0%, #FFF0F0 100%); border: 3px solid #FF6B6B; border-radius: 20px; padding: 16px; margin-top: 14px; box-shadow: 0 6px 16px rgba(255, 107, 107, 0.15);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-weight: 800; font-size: 15px; color: #D63031; display: flex; align-items: center; gap: 6px;">
-              <span>🐶 Carrera de la Mascota (Búsqueda de Dibujos por Letra)</span>
-            </div>
-            <span style="font-size: 10px; background: #FF6B6B; color: white; padding: 2px 8px; border-radius: 10px; font-weight: bold;">Especial CRIN</span>
-          </div>
-          <p style="font-size: 11px; color: #4A5568; margin: 0 0 10px 0;">El alumno envía su mascota corriendo hasta el dibujo. El sistema propone <strong>10 tarjetas con dibujos</strong> (7 con la letra consigna en cualquier posición y 3 distractores).</p>
-          
-          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
-            <label style="font-size: 12px; font-weight: bold; color: #2D3436;">Letra Objetivo:</label>
-            <select id="therapist-rally-letter" onchange="updateTherapistRallyPreview(this.value)" style="padding: 6px 12px; border-radius: 10px; border: 2px solid #FF6B6B; font-weight: bold; font-size: 14px; background: white; color: #D63031; cursor: pointer;">
-              <option value="L">Letra L (Lata, Lápiz, Caramelo, Pelota...)</option>
-              <option value="M">Letra M (Manzana, Mono, Mama, Camiseta...)</option>
-              <option value="P">Letra P (Pelota, Pera, Pato, Pipa...)</option>
-              <option value="S">Letra S (Sol, Sapo, Sirena, Casa...)</option>
-              <option value="T">Letra T (Teléfono, Taza, Tijera, Pito...)</option>
-              <option value="C">Letra C (Casa, Caramelo, Coche, Leche...)</option>
-              <option value="F">Letra F (Faro, Foco, Sofá, Fideos...)</option>
-              <option value="D">Letra D (Dado, Dedo, Helado, Candado...)</option>
-              <option value="R">Letra R (Rana, Perro, Caramelo, Tijera...)</option>
-              <option value="N">Letra N (Luna, Manzana, Banano, León...)</option>
-            </select>
-            <button onclick="launchRallyFromTherapist()" style="flex: 1; min-width: 180px; background: linear-gradient(135deg, #FF6B6B, #EE5253); color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(238,82,83,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <span>🚀 Iniciar Carrera con la Letra Seleccionada</span>
-            </button>
-          </div>
 
-          <!-- PREVISUALIZACIÓN DE DIBUJOS DISPONIBLES EN EL BANCO PARA ESTA LETRA -->
-          <div style="background: white; border: 2px dashed #FCA5A5; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px;">
-            <div style="font-size: 11px; font-weight: bold; color: #991B1B; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-              <span id="therapist-rally-preview-title">🎨 Dibujos disponibles para la Letra L:</span>
-              <span id="therapist-rally-preview-count" style="background: #FEE2E2; color: #991B1B; padding: 1px 6px; border-radius: 6px; font-weight: bold;">15 Dibujos</span>
-            </div>
-            <div id="therapist-rally-preview-chips" style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 90px; overflow-y: auto;">
-              <!-- Se cargará dinámicamente -->
-            </div>
-          </div>
-
-          <!-- AGREGAR NUEVO DIBUJO / PALABRA PERSONALIZADO -->
-          <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-            <input type="text" id="add-rally-drawing-word-input" placeholder="Agregar palabra con dibujo (ej: LORO, TIJERA)" style="flex: 1; min-width: 160px; padding: 6px 10px; border-radius: 8px; border: 1px solid #FCA5A5; font-size: 12px; font-weight: bold;" />
-            <input type="text" id="add-rally-drawing-emoji-input" placeholder="Dibujo/Emoji (ej: 🦜)" style="width: 110px; padding: 6px 8px; border-radius: 8px; border: 1px solid #FCA5A5; font-size: 14px; text-align: center;" />
-            <button onclick="addCustomRallyDrawingFromTherapist()" style="background: #D63031; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-              ➕ Agregar Dibujo
-            </button>
-          </div>
-        </div>
 
         <!-- GESTOR Y ELIMINADOR DE TAREAS IMPORTADAS DESDE JSON -->
         <div class="panel-card" style="background: #FFFFFF; border: 2px solid #3B82F6; border-radius: 16px; padding: 16px; margin-top: 14px; box-shadow: 0 4px 12px rgba(59,130,246,0.1);">
@@ -3195,7 +3148,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '192';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '193';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
