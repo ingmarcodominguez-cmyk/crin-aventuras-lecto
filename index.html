@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v191';
+    const CURRENT_APP_VERSION = 'v192';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -26,7 +26,7 @@
         localStorage.removeItem('crin_custom_emoji_map');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '191');
+      u.searchParams.set('v', '192');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -48,7 +48,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '191' && urlVer !== 'v191')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '192' && urlVer !== 'v192')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1170,7 +1170,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v191</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v191</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v192</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v192</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1457,7 +1457,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v191</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v192</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -3195,7 +3195,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '191';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '192';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -6508,65 +6508,40 @@
     }
 
     function getAllRallyDrawingCandidates() {
-      const map = new Map();
+      loadCustomEmojiDictionary();
+      loadCustomRallyDrawings();
 
-      // 1. Banco predeterminado (Lata, Lápiz, Caramelo, Teléfono, Pelota, etc.)
-      RALLY_DRAWINGS_BANK.forEach(item => {
-        const cleanW = item.word.toUpperCase().trim();
-        if (!isWordDeleted(cleanW)) {
-          map.set(cleanW, {
-            word: cleanW,
-            emoji: getEmojiForWord(cleanW) || item.emoji || '🎨'
-          });
-        }
+      const map = new Map();
+      const validDictionaryWords = new Set();
+
+      // Recopilar ÚNICAMENTE las palabras activas listadas en el Gestor y Editor del Diccionario
+      Object.keys(emojiMap).forEach(w => {
+        if (w && !isWordDeleted(w)) validDictionaryWords.add(w.toUpperCase().trim());
       });
 
-      // 2. Palabras personalizadas agregadas por el terapeuta
+      Object.keys(customEmojiOverrides).forEach(w => {
+        if (w && !isWordDeleted(w)) validDictionaryWords.add(w.toUpperCase().trim());
+      });
+
       if (Array.isArray(customRallyDrawingsBank)) {
         customRallyDrawingsBank.forEach(item => {
-          if (item && item.word) {
-            const cleanW = item.word.toUpperCase().trim();
-            if (!isWordDeleted(cleanW)) {
-              map.set(cleanW, {
-                word: cleanW,
-                emoji: getEmojiForWord(cleanW) || item.emoji || '🎨'
-              });
-            }
+          if (item && item.word && !isWordDeleted(item.word)) {
+            validDictionaryWords.add(item.word.toUpperCase().trim());
           }
         });
       }
 
-      // 3. Palabras de todos los paquetes de tareas cargados (Tareas 1 a 26 y JSON importados)
-      if (typeof allTaskPacks === 'object' && allTaskPacks !== null) {
-        Object.keys(allTaskPacks).forEach(key => {
-          const pack = allTaskPacks[key];
-          if (pack && Array.isArray(pack.words)) {
-            pack.words.forEach(w => {
-              if (w && typeof w === 'string') {
-                const cleanW = w.toUpperCase().trim();
-                if (!isWordDeleted(cleanW) && !map.has(cleanW)) {
-                  map.set(cleanW, {
-                    word: cleanW,
-                    emoji: getEmojiForWord(cleanW) || '🎨'
-                  });
-                }
-              }
-            });
-          }
-        });
-      }
-
-      // 4. Palabras de historias personalizadas
-      if (typeof customStories === 'object' && customStories !== null) {
-        Object.keys(customStories).forEach(cleanW => {
-          if (!isWordDeleted(cleanW) && !map.has(cleanW)) {
+      validDictionaryWords.forEach(cleanW => {
+        if (!isWordDeleted(cleanW)) {
+          const emojiVal = getEmojiForWord(cleanW);
+          if (emojiVal) {
             map.set(cleanW, {
               word: cleanW,
-              emoji: getEmojiForWord(cleanW) || '🎨'
+              emoji: emojiVal
             });
           }
-        });
-      }
+        }
+      });
 
       return Array.from(map.values());
     }
