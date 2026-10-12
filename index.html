@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v198';
+    const CURRENT_APP_VERSION = 'v199';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '198');
+      u.searchParams.set('v', '199');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '198' && urlVer !== 'v198')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '199' && urlVer !== 'v199')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v198</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v198</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v199</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v199</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v198</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v199</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -3148,21 +3148,136 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '198';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '199';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
       return str;
     }
 
+    const transparentCanvasCache = {};
+
+    function processImageTransparency(img) {
+      try {
+        const ow = img.naturalWidth || img.width;
+        const oh = img.naturalHeight || img.height;
+        if (!ow || !oh) return img;
+
+        const offscreen = document.createElement('canvas');
+        offscreen.width = ow;
+        offscreen.height = oh;
+        const octx = offscreen.getContext('2d');
+        octx.drawImage(img, 0, 0);
+
+        const imgData = octx.getImageData(0, 0, ow, oh);
+        const data = imgData.data;
+
+        // Flood-fill desde los bordes para volver transparente solo el fondo blanco exterior
+        const visited = new Uint8Array(ow * oh);
+        const queue = [];
+
+        function isOuterWhite(x, y) {
+          const idx = (y * ow + x) * 4;
+          return data[idx] >= 230 && data[idx + 1] >= 230 && data[idx + 2] >= 230;
+        }
+
+        // Semillas en todo el perimetro
+        for (let x = 0; x < ow; x++) {
+          if (isOuterWhite(x, 0)) { visited[x] = 1; queue.push(x, 0); }
+          const botY = oh - 1;
+          if (isOuterWhite(x, botY)) { visited[botY * ow + x] = 1; queue.push(x, botY); }
+        }
+        for (let y = 0; y < oh; y++) {
+          if (!visited[y * ow] && isOuterWhite(0, y)) { visited[y * ow] = 1; queue.push(0, y); }
+          const rightX = ow - 1;
+          if (!visited[y * ow + rightX] && isOuterWhite(rightX, y)) { visited[y * ow + rightX] = 1; queue.push(rightX, y); }
+        }
+
+        let head = 0;
+        while (head < queue.length) {
+          const qx = queue[head++];
+          const qy = queue[head++];
+
+          const pIdx = (qy * ow + qx) * 4;
+          data[pIdx + 3] = 0; // Transparente 100%
+
+          if (qx > 0) {
+            const nIdx = qy * ow + (qx - 1);
+            if (!visited[nIdx] && isOuterWhite(qx - 1, qy)) {
+              visited[nIdx] = 1;
+              queue.push(qx - 1, qy);
+            }
+          }
+          if (qx < ow - 1) {
+            const nIdx = qy * ow + (qx + 1);
+            if (!visited[nIdx] && isOuterWhite(qx + 1, qy)) {
+              visited[nIdx] = 1;
+              queue.push(qx + 1, qy);
+            }
+          }
+          if (qy > 0) {
+            const nIdx = (qy - 1) * ow + qx;
+            if (!visited[nIdx] && isOuterWhite(qx, qy - 1)) {
+              visited[nIdx] = 1;
+              queue.push(qx, qy - 1);
+            }
+          }
+          if (qy < oh - 1) {
+            const nIdx = (qy + 1) * ow + qx;
+            if (!visited[nIdx] && isOuterWhite(qx, qy + 1)) {
+              visited[nIdx] = 1;
+              queue.push(qx, qy + 1);
+            }
+          }
+        }
+
+        // Suavizado anti-aliasing fino de los bordes externos
+        for (let y = 1; y < oh - 1; y++) {
+          for (let x = 1; x < ow - 1; x++) {
+            const idx = (y * ow + x);
+            if (!visited[idx]) {
+              // Si un vecino fue vuelto transparente y este pixel es casi blanco, difuminar su alpha
+              const hasTranspNeighbor = visited[idx - 1] || visited[idx + 1] || visited[idx - ow] || visited[idx + ow];
+              if (hasTranspNeighbor) {
+                const p = idx * 4;
+                const minC = Math.min(data[p], data[p + 1], data[p + 2]);
+                if (minC > 200) {
+                  data[p + 3] = Math.max(0, Math.min(255, Math.round(255 * (255 - minC) / 55)));
+                }
+              }
+            }
+          }
+        }
+
+        octx.putImageData(imgData, 0, 0);
+        return offscreen;
+      } catch (e) {
+        return img;
+      }
+    }
+
     function getCachedCanvasImage(url) {
       if (!url) return null;
       const bURL = getAssetURLWithBust(url);
+      if (transparentCanvasCache[bURL]) {
+        return transparentCanvasCache[bURL];
+      }
       if (imageCanvasCache[bURL]) {
-        return (imageCanvasCache[bURL].complete && imageCanvasCache[bURL].naturalWidth > 0) ? imageCanvasCache[bURL] : null;
+        const raw = imageCanvasCache[bURL];
+        if (raw.complete && raw.naturalWidth > 0) {
+          const processed = processImageTransparency(raw);
+          transparentCanvasCache[bURL] = processed;
+          return processed;
+        }
+        return null;
       }
       const img = new Image();
       img.src = bURL;
+      img.onload = () => {
+        try {
+          transparentCanvasCache[bURL] = processImageTransparency(img);
+        } catch(e) {}
+      };
       imageCanvasCache[bURL] = img;
       return null;
     }
