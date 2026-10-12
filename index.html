@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v199';
+    const CURRENT_APP_VERSION = 'v200';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '199');
+      u.searchParams.set('v', '200');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '199' && urlVer !== 'v199')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '200' && urlVer !== 'v200')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v199</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v199</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v200</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v200</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v199</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v200</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -2606,8 +2606,9 @@
       if (slots) { slots.style.pointerEvents = 'auto'; }
 
       stage3D.isWalking = false;
-      stage3D.objectZ = 0.0;
-      spawnParticles(stage3D.width / 2, stage3D.height - 60, 25);
+      stage3D.objectZ = stage3D.targetZ || 0.42;
+      const unlockObjY = stage3D.height * 0.38 + (1 - stage3D.objectZ) * (stage3D.height - stage3D.height * 0.38 - 45);
+      spawnParticles(stage3D.width / 2, unlockObjY - 25, 25);
       playPopSound();
     }
 
@@ -2630,9 +2631,10 @@
       const storyText = document.getElementById('story-text-content');
       const pictoEmoji = document.getElementById('picto-emoji');
 
-      // Reiniciar perspectiva 3D: El objeto inicia pequeño en el horizonte 3D (z=1.0)
+      // Reiniciar perspectiva 3D: El objeto inicia pequeño en el horizonte 3D (z=1.0) y frena en la mitad del sendero
+      const isCastle = targetItem && targetItem.isCastleChapter;
       stage3D.objectZ = 1.0;
-      stage3D.targetZ = 0.0;
+      stage3D.targetZ = isCastle ? 0.05 : 0.42;
       stage3D.isWalking = true;
       stage3D.isCastleOpening = false;
       stage3D.isCastleClosedInside = false;
@@ -3148,7 +3150,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '199';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '200';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -8178,7 +8180,7 @@
       isWalking: false,
       roadOffset: 0,
       objectZ: 1.0,
-      targetZ: 0.0,
+      targetZ: 0.42,
       heroJumpY: 0,
       heroCastleWalkZ: 0,
       isCastleOpening: false,
@@ -8251,9 +8253,9 @@
         stage3D.roadOffset += 0.04;
 
         if (stage3D.objectZ > stage3D.targetZ) {
-          stage3D.objectZ -= 0.005;
-          if (stage3D.objectZ <= 0.04) {
-            stage3D.objectZ = 0.0;
+          stage3D.objectZ -= 0.006;
+          if (stage3D.objectZ <= stage3D.targetZ + 0.01) {
+            stage3D.objectZ = stage3D.targetZ;
             stage3D.isWalking = false;
             unlockStoryPuzzle();
           }
@@ -8376,27 +8378,27 @@
         ctx.restore();
       });
 
-      // 4. OBJETO DESCUBIERTO O GRAN CASTILLO MÁGICO EN 3D
+      // 4. OBJETO DESCUBIERTO O GRAN CASTILLO MÁGICO EN 3D (TAMAÑO MÁS VISIBLE Y PARADO EN LA MITAD DEL CAMINO)
       const z = stage3D.objectZ;
       const objY = horizonY + (1 - z) * (h - horizonY - 45);
-      const objScale = 0.2 + (1 - z) * 1.15;
+      const objScale = 0.40 + (1 - z) * 1.35;
       const objX = vanishingX;
 
       ctx.save();
-      const haloRadius = Math.max(10, (40 + Math.sin(stage3D.frame * 0.12) * 8) * objScale);
-      const glowGrad = ctx.createRadialGradient(objX, objY - 25 * objScale, 5, objX, objY - 25 * objScale, haloRadius);
+      const haloRadius = Math.max(20, (55 + Math.sin(stage3D.frame * 0.12) * 10) * objScale);
+      const glowGrad = ctx.createRadialGradient(objX, objY - 30 * objScale, 5, objX, objY - 30 * objScale, haloRadius);
       glowGrad.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
       glowGrad.addColorStop(0.6, 'rgba(255, 159, 67, 0.6)');
       glowGrad.addColorStop(1, 'rgba(255, 215, 0, 0)');
       ctx.fillStyle = glowGrad;
       ctx.beginPath();
-      ctx.arc(objX, objY - 25 * objScale, haloRadius, 0, Math.PI * 2);
+      ctx.arc(objX, objY - 30 * objScale, haloRadius, 0, Math.PI * 2);
       ctx.fill();
 
       // Sombra 3D del objeto
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
       ctx.beginPath();
-      ctx.ellipse(objX, objY, 28 * objScale, 10 * objScale, 0, 0, Math.PI * 2);
+      ctx.ellipse(objX, objY, 36 * objScale, 13 * objScale, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Resetear fillStyle a sólido para dibujar el ícono del objeto sin transparencia
@@ -8407,7 +8409,7 @@
       const objFloat = Math.sin(stage3D.frame * 0.1) * (6 * objScale);
 
       if (targetItem && targetItem.isCastleChapter) {
-        ctx.font = `${Math.round(95 * objScale)}px serif`;
+        ctx.font = `${Math.round(105 * objScale)}px serif`;
         ctx.textAlign = 'center';
         ctx.fillText('🏰', objX, objY - 15 * objScale);
 
@@ -8416,20 +8418,20 @@
           ctx.fillText('✨🚪✨', objX, objY - 8 * objScale);
         }
       } else if (targetItem && targetItem.word === 'VERDE') {
-        drawGreenGem3D(ctx, objX, objY - 20 * objScale + objFloat, objScale);
+        drawGreenGem3D(ctx, objX, objY - 20 * objScale + objFloat, objScale * 1.25);
       } else if (isDrawingImageURL(rawDrawing)) {
         const cachedImg = getCachedCanvasImage(rawDrawing);
         if (cachedImg) {
-          const imgW = Math.max(30, 68 * objScale);
-          const imgH = Math.max(30, 68 * objScale);
+          const imgW = Math.max(50, 110 * objScale);
+          const imgH = Math.max(50, 110 * objScale);
           ctx.drawImage(cachedImg, objX - imgW / 2, (objY - 35 * objScale + objFloat) - imgH / 2, imgW, imgH);
         } else {
-          ctx.font = `${Math.round(35 * objScale)}px serif`;
+          ctx.font = `${Math.round(45 * objScale)}px serif`;
           ctx.textAlign = 'center';
           ctx.fillText('🖼️', objX, objY - 15 * objScale + objFloat);
         }
       } else {
-        ctx.font = `${Math.round(62 * objScale)}px serif`;
+        ctx.font = `${Math.round(85 * objScale)}px serif`;
         ctx.textAlign = 'center';
         ctx.fillText(rawDrawing, objX, objY - 15 * objScale + objFloat);
       }
@@ -8515,7 +8517,7 @@
         const rect = canvas.getBoundingClientRect();
         const clickX = e.clientX - rect.left;
         spawnParticles(clickX, e.clientY - rect.top, 12);
-        if (stage3D.objectZ <= 0.2) {
+        if (stage3D.objectZ <= 0.48) {
           speakCurrentTarget();
         } else {
           speakCurrentStoryNarration();
