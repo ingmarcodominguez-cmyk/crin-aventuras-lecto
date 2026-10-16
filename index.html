@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v203';
+    const CURRENT_APP_VERSION = 'v204';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '203');
+      u.searchParams.set('v', '204');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '203' && urlVer !== 'v203')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '204' && urlVer !== 'v204')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v203</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v203</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v204</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v204</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1245,7 +1245,7 @@
               <h3 style="color: #27AE60;">2. El Bosque de las Letras</h3>
               <p>Desafíos de Palabras Globales</p>
             </div>
-            <div class="node-stars" id="node-status-1">🔒 Bloqueado</div>
+            <div class="node-stars" id="node-status-1">⭐ Aventura Libre</div>
           </div>
 
           <!-- MUNDO 3: LA CUEVA DE LAS SÍLABAS -->
@@ -1255,7 +1255,7 @@
               <h3>3. La Cueva de las Sílabas</h3>
               <p>Desafíos de Rompecabezas Silábico</p>
             </div>
-            <div class="node-stars" id="node-status-2">🔒 Bloqueado</div>
+            <div class="node-stars" id="node-status-2">⭐ Aventura Libre</div>
           </div>
 
           <!-- MUNDO 4: CASTILLO TAREAS CRIN -->
@@ -1265,7 +1265,7 @@
               <h3>4. Castillo Tareas Crin</h3>
               <p>Desafíos de Frases y Apoyo Escolar</p>
             </div>
-            <div class="node-stars" id="node-status-3">🔒 Bloqueado</div>
+            <div class="node-stars" id="node-status-3">⭐ Aventura Libre</div>
           </div>
         </div>
       </div>
@@ -1275,7 +1275,7 @@
         <div class="game-screen-container">
           
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0;">
-            <button onclick="switchScreen('map')" style="background:none; border:none; font-size:15px; font-weight:bold; color:#64748B; cursor:pointer;">⬅️ Salir</button>
+            <button onclick="exitCurrentAdventure()" style="background:none; border:none; font-size:15px; font-weight:bold; color:#64748B; cursor:pointer;">⬅️ Salir</button>
             <div style="text-align: center;">
               <div id="quest-mode-title" style="font-size: 13px; font-weight: bold; color: var(--primary);">📖 El Cuento Mágico del Bosque</div>
               <div id="quest-category" style="font-size: 11px; font-weight: 600; color: #64748B;">Desafío 1/4</div>
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v203</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v204</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -2398,9 +2398,18 @@
       }
     }
 
+    function exitCurrentAdventure() {
+      stopAllAudio();
+      forceUnlockStoryPuzzle();
+      stage3D.isWalking = false;
+      gameState.currentMode = null;
+      switchScreen('map');
+    }
+
     function switchScreen(screenName) {
       stopAllAudio();
       forceUnlockStoryPuzzle();
+      stage3D.isWalking = false;
       if (screenName !== 'game') {
         gameState.currentMode = null;
       }
@@ -2437,7 +2446,10 @@
       homework: '¡Súper! Ahora pasemos al Castillo Tareas CRIN.'
     };
 
-    function startQuest(mode, skipIntroVoice) {
+    function startQuest(mode) {
+      stopAllAudio();
+      forceUnlockStoryPuzzle();
+
       gameState.currentMode = mode;
       gameState.currentWordIndex = 0;
       buildActiveDatasets();
@@ -2456,48 +2468,10 @@
         syllable: '🧩 Cueva de las Sílabas',
         homework: '🏰 Castillo Tareas CRIN'
       };
-      if (titleEl) titleEl.innerText = titleMap[mode] || 'Misión CRIN';
+      if (titleEl) titleEl.innerText = titleMap[mode] || 'Aventura Libre';
 
-      loadCurrentWord(true); // Pasar true para evitar narrar la historia 2 veces si hay introVoice
-
-      if (!skipIntroVoice && introVoiceMap[mode]) {
-        lockStoryPuzzle();
-        speakText(introVoiceMap[mode], () => {
-          const dataset = gameDatasets[gameState.currentMode];
-          const item = dataset ? dataset[gameState.currentWordIndex % dataset.length] : null;
-          if (item) {
-            if (mode === 'story' && item.narration) {
-              playStoryChapterNarration(item);
-            } else if (mode === 'homework' && item.sentence) {
-              playHomeworkSentenceNarration(item);
-            } else if (mode === 'syllable' && item.syllables) {
-              forceUnlockStoryPuzzle();
-              speakText(item.syllables.join(', '));
-            } else if (mode === 'global' && item.word) {
-              forceUnlockStoryPuzzle();
-              speakText(item.word);
-            } else {
-              forceUnlockStoryPuzzle();
-            }
-          } else {
-            forceUnlockStoryPuzzle();
-          }
-        });
-      } else {
-        const dataset = gameDatasets[gameState.currentMode];
-        const item = dataset ? dataset[gameState.currentWordIndex % dataset.length] : null;
-        if (item) {
-          if (mode === 'story') {
-            playStoryChapterNarration(item);
-          } else if (mode === 'homework') {
-            playHomeworkSentenceNarration(item);
-          } else {
-            forceUnlockStoryPuzzle();
-          }
-        } else {
-          forceUnlockStoryPuzzle();
-        }
-      }
+      // Cargar la primera palabra y reproducir su narración/audio de inmediato
+      loadCurrentWord(false);
     }
 
 
@@ -2583,10 +2557,15 @@
     }
 
     function lockStoryPuzzle() {
+      // Bloquear únicamente en 'story' mientras camina o narra el cuento
+      if (gameState.currentMode !== 'story') {
+        forceUnlockStoryPuzzle();
+        return;
+      }
       isNarratingLock = true;
       const lockOverlay = document.getElementById('narration-lock-overlay');
       const pool = document.getElementById('letters-pool');
-      const slots = document.getElementById('slots-container');
+      const slots = document.getElementById('word-slots');
 
       if (lockOverlay) lockOverlay.style.display = 'flex';
       if (pool) { pool.style.pointerEvents = 'none'; pool.style.opacity = '0.5'; }
@@ -2594,11 +2573,11 @@
     }
 
     function unlockStoryPuzzle() {
-      if (isNarratingLock) return; // Mantener estrictamente bloqueado mientras el relator habla
+      isNarratingLock = false;
       const lockOverlay = document.getElementById('narration-lock-overlay');
       const bubble = document.getElementById('encounter-bubble');
       const pool = document.getElementById('letters-pool');
-      const slots = document.getElementById('slots-container');
+      const slots = document.getElementById('word-slots');
 
       if (lockOverlay) lockOverlay.style.display = 'none';
       if (bubble) bubble.style.display = 'none';
@@ -2614,7 +2593,17 @@
 
     function forceUnlockStoryPuzzle() {
       isNarratingLock = false;
-      unlockStoryPuzzle();
+      const lockOverlay = document.getElementById('narration-lock-overlay');
+      const bubble = document.getElementById('encounter-bubble');
+      const pool = document.getElementById('letters-pool');
+      const slots = document.getElementById('word-slots');
+
+      if (lockOverlay) lockOverlay.style.display = 'none';
+      if (bubble) bubble.style.display = 'none';
+      if (pool) { pool.style.pointerEvents = 'auto'; pool.style.opacity = '1'; }
+      if (slots) { slots.style.pointerEvents = 'auto'; }
+
+      stage3D.isWalking = false;
     }
 
     function loadCurrentWord(isInitQuest) {
@@ -3020,19 +3009,10 @@
       const dataset = gameDatasets[gameState.currentMode];
 
       if (gameState.currentWordIndex >= dataset.length) {
-        const currentIdx = activitySequence.indexOf(gameState.currentMode);
-        if (currentIdx !== -1) {
-          if (activeChildProfile) {
-            setUnlockedSequenceForPack(activeTaskPackId, currentIdx + 1);
-          }
-          if (currentIdx < activitySequence.length - 1) {
-            const nextMode = activitySequence[currentIdx + 1];
-            startQuest(nextMode);
-          } else {
-            speakText('Felicidades. Completaste todas las misiones de la tarea semanal.');
-            switchScreen('map');
-          }
-        }
+        speakText('¡Excelente! ¡Misión completada con éxito!');
+        setTimeout(() => {
+          switchScreen('map');
+        }, 1200);
       } else {
         loadCurrentWord();
       }
@@ -3150,7 +3130,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '203';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '204';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -6581,28 +6561,22 @@
     function handleMapNodeClick(nodeIndex) {
       const modeKeys = ['story', 'global', 'syllable', 'homework'];
       const targetMode = modeKeys[nodeIndex];
-      const currentUnlocked = getUnlockedSequenceForPack(activeTaskPackId);
-
-      if (nodeIndex <= currentUnlocked) {
+      if (targetMode) {
         startQuest(targetMode);
-      } else {
-        openSkipWarningModal(nodeIndex, targetMode);
       }
     }
 
     function renderMapNodes() {
-      const currentUnlocked = getUnlockedSequenceForPack(activeTaskPackId);
-
       for (let i = 0; i < 4; i++) {
         const nodeEl = document.getElementById(`map-node-${i}`);
         const statusEl = document.getElementById(`node-status-${i}`);
 
-        if (i <= currentUnlocked) {
-          if (nodeEl) nodeEl.style.opacity = '1';
-          if (statusEl) statusEl.innerHTML = (i === currentUnlocked) ? '🌟 Tarea Actual' : '✅ Completado';
-        } else {
-          if (nodeEl) nodeEl.style.opacity = '0.75';
-          if (statusEl) statusEl.innerHTML = '🔒 Bloqueado';
+        if (nodeEl) {
+          nodeEl.style.opacity = '1';
+          nodeEl.style.cursor = 'pointer';
+        }
+        if (statusEl) {
+          statusEl.innerHTML = '⭐ Aventura Libre';
         }
       }
     }
