@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v204';
+    const CURRENT_APP_VERSION = 'v205';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '204');
+      u.searchParams.set('v', '205');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '204' && urlVer !== 'v204')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '205' && urlVer !== 'v205')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v204</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v204</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v205</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v205</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v204</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v205</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -2446,6 +2446,13 @@
       homework: '¡Súper! Ahora pasemos al Castillo Tareas CRIN.'
     };
 
+    const adventureWelcomeMap = {
+      story: '¡Bienvenido a El Cuento del Bosque! ¡Comencemos!',
+      global: '¡Bienvenido al Bosque de las Letras! ¡Comencemos!',
+      syllable: '¡Bienvenido a La Cueva de las Sílabas! ¡Comencemos!',
+      homework: '¡Bienvenido al Castillo Tareas CRIN! ¡Comencemos!'
+    };
+
     function startQuest(mode) {
       stopAllAudio();
       forceUnlockStoryPuzzle();
@@ -2458,6 +2465,12 @@
       const hero = document.getElementById('hero-game-sprite');
       const pet = document.getElementById('pet-game-sprite');
       const titleEl = document.getElementById('quest-mode-title');
+      const stage2dDisplay = document.getElementById('stage-2d-display');
+      const stage3dWrap = document.getElementById('stage-3d-wrap');
+      const storyBanner = document.getElementById('story-banner-card');
+      const storyText = document.getElementById('story-text-content');
+      const slotsContainer = document.getElementById('word-slots');
+      const poolContainer = document.getElementById('letters-pool');
 
       if (hero) hero.innerText = gameState.avatar;
       if (pet) pet.innerText = gameState.pet;
@@ -2470,8 +2483,32 @@
       };
       if (titleEl) titleEl.innerText = titleMap[mode] || 'Aventura Libre';
 
-      // Cargar la primera palabra y reproducir su narración/audio de inmediato
-      loadCurrentWord(false);
+      const welcomeText = adventureWelcomeMap[mode] || '¡Bienvenido a esta aventura! ¡Comencemos!';
+
+      // Estado inicial limpio de bienvenida: esperar a que termine el saludo para mostrar la imagen y palabra
+      if (slotsContainer) slotsContainer.innerHTML = '';
+      if (poolContainer) poolContainer.innerHTML = '';
+
+      if (mode === 'story') {
+        if (stage3dWrap) stage3dWrap.style.display = 'block';
+        if (stage2dDisplay) stage2dDisplay.style.display = 'none';
+        if (storyBanner) storyBanner.style.display = 'flex';
+        if (storyText) storyText.innerText = welcomeText;
+        stage3D.isWalking = false;
+      } else {
+        if (stage3dWrap) stage3dWrap.style.display = 'none';
+        if (stage2dDisplay) stage2dDisplay.style.display = 'flex';
+        const stage2dEmoji = document.getElementById('stage-2d-emoji');
+        if (stage2dEmoji) stage2dEmoji.innerText = '🌟';
+        if (storyBanner) storyBanner.style.display = 'none';
+      }
+
+      // 1. Decir la bienvenida ("¡Bienvenido al Bosque de las Letras! ¡Comencemos!")
+      // 2. Y RECIÉN ALLÍ arrancar con la imagen y el relato de la palabra para que el niño escriba
+      speakText(welcomeText, () => {
+        if (gameState.currentMode !== mode) return; // Si el usuario salió durante el saludo
+        loadCurrentWord(false);
+      });
     }
 
 
@@ -2905,14 +2942,6 @@
     function onWinAnimation() {
       document.querySelectorAll('.slot').forEach(s => s.classList.add('correct'));
 
-      setTimeout(() => {
-        if (targetItem && targetItem.isCastleChapter) {
-          speakText("¡Felicidades! ¡Abriste las puertas doradas del Castillo Mágico de CRIN!");
-        } else {
-          speakText("¡Súper! " + targetItem.word);
-        }
-      }, 150);
-
       if (targetItem && targetItem.isCastleChapter) {
         stage3D.isCastleOpening = true;
         let enterStep = 0;
@@ -2933,7 +2962,8 @@
               const winMsg = document.getElementById('win-message');
               if (winMsg) winMsg.innerHTML = "👑 ¡HEROICO! ¡Completaste el Cuento Mágico de CRIN y entraste al Castillo!";
               if (winModal) winModal.style.display = 'flex';
-            }, 1200);
+              speakText("¡Felicidades! ¡Abriste las puertas doradas del Castillo Mágico!");
+            }, 600);
           }
         }, 50);
 
@@ -2960,21 +2990,18 @@
         let winMessageText = "";
 
         if (!isAlreadyDone) {
-          // PRIMERA VEZ QUE COMPLETA LA TAREA: OBTENER PREMIO COMPLETO
           earnedStars = 10;
           earnedCoins = 5;
           markWordCompletedForActiveChild(activeTaskPackId, currentWord);
-          winMessageText = "¡Excelente! Completaste una tarea nueva y ganaste 10 estrellas y 5 monedas.";
+          winMessageText = "¡Excelente! Completaste una palabra nueva. ¡Ganaste 10 estrellas y 5 monedas!";
         } else if (is100PercentPackDone) {
-          // COMPLETÓ EL 100% Y REPITE PARA PRACTICAR: OBTENER PREMIO
           earnedStars = 10;
           earnedCoins = 5;
-          winMessageText = "¡Fantástico! Completaste todas las tareas y sigues practicando. ¡Ganaste 10 estrellas y 5 monedas!";
+          winMessageText = "¡Fantástico! Sigues practicando y aprendiendo. ¡Ganaste 10 estrellas y 5 monedas!";
         } else {
-          // TAREA YA HECHA PERO TODAVÍA HAY OTRAS PENDIENTES: NO SUMA PREMIOS
           earnedStars = 0;
           earnedCoins = 0;
-          winMessageText = "¡Excelente práctica! Esta tarea ya la habías completado. ¡Prueba las tareas pendientes para ganar más monedas!";
+          winMessageText = "¡Excelente práctica! Sigue adelante con las demás palabras.";
         }
 
         if (earnedStars > 0 || earnedCoins > 0) {
@@ -2993,12 +3020,14 @@
 
         const winMsg = document.getElementById('win-message');
         if (winMsg) winMsg.innerText = winMessageText;
-        speakText(winMessageText);
+
+        // Un solo audio limpio y completo: ¡Excelente! + palabra
+        speakText(`¡Excelente! ${targetItem.word}`);
 
         setTimeout(() => {
           const winModal = document.getElementById('win-modal');
           if (winModal) winModal.style.display = 'flex';
-        }, 1400);
+        }, 1200);
       }
     }
 
@@ -3009,10 +3038,11 @@
       const dataset = gameDatasets[gameState.currentMode];
 
       if (gameState.currentWordIndex >= dataset.length) {
-        speakText('¡Excelente! ¡Misión completada con éxito!');
-        setTimeout(() => {
-          switchScreen('map');
-        }, 1200);
+        speakText('¡Excelente! ¡Misión completada con éxito!', () => {
+          setTimeout(() => {
+            switchScreen('map');
+          }, 400);
+        });
       } else {
         loadCurrentWord();
       }
@@ -3130,7 +3160,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '204';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '205';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -6802,10 +6832,14 @@
     }
 
     function openPetRallyScreen(letter) {
+      stopAllAudio();
       loadCustomRallyDrawings();
       if (letter) rallyGameState.targetLetter = letter.toUpperCase();
       switchScreen('pet-rally');
       setupRallyGameBoard();
+      speakText("¡Bienvenido a la Carrera de la Mascota! ¡Comencemos!", () => {
+        speakRallyConsigna();
+      });
     }
 
     function launchRallyFromTherapist() {
