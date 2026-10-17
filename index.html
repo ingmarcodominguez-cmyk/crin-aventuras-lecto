@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v205';
+    const CURRENT_APP_VERSION = 'v206';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '205');
+      u.searchParams.set('v', '206');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '205' && urlVer !== 'v205')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '206' && urlVer !== 'v206')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v205</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v205</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v206</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v206</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v205</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v206</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1726,14 +1726,36 @@
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
               <select id="rally-change-letter-select" onchange="changeRallyTargetLetter(this.value)" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: bold; font-size: 12px; background: #F8FAFC; cursor: pointer;">
-                <option value="L">Letra L</option>
+                <option value="A">Letra A</option>
+                <option value="B">Letra B</option>
+                <option value="C">Letra C</option>
+                <option value="CH">Letra CH</option>
+                <option value="D">Letra D</option>
+                <option value="E">Letra E</option>
+                <option value="F">Letra F</option>
+                <option value="G">Letra G</option>
+                <option value="H">Letra H</option>
+                <option value="I">Letra I</option>
+                <option value="J">Letra J</option>
+                <option value="K">Letra K</option>
+                <option value="L" selected>Letra L</option>
+                <option value="LL">Letra LL</option>
                 <option value="M">Letra M</option>
+                <option value="N">Letra N</option>
+                <option value="Ñ">Letra Ñ</option>
+                <option value="O">Letra O</option>
                 <option value="P">Letra P</option>
+                <option value="Q">Letra Q</option>
+                <option value="R">Letra R</option>
+                <option value="RR">Letra RR</option>
                 <option value="S">Letra S</option>
                 <option value="T">Letra T</option>
-                <option value="C">Letra C</option>
-                <option value="F">Letra F</option>
-                <option value="D">Letra D</option>
+                <option value="U">Letra U</option>
+                <option value="V">Letra V</option>
+                <option value="W">Letra W</option>
+                <option value="X">Letra X</option>
+                <option value="Y">Letra Y</option>
+                <option value="Z">Letra Z</option>
               </select>
             </div>
           </div>
@@ -1874,6 +1896,9 @@
       'COPA': 'Copa',
       'CASA': 'Casa',
       'C': 'ce',
+      'CH': 'che',
+      'LL': 'elle',
+      'RR': 'doble erre',
       'R': 'erre',
       'I': 'i',
       'N': 'ene',
@@ -2782,10 +2807,11 @@
 
       } else {
         const word = targetItem.word || '';
-        currentSlots = new Array(word.length).fill('');
-        currentSlotBtns = new Array(word.length).fill(null);
+        const unaccentedWord = removeAccents(word).toUpperCase();
+        currentSlots = new Array(unaccentedWord.length).fill('');
+        currentSlotBtns = new Array(unaccentedWord.length).fill(null);
 
-        for (let i = 0; i < word.length; i++) {
+        for (let i = 0; i < unaccentedWord.length; i++) {
           const slot = document.createElement('div');
           slot.className = 'slot';
           slot.id = `slot-${i}`;
@@ -2793,9 +2819,9 @@
           slotsContainer.appendChild(slot);
         }
 
-        let poolLetters = word.split('');
-        const extraLetters = ['L', 'M', 'P', 'S', 'A', 'E', 'O'];
-        while (poolLetters.length < Math.max(word.length + 2, 5)) {
+        let poolLetters = unaccentedWord.split('');
+        const extraLetters = ['L', 'M', 'P', 'S', 'A', 'E', 'O', 'T', 'B', 'C', 'D'];
+        while (poolLetters.length < Math.max(unaccentedWord.length + 2, 5)) {
           const rand = extraLetters[Math.floor(Math.random() * extraLetters.length)];
           if (!poolLetters.includes(rand)) poolLetters.push(rand);
         }
@@ -2898,7 +2924,9 @@
     }
 
     function checkSyllables() {
-      if (currentSlots.join('') === targetItem.syllables.join('')) {
+      const currentVal = removeAccents(currentSlots.join(''));
+      const targetVal = removeAccents(targetItem.syllables ? targetItem.syllables.join('') : '');
+      if (currentVal === targetVal) {
         playWinSound();
         onWinAnimation();
       } else {
@@ -2931,7 +2959,7 @@
     }
 
     function checkWord() {
-      if (currentSlots.join('') === targetItem.word) {
+      if (removeAccents(currentSlots.join('')) === removeAccents(targetItem.word)) {
         playWinSound();
         onWinAnimation();
       } else {
@@ -3160,7 +3188,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '205';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '206';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
@@ -6987,11 +7015,31 @@
       return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
     }
 
+    function getWordLetterTokens(word) {
+      if (!word) return [];
+      const clean = removeAccents(word).toUpperCase();
+      const tokens = [];
+      let i = 0;
+      while (i < clean.length) {
+        if (i + 1 < clean.length) {
+          const pair = clean.slice(i, i + 2);
+          if (pair === 'CH' || pair === 'LL' || pair === 'RR') {
+            tokens.push(pair);
+            i += 2;
+            continue;
+          }
+        }
+        tokens.push(clean[i]);
+        i++;
+      }
+      return tokens;
+    }
+
     function hasLetter(word, letter) {
       if (!word || !letter) return false;
-      const normWord = removeAccents(word);
-      const normLetter = removeAccents(letter);
-      return normWord.includes(normLetter);
+      const targetL = removeAccents(letter).toUpperCase().trim();
+      const tokens = getWordLetterTokens(word);
+      return tokens.includes(targetL);
     }
 
     function playGameAudioEffect(type) {
@@ -7198,16 +7246,32 @@
     }
 
     function highlightTargetLetterInWord(word, targetLetter) {
-      if (!word) return '';
-      const targetNorm = removeAccents(targetLetter);
+      if (!word || !targetLetter) return word || '';
+      const targetNorm = removeAccents(targetLetter).toUpperCase().trim();
       let result = '';
-      for (let char of word) {
-        const charNorm = removeAccents(char);
-        if (charNorm === targetNorm) {
-          result += `<span style="background: #FDE047; color: #B45309; padding: 0 3px; border-radius: 4px; border: 1px solid #F59E0B; font-size: 13px;">${char}</span>`;
-        } else {
-          result += char;
+      let i = 0;
+      while (i < word.length) {
+        if (i + 1 < word.length) {
+          const rawPair = word.slice(i, i + 2);
+          const normPair = removeAccents(rawPair).toUpperCase();
+          if (normPair === 'CH' || normPair === 'LL' || normPair === 'RR') {
+            if (normPair === targetNorm) {
+              result += `<span style="background: #FDE047; color: #B45309; padding: 0 3px; border-radius: 4px; border: 1px solid #F59E0B; font-size: 13px;">${rawPair}</span>`;
+            } else {
+              result += rawPair;
+            }
+            i += 2;
+            continue;
+          }
         }
+        const rawChar = word[i];
+        const normChar = removeAccents(rawChar).toUpperCase();
+        if (normChar === targetNorm) {
+          result += `<span style="background: #FDE047; color: #B45309; padding: 0 3px; border-radius: 4px; border: 1px solid #F59E0B; font-size: 13px;">${rawChar}</span>`;
+        } else {
+          result += rawChar;
+        }
+        i++;
       }
       return result;
     }
