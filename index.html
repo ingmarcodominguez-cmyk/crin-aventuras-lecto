@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v208';
+    const CURRENT_APP_VERSION = 'v209';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '208');
+      u.searchParams.set('v', '209');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '208' && urlVer !== 'v208')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '209' && urlVer !== 'v209')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1171,7 +1171,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v208</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v208</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v209</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v209</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1458,7 +1458,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v208</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v209</span>
         </div>
         
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -1890,6 +1890,9 @@
       'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'Tho', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
       'QU': 'Ku',
+      'LLA': 'Ya', 'LLE': 'Ye', 'LLI': 'Yi', 'LLO': 'Yo', 'LLU': 'Yu',
+      'RRA': 'Rra', 'RRE': 'Rre', 'RRI': 'Rri', 'RRO': 'Rro', 'RRU': 'Rru',
+      'CHA': 'Cha', 'CHE': 'Che', 'CHI': 'Chi', 'CHO': 'Cho', 'CHU': 'Chu',
       'CUNA': 'Cuna',
       'CENA': 'Cena',
       'CINE': 'Cine',
@@ -2224,6 +2227,26 @@
           }
         });
       }
+
+      // Evita que el sintetizador deletree dígrafos en mayúsculas como siglas (ej: LLA -> "ele ele a", RRO -> "doble erre o")
+      text = text.replace(/\bLLA\b/gi, 'Ya');
+      text = text.replace(/\bLLE\b/gi, 'Ye');
+      text = text.replace(/\bLLI\b/gi, 'Yi');
+      text = text.replace(/\bLLO\b/gi, 'Yo');
+      text = text.replace(/\bLLU\b/gi, 'Yu');
+      text = text.replace(/\bLLAS\b/gi, 'Yas');
+      text = text.replace(/\bLLES\b/gi, 'Yes');
+      text = text.replace(/\bLLOS\b/gi, 'Yos');
+      text = text.replace(/\bRRA\b/gi, 'Rra');
+      text = text.replace(/\bRRE\b/gi, 'Rre');
+      text = text.replace(/\bRRI\b/gi, 'Rri');
+      text = text.replace(/\bRRO\b/gi, 'Rro');
+      text = text.replace(/\bRRU\b/gi, 'Rru');
+      text = text.replace(/\bCHA\b/gi, 'Cha');
+      text = text.replace(/\bCHE\b/gi, 'Che');
+      text = text.replace(/\bCHI\b/gi, 'Chi');
+      text = text.replace(/\bCHO\b/gi, 'Cho');
+      text = text.replace(/\bCHU\b/gi, 'Chu');
 
       // Evita la expansión de símbolos químicos/abreviaturas en sintetizadores de voz (NA -> Sodio)
       text = text.replace(/\bNA\b/gi, 'Náh');
@@ -3191,7 +3214,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '208';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '209';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
