@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v211';
+    const CURRENT_APP_VERSION = 'v212';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '211');
+      u.searchParams.set('v', '212');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '211' && urlVer !== 'v211')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '212' && urlVer !== 'v212')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1254,7 +1254,7 @@
               <div>
                 <div style="font-weight: 900; font-size: 13px; color: #0369A1; display: flex; align-items: center; gap: 6px;">
                   <span>🧠 Método Psicopedagógico Activo: Montessori & BOO</span>
-                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v211</span>
+                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v212</span>
                 </div>
                 <div style="font-size: 11px; color: #0C4A6E; margin-top: 3px;">
                   Letras con <strong>código de color</strong> (<span style="color:#0369A1; font-weight:bold;">Vocales azules</span>, <span style="color:#BE123C; font-weight:bold;">Consonantes rojas</span>, <span style="color:#92400E; font-weight:bold;">Dígrafos dorados</span>) y <strong>sonido fónico puro (/sss/, /mmm/)</strong>.
@@ -1262,7 +1262,7 @@
               </div>
               <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                 <button onclick="toggleSpeechPedagogicalMode()" style="background: white; border: 1.5px solid #0284C7; color: #0284C7; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
-                  <span id="map-phonic-badge-txt">🗣️ Modo Fónico: /sss/</span>
+                  <span id="map-phonic-badge-txt">🗣️ Fónico: /me/ /le/</span>
                 </button>
                 <button onclick="switchScreen('therapist')" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
                   ⚙️ Ver Ajustes
@@ -1274,7 +1274,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v211</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v211</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v212</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v212</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1436,7 +1436,7 @@
                     <span>⌫ Borrar última</span>
                   </button>
                   <button id="phonic-mode-badge-btn" class="action-btn" onclick="toggleSpeechPedagogicalMode()" style="padding: 4px 10px; font-size: 10px; background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 4px;" title="Toca para alternar entre Sonido Fónico puro (BOO / Montessori) o Nombre de Letra">
-                    <span id="phonic-mode-badge-txt">🗣️ Modo Fónico (BOO)</span>
+                    <span id="phonic-mode-badge-txt">🗣️ Fónico: /me/ /le/</span>
                   </button>
                 </div>
 
@@ -2067,10 +2067,31 @@
     const phonicLetterMap = {
       'A': 'a', 'E': 'e', 'I': 'i', 'O': 'o', 'U': 'u',
       'Á': 'a', 'É': 'e', 'Í': 'i', 'Ó': 'o', 'Ú': 'u',
-      'M': 'mmm', 'S': 'sss', 'L': 'lll', 'F': 'fff', 'R': 'r', 'RR': 'rrrr',
-      'P': 'p', 'T': 't', 'C': 'k', 'K': 'k', 'Q': 'k', 'B': 'b', 'V': 'b',
-      'D': 'd', 'G': 'g', 'CH': 'ch', 'LL': 'ye', 'N': 'nnn', 'Ñ': 'ñ',
-      'J': 'jj', 'Z': 'sss', 'W': 'u', 'X': 'ks', 'Y': 'ye', 'H': 'h muda'
+      'M': 'me',
+      'L': 'le',
+      'S': 'se',
+      'P': 'pe',
+      'T': 'te',
+      'D': 'de',
+      'B': 'be',
+      'V': 've',
+      'C': 'ke',
+      'K': 'ke',
+      'Q': 'ke',
+      'F': 'fe',
+      'G': 'gue',
+      'J': 'je',
+      'N': 'ne',
+      'Ñ': 'ñe',
+      'R': 're',
+      'RR': 'rre',
+      'CH': 'che',
+      'LL': 'ye',
+      'Z': 'ce',
+      'W': 'ue',
+      'X': 'equis',
+      'Y': 'ye',
+      'H': 'muda'
     };
 
     const traditionalLetterMap = {
@@ -2145,16 +2166,16 @@
       const gameBadgeBtn = document.getElementById('phonic-mode-badge-btn');
       if (gameBadgeTxt) {
         if (mode === 'phonic') {
-          gameBadgeTxt.innerText = '🗣️ Fónico: /sss/';
-        if (mapBadgeTxt) mapBadgeTxt.innerText = '🗣️ Fónico: /sss/';
+          gameBadgeTxt.innerText = '🗣️ Fónico: /me/ /le/';
+        if (mapBadgeTxt) mapBadgeTxt.innerText = '🗣️ Fónico: /me/ /le/';
           if (gameBadgeBtn) {
             gameBadgeBtn.style.background = '#EEF2FF';
             gameBadgeBtn.style.color = '#4338CA';
             gameBadgeBtn.style.borderColor = '#C7D2FE';
           }
         } else {
-          gameBadgeTxt.innerText = '🔤 Alfabético: "ese"';
-        if (mapBadgeTxt) mapBadgeTxt.innerText = '🔤 Alfabético: "ese"';
+          gameBadgeTxt.innerText = '🔤 Alfabético: "eme"';
+        if (mapBadgeTxt) mapBadgeTxt.innerText = '🔤 Alfabético: "eme"';
           if (gameBadgeBtn) {
             gameBadgeBtn.style.background = '#FEF3C7';
             gameBadgeBtn.style.color = '#B45309';
@@ -3569,7 +3590,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '211';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '212';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
