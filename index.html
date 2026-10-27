@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v213';
+    const CURRENT_APP_VERSION = 'v214';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '213' && urlVer !== 'v213')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '214' && urlVer !== 'v214')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -1253,16 +1253,16 @@
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
               <div>
                 <div style="font-weight: 900; font-size: 13px; color: #0369A1; display: flex; align-items: center; gap: 6px;">
-                  <span>🧠 Método Psicopedagógico Activo: Montessori & BOO</span>
-                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v213</span>
+                  <span>🧠 Método Psicopedagógico: Montessori & Pronunciación Natural</span>
+                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v214</span>
                 </div>
                 <div style="font-size: 11px; color: #0C4A6E; margin-top: 3px;">
-                  Letras con <strong>código de color</strong> (<span style="color:#0369A1; font-weight:bold;">Vocales azules</span>, <span style="color:#BE123C; font-weight:bold;">Consonantes rojas</span>, <span style="color:#92400E; font-weight:bold;">Dígrafos dorados</span>) y <strong>sonido fónico puro (/sss/, /mmm/)</strong>.
+                  Letras con <strong>código de color Montessori</strong> (<span style="color:#0369A1; font-weight:bold;">Vocales azules</span>, <span style="color:#BE123C; font-weight:bold;">Consonantes rojas</span>, <span style="color:#92400E; font-weight:bold;">Dígrafos dorados</span>) y <strong>pronunciación natural en español</strong>.
                 </div>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                <button onclick="toggleSpeechPedagogicalMode()" style="background: white; border: 1.5px solid #0284C7; color: #0284C7; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
-                  <span id="map-phonic-badge-txt">🗣️ Fónico: /s/ /m/ /l/</span>
+                <button onclick="openAlphabetTesterModal()" style="background: #10B981; border: none; color: white; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);" title="Abre el probador con todas las letras A-Z para escuchar su pronunciación exacta">
+                  <span>🔤 Probar Alfabeto Completo (A-Z)</span>
                 </button>
                 <button onclick="switchScreen('therapist')" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
                   ⚙️ Ver Ajustes
@@ -1274,7 +1274,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v213</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v213</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v214</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v214</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1435,8 +1435,8 @@
                   <button class="action-btn btn-erase" onclick="eraseLastSlot()" style="padding: 4px 10px; font-size: 11px;">
                     <span>⌫ Borrar última</span>
                   </button>
-                  <button id="phonic-mode-badge-btn" class="action-btn" onclick="toggleSpeechPedagogicalMode()" style="padding: 4px 10px; font-size: 10px; background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 4px;" title="Toca para alternar entre Sonido Fónico puro (BOO / Montessori) o Nombre de Letra">
-                    <span id="phonic-mode-badge-txt">🗣️ Fónico: /s/ /m/ /l/</span>
+                  <button onclick="openAlphabetTesterModal()" class="action-btn" style="padding: 4px 10px; font-size: 10px; background: #ECFDF5; border: 1.5px solid #A7F3D0; color: #065F46; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 4px;" title="Toca para abrir el Probador del Abecedario completo">
+                    <span>🔤 Probar Letras</span>
                   </button>
                 </div>
 
@@ -1608,18 +1608,15 @@
             <div style="background: white; border-radius: 14px; padding: 12px; border: 1.5px solid #BAE6FD; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
               <div>
                 <div style="font-weight: bold; font-size: 13px; color: #0369A1; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                  <span>🗣️ Modo Fónico Articulatorio (BOO)</span>
+                  <span>🔤 Pronunciación y Probador del Abecedario</span>
                 </div>
                 <p style="font-size: 11px; color: #475569; margin: 0 0 10px 0; line-height: 1.35;">
-                  Emite el sonido puro del fonema (ej: <strong>/sss/</strong>, <strong>/mmm/</strong>) en lugar del nombre ("ese", "eme") para evitar que el niño escriba <em>"ese-a-p-o"</em> en vez de <em>"s-a-p-o"</em>.
+                  Revisa cómo pronuncia la aplicación cada letra del abecedario (A-Z) en tu dispositivo y reproduce todo el alfabeto secuencialmente.
                 </p>
               </div>
               <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F1F5F9; padding-top: 8px;">
                 <span style="font-size: 11px; font-weight: bold; color: #334155;">Modo de voz:</span>
-                <select id="pedagogical-speech-select" onchange="setSpeechPedagogicalMode(this.value)" style="padding: 5px 10px; border-radius: 8px; border: 1.5px solid #0284C7; font-weight: bold; font-size: 11px; background: white; color: #0284C7; cursor: pointer;">
-                  <option value="phonic">🗣️ Fónico Puro (BOO / Montessori)</option>
-                  <option value="traditional">🔤 Nombre Alfabético ("ese", "eme")</option>
-                </select>
+                <button onclick="openAlphabetTesterModal()" style="padding: 6px 12px; border-radius: 8px; border: none; font-weight: bold; font-size: 11px; background: #10B981; color: white; cursor: pointer; display: flex; align-items: center; gap: 4px;"><span>▶️ Abrir Probador de Letras (A-Z)</span></button>
               </div>
             </div>
           </div>
@@ -2345,12 +2342,36 @@
     }
 
     const traditionalLetterMap = {
-      'A': 'a', 'B': 'be', 'C': 'ce', 'CH': 'che', 'D': 'de', 'E': 'e',
-      'F': 'efe', 'G': 'ge', 'H': 'hache', 'I': 'i', 'J': 'jota', 'K': 'ka',
-      'L': 'ele', 'LL': 'elle', 'M': 'eme', 'N': 'ene', 'Ñ': 'eñe', 'O': 'o',
-      'P': 'pe', 'Q': 'cu', 'R': 'erre', 'RR': 'doble erre', 'S': 'ese',
-      'T': 'te', 'U': 'u', 'V': 've', 'W': 'doble ve', 'X': 'equis',
-      'Y': 'i griega', 'Z': 'zeta'
+      'A': 'a',
+      'B': 'beh',        // 'beh' evita que el motor TTS lea 'be' como inglés 'bi' (/biː/)
+      'B': 'beh', 'C': 'ce',
+      'CH': 'che',
+      'D': 'de',
+      'E': 'e',
+      'F': 'efe',
+      'G': 'ge',
+      'H': 'hache',
+      'I': 'i',
+      'J': 'jota',
+      'K': 'ka',
+      'L': 'ele',
+      'LL': 'elle',
+      'M': 'eme',
+      'N': 'ene',
+      'Ñ': 'eñe',
+      'O': 'o',
+      'P': 'pe',
+      'Q': 'cu',
+      'R': 'erre',
+      'RR': 'doble erre',
+      'S': 'ese',
+      'T': 'te',
+      'U': 'u',
+      'V': 've',
+      'W': 'doble ve',
+      'X': 'equis',
+      'Y': 'i griega',
+      'Z': 'zeta'
     };
 
     function getLetterType(letter) {
@@ -2376,62 +2397,26 @@
     }
 
     function getSpeechPedagogicalMode() {
-      const val = localStorage.getItem('crin_speech_pedagogical_mode');
-      return val || 'phonic';
+      // Por solicitud, el modo fónico experimental queda desactivado por el momento.
+      // Siempre se utiliza la pronunciación natural y clara en español de cada letra.
+      return 'traditional';
     }
 
     function setSpeechPedagogicalMode(mode) {
-      localStorage.setItem('crin_speech_pedagogical_mode', mode);
+      localStorage.setItem('crin_speech_pedagogical_mode', 'traditional');
       updatePedagogicalSettingsUI();
-      if (mode === 'phonic') {
-        speakText("Modo fónico activado. Escucharás el sonido puro de cada letra.");
-      } else {
-        speakText("Modo alfabético activado. Escucharás el nombre de cada letra.");
-      }
     }
 
     function toggleSpeechPedagogicalMode() {
-      const current = getSpeechPedagogicalMode();
-      const next = (current === 'phonic') ? 'traditional' : 'phonic';
-      setSpeechPedagogicalMode(next);
+      openAlphabetTesterModal();
     }
 
     function updatePedagogicalSettingsUI() {
       const isMont = isMontessoriColorsActive();
-      const mode = getSpeechPedagogicalMode();
-
       const montBtn = document.getElementById('toggle-montessori-btn');
       if (montBtn) {
         montBtn.style.background = isMont ? '#10B981' : '#64748B';
         montBtn.innerText = isMont ? '✅ Activado (Montessori)' : '⚪ Desactivado (Neutro)';
-      }
-
-      const speechSelect = document.getElementById('pedagogical-speech-select');
-      if (speechSelect) {
-        speechSelect.value = mode;
-      }
-
-      const gameBadgeTxt = document.getElementById('phonic-mode-badge-txt');
-      const mapBadgeTxt = document.getElementById('map-phonic-badge-txt');
-      const gameBadgeBtn = document.getElementById('phonic-mode-badge-btn');
-      if (gameBadgeTxt) {
-        if (mode === 'phonic') {
-          gameBadgeTxt.innerText = '🗣️ Fónico: /s/ /m/ /l/';
-          if (mapBadgeTxt) mapBadgeTxt.innerText = '🗣️ Fónico: /s/ /m/ /l/';
-          if (gameBadgeBtn) {
-            gameBadgeBtn.style.background = '#EEF2FF';
-            gameBadgeBtn.style.color = '#4338CA';
-            gameBadgeBtn.style.borderColor = '#C7D2FE';
-          }
-        } else {
-          gameBadgeTxt.innerText = '🔤 Alfabético: "ese", "eme"';
-          if (mapBadgeTxt) mapBadgeTxt.innerText = '🔤 Alfabético: "ese", "eme"';
-          if (gameBadgeBtn) {
-            gameBadgeBtn.style.background = '#FEF3C7';
-            gameBadgeBtn.style.color = '#B45309';
-            gameBadgeBtn.style.borderColor = '#FDE68A';
-          }
-        }
       }
     }
 
@@ -2464,20 +2449,15 @@
         if (onEndCallback) onEndCallback();
         return;
       }
-      const mode = getSpeechPedagogicalMode();
       const clean = removeAccents(letter).toUpperCase().trim();
-      if (mode === 'phonic') {
-        playPurePhonemeSound(clean, onEndCallback);
-      } else {
-        const audioToPlay = traditionalLetterMap[clean] || clean;
-        speakText(audioToPlay, onEndCallback);
-      }
+      const audioToPlay = traditionalLetterMap[clean] || clean;
+      speakText(audioToPlay, onEndCallback);
     }
 
     // --- DICCIONARIO FONÉTICO Y NORMAS DE PRONUNCIACIÓN ---
     const phoneticMap = {
       'CA': 'Cáh', 'CE': 'Se', 'CI': 'Si', 'CO': 'Co', 'CU': 'Cú',
-      'BA': 'Ba', 'BE': 'Be', 'BI': 'Bi', 'BO': 'Bo', 'BU': 'Bu',
+      'BA': 'Ba', 'BE': 'beh', 'BI': 'Bi', 'BO': 'Bo', 'BU': 'Bu',
       'DA': 'Da', 'DE': 'De', 'DI': 'Di', 'DO': 'Do', 'DU': 'Du',
       'FA': 'Fa', 'FE': 'Fé', 'FI': 'Fi', 'FO': 'Fo', 'FU': 'Fu',
       'GA': 'Ga', 'GE': 'Je', 'GI': 'Ji', 'GO': 'Go', 'GU': 'Gu',
@@ -3493,6 +3473,157 @@
       } else {
         speakText(targetItem.word);
       }
+    }
+
+    
+    // --- PROBADOR INTERACTIVO DEL ABECEDARIO COMPLETO (A-Z) ---
+    const fullAlphabetList = ['A','B','C','CH','D','E','F','G','H','I','J','K','L','LL','M','N','Ñ','O','P','Q','R','RR','S','T','U','V','W','X','Y','Z'];
+    let isAlphabetPlayingAll = false;
+    let alphabetPlayIndex = 0;
+
+    function openAlphabetTesterModal() {
+      const modal = document.getElementById('alphabet-tester-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        renderAlphabetTesterGrid();
+      }
+    }
+
+    function closeAlphabetTesterModal() {
+      stopAllAlphabet();
+      const modal = document.getElementById('alphabet-tester-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function renderAlphabetTesterGrid() {
+      const container = document.getElementById('alphabet-tester-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      fullAlphabetList.forEach(letter => {
+        const spoken = traditionalLetterMap[letter] || letter;
+        const lType = getLetterType(letter);
+
+        let borderColor = '#E2E8F0';
+        let glyphBg = '#F8FAFC';
+        let glyphColor = '#1E293B';
+
+        if (lType === 'vowel') {
+          glyphBg = '#EFF6FF';
+          glyphColor = '#1D4ED8';
+          borderColor = '#BFDBFE';
+        } else if (lType === 'digraph') {
+          glyphBg = '#FEF3C7';
+          glyphColor = '#B45309';
+          borderColor = '#FDE68A';
+        } else {
+          glyphBg = '#FFF1F2';
+          glyphColor = '#BE123C';
+          borderColor = '#FECDD3';
+        }
+
+        const card = document.createElement('div');
+        card.id = 'alpha-card-' + letter;
+        card.className = 'alphabet-test-card';
+        card.style.cssText = 'background: white; border: 2px solid ' + borderColor + '; border-radius: 14px; padding: 10px 6px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.06); transition: all 0.15s ease; position: relative; user-select: none;';
+        card.onclick = () => testAlphabetLetter(letter);
+
+        card.innerHTML = 
+          '<div style="width: 44px; height: 44px; border-radius: 10px; background: ' + glyphBg + '; color: ' + glyphColor + '; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: ' + (letter.length > 1 ? '18px' : '22px') + '; border: 1.5px solid ' + borderColor + '; margin-bottom: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">' +
+            letter +
+          '</div>' +
+          '<div style="font-size: 11px; font-weight: 900; color: #334155; margin-bottom: 2px;">' +
+            '"' + spoken + '"' +
+          '</div>' +
+          '<div style="font-size: 9px; color: #64748B; font-weight: 600;">' +
+            '🔊 Oír' +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    }
+
+    function testAlphabetLetter(letter, onEndCallback) {
+      const clean = removeAccents(letter).toUpperCase().trim();
+      const spoken = traditionalLetterMap[clean] || clean;
+
+      document.querySelectorAll('.alphabet-test-card').forEach(c => {
+        c.style.transform = 'none';
+        c.style.boxShadow = '0 2px 5px rgba(0,0,0,0.06)';
+      });
+
+      const card = document.getElementById('alpha-card-' + clean);
+      if (card) {
+        card.style.transform = 'scale(1.08)';
+        card.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.6)';
+      }
+
+      const statusTxt = document.getElementById('alpha-tester-status');
+      if (statusTxt) {
+        statusTxt.innerHTML = '<span>🔊 Reproduciendo letra <strong>' + clean + '</strong> (dice: <em>"' + spoken + '"</em>)...</span>';
+      }
+
+      speakLetter(clean, () => {
+        if (card) {
+          card.style.transform = 'none';
+          card.style.boxShadow = '0 2px 5px rgba(0,0,0,0.06)';
+        }
+        if (statusTxt) {
+          statusTxt.innerHTML = '<span>✅ Escuchaste: <strong>' + clean + '</strong> (<em>"' + spoken + '"</em>)</span>';
+        }
+        if (onEndCallback) onEndCallback();
+      });
+    }
+
+    function playAllAlphabet() {
+      if (isAlphabetPlayingAll) return;
+      isAlphabetPlayingAll = true;
+      alphabetPlayIndex = 0;
+
+      const playBtn = document.getElementById('alpha-play-all-btn');
+      const stopBtn = document.getElementById('alpha-stop-btn');
+      if (playBtn) playBtn.style.display = 'none';
+      if (stopBtn) stopBtn.style.display = 'flex';
+
+      playNextAlphabetItem();
+    }
+
+    function stopAllAlphabet() {
+      isAlphabetPlayingAll = false;
+      stopAllAudio();
+      document.querySelectorAll('.alphabet-test-card').forEach(c => {
+        c.style.transform = 'none';
+        c.style.boxShadow = '0 2px 5px rgba(0,0,0,0.06)';
+      });
+
+      const playBtn = document.getElementById('alpha-play-all-btn');
+      const stopBtn = document.getElementById('alpha-stop-btn');
+      if (playBtn) playBtn.style.display = 'flex';
+      if (stopBtn) stopBtn.style.display = 'none';
+
+      const statusTxt = document.getElementById('alpha-tester-status');
+      if (statusTxt) {
+        statusTxt.innerHTML = '<span>⏹️ Reproducción secuencial detenida.</span>';
+      }
+    }
+
+    function playNextAlphabetItem() {
+      if (!isAlphabetPlayingAll) return;
+      if (alphabetPlayIndex >= fullAlphabetList.length) {
+        stopAllAlphabet();
+        const statusTxt = document.getElementById('alpha-tester-status');
+        if (statusTxt) {
+          statusTxt.innerHTML = '<span>🎉 ¡Completaste la prueba de todas las letras del abecedario!</span>';
+        }
+        return;
+      }
+      const currentLetter = fullAlphabetList[alphabetPlayIndex];
+      alphabetPlayIndex++;
+      testAlphabetLetter(currentLetter, () => {
+        if (isAlphabetPlayingAll) {
+          setTimeout(playNextAlphabetItem, 350);
+        }
+      });
     }
 
     // --- FUNCIONES DE BORRADO Y EFECTOS DE SONIDO WEB AUDIO ---
@@ -9629,6 +9760,65 @@
 
         <button onclick="closeDevModeModal()" style="background: #0F172A; color: white; border: none; padding: 10px 22px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer;">
           ✅ Concluir Edición / Salir
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL: PROBADOR DEL ABECEDARIO COMPLETO (A-Z) -->
+  <div id="alphabet-tester-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.75); z-index: 99999; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(5px);">
+    <div style="background: white; border-radius: 24px; max-width: 820px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #0284C7; animation: modalPop 0.25s ease-out;">
+      
+      <!-- Header del Probador -->
+      <div style="background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🔤 Probador del Abecedario y Pronunciación en la App</span>
+            <span style="font-size: 10px; background: rgba(255,255,255,0.25); border-radius: 6px; padding: 2px 7px;">v214</span>
+          </div>
+          <div style="font-size: 11px; color: #E0F2FE; margin-top: 3px;">
+            Toca cualquier letra para escuchar cómo suena en tu dispositivo, o presiona "Reproducir Todo".
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="alpha-play-all-btn" onclick="playAllAlphabet()" style="background: #10B981; color: white; border: none; border-radius: 10px; padding: 7px 13px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 5px;">
+            <span>▶️ Reproducir Todo el Abecedario</span>
+          </button>
+          <button id="alpha-stop-btn" onclick="stopAllAlphabet()" style="display: none; background: #EF4444; color: white; border: none; border-radius: 10px; padding: 7px 13px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); align-items: center; gap: 5px;">
+            <span>⏹️ Detener</span>
+          </button>
+          <button onclick="closeAlphabetTesterModal()" style="background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4); color: white; border-radius: 10px; padding: 7px 12px; font-size: 12px; font-weight: bold; cursor: pointer;">
+            ✖️ Cerrar
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Estado y Leyenda Montessori -->
+      <div style="background: #F8FAFC; border-bottom: 1.5px solid #E2E8F0; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div id="alpha-tester-status" style="font-size: 12px; font-weight: 900; color: #0284C7; display: flex; align-items: center; gap: 6px;">
+          <span>ℹ️ Toca una letra para oír su pronunciación real.</span>
+        </div>
+        <div style="display: flex; gap: 12px; font-size: 11px; font-weight: bold;">
+          <span style="color: #0284C7;">🔵 Vocales (Azul)</span>
+          <span style="color: #E11D48;">🔴 Consonantes (Rojo)</span>
+          <span style="color: #D97706;">🟡 Dígrafos (Dorado)</span>
+        </div>
+      </div>
+
+      <!-- Grid con las 30 Letras -->
+      <div id="alphabet-tester-grid" style="padding: 16px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px; background: #F1F5F9; max-height: 58vh;">
+        <!-- Inyectado dinámicamente -->
+      </div>
+
+      <!-- Footer explicativo -->
+      <div style="background: white; border-top: 1.5px solid #E2E8F0; padding: 10px 18px; font-size: 11px; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div>
+          💡 <strong>Pronunciación en español:</strong> La letra <strong>B</strong> pronuncia <strong>"be"</strong> (nunca en inglés "bi").
+        </div>
+        <button onclick="closeAlphabetTesterModal()" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 6px 14px; font-size: 11px; font-weight: bold; cursor: pointer;">
+          Listo / Cerrar
         </button>
       </div>
 
