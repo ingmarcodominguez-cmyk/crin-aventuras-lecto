@@ -1247,6 +1247,30 @@
       <div id="screen-map" class="screen active">
         <div class="map-container">
 
+          
+          <!-- 🧠 BANNER NOVEDAD PSICOPEDAGÓGICA (MONTESSORI & BOO) -->
+          <div id="map-montessori-banner" class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #F0FDF4 0%, #E0F2FE 100%); border: 2.5px solid #0284C7; border-radius: 16px; padding: 12px 14px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <div style="font-weight: 900; font-size: 13px; color: #0369A1; display: flex; align-items: center; gap: 6px;">
+                  <span>🧠 Método Psicopedagógico Activo: Montessori & BOO</span>
+                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v211</span>
+                </div>
+                <div style="font-size: 11px; color: #0C4A6E; margin-top: 3px;">
+                  Letras con <strong>código de color</strong> (<span style="color:#0369A1; font-weight:bold;">Vocales azules</span>, <span style="color:#BE123C; font-weight:bold;">Consonantes rojas</span>, <span style="color:#92400E; font-weight:bold;">Dígrafos dorados</span>) y <strong>sonido fónico puro (/sss/, /mmm/)</strong>.
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <button onclick="toggleSpeechPedagogicalMode()" style="background: white; border: 1.5px solid #0284C7; color: #0284C7; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
+                  <span id="map-phonic-badge-txt">🗣️ Modo Fónico: /sss/</span>
+                </button>
+                <button onclick="switchScreen('therapist')" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
+                  ⚙️ Ver Ajustes
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
@@ -1410,6 +1434,9 @@
                 <div style="display: flex; justify-content: center; margin: 2px 0 4px 0;">
                   <button class="action-btn btn-erase" onclick="eraseLastSlot()" style="padding: 4px 10px; font-size: 11px;">
                     <span>⌫ Borrar última</span>
+                  </button>
+                  <button id="phonic-mode-badge-btn" class="action-btn" onclick="toggleSpeechPedagogicalMode()" style="padding: 4px 10px; font-size: 10px; background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; border-radius: 12px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 4px;" title="Toca para alternar entre Sonido Fónico puro (BOO / Montessori) o Nombre de Letra">
+                    <span id="phonic-mode-badge-txt">🗣️ Modo Fónico (BOO)</span>
                   </button>
                 </div>
 
@@ -2114,10 +2141,12 @@
       }
 
       const gameBadgeTxt = document.getElementById('phonic-mode-badge-txt');
+      const mapBadgeTxt = document.getElementById('map-phonic-badge-txt');
       const gameBadgeBtn = document.getElementById('phonic-mode-badge-btn');
       if (gameBadgeTxt) {
         if (mode === 'phonic') {
           gameBadgeTxt.innerText = '🗣️ Fónico: /sss/';
+        if (mapBadgeTxt) mapBadgeTxt.innerText = '🗣️ Fónico: /sss/';
           if (gameBadgeBtn) {
             gameBadgeBtn.style.background = '#EEF2FF';
             gameBadgeBtn.style.color = '#4338CA';
@@ -2125,6 +2154,7 @@
           }
         } else {
           gameBadgeTxt.innerText = '🔤 Alfabético: "ese"';
+        if (mapBadgeTxt) mapBadgeTxt.innerText = '🔤 Alfabético: "ese"';
           if (gameBadgeBtn) {
             gameBadgeBtn.style.background = '#FEF3C7';
             gameBadgeBtn.style.color = '#B45309';
@@ -2508,6 +2538,7 @@
     if ('speechSynthesis' in window) {
       initVoices();
       window.speechSynthesis.onvoiceschanged = initVoices;
+      updatePedagogicalSettingsUI();
     }
 
     function cleanPhoneticText(rawText) {
@@ -3128,6 +3159,7 @@
           btn.onclick = () => selectSyllable(syllable, btn);
           poolContainer.appendChild(btn);
         });
+        updatePedagogicalSettingsUI();
 
       } else {
         const word = targetItem.word || '';
@@ -3164,6 +3196,9 @@
         poolLetters.forEach((letter) => {
           const btn = document.createElement('div');
           btn.className = 'letter-btn';
+          if (isMontessoriColorsActive()) {
+            btn.classList.add(getLetterType(letter));
+          }
           if (letter.length > 1) {
             btn.classList.add('digraph-letter-btn');
           }
@@ -3281,6 +3316,10 @@
         if (slot) {
           slot.innerText = letter;
           slot.classList.add('filled');
+          slot.classList.remove('vowel', 'consonant', 'digraph');
+          if (isMontessoriColorsActive()) {
+            slot.classList.add(getLetterType(letter));
+          }
           if (letter.length > 1) {
             slot.classList.add('digraph-slot');
           } else {
@@ -3291,11 +3330,11 @@
 
         const isComplete = !currentSlots.includes('');
         if (isComplete) {
-          speakText(letter, () => {
+          speakLetter(letter, () => {
             checkWord();
           });
         } else {
-          speakText(letter);
+          speakLetter(letter);
         }
       }
     }
