@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v210';
+    const CURRENT_APP_VERSION = 'v211';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '210');
+      u.searchParams.set('v', '211');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '210' && urlVer !== 'v210')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '211' && urlVer !== 'v211')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -988,6 +988,57 @@
       padding: 0 8px !important;
     }
 
+    
+    /* 🎨 CÓDIGO CROMÁTICO MONTESSORI (ALFABETO MÓVIL PSICOPEDAGÓGICO) */
+    .letter-btn.vowel {
+      background: linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 100%) !important;
+      border: 2px solid #7DD3FC !important;
+      border-bottom: 5px solid #0284C7 !important;
+      color: #0369A1 !important;
+      box-shadow: 0 4px 8px rgba(2, 132, 199, 0.15) !important;
+    }
+    .letter-btn.vowel:active {
+      background: #BAE6FD !important;
+    }
+
+    .letter-btn.consonant {
+      background: linear-gradient(180deg, #FFE4E6 0%, #FECDD3 100%) !important;
+      border: 2px solid #FDA4AF !important;
+      border-bottom: 5px solid #E11D48 !important;
+      color: #9F1239 !important;
+      box-shadow: 0 4px 8px rgba(225, 29, 72, 0.15) !important;
+    }
+    .letter-btn.consonant:active {
+      background: #FECDD3 !important;
+    }
+
+    .letter-btn.digraph {
+      background: linear-gradient(180deg, #FEF3C7 0%, #FDE68A 100%) !important;
+      border: 2px solid #FCD34D !important;
+      border-bottom: 5px solid #D97706 !important;
+      color: #78350F !important;
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.22) !important;
+    }
+    .letter-btn.digraph:active {
+      background: #FDE68A !important;
+    }
+
+    .slot.filled.vowel {
+      background: #F0F9FF !important;
+      border-color: #0284C7 !important;
+      color: #0369A1 !important;
+    }
+    .slot.filled.consonant {
+      background: #FFF1F2 !important;
+      border-color: #E11D48 !important;
+      color: #9F1239 !important;
+    }
+    .slot.filled.digraph {
+      background: #FFFBEB !important;
+      border-color: #D97706 !important;
+      color: #78350F !important;
+    }
+
     /* SCREEN 3: AVATAR CUSTOMIZER */
     .avatar-stage {
       background: linear-gradient(135deg, #FFEAA7, #FAB1A0);
@@ -1199,7 +1250,7 @@
           <!-- SELECTOR DE TAREA SEMANAL -->
           <div class="panel-card" style="margin-bottom: 12px; background: linear-gradient(135deg, #74B9FF 0%, #0984E3 100%); color: white; padding: 12px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(9, 132, 227, 0.25);">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v210</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v210</button></span>
+              <span>🎯 Seleccionar Tarea Activa: <span style="font-size: 9px; background: #2ECC71; color: white; border-radius: 6px; padding: 1px 5px; font-weight: bold; vertical-align: middle;">v211</span> <button onclick="forceAppUpdate()" style="background: rgba(255,255,255,0.3); border: 1px solid white; color: white; border-radius: 6px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer; margin-left: 4px;">🔄 Recargar v211</button></span>
               <span id="active-task-badge" style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 8px; font-size: 10px;">4 Misiones</span>
             </div>
             <select id="active-task-select" onchange="changeActiveTaskPack(this.value)" style="width: 100%; padding: 8px 12px; border-radius: 12px; border: none; font-weight: bold; font-size: 13px; color: #2D3436; background: white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
@@ -1489,6 +1540,64 @@
           <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v210</span>
         </div>
         
+        
+        <!-- 🧠 CONFIGURACIÓN PSICOPEDAGÓGICA Y NEURODESARROLLO (MONTESSORI & MÉTODO BOO) -->
+        <div class="panel-card" style="background: linear-gradient(135deg, #F0FDF4 0%, #E0F2FE 100%); border: 3px solid #0284C7; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(2,132,199,0.18);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #BAE6FD; padding-bottom: 10px;">
+            <div>
+              <div style="font-weight: 900; font-size: 16px; color: #0369A1; display: flex; align-items: center; gap: 8px;">
+                <span>🧠 Métodos Psicopedagógicos para Dificultades de Aprendizaje (Montessori & BOO)</span>
+                <span style="font-size: 10px; background: #0284C7; color: white; border-radius: 8px; padding: 2px 8px; font-weight: bold;">NEURODESARROLLO</span>
+              </div>
+              <p style="font-size: 11px; color: #0C4A6E; margin: 4px 0 0 0;">
+                Configura apoyos específicos para niños con dislexia, TDL o retraso lector integrando el código cromático del <strong>Alfabeto Móvil Montessori</strong> y el método fónico articulatorio <strong>BOO / Borel-Maisonny</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+            <!-- Opción 1: Código Cromático Montessori -->
+            <div style="background: white; border-radius: 14px; padding: 12px; border: 1.5px solid #BAE6FD; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+              <div>
+                <div style="font-weight: bold; font-size: 13px; color: #0369A1; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                  <span>🎨 Alfabeto Móvil Montessori</span>
+                </div>
+                <p style="font-size: 11px; color: #475569; margin: 0 0 10px 0; line-height: 1.35;">
+                  Diferencia visualmente las letras para reducir la sobrecarga perceptiva:
+                  <br><span style="display: inline-block; background: #E0F2FE; color: #0369A1; border: 1px solid #7DD3FC; padding: 1px 6px; border-radius: 6px; font-weight: bold; font-size: 10px; margin-top: 3px;">Vocales en Azul</span>
+                  <span style="display: inline-block; background: #FFE4E6; color: #9F1239; border: 1px solid #FDA4AF; padding: 1px 6px; border-radius: 6px; font-weight: bold; font-size: 10px; margin-top: 3px;">Consonantes en Rojo</span>
+                  <span style="display: inline-block; background: #FEF3C7; color: #78350F; border: 1px solid #FCD34D; padding: 1px 6px; border-radius: 6px; font-weight: bold; font-size: 10px; margin-top: 3px;">Dígrafos (CH, LL, RR) en Dorado</span>
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F1F5F9; padding-top: 8px;">
+                <span style="font-size: 11px; font-weight: bold; color: #334155;">Estado:</span>
+                <button id="toggle-montessori-btn" onclick="toggleMontessoriColors()" style="border: none; padding: 6px 14px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; background: #10B981; color: white;">
+                  ✅ Activado (Montessori)
+                </button>
+              </div>
+            </div>
+
+            <!-- Opción 2: Pronunciación Fónica BOO vs Alfabética -->
+            <div style="background: white; border-radius: 14px; padding: 12px; border: 1.5px solid #BAE6FD; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+              <div>
+                <div style="font-weight: bold; font-size: 13px; color: #0369A1; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                  <span>🗣️ Modo Fónico Articulatorio (BOO)</span>
+                </div>
+                <p style="font-size: 11px; color: #475569; margin: 0 0 10px 0; line-height: 1.35;">
+                  Emite el sonido puro del fonema (ej: <strong>/sss/</strong>, <strong>/mmm/</strong>) en lugar del nombre ("ese", "eme") para evitar que el niño escriba <em>"ese-a-p-o"</em> en vez de <em>"s-a-p-o"</em>.
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #F1F5F9; padding-top: 8px;">
+                <span style="font-size: 11px; font-weight: bold; color: #334155;">Modo de voz:</span>
+                <select id="pedagogical-speech-select" onchange="setSpeechPedagogicalMode(this.value)" style="padding: 5px 10px; border-radius: 8px; border: 1.5px solid #0284C7; font-weight: bold; font-size: 11px; background: white; color: #0284C7; cursor: pointer;">
+                  <option value="phonic">🗣️ Fónico Puro (BOO / Montessori)</option>
+                  <option value="traditional">🔤 Nombre Alfabético ("ese", "eme")</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
         <div class="panel-card" style="background: #FFFFFF; border: 3px solid #8B5CF6; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(139,92,246,0.2);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #F3E8FF; padding-bottom: 10px;">
@@ -1926,6 +2035,142 @@
       return tokens;
     }
 
+    
+    // --- CONFIGURACIÓN PSICOPEDAGÓGICA AVANZADA (MONTESSORI & MÉTODO BOO) ---
+    const phonicLetterMap = {
+      'A': 'a', 'E': 'e', 'I': 'i', 'O': 'o', 'U': 'u',
+      'Á': 'a', 'É': 'e', 'Í': 'i', 'Ó': 'o', 'Ú': 'u',
+      'M': 'mmm', 'S': 'sss', 'L': 'lll', 'F': 'fff', 'R': 'r', 'RR': 'rrrr',
+      'P': 'p', 'T': 't', 'C': 'k', 'K': 'k', 'Q': 'k', 'B': 'b', 'V': 'b',
+      'D': 'd', 'G': 'g', 'CH': 'ch', 'LL': 'ye', 'N': 'nnn', 'Ñ': 'ñ',
+      'J': 'jj', 'Z': 'sss', 'W': 'u', 'X': 'ks', 'Y': 'ye', 'H': 'h muda'
+    };
+
+    const traditionalLetterMap = {
+      'A': 'a', 'B': 'be', 'C': 'ce', 'CH': 'che', 'D': 'de', 'E': 'e',
+      'F': 'efe', 'G': 'ge', 'H': 'hache', 'I': 'i', 'J': 'jota', 'K': 'ka',
+      'L': 'ele', 'LL': 'elle', 'M': 'eme', 'N': 'ene', 'Ñ': 'eñe', 'O': 'o',
+      'P': 'pe', 'Q': 'cu', 'R': 'erre', 'RR': 'doble erre', 'S': 'ese',
+      'T': 'te', 'U': 'u', 'V': 've', 'W': 'doble ve', 'X': 'equis',
+      'Y': 'i griega', 'Z': 'zeta'
+    };
+
+    function getLetterType(letter) {
+      if (!letter) return 'consonant';
+      const clean = removeAccents(letter).toUpperCase().trim();
+      if (clean === 'CH' || clean === 'LL' || clean === 'RR') return 'digraph';
+      if (['A', 'E', 'I', 'O', 'U'].includes(clean)) return 'vowel';
+      return 'consonant';
+    }
+
+    function isMontessoriColorsActive() {
+      const val = localStorage.getItem('crin_montessori_colors');
+      return val === null ? true : val === 'true';
+    }
+
+    function toggleMontessoriColors() {
+      const current = isMontessoriColorsActive();
+      localStorage.setItem('crin_montessori_colors', (!current).toString());
+      updatePedagogicalSettingsUI();
+      if (typeof gameState !== 'undefined' && (gameState.currentMode === 'global' || gameState.currentMode === 'homework')) {
+        refreshActiveLettersMontessoriClasses();
+      }
+    }
+
+    function getSpeechPedagogicalMode() {
+      const val = localStorage.getItem('crin_speech_pedagogical_mode');
+      return val || 'phonic';
+    }
+
+    function setSpeechPedagogicalMode(mode) {
+      localStorage.setItem('crin_speech_pedagogical_mode', mode);
+      updatePedagogicalSettingsUI();
+      if (mode === 'phonic') {
+        speakText("Modo fónico activado. Escucharás el sonido de cada fonema.");
+      } else {
+        speakText("Modo alfabético activado. Escucharás el nombre de cada letra.");
+      }
+    }
+
+    function toggleSpeechPedagogicalMode() {
+      const current = getSpeechPedagogicalMode();
+      const next = (current === 'phonic') ? 'traditional' : 'phonic';
+      setSpeechPedagogicalMode(next);
+    }
+
+    function updatePedagogicalSettingsUI() {
+      const isMont = isMontessoriColorsActive();
+      const mode = getSpeechPedagogicalMode();
+
+      const montBtn = document.getElementById('toggle-montessori-btn');
+      if (montBtn) {
+        montBtn.style.background = isMont ? '#10B981' : '#64748B';
+        montBtn.innerText = isMont ? '✅ Activado (Montessori)' : '⚪ Desactivado (Neutro)';
+      }
+
+      const speechSelect = document.getElementById('pedagogical-speech-select');
+      if (speechSelect) {
+        speechSelect.value = mode;
+      }
+
+      const gameBadgeTxt = document.getElementById('phonic-mode-badge-txt');
+      const gameBadgeBtn = document.getElementById('phonic-mode-badge-btn');
+      if (gameBadgeTxt) {
+        if (mode === 'phonic') {
+          gameBadgeTxt.innerText = '🗣️ Fónico: /sss/';
+          if (gameBadgeBtn) {
+            gameBadgeBtn.style.background = '#EEF2FF';
+            gameBadgeBtn.style.color = '#4338CA';
+            gameBadgeBtn.style.borderColor = '#C7D2FE';
+          }
+        } else {
+          gameBadgeTxt.innerText = '🔤 Alfabético: "ese"';
+          if (gameBadgeBtn) {
+            gameBadgeBtn.style.background = '#FEF3C7';
+            gameBadgeBtn.style.color = '#B45309';
+            gameBadgeBtn.style.borderColor = '#FDE68A';
+          }
+        }
+      }
+    }
+
+    function refreshActiveLettersMontessoriClasses() {
+      const pool = document.getElementById('letters-pool');
+      if (pool) {
+        const buttons = pool.querySelectorAll('.letter-btn');
+        const isMont = isMontessoriColorsActive();
+        buttons.forEach(btn => {
+          btn.classList.remove('vowel', 'consonant', 'digraph');
+          if (isMont) {
+            const lType = getLetterType(btn.innerText);
+            btn.classList.add(lType);
+          }
+        });
+      }
+      const slots = document.querySelectorAll('.slot.filled');
+      const isMont = isMontessoriColorsActive();
+      slots.forEach(s => {
+        s.classList.remove('vowel', 'consonant', 'digraph');
+        if (isMont && s.innerText) {
+          const lType = getLetterType(s.innerText);
+          s.classList.add(lType);
+        }
+      });
+    }
+
+    function speakLetter(letter, onEndCallback) {
+      if (!letter) return;
+      const mode = getSpeechPedagogicalMode();
+      const clean = removeAccents(letter).toUpperCase().trim();
+      let audioToPlay = clean;
+      if (mode === 'phonic') {
+        audioToPlay = phonicLetterMap[clean] || clean;
+      } else {
+        audioToPlay = traditionalLetterMap[clean] || clean;
+      }
+      speakText(audioToPlay, onEndCallback);
+    }
+
     // --- DICCIONARIO FONÉTICO Y NORMAS DE PRONUNCIACIÓN ---
     const phoneticMap = {
       'CA': 'Cáh', 'CE': 'Se', 'CI': 'Si', 'CO': 'Co', 'CU': 'Cú',
@@ -2119,7 +2364,7 @@
         const slot = document.getElementById(`slot-${idx}`);
         if (slot) {
           slot.innerText = (gameState.currentMode === 'syllable') ? '?' : '';
-          slot.classList.remove('filled', 'wrong', 'digraph-slot');
+          slot.classList.remove('filled', 'wrong', 'digraph-slot', 'vowel', 'consonant', 'digraph');
         }
 
         playPopSound();
@@ -3285,7 +3530,7 @@
       if (!url) return '';
       const str = String(url).trim();
       if (str.startsWith('assets/') || str.includes('/assets/')) {
-        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '210';
+        const v = (typeof CURRENT_APP_VERSION !== 'undefined') ? CURRENT_APP_VERSION : '211';
         if (str.includes('?')) return str + '&v=' + v;
         return str + '?v=' + v;
       }
