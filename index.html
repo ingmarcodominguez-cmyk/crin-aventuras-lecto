@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v232';
+    const CURRENT_APP_VERSION = 'v233';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -60,7 +60,7 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=232"></script>
+  <script src="lexicon.js?v=233"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -2497,7 +2497,8 @@
       }
 
       const thisSession = currentSpeechSessionId;
-      const audio = new Audio(src);
+      const audioSrc = src + (src.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(CURRENT_APP_VERSION);
+      const audio = new Audio(audioSrc);
       currentHtmlAudio = audio;
 
       let callbackExecuted = false;
@@ -3077,7 +3078,7 @@
       // Secuencia silábica de Cueva de las Sílabas (ej: "JE, FE", "JO, VEN", "JU, GUE, TE")
       if (rawStr.includes(',')) {
         const parts = rawStr.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-        if (parts.length > 1 && parts.every(p => PRE_RENDERED_SYLLABLES.has(p))) {
+        if (parts.length > 1) {
           playSyllableAudioSequence(parts, safeCallback);
           return;
         }
