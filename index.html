@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v225';
+    const CURRENT_APP_VERSION = 'v226';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -27,7 +27,7 @@
         localStorage.removeItem('crin_custom_rally_drawings');
       } catch(e) {}
       const u = new URL(window.location.href);
-      u.searchParams.set('v', '212');
+      u.searchParams.set('v', '226');
       u.searchParams.set('_b', Date.now());
       window.location.replace(u.toString());
     }
@@ -49,7 +49,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
       const hasBust = urlParams.has('_b');
-      if ((!urlVer || (urlVer !== '225' && urlVer !== 'v225')) && !hasBust) {
+      if ((!urlVer || (urlVer !== '226' && urlVer !== 'v226')) && !hasBust) {
         forceAppUpdate();
       } else if (hasBust || urlVer) {
         try {
@@ -58,6 +58,8 @@
       }
     } catch(e) {}
   </script>
+  <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
+  <script src="lexicon.js?v=226"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1254,7 +1256,7 @@
               <div>
                 <div style="font-weight: 900; font-size: 13px; color: #0369A1; display: flex; align-items: center; gap: 6px;">
                   <span>🧠 Método Psicopedagógico: Montessori & Pronunciación Natural</span>
-                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v225</span>
+                  <span style="font-size: 9px; background: #0284C7; color: white; border-radius: 6px; padding: 1px 6px; font-weight: bold;">v226</span>
                 </div>
                 <div style="font-size: 11px; color: #0C4A6E; margin-top: 3px;">
                   Letras con <strong>código de color Montessori</strong> (<span style="color:#0369A1; font-weight:bold;">Vocales azules</span>, <span style="color:#BE123C; font-weight:bold;">Consonantes rojas</span>, <span style="color:#92400E; font-weight:bold;">Dígrafos dorados</span>) y <strong>pronunciación natural en español</strong>.
@@ -2913,6 +2915,13 @@
       let text = rawText.toString().trim();
       const exactKey = text.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
 
+      if (typeof getCanonicalWord === 'function' && exactKey.length > 1) {
+        const canon = getCanonicalWord(exactKey);
+        if (canon && canon.pronunciacion && canon.pronunciacion !== exactKey) {
+          return canon.pronunciacion;
+        }
+      }
+
       if (phoneticMap[exactKey]) {
         text = phoneticMap[exactKey];
       } else {
@@ -2959,6 +2968,25 @@
       text = text.replace(/\bNA\b/gi, 'Náh');
       text = text.replace(/\bTO\b/gi, 'Tho');
       text = text.replace(/\bSABANA\b/gi, 'Sábana');
+      text = text.replace(/\bLAMPARA\b/gi, 'Lámpara');
+      text = text.replace(/\bMELON\b/gi, 'Melón');
+      text = text.replace(/\bLAPIZ\b/gi, 'Lápiz');
+      text = text.replace(/\bARBOL\b/gi, 'Árbol');
+      text = text.replace(/\bSOFA\b/gi, 'Sofá');
+      text = text.replace(/\bSEMAFORO\b/gi, 'Semáforo');
+      text = text.replace(/\bTELEFONO\b/gi, 'Teléfono');
+      text = text.replace(/\bCORAZON\b/gi, 'Corazón');
+      text = text.replace(/\bBUHO\b/gi, 'Búho');
+      text = text.replace(/\bLEON\b/gi, 'León');
+      text = text.replace(/\bDELFIN\b/gi, 'Delfín');
+      text = text.replace(/\bDRAGON\b/gi, 'Dragón');
+      text = text.replace(/\bCANON\b/gi, 'Cañón');
+      text = text.replace(/\bPINGUINO\b/gi, 'Pingüino');
+      text = text.replace(/\bCIGUENA\b/gi, 'Cigüeña');
+      text = text.replace(/\bRATON\b/gi, 'Ratón');
+      text = text.replace(/\bBOTON\b/gi, 'Botón');
+      text = text.replace(/\bCAFE\b/gi, 'Café');
+      text = text.replace(/\bBEBE\b/gi, 'Bebé');
 
       return text;
     }
@@ -6658,17 +6686,18 @@
       gameDatasets.story = [];
 
       words.forEach((word, idx) => {
-        const cleanWord = word.toUpperCase().trim();
+        const canonical = (typeof getCanonicalWord === 'function') ? getCanonicalWord(word) : null;
+        const cleanWord = canonical ? canonical.escritura : word.toUpperCase().trim();
         if (typeof isWordDeleted === 'function' && isWordDeleted(cleanWord)) return;
-        const syllables = splitSpanishSyllables(cleanWord);
-        const emoji = getEmojiForWord(cleanWord);
+        const syllables = (canonical && canonical.silabas) ? canonical.silabas : splitSpanishSyllables(cleanWord);
+        const emoji = (canonical && canonical.emoji) ? canonical.emoji : getEmojiForWord(cleanWord);
         
-        const customItem = customWordsList.find(c => c.word === cleanWord);
+        const customItem = customWordsList.find(c => c.word === cleanWord || (c.word && removeAccents(c.word) === removeAccents(cleanWord)));
         const sentence = (customItem && customItem.sentence) ? customItem.sentence : getSentenceForWord(cleanWord, idx);
 
-        gameDatasets.global.push({ word: cleanWord, emoji: emoji, obstacle: '📦' });
-        gameDatasets.syllable.push({ word: cleanWord, syllables: syllables, emoji: emoji, obstacle: '📦' });
-        gameDatasets.homework.push({ sentence: sentence, word: cleanWord, emoji: emoji, obstacle: '📦' });
+        gameDatasets.global.push({ word: cleanWord, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
+        gameDatasets.syllable.push({ word: cleanWord, syllables: syllables, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
+        gameDatasets.homework.push({ sentence: sentence, word: cleanWord, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
 
         // Excluir MAMÁ de las historias del Cuento Mágico
         if (cleanWord !== 'MAMÁ' && cleanWord !== 'MAMA') {
@@ -6685,6 +6714,12 @@
             };
           } else {
             storyItem = getStoryForWord(cleanWord, syllables, emoji, idx);
+            if (canonical) {
+              storyItem.word = canonical.escritura;
+              storyItem.syllables = canonical.silabas;
+              storyItem.emoji = canonical.emoji;
+              storyItem.pronunciacion = canonical.pronunciacion;
+            }
           }
           gameDatasets.story.push(storyItem);
         }
@@ -7828,14 +7863,14 @@
       { word: 'ANTEOJOS', emoji: 'assets/anteojos.png' },
       { word: 'BOCA', emoji: 'assets/boca.png' },
       { word: 'BOSQUE', emoji: 'assets/bosque.png' },
-      { word: 'BUHO', emoji: 'assets/buho.png' },
+      { word: 'BÚHO', emoji: 'assets/buho.png' },
       { word: 'CAJITA', emoji: 'assets/cajita.png' },
       { word: 'CAMINO', emoji: 'assets/camino.png' },
       { word: 'CAPIVARA', emoji: 'assets/capivara.png' },
       { word: 'CHALECO', emoji: 'assets/chaleco.png' },
       { word: 'COHETE', emoji: 'assets/cohete.png' },
       { word: 'COPITA', emoji: 'assets/copita.png' },
-      { word: 'CORAZON', emoji: 'assets/corazon.png' },
+      { word: 'CORAZÓN', emoji: 'assets/corazon.png' },
       { word: 'COSECHA', emoji: 'assets/cosecha.png' },
       { word: 'CUCHARA', emoji: 'assets/cuchara.png' },
       { word: 'CUCHILLO', emoji: 'assets/cuchillo.png' },
@@ -7854,9 +7889,9 @@
       { word: 'POMELO', emoji: 'assets/pomelo.png' },
       { word: 'PUENTE', emoji: 'assets/puente.png' },
       { word: 'RIFA', emoji: 'assets/rifa.png' },
-      { word: 'SABANA', emoji: 'assets/sabana.png' },
+      { word: 'SÁBANA', emoji: 'assets/sabana.png' },
       { word: 'SERPIENTE', emoji: 'assets/serpiente.png' },
-      { word: 'SOFA', emoji: 'assets/sofa.png' },
+      { word: 'SOFÁ', emoji: 'assets/sofa.png' },
       { word: 'SOMBRERO', emoji: 'assets/sombrero.png' },
       { word: 'TAZA', emoji: 'assets/taza.png' },
       { word: 'TENEDOR', emoji: 'assets/tenedor.png' },
@@ -7914,33 +7949,48 @@
       loadCustomRallyDrawings();
 
       const map = new Map();
-      const validDictionaryWords = new Set();
+      const rawCandidates = new Set();
 
-      // Recopilar ÚNICAMENTE las palabras activas listadas en el Gestor y Editor del Diccionario
+      // 1. Integrar todas las palabras canónicas del léxico estructurado
+      if (typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+        Object.keys(CANONICAL_WORD_LEXICON).forEach(w => rawCandidates.add(w));
+      }
+
+      // 2. Palabras del emojiMap y custom overrides
       Object.keys(emojiMap).forEach(w => {
-        if (w && !isWordDeleted(w)) validDictionaryWords.add(w.toUpperCase().trim());
+        if (w) rawCandidates.add(w.toUpperCase().trim());
       });
 
       Object.keys(customEmojiOverrides).forEach(w => {
-        if (w && !isWordDeleted(w)) validDictionaryWords.add(w.toUpperCase().trim());
+        if (w) rawCandidates.add(w.toUpperCase().trim());
       });
 
       if (Array.isArray(customRallyDrawingsBank)) {
         customRallyDrawingsBank.forEach(item => {
-          if (item && item.word && !isWordDeleted(item.word)) {
-            validDictionaryWords.add(item.word.toUpperCase().trim());
+          if (item && item.word) {
+            rawCandidates.add(item.word.toUpperCase().trim());
           }
         });
       }
 
-      validDictionaryWords.forEach(cleanW => {
-        if (!isWordDeleted(cleanW)) {
-          const emojiVal = getEmojiForWord(cleanW);
-          if (emojiVal) {
-            map.set(cleanW, {
-              word: cleanW,
-              emoji: emojiVal
-            });
+      // 3. Mapear a cualidades canónicas evitando duplicados por tilde (MELON / MELÓN)
+      rawCandidates.forEach(rawW => {
+        const canonical = (typeof getCanonicalWord === 'function') ? getCanonicalWord(rawW) : null;
+        const finalWord = canonical ? canonical.escritura : rawW;
+        if (!isWordDeleted(finalWord)) {
+          const normKey = removeAccents(finalWord);
+          if (!map.has(normKey)) {
+            const emojiVal = (canonical && canonical.emoji) ? canonical.emoji : getEmojiForWord(finalWord);
+            if (emojiVal) {
+              map.set(normKey, {
+                word: finalWord,
+                displayWord: finalWord,
+                pronunciacion: canonical ? canonical.pronunciacion : finalWord,
+                letras: canonical ? canonical.letras : (typeof getWordLetterTokens === 'function' ? getWordLetterTokens(finalWord) : finalWord.split('')),
+                silabas: canonical ? canonical.silabas : [finalWord],
+                emoji: emojiVal
+              });
+            }
           }
         }
       });
@@ -8408,7 +8458,8 @@
             playGameAudioEffect('correct');
             createConfettiAt(targetX, targetY);
 
-            speakText(`¡Súper! ${item.word} tiene la letra ${rallyGameState.targetLetter}.`);
+            const pronSpokenTarget = item.pronunciacion || (typeof getCanonicalWord === 'function' ? getCanonicalWord(item.word).pronunciacion : item.word);
+            speakText(`¡Súper! ${pronSpokenTarget} tiene la letra ${rallyGameState.targetLetter}.`);
           } else {
             renderRallyBoard();
             playGameAudioEffect('wrong');
@@ -8420,7 +8471,8 @@
               setTimeout(() => cardToShake.style.transform = 'translateX(0)', 200);
             }
 
-            speakText(`${item.word} no tiene la letra ${rallyGameState.targetLetter}.`);
+            const pronSpokenWrong = item.pronunciacion || (typeof getCanonicalWord === 'function' ? getCanonicalWord(item.word).pronunciacion : item.word);
+            speakText(`${pronSpokenWrong} no tiene la letra ${rallyGameState.targetLetter}.`);
           }
         } catch(err) {
           renderRallyBoard();
@@ -9948,7 +10000,7 @@
         <div>
           <div style="font-weight: 900; font-size: 16px; display: flex; align-items: center; gap: 8px;">
             <span>🔤 Probador del Abecedario y Pronunciación en la App</span>
-            <span style="font-size: 10px; background: rgba(255,255,255,0.25); border-radius: 6px; padding: 2px 7px;">v225</span>
+            <span style="font-size: 10px; background: rgba(255,255,255,0.25); border-radius: 6px; padding: 2px 7px;">v226</span>
           </div>
           <div style="font-size: 11px; color: #E0F2FE; margin-top: 3px;">
             Toca cualquier letra para escuchar cómo suena en tu dispositivo, o presiona "Reproducir Todo".
