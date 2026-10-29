@@ -96,8 +96,11 @@
     width: 800,
     height: 500,
 
-    // Tarea y progreso
+    // Tarea, modo y progreso
+    mode: 'task', // 'task' | 'random'
     taskWords: [],
+    randomWords: [],
+    randomHits: 0,
     targetWordIndex: 0,
     targetWord: '',
     targetEmoji: '🎯',
@@ -242,6 +245,53 @@
     });
   }
 
+  // --- OBTENER BANCO DE PALABRAS PARA MODO ALEATORIO (+200 PALABRAS) ---
+  function getArcheryRandomWords() {
+    const wordsSet = new Set();
+    
+    // 1. De la Base de Datos Léxica Canónica
+    if (typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+      Object.keys(CANONICAL_WORD_LEXICON).forEach(k => {
+        const item = CANONICAL_WORD_LEXICON[k];
+        const w = (item && item.escritura) ? item.escritura : k;
+        if (w && w.length >= 2 && w.length <= 11) {
+          wordsSet.add(w.toUpperCase().trim());
+        }
+      });
+    }
+
+    // 2. De todas las tareas registradas en la aplicación
+    if (typeof allTaskPacks !== 'undefined') {
+      Object.values(allTaskPacks).forEach(pack => {
+        if (pack && pack.words) {
+          pack.words.forEach(w => {
+            if (w && w.length >= 2) wordsSet.add(w.toUpperCase().trim());
+          });
+        }
+      });
+    }
+
+    // 3. De la lista personalizada si existe
+    if (typeof customWordsList !== 'undefined' && Array.isArray(customWordsList)) {
+      customWordsList.forEach(item => {
+        const w = item.word || item;
+        if (w && typeof w === 'string') wordsSet.add(w.toUpperCase().trim());
+      });
+    }
+
+    // Fallbacks robustos y variados
+    if (wordsSet.size < 12) {
+      ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMA', 'PAPA', 'GATO', 'PERRO', 'CASA', 'SOL', 'LUNA', 'MESA', 'PATO', 'MONO', 'SAPO', 'BARCO', 'DADO', 'LEON', 'OSO', 'FLOR', 'TREN', 'AVION'].forEach(w => wordsSet.add(w));
+    }
+
+    const list = Array.from(wordsSet).filter(w => {
+      const clean = w.toUpperCase().trim();
+      return typeof isWordDeleted === 'function' ? !isWordDeleted(clean) : true;
+    });
+
+    return shuffleArrayLocal(list);
+  }
+
   function getWordEmoji(word) {
     if (typeof getCanonicalWord === 'function') {
       const canon = getCanonicalWord(word);
@@ -289,17 +339,44 @@
     }
   };
 
-  window.openArcheryQuestScreen = function() {
+  window.openArcheryQuestScreen = function(mode) {
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('archery');
 
     const screen = document.getElementById('screen-archery');
     if (screen) screen.classList.add('active');
 
+    ArcheryGame.mode = (mode === 'random') ? 'random' : 'task';
+
     initArcheryGame();
     setTimeout(resizeArcheryCanvas, 50);
     setTimeout(resizeArcheryCanvas, 150);
     setTimeout(resizeArcheryCanvas, 300);
+  };
+
+  window.toggleArcheryGameMode = function() {
+    const nextMode = ArcheryGame.mode === 'task' ? 'random' : 'task';
+    window.setArcheryGameMode(nextMode);
+  };
+
+  window.setArcheryGameMode = function(newMode) {
+    ArcheryGame.mode = newMode;
+    if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
+    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
+    ArcheryGame.isAdvancing = false;
+    ArcheryGame.arrows = [];
+    ArcheryGame.targets = [];
+
+    if (newMode === 'random') {
+      ArcheryGame.randomWords = getArcheryRandomWords();
+      ArcheryGame.randomHits = 0;
+      setupNextRandomWord();
+    } else {
+      ArcheryGame.taskWords = getArcheryTaskWords();
+      ArcheryGame.targetWordIndex = 0;
+      setupTargetWord(0);
+    }
+    updateArcheryHUD();
   };
 
   function initArcheryGame() {
@@ -310,7 +387,7 @@
     resizeArcheryCanvas();
 
     ArcheryGame.taskWords = getArcheryTaskWords();
-    ArcheryGame.targetWordIndex = 0;
+    ArcheryGame.randomWords = getArcheryRandomWords();
     ArcheryGame.score = 0;
     ArcheryGame.streak = 0;
     ArcheryGame.isAdvancing = false;
@@ -327,7 +404,14 @@
     ];
 
     setupArcheryEventListeners();
-    setupTargetWord(0);
+
+    if (ArcheryGame.mode === 'random') {
+      ArcheryGame.randomHits = 0;
+      setupNextRandomWord();
+    } else {
+      ArcheryGame.targetWordIndex = 0;
+      setupTargetWord(0);
+    }
 
     ArcheryGame.isRunning = true;
     if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
@@ -382,6 +466,32 @@
     }, 300);
   }
 
+  // --- SELECCIÓN Y PROPUESTA DE NUEVA PALABRA EN MODO ALEATORIO ---
+  function setupNextRandomWord() {
+    ArcheryGame.isAdvancing = false;
+    if (!ArcheryGame.randomWords || ArcheryGame.randomWords.length < 5) {
+      ArcheryGame.randomWords = getArcheryRandomWords();
+    }
+
+    // Elegir una palabra aleatoria distinta de la anterior
+    const candidateList = ArcheryGame.randomWords.filter(w => w !== ArcheryGame.targetWord);
+    const chosen = candidateList.length > 0
+      ? candidateList[Math.floor(Math.random() * candidateList.length)]
+      : ArcheryGame.randomWords[0];
+
+    ArcheryGame.targetWord = chosen.toUpperCase().trim();
+    ArcheryGame.targetEmoji = getWordEmoji(ArcheryGame.targetWord);
+
+    spawnInitialTargets();
+    updateArcheryHUD();
+
+    // 🔊 DECIR LA NUEVA PALABRA OBJETIVO AL PROPONERLA
+    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
+    ArcheryGame.missionVoiceTimeout = setTimeout(() => {
+      speakCurrentArcheryMission();
+    }, 300);
+  }
+
   function updateArcheryHUD() {
     const wordDisplay = document.getElementById('archery-target-word-display');
     const emojiDisplay = document.getElementById('archery-target-emoji-display');
@@ -399,12 +509,40 @@
       }
     }
     if (progressDisplay) {
-      progressDisplay.innerText = `Palabra ${ArcheryGame.targetWordIndex + 1} de ${ArcheryGame.taskWords.length}`;
+      if (ArcheryGame.mode === 'random') {
+        progressDisplay.innerText = `🎲 Aciertos: ${ArcheryGame.randomHits || 0}`;
+        progressDisplay.style.background = '#8B5CF6';
+      } else {
+        progressDisplay.innerText = `Palabra ${ArcheryGame.targetWordIndex + 1} de ${ArcheryGame.taskWords.length}`;
+        progressDisplay.style.background = '#059669';
+      }
     }
 
-    if (taskNameDisplay && typeof allTaskPacks !== 'undefined' && typeof activeTaskPackId !== 'undefined') {
-      const pack = allTaskPacks[activeTaskPackId];
-      taskNameDisplay.innerText = pack ? pack.name : 'Tarea Activa';
+    if (taskNameDisplay) {
+      if (ArcheryGame.mode === 'random') {
+        taskNameDisplay.innerText = '🎲 Vocabulario Aleatorio (+200 Palabras)';
+        taskNameDisplay.style.color = '#7C3AED';
+      } else if (typeof allTaskPacks !== 'undefined' && typeof activeTaskPackId !== 'undefined') {
+        const pack = allTaskPacks[activeTaskPackId];
+        taskNameDisplay.innerText = pack ? pack.name : 'Tarea Activa';
+        taskNameDisplay.style.color = '#047857';
+      }
+    }
+
+    updateArcheryModeUI();
+  }
+
+  function updateArcheryModeUI() {
+    const modeBtn = document.getElementById('archery-mode-btn');
+    if (!modeBtn) return;
+    if (ArcheryGame.mode === 'random') {
+      modeBtn.innerHTML = '<span>🎯 Modo Tarea</span>';
+      modeBtn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+      modeBtn.title = 'Cambiar a palabras de la Tarea Activa';
+    } else {
+      modeBtn.innerHTML = '<span>🎲 Modo Aleatorio</span>';
+      modeBtn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+      modeBtn.title = 'Cambiar a Modo Aleatorio con más de 200 palabras';
     }
   }
 
@@ -416,28 +554,43 @@
     }
   };
 
-  // --- GESTIÓN DE PALABRAS MÓVILES (RAPIDEZ DE LECTURA) ---
+  // --- GESTIÓN DE PALABRAS MÓVILES (SIEMPRE 4 O 5 PALABRAS VOLANDO SIMULTÁNEAMENTE) ---
   function spawnInitialTargets() {
     ArcheryGame.targets = [];
 
-    // Objetivo principal
-    spawnTarget(ArcheryGame.targetWord, true, ArcheryGame.width * 0.55, 120);
+    const TOTAL_FLYING = 5; // Siempre 4 o 5 palabras volando
+    const activePool = (ArcheryGame.mode === 'random')
+      ? (ArcheryGame.randomWords && ArcheryGame.randomWords.length > 5 ? ArcheryGame.randomWords : getArcheryRandomWords())
+      : ArcheryGame.taskWords;
 
-    // Distractores de la tarea
-    const pool = ArcheryGame.taskWords.filter(w => w !== ArcheryGame.targetWord);
-    const distractors = shuffleArrayLocal(pool).slice(0, 3);
-    if (distractors.length < 2) {
-      const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO'];
-      fallbacks.forEach(f => {
-        if (f !== ArcheryGame.targetWord && !distractors.includes(f) && distractors.length < 3) {
-          distractors.push(f);
-        }
-      });
+    // 1. Objetivo principal
+    spawnTarget(ArcheryGame.targetWord, true, ArcheryGame.width * 0.52, 115);
+
+    // 2. Distractores únicos para completar 4 o 5 palabras
+    const availablePool = activePool.filter(w => w !== ArcheryGame.targetWord);
+    const shuffled = shuffleArrayLocal(availablePool);
+    const distractors = [];
+    for (let w of shuffled) {
+      if (!distractors.includes(w) && w !== ArcheryGame.targetWord) {
+        distractors.push(w);
+        if (distractors.length >= TOTAL_FLYING - 1) break;
+      }
     }
 
-    const ySlots = [80, 160, 240];
+    // Fallbacks si la tarea tiene pocas palabras
+    if (distractors.length < TOTAL_FLYING - 1) {
+      const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO', 'MESA', 'PATO', 'BARCO', 'DADO', 'LEON', 'OSO', 'RANA', 'TREN'];
+      for (let f of fallbacks) {
+        if (f !== ArcheryGame.targetWord && !distractors.includes(f)) {
+          distractors.push(f);
+          if (distractors.length >= TOTAL_FLYING - 1) break;
+        }
+      }
+    }
+
+    const ySlots = [75, 130, 185, 240];
     distractors.forEach((dw, idx) => {
-      const sx = ArcheryGame.width * (0.42 + idx * 0.18);
+      const sx = ArcheryGame.width * (0.36 + (idx % 3) * 0.22);
       const sy = ySlots[idx % ySlots.length];
       spawnTarget(dw, false, sx, sy);
     });
@@ -445,13 +598,13 @@
 
   function spawnTarget(word, isTarget, initialX, initialY) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    const speed = 1.3 + Math.random() * 1.1;
+    const speed = 1.1 + Math.random() * 0.95;
     const emoji = getWordEmoji(word);
 
     const minSpawnY = 70;
-    const maxSpawnY = Math.max(180, ArcheryGame.height - 180);
+    const maxSpawnY = Math.max(160, ArcheryGame.height - 180);
     const spawnY = initialY !== undefined ? initialY : (minSpawnY + Math.random() * (maxSpawnY - minSpawnY));
-    const spawnX = initialX !== undefined ? initialX : (direction > 0 ? (ArcheryGame.width * 0.3) : (ArcheryGame.width - 60));
+    const spawnX = initialX !== undefined ? initialX : (direction > 0 ? (ArcheryGame.width * 0.35) : (ArcheryGame.width - 70));
 
     ArcheryGame.targets.push({
       word: word,
@@ -468,14 +621,14 @@
       alpha: initialX !== undefined ? 1 : 0,
       targetAlpha: 1,
       waveOffset: Math.random() * Math.PI * 2,
-      waveSpeed: 0.035 + Math.random() * 0.02,
-      waveAmp: 18 + Math.random() * 14,
-      life: 250 + Math.random() * 100,
+      waveSpeed: 0.03 + Math.random() * 0.02,
+      waveAmp: 16 + Math.random() * 12,
+      life: 550 + Math.random() * 250, // Tiempo adecuado (~10-14s) para lectura visual
       isFading: false,
       wobble: 0
     });
 
-    createSparkleBurst(spawnX, spawnY, isTarget ? '#FDE047' : '#93C5FD', 8);
+    createSparkleBurst(spawnX, spawnY, '#93C5FD', 6);
   }
 
   function updateTargets() {
@@ -518,19 +671,43 @@
       }
     }
 
-    // Si la palabra objetivo desapareció y no estamos en transición de victoria/avance, reaparecerla
-    if (!hasTargetWord && !ArcheryGame.isAdvancing && ArcheryGame.targets.length < 5) {
-      const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
-      const ry = 80 + Math.random() * (ArcheryGame.height - 240);
+    // --- REPOSICIÓN: MANTENER SIEMPRE 4 O 5 PALABRAS VOLANDO SIMULTÁNEAMENTE ---
+    const TARGET_FLYING_COUNT = 5;
+
+    // 1. Si la palabra objetivo desapareció o se desvaneció, reponerla de inmediato
+    if (!hasTargetWord && !ArcheryGame.isAdvancing) {
+      const rx = ArcheryGame.width * (0.40 + Math.random() * 0.45);
+      const ry = 75 + Math.random() * Math.max(110, ArcheryGame.height - 240);
       spawnTarget(ArcheryGame.targetWord, true, rx, ry);
+      hasTargetWord = true;
     }
 
-    if (ArcheryGame.targets.length < 3) {
-      const pool = ArcheryGame.taskWords.filter(w => w !== ArcheryGame.targetWord);
-      const randomWord = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 'SOL';
-      const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
-      const ry = 80 + Math.random() * (ArcheryGame.height - 240);
-      spawnTarget(randomWord, false, rx, ry);
+    // 2. Si hay menos de 5 palabras volando activas (no desvaneciéndose), reponer distractores únicos
+    const activeTargets = ArcheryGame.targets.filter(t => !t.isFading);
+    if (activeTargets.length < TARGET_FLYING_COUNT && !ArcheryGame.isAdvancing) {
+      const activePool = (ArcheryGame.mode === 'random')
+        ? (ArcheryGame.randomWords || getArcheryRandomWords())
+        : ArcheryGame.taskWords;
+
+      const flyingWords = activeTargets.map(t => t.word);
+      const candidates = activePool.filter(w => !flyingWords.includes(w) && w !== ArcheryGame.targetWord);
+
+      let newWord = null;
+      if (candidates.length > 0) {
+        newWord = candidates[Math.floor(Math.random() * candidates.length)];
+      } else {
+        const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO', 'MESA', 'PATO', 'BARCO', 'DADO', 'LEON', 'OSO', 'RANA', 'TREN', 'AVION'];
+        const fallbackCandidates = fallbacks.filter(f => !flyingWords.includes(f) && f !== ArcheryGame.targetWord);
+        if (fallbackCandidates.length > 0) {
+          newWord = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
+        }
+      }
+
+      if (newWord) {
+        const rx = ArcheryGame.width * (0.38 + Math.random() * 0.48);
+        const ry = 75 + Math.random() * Math.max(110, ArcheryGame.height - 240);
+        spawnTarget(newWord, false, rx, ry);
+      }
     }
   }
 
@@ -648,7 +825,12 @@
         ArcheryGame.isAdvancing = true;
         if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
         ArcheryGame.advanceTimeout = setTimeout(() => {
-          setupTargetWord(ArcheryGame.targetWordIndex + 1);
+          if (ArcheryGame.mode === 'random') {
+            ArcheryGame.randomHits = (ArcheryGame.randomHits || 0) + 1;
+            setupNextRandomWord();
+          } else {
+            setupTargetWord(ArcheryGame.targetWordIndex + 1);
+          }
         }, 1300);
       }
 
