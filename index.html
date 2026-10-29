@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v233';
+    const CURRENT_APP_VERSION = 'v234';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -60,7 +60,9 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=233"></script>
+  <script src="lexicon.js?v=234"></script>
+  <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
+  <script src="archery.js?v=234"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1334,6 +1336,20 @@
             </button>
           </div>
 
+          <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
+          <div onclick="openArcheryQuestScreen()" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%); color: white; padding: 14px 16px; border-radius: 20px; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35); margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #A7F3D0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="font-size: 38px; background: rgba(255,255,255,0.25); border-radius: 50%; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🏹</div>
+              <div>
+                <div style="font-size: 15px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🏹 El Arquero de CRIN</div>
+                <div style="font-size: 11px; opacity: 0.95; font-weight: 600;">¡Apunta y dispara a las palabras de la tarea!</div>
+              </div>
+            </div>
+            <button style="background: #FFFFFF; color: #047857; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
+              <span>▶️ JUGAR</span>
+            </button>
+          </div>
+
           <!-- MUNDO 1: EL CUENTO DEL BOSQUE (DESBLOQUEADO INICIALMENTE) -->
           <div id="map-node-0" class="world-node" onclick="handleMapNodeClick(0)" style="border: 3px solid #FFD700; background: linear-gradient(135deg, #FFFFFF, #FFFBEB);">
             <div class="node-icon" style="background: linear-gradient(135deg, #FF9F43, #FF6B81);">📖</div>
@@ -1999,7 +2015,51 @@
       </div>
     </div>
 
-    <!-- Navigation Bar -->
+    <!-- 🏹 SCREEN 7: EL ARQUERO DE CRIN (TIRO AL BLANCO DE PALABRAS DE LA TAREA) -->
+      <div id="screen-archery" class="screen" style="background: #FFFFFF;">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: #FFFFFF; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+          
+          <!-- BARRA SUPERIOR DE NAVEGACIÓN Y TAREA -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: white; padding: 6px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); gap: 8px;">
+            <button onclick="switchScreen('map')" style="background: #F1F5F9; border: none; padding: 6px 12px; border-radius: 10px; font-size: 13px; font-weight: bold; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <span>⬅️ Salir</span>
+            </button>
+            <div style="text-align: center; flex: 1;">
+              <div style="font-size: 14px; font-weight: 900; color: #047857; display: flex; align-items: center; gap: 6px; justify-content: center;">
+                <span>🏹 El Arquero de CRIN</span>
+                <span id="archery-progress-badge" style="font-size: 10px; font-weight: 800; background: #059669; color: white; padding: 2px 8px; border-radius: 8px;">Palabra 1 de 4</span>
+              </div>
+              <div style="font-size: 11px; font-weight: 700; color: #64748B;">
+                Tarea: <span id="archery-task-name" style="color: #047857; font-weight: 800;">Cargando...</span>
+              </div>
+            </div>
+            <button onclick="speakCurrentArcheryMission()" style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; padding: 6px 10px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+              <span>🔊 Oír Misión</span>
+            </button>
+          </div>
+
+          <!-- BANNER HUD: OBJETIVO A DISPARAR -->
+          <div style="background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: white; padding: 8px 14px; border-radius: 16px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 22px;" id="archery-target-emoji-display">🎯</div>
+              <div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">¡Apunta y dispara a!</div>
+                <div id="archery-target-word-display" style="font-size: 20px; font-weight: 900; letter-spacing: 1.5px; color: #FEF08A; text-shadow: 0 2px 4px rgba(0,0,0,0.25);">ZAPATO</div>
+              </div>
+            </div>
+            <div style="font-size: 12px; font-weight: 800; background: rgba(0,0,0,0.18); padding: 5px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3);">
+              🎯 Toca la palabra para lanzar
+            </div>
+          </div>
+
+          <!-- ARENA DE TIRO CON ARCO Y CANVAS INTERACTIVO -->
+          <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #7DD3FC; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);">
+            <canvas id="archery-game-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair;"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Bar -->
     <div class="nav-bar">
       <button class="nav-btn active" onclick="switchScreen('map')">
         <span class="icon">🗺️</span>
@@ -3236,6 +3296,9 @@
     }
 
     function switchScreen(screenName) {
+      if (screenName !== 'archery' && typeof window.stopArcheryGame === 'function') {
+        window.stopArcheryGame();
+      }
       stopAllAudio();
       forceUnlockStoryPuzzle();
       stage3D.isWalking = false;
@@ -10287,5 +10350,30 @@
     </div>
   </div>
 
-</body>
+<!-- 🏆 MODAL DE VICTORIA: ARQUERO DE CRIN -->
+    <div id="archery-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #10B981; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🏹🏆</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #047857; margin-bottom: 6px;">¡Misión de Arquería Cumplida!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Acertaste a todas las palabras de la tarea con tu arco mágico!
+        </p>
+        
+        <div style="background: #ECFDF5; border: 2px dashed #10B981; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #047857;">🌟 Recompensa de Campeón Arquero</div>
+          <div style="font-size: 16px; font-weight: 800; color: #059669; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="replayArcheryQuest()" style="background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeArcheryVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    </body>
 </html>
