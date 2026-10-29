@@ -1,15 +1,30 @@
 /**
  * ============================================================================
- * 🏹 EL ARQUERO DE CRIN - NUEVA AVENTURA DE TIRO CON ARCO Y PALABRAS
+ * 🏹 EL ARQUERO DE CRIN - NUEVA AVENTURA DE TIRO CON ARCO Y RAPIDEZ DE LECTURA
  * ============================================================================
- * Modo de juego interactivo donde la mascota (CRIN o la elegida por el niño)
- * se convierte en un arquero con bow & arrow animados al estilo videojuego.
- * Las palabras de la tarea activa flotan, emergen y se desvanecen en la arena,
- * y el niño debe apuntar y disparar su flecha a la palabra objetivo.
+ * Modo dinámico de rapidez de lectura donde las palabras de la tarea activa
+ * se mueven, surgen y se desvanecen en la arena, y el niño debe cazar la
+ * palabra objetivo disparando su flecha con la mascota arquera animada.
  */
 
 (function(window) {
   'use strict';
+
+  // Helper universal de rectángulo redondeado (compatible con 100% de navegadores y versiones)
+  function drawRoundedRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, Math.min(width / 2, height / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
 
   // --- ESTADO DEL JUEGO DE TIRO CON ARCO ---
   const ArcheryGame = {
@@ -18,7 +33,7 @@
     animId: null,
     isRunning: false,
     width: 800,
-    height: 520,
+    height: 500,
 
     // Tarea y progreso
     taskWords: [],
@@ -30,14 +45,14 @@
 
     // Mascota arquera
     archer: {
-      x: 140,
-      y: 410,
-      baseX: 140,
-      baseY: 410,
-      aimAngle: -0.35, // radianes
-      targetAimAngle: -0.35,
+      x: 120,
+      y: 400,
+      baseX: 120,
+      baseY: 400,
+      aimAngle: -0.32,
+      targetAimAngle: -0.32,
       isAiming: false,
-      drawProgress: 0, // 0 a 1 (tensión de la cuerda)
+      drawProgress: 0,
       isShooting: false,
       shootCooldown: 0,
       recoil: 0,
@@ -45,13 +60,12 @@
       jumpVy: 0,
       isCelebrating: false,
       celebrateTimer: 0,
-      blinkTimer: 180,
+      blinkTimer: 160,
       isBlinking: false,
-      earWagTimer: 0,
       tailAngle: 0
     },
 
-    // Entidades en el mundo
+    // Entidades en la arena
     targets: [],
     arrows: [],
     particles: [],
@@ -60,31 +74,29 @@
 
     // Control táctil / mouse
     pointer: {
-      x: 400,
+      x: 450,
       y: 200,
-      isDown: false,
-      dragStartX: 0,
-      dragStartY: 0
+      isDown: false
     },
 
     time: 0
   };
 
-  // --- EFECTOS DE SONIDO SINTETIZADOS WEB AUDIO API ---
+  // --- EFECTOS DE SONIDO WEB AUDIO API ---
   function playBowTwangSound() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(260, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.15);
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.35, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.15);
+      osc.stop(ctx.currentTime + 0.12);
     } catch(e) {}
   }
 
@@ -94,14 +106,14 @@
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(180, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.09);
       gain.gain.setValueAtTime(0.4, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.09);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.08);
+      osc.stop(ctx.currentTime + 0.09);
     } catch(e) {}
   }
 
@@ -130,14 +142,14 @@
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.25);
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+      osc.frequency.setValueAtTime(240, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.22);
+      gain.gain.setValueAtTime(0.22, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.25);
+      osc.stop(ctx.currentTime + 0.22);
     } catch(e) {}
   }
 
@@ -150,14 +162,13 @@
         words = [...pack.words];
       }
     }
-    if (activeTaskPackId === 'custom' && typeof customWordsList !== 'undefined' && customWordsList.length > 0) {
+    if (typeof activeTaskPackId !== 'undefined' && activeTaskPackId === 'custom' && typeof customWordsList !== 'undefined' && customWordsList.length > 0) {
       words = customWordsList.map(item => item.word);
     }
     if (!words || words.length === 0) {
       words = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ', 'GATO', 'PERRO', 'CASA', 'SOL'];
     }
 
-    // Filtrar palabras eliminadas y limpiar
     return words.filter(w => {
       const clean = w.toUpperCase().trim();
       return typeof isWordDeleted === 'function' ? !isWordDeleted(clean) : true;
@@ -175,10 +186,13 @@
     return '⭐';
   }
 
-  // --- INICIALIZACIÓN DE LA AVENTURA ---
+  // --- CONTROL DE APERTURA Y CIERRE DE LA PANTALLA ---
   window.stopArcheryGame = function() {
     ArcheryGame.isRunning = false;
-    if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
+    if (ArcheryGame.animId) {
+      cancelAnimationFrame(ArcheryGame.animId);
+      ArcheryGame.animId = null;
+    }
   };
 
   window.openArcheryQuestScreen = function() {
@@ -188,7 +202,11 @@
     const screen = document.getElementById('screen-archery');
     if (screen) screen.classList.add('active');
 
+    // Inicializar juego y asegurar tamaños en varios ticks
     initArcheryGame();
+    setTimeout(resizeArcheryCanvas, 50);
+    setTimeout(resizeArcheryCanvas, 150);
+    setTimeout(resizeArcheryCanvas, 300);
   };
 
   function initArcheryGame() {
@@ -197,7 +215,6 @@
     ArcheryGame.ctx = ArcheryGame.canvas.getContext('2d');
 
     resizeArcheryCanvas();
-    window.addEventListener('resize', resizeArcheryCanvas);
 
     // Cargar palabras de la tarea activa
     ArcheryGame.taskWords = getArcheryTaskWords();
@@ -211,10 +228,10 @@
 
     // Nubes de fondo
     ArcheryGame.bgClouds = [
-      { x: 50, y: 70, scale: 0.9, speed: 0.25 },
-      { x: 300, y: 110, scale: 0.65, speed: 0.18 },
-      { x: 580, y: 60, scale: 0.8, speed: 0.22 },
-      { x: 750, y: 130, scale: 0.55, speed: 0.15 }
+      { x: 40, y: 55, scale: 0.9, speed: 0.3 },
+      { x: 280, y: 95, scale: 0.65, speed: 0.2 },
+      { x: 540, y: 50, scale: 0.8, speed: 0.25 },
+      { x: 740, y: 110, scale: 0.55, speed: 0.18 }
     ];
 
     setupArcheryEventListeners();
@@ -224,10 +241,9 @@
     if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
     ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
 
-    // Mensaje de bienvenida narrado
     setTimeout(() => {
       speakCurrentArcheryMission();
-    }, 400);
+    }, 450);
 
     updateArcheryHUD();
   }
@@ -238,8 +254,8 @@
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    const w = Math.floor(rect.width);
-    const h = Math.max(380, Math.floor(window.innerHeight - 170));
+    const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
+    const h = Math.max(340, Math.floor(rect.height) || (window.innerHeight - 170) || 500);
 
     ArcheryGame.width = w;
     ArcheryGame.height = h;
@@ -247,9 +263,9 @@
     ArcheryGame.canvas.width = w;
     ArcheryGame.canvas.height = h;
 
-    // Posición base del arquero (abajo a la izquierda)
-    ArcheryGame.archer.baseX = Math.max(80, Math.min(130, w * 0.15));
-    ArcheryGame.archer.baseY = h - 75;
+    // Posición base de la mascota en el pasto a la izquierda
+    ArcheryGame.archer.baseX = Math.max(70, Math.min(125, w * 0.14));
+    ArcheryGame.archer.baseY = h - 68;
     ArcheryGame.archer.x = ArcheryGame.archer.baseX;
     ArcheryGame.archer.y = ArcheryGame.archer.baseY;
   }
@@ -260,7 +276,6 @@
     }
 
     if (index >= ArcheryGame.taskWords.length) {
-      // Tarea completada con éxito
       triggerArcheryVictory();
       return;
     }
@@ -269,7 +284,7 @@
     ArcheryGame.targetWord = ArcheryGame.taskWords[index].toUpperCase().trim();
     ArcheryGame.targetEmoji = getWordEmoji(ArcheryGame.targetWord);
 
-    // Repoblar objetivos en pantalla garantizando que esté el objetivo y 2-3 distractores
+    // Repoblar objetivos dinámicos
     spawnInitialTargets();
     updateArcheryHUD();
   }
@@ -303,87 +318,94 @@
     if (typeof speakText === 'function') {
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
-      speakText(`¡Apunta y dispara a la palabra: ${pronWord}!`);
+      speakText(`¡Apunta y dispara rápido a: ${pronWord}!`);
     }
   };
 
-  // --- GESTIÓN DE OBJETIVOS MÓVILES (WORDS TARGETS) ---
+  // --- GESTIÓN DE PALABRAS MÓVILES (RAPIDEZ DE LECTURA) ---
   function spawnInitialTargets() {
     ArcheryGame.targets = [];
 
-    // 1. Añadir el objetivo principal
-    spawnTarget(ArcheryGame.targetWord, true, ArcheryGame.width * 0.55, 140);
+    // Objetivo principal
+    spawnTarget(ArcheryGame.targetWord, true, ArcheryGame.width * 0.55, 120);
 
-    // 2. Añadir 2 o 3 distractores tomados de la misma tarea o vocabulario
+    // Distractores de la tarea
     const pool = ArcheryGame.taskWords.filter(w => w !== ArcheryGame.targetWord);
     const distractors = shuffleArrayLocal(pool).slice(0, 3);
-
-    // Si la tarea tiene pocas palabras, añadir palabras conocidas
     if (distractors.length < 2) {
-      const extraDefaults = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO'];
-      extraDefaults.forEach(dw => {
-        if (dw !== ArcheryGame.targetWord && !distractors.includes(dw) && distractors.length < 3) {
-          distractors.push(dw);
+      const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO'];
+      fallbacks.forEach(f => {
+        if (f !== ArcheryGame.targetWord && !distractors.includes(f) && distractors.length < 3) {
+          distractors.push(f);
         }
       });
     }
 
-    const ySlots = [90, 180, 260];
+    const ySlots = [80, 160, 240];
     distractors.forEach((dw, idx) => {
-      const startX = ArcheryGame.width * (0.45 + idx * 0.18) + (Math.random() * 40 - 20);
-      const startY = ySlots[idx % ySlots.length] + (Math.random() * 30 - 15);
-      spawnTarget(dw, false, startX, startY);
+      const sx = ArcheryGame.width * (0.42 + idx * 0.18);
+      const sy = ySlots[idx % ySlots.length];
+      spawnTarget(dw, false, sx, sy);
     });
   }
 
   function spawnTarget(word, isTarget, initialX, initialY) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    const speed = 0.55 + Math.random() * 0.45;
+    // Velocidad dinámica para entrenamiento de rapidez de lectura
+    const speed = 1.3 + Math.random() * 1.1;
     const emoji = getWordEmoji(word);
+
+    const minSpawnY = 70;
+    const maxSpawnY = Math.max(180, ArcheryGame.height - 180);
+    const spawnY = initialY !== undefined ? initialY : (minSpawnY + Math.random() * (maxSpawnY - minSpawnY));
+    const spawnX = initialX !== undefined ? initialX : (direction > 0 ? (ArcheryGame.width * 0.3) : (ArcheryGame.width - 60));
 
     ArcheryGame.targets.push({
       word: word,
       emoji: emoji,
       isTarget: isTarget,
-      x: initialX !== undefined ? initialX : (direction > 0 ? -80 : ArcheryGame.width + 80),
-      y: initialY !== undefined ? initialY : 80 + Math.random() * (ArcheryGame.height - 230),
-      baseY: initialY !== undefined ? initialY : 80 + Math.random() * (ArcheryGame.height - 230),
+      x: spawnX,
+      y: spawnY,
+      baseY: spawnY,
       vx: direction * speed,
       vy: 0,
       radius: 36,
-      scale: initialX !== undefined ? 1 : 0.05,
+      scale: initialX !== undefined ? 1 : 0.1,
       targetScale: 1,
       alpha: initialX !== undefined ? 1 : 0,
       targetAlpha: 1,
       waveOffset: Math.random() * Math.PI * 2,
-      waveSpeed: 0.025 + Math.random() * 0.02,
-      waveAmp: 16 + Math.random() * 12,
-      life: 600 + Math.random() * 400, // frames antes de desvanecerse
+      waveSpeed: 0.035 + Math.random() * 0.02,
+      waveAmp: 18 + Math.random() * 14,
+      // Duración visible antes de desvanecerse (240 a 340 frames = 4 a 5.5 segundos)
+      life: 240 + Math.random() * 100,
+      maxLife: 300,
       isFading: false,
-      wobble: 0,
-      hitState: null // 'correct' o 'wrong'
+      wobble: 0
     });
+
+    createSparkleBurst(spawnX, spawnY, isTarget ? '#FDE047' : '#93C5FD', 8);
   }
 
   function updateTargets() {
-    let hasTargetWordOnScreen = false;
+    let hasTargetWord = false;
 
     for (let i = ArcheryGame.targets.length - 1; i >= 0; i--) {
       const t = ArcheryGame.targets[i];
 
-      // Animación de escala y fade in/out
-      t.scale += (t.targetScale - t.scale) * 0.1;
-      t.alpha += (t.targetAlpha - t.alpha) * 0.08;
-      if (t.wobble > 0) t.wobble *= 0.9;
+      // Animaciones de escala y fade
+      t.scale += (t.targetScale - t.scale) * 0.14;
+      t.alpha += (t.targetAlpha - t.alpha) * 0.1;
+      if (t.wobble > 0) t.wobble *= 0.88;
 
-      // Movimiento horizontal y oscilación sinusoidal
+      // Movimiento horizontal continuo y oscilación de altura
       t.x += t.vx;
       t.waveOffset += t.waveSpeed;
       t.y = t.baseY + Math.sin(t.waveOffset) * t.waveAmp;
 
-      // Rebote suave en los bordes de la arena derecha/centro
-      const minX = ArcheryGame.width * 0.32;
-      const maxX = ArcheryGame.width - 70;
+      // Rebote ágil en bordes de la arena derecha
+      const minX = ArcheryGame.width * 0.30;
+      const maxX = ArcheryGame.width - 65;
       if (t.x < minX) {
         t.x = minX;
         t.vx = Math.abs(t.vx);
@@ -392,55 +414,54 @@
         t.vx = -Math.abs(t.vx);
       }
 
-      // Ciclo de desvanecimiento natural ("surgen y se desvanecen")
+      // Desvanecimiento ("surgen y se desvanecen")
       t.life--;
-      if (t.life <= 60 && !t.isFading) {
+      if (t.life <= 45 && !t.isFading) {
         t.isFading = true;
         t.targetAlpha = 0;
         t.targetScale = 0.2;
       }
 
       if (t.isTarget && t.alpha > 0.2) {
-        hasTargetWordOnScreen = true;
+        hasTargetWord = true;
       }
 
-      // Eliminar objetivos desvanecidos
+      // Eliminar al terminar de desvanecerse
       if (t.isFading && t.alpha <= 0.05) {
         ArcheryGame.targets.splice(i, 1);
       }
     }
 
-    // Mantener siempre el objetivo principal en pantalla
-    if (!hasTargetWordOnScreen && ArcheryGame.targets.length < 5) {
-      const rx = ArcheryGame.width * (0.45 + Math.random() * 0.4);
-      const ry = 90 + Math.random() * (ArcheryGame.height - 230);
+    // Si la palabra objetivo se desvaneció, reaparecerla de inmediato en otro lugar
+    if (!hasTargetWord && ArcheryGame.targets.length < 5) {
+      const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
+      const ry = 80 + Math.random() * (ArcheryGame.height - 240);
       spawnTarget(ArcheryGame.targetWord, true, rx, ry);
     }
 
-    // Mantener entre 3 y 4 objetivos activos
+    // Mantener 3 o 4 palabras en pantalla activas
     if (ArcheryGame.targets.length < 3) {
       const pool = ArcheryGame.taskWords.filter(w => w !== ArcheryGame.targetWord);
       const randomWord = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 'SOL';
-      const rx = ArcheryGame.width * (0.45 + Math.random() * 0.4);
-      const ry = 90 + Math.random() * (ArcheryGame.height - 230);
+      const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
+      const ry = 80 + Math.random() * (ArcheryGame.height - 240);
       spawnTarget(randomWord, false, rx, ry);
     }
   }
 
-  // --- DISPARO DE FLECHAS Y FÍSICA ---
+  // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
-    if (ArcheryGame.archer.shootCooldown > 0) return;
-
     const ax = ArcheryGame.archer.x + 25;
     const ay = ArcheryGame.archer.y - 30;
 
     const dx = targetX - ax;
     const dy = targetY - ay;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 20) return;
+    if (dist < 10) return;
 
     const angle = Math.atan2(dy, dx);
-    const speed = 18;
+    // Velocidad rápida y certera para sensación de arcade responsivo
+    const speed = 26;
 
     ArcheryGame.arrows.push({
       x: ax,
@@ -448,67 +469,53 @@
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       angle: angle,
-      life: 120,
-      active: true,
-      stuck: null
+      life: 90
     });
 
-    // Animación de disparo en la mascota
+    // Reacción inmediata de la mascota
     ArcheryGame.archer.aimAngle = angle;
     ArcheryGame.archer.targetAimAngle = angle;
-    ArcheryGame.archer.drawProgress = 0;
     ArcheryGame.archer.isShooting = true;
-    ArcheryGame.archer.recoil = 14;
-    ArcheryGame.archer.shootCooldown = 18; // frames de recarga
+    ArcheryGame.archer.recoil = 16;
+    ArcheryGame.archer.shootCooldown = 8;
 
     playBowTwangSound();
-
-    // Partículas de disparo en la punta del arco
-    createSparkleBurst(ax + Math.cos(angle) * 30, ay + Math.sin(angle) * 30, '#F59E0B', 6);
+    createSparkleBurst(ax + Math.cos(angle) * 32, ay + Math.sin(angle) * 32, '#F59E0B', 8);
   }
 
   function updateArrows() {
     for (let i = ArcheryGame.arrows.length - 1; i >= 0; i--) {
       const arr = ArcheryGame.arrows[i];
 
-      if (arr.stuck) {
-        arr.life--;
-        if (arr.life <= 0) ArcheryGame.arrows.splice(i, 1);
-        continue;
-      }
-
-      // Trayectoria y gravedad suave
       arr.x += arr.vx;
       arr.y += arr.vy;
-      arr.vy += 0.08; // ligera caída balística
+      arr.vy += 0.06;
       arr.angle = Math.atan2(arr.vy, arr.vx);
 
-      // Partículas de estela mágica
-      if (Math.random() > 0.3) {
-        ArcheryGame.particles.push({
-          x: arr.x - Math.cos(arr.angle) * 15,
-          y: arr.y - Math.sin(arr.angle) * 15,
-          vx: (Math.random() - 0.5) * 1.5,
-          vy: (Math.random() - 0.5) * 1.5,
-          color: '#FDE047',
-          size: 2.5 + Math.random() * 2,
-          alpha: 0.9,
-          decay: 0.04
-        });
-      }
+      // Estela de chispas
+      ArcheryGame.particles.push({
+        x: arr.x - Math.cos(arr.angle) * 16,
+        y: arr.y - Math.sin(arr.angle) * 16,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        color: '#FDE047',
+        size: 3,
+        alpha: 0.9,
+        decay: 0.05
+      });
 
-      // Comprobación de colisión con los objetivos
+      // Detección de impacto
       let hit = false;
       for (let j = 0; j < ArcheryGame.targets.length; j++) {
         const target = ArcheryGame.targets[j];
-        if (target.alpha < 0.4) continue;
+        if (target.alpha < 0.35) continue;
 
         const tdx = arr.x - target.x;
         const tdy = arr.y - target.y;
         const dist = Math.sqrt(tdx * tdx + tdy * tdy);
 
-        // Radio de colisión (blanco + cartel)
-        if (dist < target.radius + 15) {
+        // Radio de impacto generoso para niños
+        if (dist < target.radius + 20) {
           handleArrowHitTarget(arr, target);
           hit = true;
           break;
@@ -520,8 +527,8 @@
         continue;
       }
 
-      // Eliminar flecha si sale de la pantalla
-      if (arr.x > ArcheryGame.width + 50 || arr.y > ArcheryGame.height + 50 || arr.x < -50) {
+      // Eliminar flechas fuera de pantalla
+      if (arr.x > ArcheryGame.width + 60 || arr.y > ArcheryGame.height + 60 || arr.x < -60) {
         ArcheryGame.arrows.splice(i, 1);
       }
     }
@@ -529,19 +536,18 @@
 
   function handleArrowHitTarget(arrow, target) {
     if (target.isTarget) {
-      // ✅ IMPACTO EN LA PALABRA CORRECTA
+      // ✅ ACIERTO EN LA PALABRA CORRECTA
       playArrowHitSound();
       playArcherySuccessChime();
 
-      createConfettiBurst(target.x, target.y, 25);
-      createFloatingText(target.x, target.y - 20, '¡EXCELENTE! +10 🪙', '#059669');
+      createConfettiBurst(target.x, target.y, 30);
+      createFloatingText(target.x, target.y - 25, '¡EXCELENTE! +10 🪙', '#059669');
 
-      // Animación de celebración de la mascota
+      // Animación de festejo
       ArcheryGame.archer.isCelebrating = true;
       ArcheryGame.archer.celebrateTimer = 90;
-      ArcheryGame.archer.jumpVy = -8;
+      ArcheryGame.archer.jumpVy = -8.5;
 
-      // Puntos y monedas para el niño
       ArcheryGame.score += 10;
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
         activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
@@ -549,27 +555,25 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      // Pronunciar felicitación
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(target.word) : null;
       const pronWord = canon ? canon.pronunciacion : target.word;
       if (typeof speakText === 'function') {
-        speakText(`¡Excelente! ¡Le diste a ${pronWord}!`);
+        speakText(`¡Muy bien! ¡Le diste a ${pronWord}!`);
       }
 
-      // Desvanecer el objetivo impactado
       target.isFading = true;
-      target.targetScale = 1.3;
+      target.targetScale = 1.35;
       target.targetAlpha = 0;
 
-      // Avanzar a la siguiente palabra de la tarea tras una breve pausa triunfal
+      // Avanzar a la siguiente palabra
       setTimeout(() => {
         setupTargetWord(ArcheryGame.targetWordIndex + 1);
-      }, 1400);
+      }, 1300);
 
     } else {
-      // ❌ IMPACTO EN UN DISTRACTOR
+      // ❌ IMPACTO EN OTRA PALABRA
       playArcheryWrongBoing();
-      target.wobble = 15;
+      target.wobble = 18;
       createFloatingText(target.x, target.y - 20, '¡Casi!', '#D97706');
 
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(target.word) : null;
@@ -583,10 +587,9 @@
     }
   }
 
-  // --- CELEBRACIÓN DE VICTORIA AL COMPLETAR LA TAREA ---
   function triggerArcheryVictory() {
     ArcheryGame.isRunning = false;
-    createConfettiBurst(ArcheryGame.width * 0.5, ArcheryGame.height * 0.4, 50);
+    createConfettiBurst(ArcheryGame.width * 0.5, ArcheryGame.height * 0.4, 60);
 
     if (typeof speakText === 'function') {
       const childName = (typeof getStudentFirstName === 'function') ? getStudentFirstName() : 'gran arquero';
@@ -609,22 +612,20 @@
     initArcheryGame();
   };
 
-  // --- RENDERIZADO DEL ARQUERO (MASCOTA VIDEOJUEGO) ---
+  // --- RENDERIZADO DEL ARQUERO ---
   function drawMascotArcher(ctx, time) {
     const a = ArcheryGame.archer;
     const petType = (typeof gameState !== 'undefined' && gameState.pet) ? gameState.pet : '🦄';
 
-    // Fisiología y oscilaciones
-    const breathing = Math.sin(time * 0.003) * 2.5;
-    const tailWag = Math.sin(time * 0.006) * 0.25;
+    const breathing = Math.sin(time * 0.0035) * 2.8;
+    const tailWag = Math.sin(time * 0.007) * 0.28;
 
-    // Actualizar salto de celebración
     if (a.isCelebrating) {
       a.jumpY += a.jumpVy;
-      a.jumpVy += 0.5; // gravedad
+      a.jumpVy += 0.55;
       if (a.jumpY > 0) {
         a.jumpY = 0;
-        a.jumpVy = -7; // rebote alegre
+        a.jumpVy = -7.5;
       }
       a.celebrateTimer--;
       if (a.celebrateTimer <= 0) {
@@ -633,38 +634,33 @@
       }
     }
 
-    // Suavizado del ángulo de mira
-    a.aimAngle += (a.targetAimAngle - a.aimAngle) * 0.2;
-    if (a.recoil > 0) a.recoil *= 0.8;
+    a.aimAngle += (a.targetAimAngle - a.aimAngle) * 0.22;
+    if (a.recoil > 0) a.recoil *= 0.82;
     if (a.shootCooldown > 0) a.shootCooldown--;
 
-    // Ciclo de parpadeo
     a.blinkTimer--;
     if (a.blinkTimer <= 0) {
       a.isBlinking = true;
       if (a.blinkTimer < -8) {
         a.isBlinking = false;
-        a.blinkTimer = 180 + Math.random() * 120;
+        a.blinkTimer = 160 + Math.random() * 120;
       }
     }
 
     ctx.save();
     ctx.translate(a.x, a.y + a.jumpY);
 
-    // Sombra en el pasto
+    // Sombra
     ctx.beginPath();
-    ctx.ellipse(0, 32, 38, 10, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 32, 40, 10, 0, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
     ctx.fill();
 
-    // 1. CARCAJ DE FLECHAS (EN LA ESPALDA)
+    // Carcaj
     ctx.save();
     ctx.rotate(0.35);
     ctx.fillStyle = '#78350F';
     ctx.fillRect(-38, -35, 14, 38);
-    ctx.fillStyle = '#B45309';
-    ctx.fillRect(-37, -33, 12, 6);
-    // Plumas de las flechas asomando del carcaj
     for (let k = 0; k < 3; k++) {
       ctx.fillStyle = k === 1 ? '#FDE047' : '#10B981';
       ctx.beginPath();
@@ -676,7 +672,7 @@
     }
     ctx.restore();
 
-    // 2. COLA DE LA MASCOTA
+    // Cola
     ctx.save();
     ctx.translate(-28, 5);
     ctx.rotate(-0.3 + tailWag);
@@ -686,7 +682,7 @@
     ctx.fill();
     ctx.restore();
 
-    // 3. CUERPO DE LA MASCOTA
+    // Cuerpo
     ctx.save();
     ctx.translate(0, breathing);
     ctx.fillStyle = '#FEF3C7';
@@ -697,27 +693,25 @@
     ctx.strokeStyle = '#D97706';
     ctx.stroke();
 
-    // Pecho blanco esponjoso
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.ellipse(8, 10, 14, 16, 0.2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
-    // 4. PATITAS DELANTERAS Y TRASERAS
+    // Patitas
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
     ctx.ellipse(-15, 28, 9, 6, 0, 0, Math.PI * 2);
     ctx.ellipse(8, 28, 9, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 5. CABEZA DE LA MASCOTA (GIRA SUAVEMENTE HACIA LA MIRA)
+    // Cabeza
     ctx.save();
     const headRot = a.aimAngle * 0.25;
     ctx.translate(2, -14 + breathing);
     ctx.rotate(headRot);
 
-    // Cara principal
     ctx.fillStyle = '#FEF3C7';
     ctx.beginPath();
     ctx.arc(0, 0, 24, 0, Math.PI * 2);
@@ -726,14 +720,14 @@
     ctx.strokeStyle = '#D97706';
     ctx.stroke();
 
-    // Mejillas rosadas tiernas
+    // Mejillas
     ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
     ctx.beginPath();
     ctx.arc(-11, 6, 5, 0, Math.PI * 2);
     ctx.arc(11, 6, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Hocico adorable
+    // Hocico
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
     ctx.ellipse(4, 5, 11, 9, 0, 0, Math.PI * 2);
@@ -743,9 +737,8 @@
     ctx.arc(5, 2, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Ojos expresivos con pupila que sigue el blanco
+    // Ojos
     if (a.isBlinking) {
-      // Ojo cerrado feliz (^_^)
       ctx.strokeStyle = '#78350F';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
@@ -753,11 +746,9 @@
       ctx.arc(10, -4, 4, Math.PI, 0);
       ctx.stroke();
     } else {
-      // Ojo abierto con brillo estilo animé
       const eyeLookX = Math.cos(a.aimAngle) * 2;
       const eyeLookY = Math.sin(a.aimAngle) * 2;
 
-      // Ojo izquierdo
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
       ctx.ellipse(-4, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
@@ -771,7 +762,6 @@
       ctx.arc(-5 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Ojo derecho
       ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
       ctx.ellipse(10, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
@@ -786,15 +776,15 @@
       ctx.fill();
     }
 
-    // Orejas adorables
+    // Orejas
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
     ctx.ellipse(-14, -18, 7, 13, -0.4, 0, Math.PI * 2);
     ctx.ellipse(14, -18, 7, 13, 0.4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Cuerno mágico de CRIN si es unicornio
-    if (petType.includes('🦄') || petType.includes('unicorn') || true) {
+    // Cuerno
+    if (petType.includes('🦄') || true) {
       ctx.fillStyle = '#FACC15';
       ctx.beginPath();
       ctx.moveTo(2, -22);
@@ -807,7 +797,7 @@
       ctx.stroke();
     }
 
-    // Sombrero de arquero con pluma verde
+    // Sombrero de arquero con pluma
     ctx.fillStyle = '#059669';
     ctx.beginPath();
     ctx.ellipse(0, -22, 22, 7, 0, 0, Math.PI * 2);
@@ -818,7 +808,7 @@
     ctx.lineTo(16, -22);
     ctx.closePath();
     ctx.fill();
-    // Pluma blanca y dorada
+
     ctx.fillStyle = '#FEF08A';
     ctx.beginPath();
     ctx.moveTo(8, -26);
@@ -826,15 +816,14 @@
     ctx.quadraticCurveTo(12, -40, 6, -26);
     ctx.fill();
 
-    ctx.restore(); // fin cabeza
+    ctx.restore();
 
-    // 6. ARCO Y FLECHA (PIVOTA DIRECTO AL ÁNGULO DE MIRA)
+    // Arco y flecha
     ctx.save();
     const recoilOffset = a.recoil;
     ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
     ctx.rotate(a.aimAngle);
 
-    // Dibujar el arco recurvo de madera noble
     const bowRadius = 38;
     ctx.lineWidth = 4.5;
     ctx.strokeStyle = '#78350F';
@@ -842,7 +831,6 @@
     ctx.arc(0, 0, bowRadius, -Math.PI * 0.45, Math.PI * 0.45);
     ctx.stroke();
 
-    // Puntas doradas del arco
     ctx.fillStyle = '#F59E0B';
     const topTipX = Math.cos(-Math.PI * 0.45) * bowRadius;
     const topTipY = Math.sin(-Math.PI * 0.45) * bowRadius;
@@ -853,7 +841,6 @@
     ctx.arc(botTipX, botTipY, 3.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Cuerda del arco (tensada hacia atrás si está apuntando)
     const drawDist = (a.isAiming || a.pointer.isDown) ? 22 : 4;
     const stringPullX = -drawDist;
 
@@ -865,18 +852,16 @@
     ctx.lineTo(botTipX, botTipY);
     ctx.stroke();
 
-    // Flecha nockada en la cuerda lista para disparar
-    if (a.shootCooldown < 12) {
+    if (a.shootCooldown < 6) {
       ctx.save();
       ctx.translate(stringPullX, 0);
-      // Caña de la flecha
       ctx.lineWidth = 2.5;
       ctx.strokeStyle = '#D97706';
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(44, 0);
       ctx.stroke();
-      // Punta metálica reluciente
+
       ctx.fillStyle = '#F59E0B';
       ctx.beginPath();
       ctx.moveTo(44, -4);
@@ -884,12 +869,7 @@
       ctx.lineTo(44, 4);
       ctx.closePath();
       ctx.fill();
-      // Brillo en la punta
-      ctx.fillStyle = '#FEF08A';
-      ctx.beginPath();
-      ctx.arc(52, 0, 2, 0, Math.PI * 2);
-      ctx.fill();
-      // Plumas fletching
+
       ctx.fillStyle = '#10B981';
       ctx.beginPath();
       ctx.moveTo(2, -3);
@@ -899,9 +879,8 @@
       ctx.restore();
     }
 
-    ctx.restore(); // fin arco
+    ctx.restore();
 
-    // Estrellas de victoria orbitando si está celebrando
     if (a.isCelebrating) {
       for (let s = 0; s < 4; s++) {
         const starAng = time * 0.008 + s * (Math.PI / 2);
@@ -914,10 +893,10 @@
       }
     }
 
-    ctx.restore(); // fin mascota
+    ctx.restore();
   }
 
-  // --- DIBUJADO DE LOS OBJETIVOS CON SUS PALABRAS ---
+  // --- DIBUJADO DE OBJETIVOS CON SUS PALABRAS ---
   function drawTargetWord(ctx, t, time) {
     if (t.alpha <= 0.01) return;
 
@@ -930,35 +909,31 @@
       ctx.rotate(Math.sin(time * 0.04) * (t.wobble * 0.02));
     }
 
-    // Aura mágica del objetivo principal
+    // Aura pulsante de la palabra objetivo
     if (t.isTarget) {
-      const pulse = Math.sin(time * 0.006) * 4;
+      const pulse = Math.sin(time * 0.008) * 5;
       ctx.beginPath();
-      ctx.arc(0, 0, t.radius + 10 + pulse, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(250, 204, 21, 0.28)';
+      ctx.arc(0, 0, t.radius + 12 + pulse, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
       ctx.fill();
     }
 
-    // 1. BLANCO DE TIRO CON ARCO (CONCÉNTRICO PROFESIONAL)
-    // Anillo exterior de madera
+    // Diana de tiro con arco
     ctx.beginPath();
     ctx.arc(0, 0, t.radius, 0, Math.PI * 2);
     ctx.fillStyle = '#78350F';
     ctx.fill();
 
-    // Anillo blanco
     ctx.beginPath();
     ctx.arc(0, 0, t.radius - 4, 0, Math.PI * 2);
     ctx.fillStyle = '#F8FAFC';
     ctx.fill();
 
-    // Anillo rojo
     ctx.beginPath();
     ctx.arc(0, 0, t.radius - 12, 0, Math.PI * 2);
     ctx.fillStyle = '#EF4444';
     ctx.fill();
 
-    // Centro dorado (Diana)
     ctx.beginPath();
     ctx.arc(0, 0, t.radius - 20, 0, Math.PI * 2);
     ctx.fillStyle = '#FACC15';
@@ -967,36 +942,29 @@
     ctx.strokeStyle = '#D97706';
     ctx.stroke();
 
-    // 2. ICONO / EMOJI DEL OBJETO
+    // Emoji/Icono arriba de la diana
     ctx.save();
     ctx.translate(0, -t.radius - 10);
     ctx.font = '24px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    if (t.emoji && (t.emoji.startsWith('assets/') || t.emoji.startsWith('data:image'))) {
-      // Dibujar imagen pequeña si está cargada o emoji genérico
-      ctx.fillText('🎯', 0, 0);
-    } else {
-      ctx.fillText(t.emoji || '⭐', 0, 0);
-    }
+    ctx.fillText(t.emoji || '⭐', 0, 0);
     ctx.restore();
 
-    // 3. CARTEL / PLACA CON LA PALABRA EN LETRAS GRANDES Y LEGIBLES
+    // Cartel con la palabra en letras grandes (usando drawRoundedRect 100% compatible)
     const fontSize = Math.min(20, Math.max(15, 230 / (t.word.length + 4)));
     ctx.font = `900 ${fontSize}px "Comic Sans MS", "Nunito", sans-serif`;
     const textWidth = ctx.measureText(t.word).width;
-    const badgeW = Math.max(88, textWidth + 24);
+    const badgeW = Math.max(90, textWidth + 24);
     const badgeH = 34;
     const badgeY = t.radius + 6;
 
-    // Fondo del cartel de madera pulida
     ctx.fillStyle = t.isTarget ? '#FEF08A' : '#FFFFFF';
     ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
     ctx.shadowBlur = 8;
     ctx.shadowOffsetY = 3;
 
-    ctx.beginPath();
-    ctx.roundRect(-badgeW / 2, badgeY, badgeW, badgeH, 12);
+    drawRoundedRect(ctx, -badgeW / 2, badgeY, badgeW, badgeH, 12);
     ctx.fill();
 
     ctx.shadowColor = 'transparent';
@@ -1004,7 +972,6 @@
     ctx.strokeStyle = t.isTarget ? '#CA8A04' : '#94A3B8';
     ctx.stroke();
 
-    // Texto de la palabra en alto contraste
     ctx.fillStyle = t.isTarget ? '#854D0E' : '#1E293B';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1013,13 +980,12 @@
     ctx.restore();
   }
 
-  // --- DIBUJADO DE FLECHAS, ESTELAS Y PARTÍCULAS ---
+  // --- FLECHAS, ESTELAS Y PARTÍCULAS ---
   function drawArrow(ctx, arr) {
     ctx.save();
     ctx.translate(arr.x, arr.y);
     ctx.rotate(arr.angle);
 
-    // Caña de madera
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#78350F';
     ctx.beginPath();
@@ -1027,7 +993,6 @@
     ctx.lineTo(16, 0);
     ctx.stroke();
 
-    // Punta metálica
     ctx.fillStyle = '#E2E8F0';
     ctx.beginPath();
     ctx.moveTo(16, -4.5);
@@ -1036,7 +1001,6 @@
     ctx.closePath();
     ctx.fill();
 
-    // Plumas fletching
     ctx.fillStyle = '#10B981';
     ctx.beginPath();
     ctx.moveTo(-22, -4);
@@ -1054,21 +1018,21 @@
     const startY = a.y - 30;
 
     const angle = a.aimAngle;
-    const speed = 18;
+    const speed = 26;
     let simX = startX;
     let simY = startY;
     let simVy = Math.sin(angle) * speed;
     let simVx = Math.cos(angle) * speed;
 
     ctx.save();
-    for (let k = 1; k <= 10; k++) {
-      simX += simVx * 1.5;
-      simY += simVy * 1.5;
-      simVy += 0.08 * 1.5;
+    for (let k = 1; k <= 9; k++) {
+      simX += simVx * 1.2;
+      simY += simVy * 1.2;
+      simVy += 0.06 * 1.2;
 
-      const alpha = 1 - (k / 11);
+      const alpha = 1 - (k / 10);
       const size = 3.5 * alpha;
-      ctx.fillStyle = `rgba(253, 224, 71, ${alpha * 0.8})`;
+      ctx.fillStyle = `rgba(253, 224, 71, ${alpha * 0.85})`;
       ctx.beginPath();
       ctx.arc(simX, simY, size, 0, Math.PI * 2);
       ctx.fill();
@@ -1168,9 +1132,8 @@
     });
   }
 
-  // --- DIBUJADO DEL PAISAJE / ARENA ---
+  // --- DIBUJADO DEL PAISAJE ---
   function drawArcheryEnvironment(ctx, w, h, time) {
-    // 1. Cielo con degradado suave mágico
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
     skyGrad.addColorStop(0, '#7DD3FC');
     skyGrad.addColorStop(0.65, '#E0F2FE');
@@ -1178,7 +1141,6 @@
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // 2. Sol suave con rayos cálidos
     ctx.save();
     ctx.beginPath();
     ctx.arc(80, 70, 48, 0, Math.PI * 2);
@@ -1190,7 +1152,6 @@
     ctx.fill();
     ctx.restore();
 
-    // 3. Nubes flotantes
     ArcheryGame.bgClouds.forEach(c => {
       c.x += c.speed;
       if (c.x > w + 100) c.x = -120;
@@ -1208,7 +1169,7 @@
       ctx.restore();
     });
 
-    // 4. Colinas lejanas
+    // Colinas lejanas
     ctx.fillStyle = '#86EFAC';
     ctx.beginPath();
     ctx.moveTo(0, h - 90);
@@ -1219,7 +1180,7 @@
     ctx.closePath();
     ctx.fill();
 
-    // 5. Colina en primer plano donde se para la mascota
+    // Colina frontal
     ctx.fillStyle = '#22C55E';
     ctx.beginPath();
     ctx.moveTo(0, h - 110);
@@ -1230,7 +1191,6 @@
     ctx.closePath();
     ctx.fill();
 
-    // Pasto y flores decorativas
     ctx.fillStyle = '#16A34A';
     for (let fx = 20; fx < w; fx += 55) {
       const fy = h - 45 + Math.sin(fx * 0.05) * 15;
@@ -1240,59 +1200,79 @@
     }
   }
 
-  // --- BUCLE PRINCIPAL DE ANIMACIÓN Y RENDER (60 FPS) ---
+  // --- BUCLE PRINCIPAL (BLINDADO CON TRY...CATCH PARA NUNCA CONGELARSE) ---
   function archeryGameLoop(timestamp) {
     if (!ArcheryGame.isRunning) return;
 
-    ArcheryGame.time = timestamp || 0;
-    const ctx = ArcheryGame.ctx;
-    const w = ArcheryGame.width;
-    const h = ArcheryGame.height;
+    try {
+      ArcheryGame.time = timestamp || 0;
+      const ctx = ArcheryGame.ctx;
+      const w = ArcheryGame.width;
+      const h = ArcheryGame.height;
 
-    ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, w, h);
 
-    // 1. Entorno / Paisaje
-    drawArcheryEnvironment(ctx, w, h, ArcheryGame.time);
+      // 1. Entorno
+      drawArcheryEnvironment(ctx, w, h, ArcheryGame.time);
 
-    // 2. Actualizar y dibujar objetivos
-    updateTargets();
-    ArcheryGame.targets.forEach(t => drawTargetWord(ctx, t, ArcheryGame.time));
+      // 2. Objetivos móviles
+      updateTargets();
+      ArcheryGame.targets.forEach(t => drawTargetWord(ctx, t, ArcheryGame.time));
 
-    // 3. Actualizar y dibujar flechas
-    updateArrows();
-    ArcheryGame.arrows.forEach(arr => drawArrow(ctx, arr));
+      // 3. Flechas
+      updateArrows();
+      ArcheryGame.arrows.forEach(arr => drawArrow(ctx, arr));
 
-    // 4. Trayectoria de mira si el jugador está interactuando
-    if (ArcheryGame.pointer.isDown || ArcheryGame.archer.isAiming) {
-      drawTrajectoryDots(ctx);
+      // 4. Guía de trayectoria
+      if (ArcheryGame.pointer.isDown || ArcheryGame.archer.isAiming) {
+        drawTrajectoryDots(ctx);
+      }
+
+      // 5. Partículas y textos
+      drawParticles(ctx);
+      drawFloatingTexts(ctx);
+
+      // 6. Mascota arquera animada
+      drawMascotArcher(ctx, ArcheryGame.time);
+
+    } catch (err) {
+      console.error('ArcheryGameLoop error protegido:', err);
     }
 
-    // 5. Partículas y textos flotantes
-    drawParticles(ctx);
-    drawFloatingTexts(ctx);
-
-    // 6. Mascota arquera animada
-    drawMascotArcher(ctx, ArcheryGame.time);
-
-    ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
+    // SIEMPRE reprogramar el siguiente frame para que el juego nunca se detenga
+    if (ArcheryGame.isRunning) {
+      ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
+    }
   }
 
-  // --- CONTROLES INTERACTIVOS (TOUCH & MOUSE) ---
+  // --- CONTROLES RESPONSIVOS (DISPARO DIRECTO AL TOQUE Y ARRASTRE) ---
   function setupArcheryEventListeners() {
     const canvas = ArcheryGame.canvas;
     if (!canvas) return;
 
     function getCanvasPos(e) {
       const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      let clientX = e.clientX;
+      let clientY = e.clientY;
+
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else if (e.changedTouches && e.changedTouches.length > 0) {
+        clientX = e.changedTouches[0].clientX;
+        clientY = e.changedTouches[0].clientY;
+      }
+
+      const scaleX = canvas.width / (rect.width || 1);
+      const scaleY = canvas.height / (rect.height || 1);
+
       return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
       };
     }
 
-    // Al mover cursor o tocar: apuntar
+    // Al mover cursor
     function onPointerMove(e) {
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.x = pos.x;
@@ -1303,25 +1283,25 @@
       ArcheryGame.archer.targetAimAngle = Math.atan2(pos.y - ay, pos.x - ax);
     }
 
-    // Al presionar: tensar cuerda
+    // Al hacer click o tocar: apuntar y disparar de inmediato hacia la posición
     function onPointerDown(e) {
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.isDown = true;
-      ArcheryGame.pointer.dragStartX = pos.x;
-      ArcheryGame.pointer.dragStartY = pos.y;
+      ArcheryGame.pointer.x = pos.x;
+      ArcheryGame.pointer.y = pos.y;
       ArcheryGame.archer.isAiming = true;
 
-      onPointerMove(e);
+      const ax = ArcheryGame.archer.x + 25;
+      const ay = ArcheryGame.archer.y - 30;
+      ArcheryGame.archer.targetAimAngle = Math.atan2(pos.y - ay, pos.x - ax);
+
+      // Disparo inmediato para máxima rapidez y respuesta
+      shootArrowAt(pos.x, pos.y);
     }
 
-    // Al soltar: disparar flecha hacia la posición indicada
     function onPointerUp(e) {
-      if (!ArcheryGame.pointer.isDown) return;
       ArcheryGame.pointer.isDown = false;
       ArcheryGame.archer.isAiming = false;
-
-      // Disparar hacia donde apuntó
-      shootArrowAt(ArcheryGame.pointer.x, ArcheryGame.pointer.y);
     }
 
     canvas.onmousemove = onPointerMove;
@@ -1341,7 +1321,6 @@
     };
   }
 
-  // Utilidad de mezcla de arrays
   function shuffleArrayLocal(arr) {
     if (!Array.isArray(arr)) return [];
     const copy = [...arr];
