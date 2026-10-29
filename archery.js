@@ -10,6 +10,15 @@
 (function(window) {
   'use strict';
 
+  // --- CARGA DE ASSETS GRÁFICOS PERSONALIZADOS ---
+  const unicornArcherImg = new Image();
+  unicornArcherImg.src = 'assets/unicornio_arquero.png?v=240';
+  let isUnicornImgLoaded = false;
+  unicornArcherImg.onload = function() {
+    isUnicornImgLoaded = true;
+  };
+
+
   // Helper universal de rectángulo redondeado (100% compatible con todos los navegadores)
   // Obtener la mascota elegida por el usuario (prioriza la elegida en la partida activa)
   function getActivePet() {
@@ -762,8 +771,17 @@
 
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
-    const ax = ArcheryGame.archer.x + 25;
-    const ay = ArcheryGame.archer.y - 30;
+    const petType = getActivePet();
+    const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+
+    let ax = ArcheryGame.archer.x + 25;
+    let ay = ArcheryGame.archer.y - 30;
+
+    if (isUnicorn) {
+      const spriteSize = Math.max(120, Math.min(150, ArcheryGame.height * 0.35));
+      ax = ArcheryGame.archer.x + spriteSize * 0.44;
+      ay = ArcheryGame.archer.y - spriteSize * 0.58;
+    }
 
     const dx = targetX - ax;
     const dy = targetY - ay;
@@ -961,11 +979,39 @@
       }
     }
 
-    // Identificación de la mascota
-    const isBunny = petType.includes('🐰') || petType.includes('rabbit');
-    const isCat = petType.includes('🐱') || petType.includes('cat');
-    const isFox = petType.includes('🦊') || petType.includes('fox');
     const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+
+    // 🌟 SI EL USUARIO ELIGIÓ EL UNICORNIO: USAR EXCLUSIVAMENTE LA ILUSTRACIÓN REAL PROPORCIONADA
+    if (isUnicorn && (isUnicornImgLoaded || unicornArcherImg.complete || unicornArcherImg.naturalWidth > 0)) {
+      ctx.save();
+      try {
+        const recoilOffset = a.recoil;
+        const breathY = Math.sin(time * 0.0035) * 2.4;
+
+        ctx.translate(a.x - recoilOffset * 0.7, a.y + a.jumpY + breathY);
+
+        // Sombra en el suelo bajo las pezuñas
+        ctx.beginPath();
+        ctx.ellipse(0, 32, 48, 12, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+        ctx.fill();
+
+        // Inclinación reactiva al apuntar
+        const aimTilt = Math.max(-0.22, Math.min(0.22, a.aimAngle * 0.15));
+        ctx.rotate(aimTilt);
+
+        // Dibujar el dibujo oficial del unicornio arcoíris arquero
+        const spriteSize = Math.max(125, Math.min(155, ArcheryGame.height * 0.36));
+        const spriteX = -spriteSize * 0.46;
+        const spriteY = -spriteSize + 28;
+
+        ctx.drawImage(unicornArcherImg, spriteX, spriteY, spriteSize, spriteSize);
+
+      } finally {
+        ctx.restore();
+      }
+      return;
+    }
     const isDragon = petType.includes('🐉') || petType.includes('dragon');
     const isBear = petType.includes('🐻') || petType.includes('bear');
     const isLion = petType.includes('🦁') || petType.includes('lion');
