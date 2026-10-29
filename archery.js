@@ -11,6 +11,17 @@
   'use strict';
 
   // Helper universal de rectángulo redondeado (100% compatible con todos los navegadores)
+    // Obtener la mascota elegida por el usuario
+  function getActivePet() {
+    if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.pet) {
+      return activeChildProfile.pet;
+    }
+    if (typeof gameState !== 'undefined' && gameState && gameState.pet) {
+      return gameState.pet;
+    }
+    return '🐶';
+  }
+
   function drawRoundedRect(ctx, x, y, width, height, radius) {
     const r = Math.min(radius, Math.min(width / 2, height / 2));
     ctx.beginPath();
@@ -684,10 +695,10 @@
     initArcheryGame();
   };
 
-  // --- RENDERIZADO DEL ARQUERO ---
+  // --- RENDERIZADO DEL ARQUERO (ADAPTADO A LA MASCOTA ELEGIDA POR EL USUARIO) ---
   function drawMascotArcher(ctx, time) {
     const a = ArcheryGame.archer;
-    const petType = (typeof gameState !== 'undefined' && gameState.pet) ? gameState.pet : '🦄';
+    const petType = getActivePet();
 
     const breathing = Math.sin(time * 0.0035) * 2.8;
     const tailWag = Math.sin(time * 0.007) * 0.28;
@@ -719,17 +730,62 @@
       }
     }
 
+    // Colores y atributos por mascota elegida
+    let coatColor = '#F59E0B';
+    let coatStroke = '#D97706';
+    let headColor = '#FEF3C7';
+    let chestColor = '#FFFFFF';
+    let isBunny = petType.includes('🐰') || petType.includes('rabbit');
+    let isCat = petType.includes('🐱') || petType.includes('cat');
+    let isFox = petType.includes('🦊') || petType.includes('fox');
+    let isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+    let isBear = petType.includes('🐻') || petType.includes('bear');
+    let isLion = petType.includes('🦁') || petType.includes('lion');
+    let isDog = petType.includes('🐶') || petType.includes('dog') || (!isBunny && !isCat && !isFox && !isUnicorn && !isBear && !isLion);
+
+    if (isCat) {
+      coatColor = '#FED7AA';
+      coatStroke = '#F97316';
+      headColor = '#FFF7ED';
+      chestColor = '#FFFFFF';
+    } else if (isFox) {
+      coatColor = '#EA580C';
+      coatStroke = '#C2410C';
+      headColor = '#FFEDD5';
+      chestColor = '#FFFFFF';
+    } else if (isBunny) {
+      coatColor = '#F8FAFC';
+      coatStroke = '#CBD5E1';
+      headColor = '#FFFFFF';
+      chestColor = '#F1F5F9';
+    } else if (isUnicorn) {
+      coatColor = '#FFFFFF';
+      coatStroke = '#FBBF24';
+      headColor = '#FEF3C7';
+      chestColor = '#FFFFFF';
+    } else if (isBear) {
+      coatColor = '#78350F';
+      coatStroke = '#451A03';
+      headColor = '#92400E';
+      chestColor = '#D97706';
+    } else if (isLion) {
+      coatColor = '#D97706';
+      coatStroke = '#B45309';
+      headColor = '#FDE68A';
+      chestColor = '#FEF3C7';
+    }
+
     ctx.save();
     try {
       ctx.translate(a.x, a.y + a.jumpY);
 
-      // Sombra
+      // Sombra en el suelo
       ctx.beginPath();
       ctx.ellipse(0, 32, 40, 10, 0, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
       ctx.fill();
 
-      // Carcaj
+      // Carcaj de arquero en la espalda
       ctx.save();
       ctx.rotate(0.35);
       ctx.fillStyle = '#78350F';
@@ -745,55 +801,121 @@
       }
       ctx.restore();
 
-      // Cola
+      // COLA ESPECÍFICA DE CADA MASCOTA
       ctx.save();
       ctx.translate(-28, 5);
       ctx.rotate(-0.3 + tailWag);
-      ctx.fillStyle = '#F59E0B';
-      ctx.beginPath();
-      ctx.ellipse(-14, 0, 16, 8, -0.2, 0, Math.PI * 2);
-      ctx.fill();
+
+      if (isBunny) {
+        // Cola redonda de pompón de conejito
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(-6, 0, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else if (isFox) {
+        // Cola tupida de zorro con punta blanca
+        ctx.fillStyle = '#EA580C';
+        ctx.beginPath();
+        ctx.ellipse(-18, 0, 22, 11, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.ellipse(-32, -3, 8, 7, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (isCat) {
+        // Cola esbelta y curvada de gatito
+        ctx.fillStyle = coatColor;
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = coatColor;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(-18, -12, -22, -26);
+        ctx.stroke();
+      } else if (isUnicorn) {
+        // Cola mágica ondeante de unicornio
+        ctx.fillStyle = '#F472B6';
+        ctx.beginPath();
+        ctx.ellipse(-16, 2, 18, 9, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#60A5FA';
+        ctx.beginPath();
+        ctx.ellipse(-14, 5, 14, 7, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Cola de perrito / oso / estándar
+        ctx.fillStyle = coatColor;
+        ctx.beginPath();
+        ctx.ellipse(-14, 0, 16, 8, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
 
-      // Cuerpo
+      // CUERPO DE LA MASCOTA
       ctx.save();
       ctx.translate(0, breathing);
-      ctx.fillStyle = '#FEF3C7';
+      ctx.fillStyle = coatColor;
       ctx.beginPath();
       ctx.ellipse(-5, 8, 28, 24, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.lineWidth = 3;
-      ctx.strokeStyle = '#D97706';
+      ctx.strokeStyle = coatStroke;
       ctx.stroke();
 
-      ctx.fillStyle = '#FFFFFF';
+      // Pecho esponjoso
+      ctx.fillStyle = chestColor;
       ctx.beginPath();
       ctx.ellipse(8, 10, 14, 16, 0.2, 0, Math.PI * 2);
       ctx.fill();
+
+      // Medallón dorado con el icono de la mascota elegida
+      ctx.beginPath();
+      ctx.arc(6, 14, 11, 0, Math.PI * 2);
+      ctx.fillStyle = '#FEF08A';
+      ctx.fill();
+      ctx.strokeStyle = '#CA8A04';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = '14px "Segoe UI Emoji", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(petType, 6, 14);
+
       ctx.restore();
 
       // Patitas
-      ctx.fillStyle = '#F59E0B';
+      ctx.fillStyle = coatColor;
       ctx.beginPath();
       ctx.ellipse(-15, 28, 9, 6, 0, 0, Math.PI * 2);
       ctx.ellipse(8, 28, 9, 6, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Cabeza
+      // CABEZA
       ctx.save();
       const headRot = a.aimAngle * 0.25;
       ctx.translate(2, -14 + breathing);
       ctx.rotate(headRot);
 
-      ctx.fillStyle = '#FEF3C7';
+      // Melena alrededor si es león
+      if (isLion) {
+        ctx.fillStyle = '#B45309';
+        ctx.beginPath();
+        ctx.arc(0, 0, 32, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = headColor;
       ctx.beginPath();
       ctx.arc(0, 0, 24, 0, Math.PI * 2);
       ctx.fill();
       ctx.lineWidth = 3;
-      ctx.strokeStyle = '#D97706';
+      ctx.strokeStyle = coatStroke;
       ctx.stroke();
 
-      // Mejillas
+      // Mejillas tiernas
       ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
       ctx.beginPath();
       ctx.arc(-11, 6, 5, 0, Math.PI * 2);
@@ -805,10 +927,22 @@
       ctx.beginPath();
       ctx.ellipse(4, 5, 11, 9, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#78350F';
+      ctx.fillStyle = isCat || isBunny ? '#F472B6' : '#78350F';
       ctx.beginPath();
       ctx.arc(5, 2, 3, 0, Math.PI * 2);
       ctx.fill();
+
+      // Bigotes si es gato
+      if (isCat) {
+        ctx.strokeStyle = '#78350F';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(14, 3); ctx.lineTo(26, 1);
+        ctx.moveTo(14, 6); ctx.lineTo(25, 8);
+        ctx.moveTo(-6, 3); ctx.lineTo(-18, 1);
+        ctx.moveTo(-6, 6); ctx.lineTo(-17, 8);
+        ctx.stroke();
+      }
 
       // Ojos
       if (a.isBlinking) {
@@ -849,19 +983,70 @@
         ctx.fill();
       }
 
-      // Orejas
-      ctx.fillStyle = '#F59E0B';
-      ctx.beginPath();
-      ctx.ellipse(-14, -18, 7, 13, -0.4, 0, Math.PI * 2);
-      ctx.ellipse(14, -18, 7, 13, 0.4, 0, Math.PI * 2);
-      ctx.fill();
+      // OREJAS ESPECÍFICAS DE CADA MASCOTA
+      if (isBunny) {
+        // Orejas largas de conejo
+        ctx.fillStyle = coatColor;
+        ctx.beginPath();
+        ctx.ellipse(-7, -32, 6, 20, -0.15, 0, Math.PI * 2);
+        ctx.ellipse(7, -32, 6, 20, 0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FBCFE8';
+        ctx.beginPath();
+        ctx.ellipse(-7, -32, 3.5, 15, -0.15, 0, Math.PI * 2);
+        ctx.ellipse(7, -32, 3.5, 15, 0.15, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (isCat) {
+        // Orejas puntiagudas de gato
+        ctx.fillStyle = coatColor;
+        ctx.beginPath();
+        ctx.moveTo(-16, -14); ctx.lineTo(-20, -32); ctx.lineTo(-6, -20); ctx.closePath();
+        ctx.moveTo(16, -14); ctx.lineTo(20, -32); ctx.lineTo(6, -20); ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#F472B6';
+        ctx.beginPath();
+        ctx.moveTo(-14, -16); ctx.lineTo(-17, -28); ctx.lineTo(-8, -20); ctx.closePath();
+        ctx.moveTo(14, -16); ctx.lineTo(17, -28); ctx.lineTo(8, -20); ctx.closePath();
+        ctx.fill();
+      } else if (isFox) {
+        // Orejas de zorro con punta oscura
+        ctx.fillStyle = '#EA580C';
+        ctx.beginPath();
+        ctx.moveTo(-16, -14); ctx.lineTo(-20, -34); ctx.lineTo(-6, -20); ctx.closePath();
+        ctx.moveTo(16, -14); ctx.lineTo(20, -34); ctx.lineTo(6, -20); ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#1E293B';
+        ctx.beginPath();
+        ctx.moveTo(-19, -30); ctx.lineTo(-20, -34); ctx.lineTo(-15, -30); ctx.closePath();
+        ctx.moveTo(19, -30); ctx.lineTo(20, -34); ctx.lineTo(15, -30); ctx.closePath();
+        ctx.fill();
+      } else if (isBear) {
+        // Orejas redondas de osito
+        ctx.fillStyle = coatColor;
+        ctx.beginPath();
+        ctx.arc(-16, -18, 9, 0, Math.PI * 2);
+        ctx.arc(16, -18, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FEF3C7';
+        ctx.beginPath();
+        ctx.arc(-16, -18, 5, 0, Math.PI * 2);
+        ctx.arc(16, -18, 5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Orejas caídas de perrito (o caballo si es unicornio)
+        ctx.fillStyle = coatColor;
+        ctx.beginPath();
+        ctx.ellipse(-14, -18, 7, 13, -0.4, 0, Math.PI * 2);
+        ctx.ellipse(14, -18, 7, 13, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      // Cuerno
-      if (petType.includes('🦄') || true) {
+      // Cuerno mágico SOLO SI ES UNICORNIO
+      if (isUnicorn) {
         ctx.fillStyle = '#FACC15';
         ctx.beginPath();
         ctx.moveTo(2, -22);
-        ctx.lineTo(8, -38);
+        ctx.lineTo(8, -40);
         ctx.lineTo(14, -22);
         ctx.closePath();
         ctx.fill();
@@ -870,7 +1055,7 @@
         ctx.stroke();
       }
 
-      // Sombrero de arquero con pluma
+      // Sombrero de arquero heroico con pluma
       ctx.fillStyle = '#059669';
       ctx.beginPath();
       ctx.ellipse(0, -22, 22, 7, 0, 0, Math.PI * 2);
@@ -891,7 +1076,7 @@
 
       ctx.restore();
 
-      // Arco y flecha (sin a.pointer erróneo, usando ArcheryGame.pointer)
+      // Arco y flecha
       ctx.save();
       const recoilOffset = a.recoil;
       ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
@@ -984,14 +1169,7 @@
         ctx.rotate(Math.sin(time * 0.04) * (t.wobble * 0.02));
       }
 
-      // Aura pulsante de la palabra objetivo
-      if (t.isTarget) {
-        const pulse = Math.sin(time * 0.008) * 5;
-        ctx.beginPath();
-        ctx.arc(0, 0, t.radius + 12 + pulse, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
-        ctx.fill();
-      }
+      // Sin aura para que todas las palabras luzcan iguales y el niño deba leerlas
 
       // Diana de tiro con arco
       ctx.beginPath();
@@ -1028,20 +1206,20 @@
       const badgeH = 34;
       const badgeY = t.radius + 6;
 
-      ctx.fillStyle = t.isTarget ? '#FEF08A' : '#FFFFFF';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 3;
+      // Todas las palabras tienen exactamente el mismo recuadro blanco y borde neutro (dificultad pedagógica real)
+      ctx.fillStyle = '#FFFFFF';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 2;
 
       drawRoundedRect(ctx, -badgeW / 2, badgeY, badgeW, badgeH, 12);
       ctx.fill();
 
       ctx.shadowColor = 'transparent';
-      ctx.lineWidth = t.isTarget ? 3 : 2;
-      ctx.strokeStyle = t.isTarget ? '#CA8A04' : '#94A3B8';
-      ctx.stroke();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#64748B'; // Borde neutro idéntico en todas
 
-      ctx.fillStyle = t.isTarget ? '#854D0E' : '#1E293B';
+      ctx.fillStyle = '#0F172A'; // Texto en azul oscuro de alto contraste idéntico en todas
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(t.word, 0, badgeY + badgeH / 2 + 1);
