@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v226';
+    const CURRENT_APP_VERSION = 'v227';
 
     function forceAppUpdate() {
       if ('serviceWorker' in navigator) {
@@ -59,7 +59,7 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=226"></script>
+  <script src="lexicon.js?v=227"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1566,7 +1566,7 @@
       <div id="screen-therapist" class="screen">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <h2 style="font-size: 18px; margin: 0;">⚙️ Panel Terapeuta / Padres</h2>
-          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v210</span>
+          <span style="font-size: 10px; background: #2ECC71; color: white; border-radius: 8px; padding: 2px 6px; font-weight: bold;">v227</span>
         </div>
         
         
@@ -1629,11 +1629,11 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #F3E8FF; padding-bottom: 10px;">
             <div>
               <div style="font-weight: 900; font-size: 16px; color: #6D28D9; display: flex; align-items: center; gap: 8px;">
-                <span>🎨 PASO 1: Gestor y Editor del Diccionario de Dibujos y Palabras</span>
+                <span>📚 PASO 1: Base de Datos, Gestor y Calidad de Palabras</span>
                 <span style="font-size: 10px; background: #8B5CF6; color: white; border-radius: 8px; padding: 2px 8px; font-weight: bold;">FUENTE ÚNICA</span>
               </div>
               <p style="font-size: 11px; color: #4C1D95; margin: 4px 0 0 0;">
-                Asigna un dibujo, emoji o foto a cualquier palabra. El dibujo guardado aquí se integrará automáticamente en <strong>TODOS</strong> los juegos y aventuras de la app.
+                Consulta y ajusta las 5 cualidades de cada palabra: <strong>Escritura, Pronunciación, Sílabas, Letras y Dibujo</strong>. Puedes probar el audio con 🔊 y guardar tus correcciones para que se apliquen en todos los juegos en vivo.
               </p>
             </div>
             <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
@@ -2582,7 +2582,7 @@
       'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
       'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'Tho', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
-      'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jov', 'JU': 'juy',
+      'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'ju',
       'GUE': 'gue', 'GUI': 'gui', 'QUE': 'que', 'QUI': 'qui',
       'GÜE': 'güe', 'GÜI': 'güi',
       'QU': 'Ku',
@@ -2910,39 +2910,47 @@
       updatePedagogicalSettingsUI();
     }
 
-    function cleanPhoneticText(rawText) {
+        function cleanPhoneticText(rawText) {
       if (!rawText) return '';
       let text = rawText.toString().trim();
       const exactKey = text.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
 
-      if (typeof getCanonicalWord === 'function' && exactKey.length > 1) {
+      // 1. Si es una sola palabra exacta y está en el léxico canónico, usar su pronunciación
+      if (typeof getCanonicalWord === 'function' && exactKey.length > 1 && !exactKey.includes(' ')) {
         const canon = getCanonicalWord(exactKey);
-        if (canon && canon.pronunciacion && canon.pronunciacion !== exactKey) {
+        if (canon && canon.pronunciacion) {
           return canon.pronunciacion;
         }
       }
 
-      if (phoneticMap[exactKey]) {
-        text = phoneticMap[exactKey];
-      } else {
-        // Ordenar claves por longitud descendente para que 'GUE'/'GUI'/'QUE'/'QUI' se procesen antes que 'GE'
-        const sortedKeys = Object.keys(phoneticMap).sort((a, b) => b.length - a.length);
-        sortedKeys.forEach(key => {
-          if (key.length > 1) {
-            const regex = new RegExp('\\b' + key + '\\b', 'gi');
-            text = text.replace(regex, phoneticMap[key]);
+      // 2. Si es una frase u oración, reemplazar palabras canónicas clave dentro del texto
+      if (typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+        const wordsInText = text.split(/([\s,;.!¡?¿]+)/);
+        let reconstructed = '';
+        for (let part of wordsInText) {
+          const cleanPart = part.toUpperCase().replace(/[^A-ZÁÉÍÓÚÜÑ]/g, '');
+          const normKey = (typeof removeAccents === 'function') ? removeAccents(cleanPart) : cleanPart;
+          const isExplicitWord = (CANONICAL_WORD_LEXICON && CANONICAL_WORD_LEXICON[normKey]) || (typeof localStorage !== 'undefined' && localStorage.getItem('crin_lexicon_overrides') && localStorage.getItem('crin_lexicon_overrides').includes(normKey));
+          if (isExplicitWord && cleanPart.length > 2 && typeof getCanonicalWord === 'function') {
+            const canonPart = getCanonicalWord(cleanPart);
+            if (canonPart && canonPart.pronunciacion) {
+              part = part.replace(new RegExp(cleanPart, 'i'), canonPart.pronunciacion);
+            }
           }
-        });
+          reconstructed += part;
+        }
+        text = reconstructed;
       }
 
-      // Prevención de sigla/acrónimo en dígrafos y sílabas clave en juegos de silabeo
-      // (ej: GUE -> 'gue' para que nunca deletree 'ge u e', JO -> 'jov' para que nunca diga 'yo', JU -> 'juy' para que nunca diga 'yu')
+      if (phoneticMap[exactKey]) {
+        text = phoneticMap[exactKey];
+      }
+
+      // Prevención de sigla en dígrafos en mayúsculas aislados
       text = text.replace(/\bGUE\b/gi, 'gue');
       text = text.replace(/\bGUI\b/gi, 'gui');
       text = text.replace(/\bQUE\b/gi, 'que');
       text = text.replace(/\bQUI\b/gi, 'qui');
-      text = text.replace(/\bJO\b/gi, 'jov');
-      text = text.replace(/\bJU\b/gi, 'juy');
 
       // Evita que el sintetizador deletree dígrafos en mayúsculas como siglas (ej: LLA -> "ele ele a", RRO -> "doble erre o")
       text = text.replace(/\bLLA\b/gi, 'Ya');
@@ -5212,7 +5220,7 @@
       event.target.value = '';
     }
 
-    function renderDictionaryEditorTable() {
+        function renderDictionaryEditorTable() {
       const container = document.getElementById('dictionary-editor-container');
       if (!container) return;
 
@@ -5222,6 +5230,9 @@
       const query = searchInput ? searchInput.value.toUpperCase().trim() : '';
 
       const wordSet = new Set();
+      if (typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+        Object.keys(CANONICAL_WORD_LEXICON).forEach(w => wordSet.add(w));
+      }
       Object.keys(emojiMap).forEach(w => wordSet.add(w));
       Object.keys(customEmojiOverrides).forEach(w => wordSet.add(w));
       deletedWordsList.forEach(w => wordSet.add(w));
@@ -5236,41 +5247,100 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div style="font-size: 12px; color: #6B7280; text-align: center; padding: 12px;">No se encontraron palabras para "${query}". Escribe la palabra arriba y toca "➕ Guardar Dibujo".</div>`;
+        container.innerHTML = `<div style="font-size: 13px; color: #6B7280; text-align: center; padding: 20px; background: white; border-radius: 12px; border: 1px dashed #CBD5E1;">
+          No se encontraron palabras para "${query}". Puedes agregar una palabra nueva arriba y pulsar "➕ Guardar Dibujo".
+        </div>`;
         return;
       }
 
-      let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px;">';
+      let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">';
 
       filtered.forEach(w => {
         const isDeleted = deletedWordsList.includes(w);
-        const currentEmoji = customEmojiOverrides[w] || emojiMap[w] || (typeof getEmojiForWord === 'function' ? getEmojiForWord(w) : '⭐');
-        
+        const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(w) : null;
+        const normKey = (typeof removeAccents === 'function') ? removeAccents(w).toUpperCase() : w.toUpperCase();
+        const displayWord = canon ? canon.escritura : w;
+        const currentPron = canon ? canon.pronunciacion : w;
+        const currentSyls = (canon && canon.silabas) ? canon.silabas.join(' - ') : '';
+        const currentLetters = (canon && canon.letras) ? canon.letras.join(' · ') : w.split('').join(' · ');
+        const isCustom = canon && canon.isCustomOverride;
+        const currentEmoji = customEmojiOverrides[w] || (canon && canon.emoji) || emojiMap[w] || '⭐';
+
         if (isDeleted) {
           html += `
-            <div style="background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px;">
-              <div style="font-weight: bold; font-size: 12px; color: #991B1B; text-decoration: line-through; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                ❌ ${w}
+            <div style="background: #FEE2E2; border: 1.5px dashed #FCA5A5; border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div>
+                <div style="font-weight: 800; font-size: 13px; color: #991B1B; text-decoration: line-through;">
+                  ❌ ${displayWord}
+                </div>
+                <div style="font-size: 10px; color: #B91C1C;">Palabra desactivada</div>
               </div>
-              <button onclick="restoreWordToDictionary('${w}')" style="background: #10B981; color: white; border: none; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; white-space: nowrap;">
-                ↩️ Activar
+              <button onclick="restoreWordToDictionary('${w}')" style="background: #10B981; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(16,185,129,0.3);">
+                ↩️ Reactivar
               </button>
             </div>
           `;
         } else {
-          const isOverridden = !!customEmojiOverrides[w];
           html += `
-            <div style="background: white; border: 1px solid ${isOverridden ? '#8B5CF6' : '#E2E8F0'}; border-radius: 10px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-              <div style="font-weight: bold; font-size: 12px; color: #1E293B; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;" onclick="renameWordInDictionary('${w}')" title="Toca para renombrar o corregir (ej: agregar acento SÁBANA)">
-                ${w} <span style="font-size: 11px; color: #6D28D9; opacity: 0.7;">✏️</span>
+            <div style="background: white; border: 2px solid ${isCustom ? '#8B5CF6' : '#E2E8F0'}; border-radius: 14px; padding: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 8px; position: relative;">
+              
+              <!-- CABECERA DE LA FICHA -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #F1F5F9; padding-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                  <button onclick="openEmojiSuggestionsModal('${w}')" style="background: #FAF5FF; border: 1.5px solid #DDD6FE; border-radius: 10px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;" title="Cambiar ilustración">
+                    ${renderDrawingHTML(currentEmoji, 'width: 32px; height: 32px; object-fit: contain;')}
+                  </button>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 900; font-size: 15px; color: #1E293B; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Escritura canónica">
+                      ${displayWord}
+                    </div>
+                    ${isCustom ? '<span style="font-size: 9px; background: #8B5CF6; color: white; padding: 1px 6px; border-radius: 6px; font-weight: bold;">⭐ Personalizada</span>' : '<span style="font-size: 9px; color: #64748B;">Estándar CRIN</span>'}
+                  </div>
+                </div>
+                <button onclick="deleteWordFromDictionary('${w}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; width: 28px; height: 28px; border-radius: 8px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Desactivar palabra de las actividades">
+                  🗑️
+                </button>
               </div>
-              <button onclick="openEmojiSuggestionsModal('${w}')" style="background: ${isOverridden ? '#F3E8FF' : '#FAF5FF'}; border: 2px solid ${isOverridden ? '#8B5CF6' : '#DDD6FE'}; border-radius: 10px; padding: 3px 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);" title="Toca para cambiar dibujo con sugerencias">
-                <span>${renderDrawingHTML(currentEmoji, 'width: 22px; height: 22px; object-fit: contain;')}</span>
-                <span style="font-size: 9px; color: #7C3AED; font-weight: bold;">🎨</span>
-              </button>
-              <button onclick="deleteWordFromDictionary('${w}')" style="background: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Eliminar palabra de la app">
-                🗑️
-              </button>
+
+              <!-- CUALIDAD 1: PRONUNCIACIÓN FONÉTICA CON PRUEBA DE VOZ EN VIVO -->
+              <div>
+                <label style="font-size: 10px; font-weight: 800; color: #475569; display: block; margin-bottom: 3px;">
+                  🗣️ Pronunciación (lo que dice el narrador):
+                </label>
+                <div style="display: flex; gap: 6px;">
+                  <input type="text" id="dict-pron-${normKey}" value="${currentPron}" style="flex: 1; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 5px 8px; font-size: 12px; font-weight: 700; color: #0F172A;" placeholder="Ej: Lámpara" />
+                  <button onclick="testCardWordPronunciation('${normKey}')" style="background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.25);" title="Escuchar pronunciación ahora">
+                    <span>🔊 Probar</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- CUALIDAD 2: SÍLABAS DESGLOSADAS -->
+              <div>
+                <label style="font-size: 10px; font-weight: 800; color: #475569; display: block; margin-bottom: 3px;">
+                  ✂️ Sílabas (separadas con guión):
+                </label>
+                <input type="text" id="dict-syl-${normKey}" value="${currentSyls}" style="width: 100%; box-sizing: border-box; border: 1.5px solid #CBD5E1; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 700; color: #334155;" placeholder="Ej: LAM - PA - RA" />
+              </div>
+
+              <!-- CUALIDAD 3: LETRAS -->
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: #64748B; background: #F8FAFC; padding: 4px 8px; border-radius: 6px;">
+                <span>🔠 Letras:</span>
+                <strong style="color: #0F172A; letter-spacing: 1px;">${currentLetters}</strong>
+              </div>
+
+              <!-- BOTONES DE ACCIÓN DE LA TARJETA -->
+              <div style="display: flex; gap: 6px; margin-top: 4px;">
+                <button onclick="saveWordQualitiesFromCard('${normKey}')" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
+                  <span>💾 Guardar</span>
+                </button>
+                ${isCustom ? `
+                  <button onclick="resetWordQualitiesFromCard('${normKey}')" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 6px 8px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Restablecer a valores de fábrica">
+                    🔄 Reset
+                  </button>
+                ` : ''}
+              </div>
+
             </div>
           `;
         }
@@ -5278,6 +5348,97 @@
 
       html += '</div>';
       container.innerHTML = html;
+    }
+
+        function showFloatingFeedbackToast(msg) {
+      let toast = document.getElementById('crin-floating-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'crin-floating-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '24px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.background = 'rgba(15, 23, 42, 0.92)';
+        toast.style.color = '#FFFFFF';
+        toast.style.padding = '10px 18px';
+        toast.style.borderRadius = '12px';
+        toast.style.fontSize = '13px';
+        toast.style.fontWeight = '700';
+        toast.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)';
+        toast.style.zIndex = '99999';
+        toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        toast.style.pointerEvents = 'none';
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      setTimeout(() => {
+        if (toast) {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateX(-50%) translateY(10px)';
+        }
+      }, 2200);
+    }
+
+    function testCardWordPronunciation(normKey) {
+      const input = document.getElementById('dict-pron-' + normKey);
+      const textToTest = input ? input.value.trim() : normKey;
+      if (!textToTest) return;
+      if (typeof speakText === 'function') {
+        speakText(textToTest);
+      }
+    }
+
+    function saveWordQualitiesFromCard(normKey) {
+      const pronInput = document.getElementById('dict-pron-' + normKey);
+      const sylInput = document.getElementById('dict-syl-' + normKey);
+      if (!pronInput) return;
+
+      const newPron = pronInput.value.trim();
+      const rawSyls = sylInput ? sylInput.value.trim() : '';
+      const sylArray = rawSyls ? rawSyls.split(/[-–—/,s]+/).map(s => s.trim().toUpperCase()).filter(Boolean) : null;
+
+      const updates = {
+        pronunciacion: newPron
+      };
+      if (sylArray && sylArray.length > 0) {
+        updates.silabas = sylArray;
+      }
+
+      if (typeof saveCanonicalWordOverride === 'function') {
+        saveCanonicalWordOverride(normKey, updates);
+      } else {
+        let overrides = {};
+        try { overrides = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}'); } catch(e) {}
+        overrides[normKey] = Object.assign({}, overrides[normKey] || {}, updates);
+        localStorage.setItem('crin_lexicon_overrides', JSON.stringify(overrides));
+      }
+
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('✅ Cualidades guardadas para ' + normKey);
+      } else {
+        alert('✅ Pronunciación guardada para ' + normKey);
+      }
+      renderDictionaryEditorTable();
+    }
+
+    function resetWordQualitiesFromCard(normKey) {
+      if (typeof resetCanonicalWordOverride === 'function') {
+        resetCanonicalWordOverride(normKey);
+      } else {
+        let overrides = {};
+        try { overrides = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}'); } catch(e) {}
+        if (overrides[normKey]) {
+          delete overrides[normKey];
+          localStorage.setItem('crin_lexicon_overrides', JSON.stringify(overrides));
+        }
+      }
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('🔄 Valores restablecidos para ' + normKey);
+      }
+      renderDictionaryEditorTable();
     }
 
     function getSpanishGender(word) {

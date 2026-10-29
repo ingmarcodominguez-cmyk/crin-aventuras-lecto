@@ -1479,22 +1479,62 @@ function getCanonicalWord(wordOrId) {
   if (!wordOrId) return null;
   const cleanRaw = wordOrId.toString().trim();
   const normId = (typeof removeAccents === 'function') ? removeAccents(cleanRaw).toUpperCase() : cleanRaw.toUpperCase();
-  if (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[normId]) {
-    const item = CANONICAL_WORD_LEXICON[normId];
-    let currentEmoji = item.emoji;
+  
+  // Revisar si el terapeuta / usuario personalizó esta palabra en el Gestor de Cualidades
+  let customOverrides = {};
+  try {
+    const saved = localStorage.getItem('crin_lexicon_overrides');
+    if (saved) customOverrides = JSON.parse(saved);
+  } catch(e) {}
+
+  const baseItem = (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[normId]) ? CANONICAL_WORD_LEXICON[normId] : null;
+  const overrideItem = customOverrides[normId] || null;
+
+  if (baseItem || overrideItem) {
+    const merged = Object.assign({}, baseItem || {}, overrideItem || {});
+    let currentEmoji = merged.emoji;
     if (typeof getEmojiForWord === 'function') {
-      const em = getEmojiForWord(item.escritura || cleanRaw);
+      const em = getEmojiForWord(merged.escritura || cleanRaw);
       if (em && em !== '⭐') currentEmoji = em;
     }
     return {
-      escritura: item.escritura,
-      pronunciacion: item.pronunciacion,
-      letras: item.letras ? [...item.letras] : (typeof getWordLetterTokens === 'function' ? getWordLetterTokens(item.escritura) : item.escritura.split('')),
-      silabas: item.silabas ? [...item.silabas] : (typeof splitSpanishSyllables === 'function' ? splitSpanishSyllables(item.escritura) : [item.escritura]),
-      emoji: currentEmoji
+      id: normId,
+      escritura: merged.escritura || cleanRaw,
+      pronunciacion: merged.pronunciacion || merged.escritura || cleanRaw,
+      letras: merged.letras ? [...merged.letras] : (typeof getWordLetterTokens === 'function' ? getWordLetterTokens(merged.escritura || cleanRaw) : (merged.escritura || cleanRaw).split('')),
+      silabas: merged.silabas ? [...merged.silabas] : (typeof splitSpanishSyllables === 'function' ? splitSpanishSyllables(merged.escritura || cleanRaw) : [merged.escritura || cleanRaw]),
+      emoji: currentEmoji,
+      isCustomOverride: !!overrideItem
     };
   }
   return buildCanonicalWordEntry(cleanRaw);
+}
+
+function saveCanonicalWordOverride(wordOrId, updates) {
+  if (!wordOrId || !updates) return;
+  const normId = (typeof removeAccents === 'function') ? removeAccents(wordOrId.toString().trim()).toUpperCase() : wordOrId.toString().trim().toUpperCase();
+  let overrides = {};
+  try {
+    overrides = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}');
+  } catch(e) {}
+  overrides[normId] = Object.assign({}, overrides[normId] || {}, updates);
+  localStorage.setItem('crin_lexicon_overrides', JSON.stringify(overrides));
+  if (typeof updateGameDatasetsFromCanonical === 'function') updateGameDatasetsFromCanonical();
+  return overrides[normId];
+}
+
+function resetCanonicalWordOverride(wordOrId) {
+  if (!wordOrId) return;
+  const normId = (typeof removeAccents === 'function') ? removeAccents(wordOrId.toString().trim()).toUpperCase() : wordOrId.toString().trim().toUpperCase();
+  let overrides = {};
+  try {
+    overrides = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}');
+  } catch(e) {}
+  if (overrides[normId]) {
+    delete overrides[normId];
+    localStorage.setItem('crin_lexicon_overrides', JSON.stringify(overrides));
+  }
+  if (typeof updateGameDatasetsFromCanonical === 'function') updateGameDatasetsFromCanonical();
 }
 
 function buildCanonicalWordEntry(rawWord) {
