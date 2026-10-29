@@ -31,6 +31,9 @@
 
   function drawWordIcon(ctx, emojiOrPath, x, y, size) {
     if (!emojiOrPath) return;
+    if (Array.isArray(emojiOrPath)) emojiOrPath = emojiOrPath[0] || '⭐';
+    if (typeof emojiOrPath !== 'string') emojiOrPath = String(emojiOrPath || '⭐');
+
     const isPath = emojiOrPath.startsWith('assets/') || emojiOrPath.includes('.png') || emojiOrPath.includes('.jpg') || emojiOrPath.startsWith('data:image');
     
     if (isPath) {
@@ -44,7 +47,6 @@
         ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
         return;
       }
-      // Mientras carga o si falla, dibuja una diana mágica
       ctx.font = `${size}px "Segoe UI Emoji", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -54,6 +56,23 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(emojiOrPath, x, y);
+    }
+  }
+
+  // AudioContext Singleton para no colapsar hilos de audio en Chrome
+  let _sharedAudioCtx = null;
+  function getSharedAudioContext() {
+    try {
+      if (!_sharedAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) _sharedAudioCtx = new AudioCtx();
+      }
+      if (_sharedAudioCtx && _sharedAudioCtx.state === 'suspended') {
+        _sharedAudioCtx.resume().catch(() => {});
+      }
+      return _sharedAudioCtx;
+    } catch(e) {
+      return null;
     }
   }
 
@@ -73,6 +92,9 @@
     targetEmoji: '🎯',
     score: 0,
     streak: 0,
+    isAdvancing: false,
+    advanceTimeout: null,
+    missionVoiceTimeout: null,
 
     // Mascota arquera
     archer: {
@@ -112,16 +134,17 @@
     time: 0
   };
 
-  // --- EFECTOS DE SONIDO WEB AUDIO API ---
+  // --- EFECTOS DE SONIDO WEB AUDIO API (REUTILIZAN SINGLETON AUDIO CONTEXT) ---
   function playBowTwangSound() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = getSharedAudioContext();
+      if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(340, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.setValueAtTime(0.32, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -132,13 +155,14 @@
 
   function playArrowHitSound() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = getSharedAudioContext();
+      if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(220, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.09);
-      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.setValueAtTime(0.38, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.09);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -149,14 +173,15 @@
 
   function playArcherySuccessChime() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = getSharedAudioContext();
+      if (!ctx) return;
       const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.25, ctx.currentTime + idx * 0.08);
+        gain.gain.setValueAtTime(0.22, ctx.currentTime + idx * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + idx * 0.08 + 0.35);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -168,13 +193,14 @@
 
   function playArcheryWrongBoing() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = getSharedAudioContext();
+      if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(240, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.22);
-      gain.gain.setValueAtTime(0.22, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -223,6 +249,33 @@
       cancelAnimationFrame(ArcheryGame.animId);
       ArcheryGame.animId = null;
     }
+    if (ArcheryGame.advanceTimeout) {
+      clearTimeout(ArcheryGame.advanceTimeout);
+      ArcheryGame.advanceTimeout = null;
+    }
+    if (ArcheryGame.missionVoiceTimeout) {
+      clearTimeout(ArcheryGame.missionVoiceTimeout);
+      ArcheryGame.missionVoiceTimeout = null;
+    }
+    ArcheryGame.isAdvancing = false;
+    ArcheryGame.arrows = [];
+    ArcheryGame.targets = [];
+    ArcheryGame.particles = [];
+  };
+
+  window.closeArcheryAndReturnToMap = function() {
+    if (typeof window.stopArcheryGame === 'function') {
+      window.stopArcheryGame();
+    }
+    if (typeof stopAllAudio === 'function') {
+      stopAllAudio();
+    }
+    const modal = document.getElementById('archery-victory-modal');
+    if (modal) modal.style.display = 'none';
+
+    if (typeof switchScreen === 'function') {
+      switchScreen('map');
+    }
   };
 
   window.openArcheryQuestScreen = function() {
@@ -249,6 +302,7 @@
     ArcheryGame.targetWordIndex = 0;
     ArcheryGame.score = 0;
     ArcheryGame.streak = 0;
+    ArcheryGame.isAdvancing = false;
     ArcheryGame.arrows = [];
     ArcheryGame.particles = [];
     ArcheryGame.floatingTexts = [];
@@ -267,10 +321,6 @@
     ArcheryGame.isRunning = true;
     if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
     ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
-
-    setTimeout(() => {
-      speakCurrentArcheryMission();
-    }, 450);
 
     updateArcheryHUD();
   }
@@ -306,12 +356,19 @@
       return;
     }
 
+    ArcheryGame.isAdvancing = false;
     ArcheryGame.targetWordIndex = index;
     ArcheryGame.targetWord = ArcheryGame.taskWords[index].toUpperCase().trim();
     ArcheryGame.targetEmoji = getWordEmoji(ArcheryGame.targetWord);
 
     spawnInitialTargets();
     updateArcheryHUD();
+
+    // 🔊 DECIR CADA PALABRA OBJETIVO AL COMENZAR
+    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
+    ArcheryGame.missionVoiceTimeout = setTimeout(() => {
+      speakCurrentArcheryMission();
+    }, 300);
   }
 
   function updateArcheryHUD() {
@@ -323,7 +380,8 @@
     if (wordDisplay) wordDisplay.innerText = ArcheryGame.targetWord;
     if (emojiDisplay) {
       const emojiVal = ArcheryGame.targetEmoji;
-      if (emojiVal.startsWith('assets/') || emojiVal.includes('.png') || emojiVal.startsWith('data:image')) {
+      const isPath = (typeof emojiVal === 'string') && (emojiVal.startsWith('assets/') || emojiVal.includes('.png') || emojiVal.startsWith('data:image'));
+      if (isPath) {
         emojiDisplay.innerHTML = `<img src="${emojiVal}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">`;
       } else {
         emojiDisplay.innerText = emojiVal;
@@ -343,7 +401,7 @@
     if (typeof speakText === 'function') {
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
-      speakText(`¡Apunta y dispara rápido a: ${pronWord}!`);
+      speakText(`¡Apunta y dispara a: ${pronWord}!`);
     }
   };
 
@@ -376,7 +434,6 @@
 
   function spawnTarget(word, isTarget, initialX, initialY) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    // Rapidez de lectura dinámica
     const speed = 1.3 + Math.random() * 1.1;
     const emoji = getWordEmoji(word);
 
@@ -402,7 +459,7 @@
       waveOffset: Math.random() * Math.PI * 2,
       waveSpeed: 0.035 + Math.random() * 0.02,
       waveAmp: 18 + Math.random() * 14,
-      life: 250 + Math.random() * 100, // 4.5 a 6 segundos
+      life: 250 + Math.random() * 100,
       isFading: false,
       wobble: 0
     });
@@ -441,7 +498,7 @@
         t.targetScale = 0.2;
       }
 
-      if (t.isTarget && t.alpha > 0.2) {
+      if (t.isTarget && t.alpha > 0.2 && !t.isFading) {
         hasTargetWord = true;
       }
 
@@ -450,7 +507,8 @@
       }
     }
 
-    if (!hasTargetWord && ArcheryGame.targets.length < 5) {
+    // Si la palabra objetivo desapareció y no estamos en transición de victoria/avance, reaparecerla
+    if (!hasTargetWord && !ArcheryGame.isAdvancing && ArcheryGame.targets.length < 5) {
       const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
       const ry = 80 + Math.random() * (ArcheryGame.height - 240);
       spawnTarget(ArcheryGame.targetWord, true, rx, ry);
@@ -546,6 +604,7 @@
 
   function handleArrowHitTarget(arrow, target) {
     if (target.isTarget) {
+      // ✅ ACIERTO EN LA PALABRA CORRECTA
       playArrowHitSound();
       playArcherySuccessChime();
 
@@ -573,11 +632,17 @@
       target.targetScale = 1.35;
       target.targetAlpha = 0;
 
-      setTimeout(() => {
-        setupTargetWord(ArcheryGame.targetWordIndex + 1);
-      }, 1300);
+      // Evitar avanzar múltiples veces si varias flechas impactan a la vez
+      if (!ArcheryGame.isAdvancing) {
+        ArcheryGame.isAdvancing = true;
+        if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
+        ArcheryGame.advanceTimeout = setTimeout(() => {
+          setupTargetWord(ArcheryGame.targetWordIndex + 1);
+        }, 1300);
+      }
 
     } else {
+      // ❌ IMPACTO EN OTRA PALABRA
       playArcheryWrongBoing();
       target.wobble = 18;
       createFloatingText(target.x, target.y - 20, '¡Casi!', '#D97706');
@@ -595,6 +660,9 @@
 
   function triggerArcheryVictory() {
     ArcheryGame.isRunning = false;
+    if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
+
+    playArcherySuccessChime();
     createConfettiBurst(ArcheryGame.width * 0.5, ArcheryGame.height * 0.4, 60);
 
     if (typeof speakText === 'function') {
@@ -607,9 +675,7 @@
   }
 
   window.closeArcheryVictoryModal = function() {
-    const modal = document.getElementById('archery-victory-modal');
-    if (modal) modal.style.display = 'none';
-    if (typeof switchScreen === 'function') switchScreen('map');
+    window.closeArcheryAndReturnToMap();
   };
 
   window.replayArcheryQuest = function() {
@@ -825,7 +891,7 @@
 
       ctx.restore();
 
-      // Arco y flecha
+      // Arco y flecha (sin a.pointer erróneo, usando ArcheryGame.pointer)
       ctx.save();
       const recoilOffset = a.recoil;
       ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
@@ -848,7 +914,7 @@
       ctx.arc(botTipX, botTipY, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      const drawDist = (a.isAiming || a.pointer.isDown) ? 22 : 4;
+      const drawDist = (a.isAiming || (ArcheryGame.pointer && ArcheryGame.pointer.isDown)) ? 22 : 4;
       const stringPullX = -drawDist;
 
       ctx.lineWidth = 1.8;
@@ -951,10 +1017,10 @@
       ctx.strokeStyle = '#D97706';
       ctx.stroke();
 
-      // Dibujo / Icono arriba de la diana (imagen real o emoji, NUNCA texto "assets/...")
+      // Dibujo / Icono arriba de la diana
       drawWordIcon(ctx, t.emoji, 0, -t.radius - 12, 30);
 
-      // Cartel con la palabra en letras grandes (usando drawRoundedRect 100% compatible)
+      // Cartel con la palabra en letras grandes
       const fontSize = Math.min(20, Math.max(15, 230 / (t.word.length + 4)));
       ctx.font = `900 ${fontSize}px "Comic Sans MS", "Nunito", sans-serif`;
       const textWidth = ctx.measureText(t.word).width;
@@ -1232,7 +1298,7 @@
       const w = ArcheryGame.width;
       const h = ArcheryGame.height;
 
-      // 🛑 RESETEAR MATRIZ DE TRANSFORMACIÓN PARA QUE LA PANTALLA NUNCA ROTE NI SE DEFORME
+      // Resetear matriz a identidad siempre
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
@@ -1260,7 +1326,7 @@
       drawMascotArcher(ctx, ArcheryGame.time);
 
     } catch (err) {
-      console.error('ArcheryGameLoop error protegido:', err);
+      // Proteger bucle silenciosamente
     }
 
     if (ArcheryGame.isRunning) {
@@ -1316,7 +1382,6 @@
       const ay = ArcheryGame.archer.y - 30;
       ArcheryGame.archer.targetAimAngle = Math.atan2(pos.y - ay, pos.x - ax);
 
-      // Disparo inmediato para máxima rapidez de respuesta
       shootArrowAt(pos.x, pos.y);
     }
 
