@@ -10,7 +10,7 @@
 (function(window) {
   'use strict';
 
-  // Helper universal de rectángulo redondeado (compatible con 100% de navegadores y versiones)
+  // Helper universal de rectángulo redondeado (100% compatible con todos los navegadores)
   function drawRoundedRect(ctx, x, y, width, height, radius) {
     const r = Math.min(radius, Math.min(width / 2, height / 2));
     ctx.beginPath();
@@ -24,6 +24,37 @@
     ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
+  }
+
+  // Caché de imágenes de dibujos para no dibujar strings "assets/..."
+  const imageAssetCache = {};
+
+  function drawWordIcon(ctx, emojiOrPath, x, y, size) {
+    if (!emojiOrPath) return;
+    const isPath = emojiOrPath.startsWith('assets/') || emojiOrPath.includes('.png') || emojiOrPath.includes('.jpg') || emojiOrPath.startsWith('data:image');
+    
+    if (isPath) {
+      if (!imageAssetCache[emojiOrPath]) {
+        const img = new Image();
+        img.src = emojiOrPath;
+        imageAssetCache[emojiOrPath] = img;
+      }
+      const img = imageAssetCache[emojiOrPath];
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
+        return;
+      }
+      // Mientras carga o si falla, dibuja una diana mágica
+      ctx.font = `${size}px "Segoe UI Emoji", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🎯', x, y);
+    } else {
+      ctx.font = `${size}px "Segoe UI Emoji", "Apple Color Emoji", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(emojiOrPath, x, y);
+    }
   }
 
   // --- ESTADO DEL JUEGO DE TIRO CON ARCO ---
@@ -61,8 +92,7 @@
       isCelebrating: false,
       celebrateTimer: 0,
       blinkTimer: 160,
-      isBlinking: false,
-      tailAngle: 0
+      isBlinking: false
     },
 
     // Entidades en la arena
@@ -89,7 +119,7 @@
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.setValueAtTime(340, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.12);
       gain.gain.setValueAtTime(0.35, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
@@ -202,7 +232,6 @@
     const screen = document.getElementById('screen-archery');
     if (screen) screen.classList.add('active');
 
-    // Inicializar juego y asegurar tamaños en varios ticks
     initArcheryGame();
     setTimeout(resizeArcheryCanvas, 50);
     setTimeout(resizeArcheryCanvas, 150);
@@ -216,7 +245,6 @@
 
     resizeArcheryCanvas();
 
-    // Cargar palabras de la tarea activa
     ArcheryGame.taskWords = getArcheryTaskWords();
     ArcheryGame.targetWordIndex = 0;
     ArcheryGame.score = 0;
@@ -226,7 +254,6 @@
     ArcheryGame.floatingTexts = [];
     ArcheryGame.targets = [];
 
-    // Nubes de fondo
     ArcheryGame.bgClouds = [
       { x: 40, y: 55, scale: 0.9, speed: 0.3 },
       { x: 280, y: 95, scale: 0.65, speed: 0.2 },
@@ -263,7 +290,6 @@
     ArcheryGame.canvas.width = w;
     ArcheryGame.canvas.height = h;
 
-    // Posición base de la mascota en el pasto a la izquierda
     ArcheryGame.archer.baseX = Math.max(70, Math.min(125, w * 0.14));
     ArcheryGame.archer.baseY = h - 68;
     ArcheryGame.archer.x = ArcheryGame.archer.baseX;
@@ -284,7 +310,6 @@
     ArcheryGame.targetWord = ArcheryGame.taskWords[index].toUpperCase().trim();
     ArcheryGame.targetEmoji = getWordEmoji(ArcheryGame.targetWord);
 
-    // Repoblar objetivos dinámicos
     spawnInitialTargets();
     updateArcheryHUD();
   }
@@ -298,7 +323,7 @@
     if (wordDisplay) wordDisplay.innerText = ArcheryGame.targetWord;
     if (emojiDisplay) {
       const emojiVal = ArcheryGame.targetEmoji;
-      if (emojiVal.startsWith('assets/') || emojiVal.startsWith('data:image')) {
+      if (emojiVal.startsWith('assets/') || emojiVal.includes('.png') || emojiVal.startsWith('data:image')) {
         emojiDisplay.innerHTML = `<img src="${emojiVal}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">`;
       } else {
         emojiDisplay.innerText = emojiVal;
@@ -351,7 +376,7 @@
 
   function spawnTarget(word, isTarget, initialX, initialY) {
     const direction = Math.random() > 0.5 ? 1 : -1;
-    // Velocidad dinámica para entrenamiento de rapidez de lectura
+    // Rapidez de lectura dinámica
     const speed = 1.3 + Math.random() * 1.1;
     const emoji = getWordEmoji(word);
 
@@ -377,9 +402,7 @@
       waveOffset: Math.random() * Math.PI * 2,
       waveSpeed: 0.035 + Math.random() * 0.02,
       waveAmp: 18 + Math.random() * 14,
-      // Duración visible antes de desvanecerse (240 a 340 frames = 4 a 5.5 segundos)
-      life: 240 + Math.random() * 100,
-      maxLife: 300,
+      life: 250 + Math.random() * 100, // 4.5 a 6 segundos
       isFading: false,
       wobble: 0
     });
@@ -393,17 +416,14 @@
     for (let i = ArcheryGame.targets.length - 1; i >= 0; i--) {
       const t = ArcheryGame.targets[i];
 
-      // Animaciones de escala y fade
       t.scale += (t.targetScale - t.scale) * 0.14;
       t.alpha += (t.targetAlpha - t.alpha) * 0.1;
       if (t.wobble > 0) t.wobble *= 0.88;
 
-      // Movimiento horizontal continuo y oscilación de altura
       t.x += t.vx;
       t.waveOffset += t.waveSpeed;
       t.y = t.baseY + Math.sin(t.waveOffset) * t.waveAmp;
 
-      // Rebote ágil en bordes de la arena derecha
       const minX = ArcheryGame.width * 0.30;
       const maxX = ArcheryGame.width - 65;
       if (t.x < minX) {
@@ -414,7 +434,6 @@
         t.vx = -Math.abs(t.vx);
       }
 
-      // Desvanecimiento ("surgen y se desvanecen")
       t.life--;
       if (t.life <= 45 && !t.isFading) {
         t.isFading = true;
@@ -426,20 +445,17 @@
         hasTargetWord = true;
       }
 
-      // Eliminar al terminar de desvanecerse
       if (t.isFading && t.alpha <= 0.05) {
         ArcheryGame.targets.splice(i, 1);
       }
     }
 
-    // Si la palabra objetivo se desvaneció, reaparecerla de inmediato en otro lugar
     if (!hasTargetWord && ArcheryGame.targets.length < 5) {
       const rx = ArcheryGame.width * (0.42 + Math.random() * 0.45);
       const ry = 80 + Math.random() * (ArcheryGame.height - 240);
       spawnTarget(ArcheryGame.targetWord, true, rx, ry);
     }
 
-    // Mantener 3 o 4 palabras en pantalla activas
     if (ArcheryGame.targets.length < 3) {
       const pool = ArcheryGame.taskWords.filter(w => w !== ArcheryGame.targetWord);
       const randomWord = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : 'SOL';
@@ -460,7 +476,6 @@
     if (dist < 10) return;
 
     const angle = Math.atan2(dy, dx);
-    // Velocidad rápida y certera para sensación de arcade responsivo
     const speed = 26;
 
     ArcheryGame.arrows.push({
@@ -472,7 +487,6 @@
       life: 90
     });
 
-    // Reacción inmediata de la mascota
     ArcheryGame.archer.aimAngle = angle;
     ArcheryGame.archer.targetAimAngle = angle;
     ArcheryGame.archer.isShooting = true;
@@ -492,7 +506,6 @@
       arr.vy += 0.06;
       arr.angle = Math.atan2(arr.vy, arr.vx);
 
-      // Estela de chispas
       ArcheryGame.particles.push({
         x: arr.x - Math.cos(arr.angle) * 16,
         y: arr.y - Math.sin(arr.angle) * 16,
@@ -504,7 +517,6 @@
         decay: 0.05
       });
 
-      // Detección de impacto
       let hit = false;
       for (let j = 0; j < ArcheryGame.targets.length; j++) {
         const target = ArcheryGame.targets[j];
@@ -514,7 +526,6 @@
         const tdy = arr.y - target.y;
         const dist = Math.sqrt(tdx * tdx + tdy * tdy);
 
-        // Radio de impacto generoso para niños
         if (dist < target.radius + 20) {
           handleArrowHitTarget(arr, target);
           hit = true;
@@ -527,7 +538,6 @@
         continue;
       }
 
-      // Eliminar flechas fuera de pantalla
       if (arr.x > ArcheryGame.width + 60 || arr.y > ArcheryGame.height + 60 || arr.x < -60) {
         ArcheryGame.arrows.splice(i, 1);
       }
@@ -536,14 +546,12 @@
 
   function handleArrowHitTarget(arrow, target) {
     if (target.isTarget) {
-      // ✅ ACIERTO EN LA PALABRA CORRECTA
       playArrowHitSound();
       playArcherySuccessChime();
 
       createConfettiBurst(target.x, target.y, 30);
       createFloatingText(target.x, target.y - 25, '¡EXCELENTE! +10 🪙', '#059669');
 
-      // Animación de festejo
       ArcheryGame.archer.isCelebrating = true;
       ArcheryGame.archer.celebrateTimer = 90;
       ArcheryGame.archer.jumpVy = -8.5;
@@ -565,13 +573,11 @@
       target.targetScale = 1.35;
       target.targetAlpha = 0;
 
-      // Avanzar a la siguiente palabra
       setTimeout(() => {
         setupTargetWord(ArcheryGame.targetWordIndex + 1);
       }, 1300);
 
     } else {
-      // ❌ IMPACTO EN OTRA PALABRA
       playArcheryWrongBoing();
       target.wobble = 18;
       createFloatingText(target.x, target.y - 20, '¡Casi!', '#D97706');
@@ -648,252 +654,254 @@
     }
 
     ctx.save();
-    ctx.translate(a.x, a.y + a.jumpY);
+    try {
+      ctx.translate(a.x, a.y + a.jumpY);
 
-    // Sombra
-    ctx.beginPath();
-    ctx.ellipse(0, 32, 40, 10, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-    ctx.fill();
-
-    // Carcaj
-    ctx.save();
-    ctx.rotate(0.35);
-    ctx.fillStyle = '#78350F';
-    ctx.fillRect(-38, -35, 14, 38);
-    for (let k = 0; k < 3; k++) {
-      ctx.fillStyle = k === 1 ? '#FDE047' : '#10B981';
+      // Sombra
       ctx.beginPath();
-      ctx.moveTo(-35 + k * 4, -35);
-      ctx.lineTo(-37 + k * 4, -48);
-      ctx.lineTo(-33 + k * 4, -48);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
-
-    // Cola
-    ctx.save();
-    ctx.translate(-28, 5);
-    ctx.rotate(-0.3 + tailWag);
-    ctx.fillStyle = '#F59E0B';
-    ctx.beginPath();
-    ctx.ellipse(-14, 0, 16, 8, -0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Cuerpo
-    ctx.save();
-    ctx.translate(0, breathing);
-    ctx.fillStyle = '#FEF3C7';
-    ctx.beginPath();
-    ctx.ellipse(-5, 8, 28, 24, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#D97706';
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.ellipse(8, 10, 14, 16, 0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // Patitas
-    ctx.fillStyle = '#F59E0B';
-    ctx.beginPath();
-    ctx.ellipse(-15, 28, 9, 6, 0, 0, Math.PI * 2);
-    ctx.ellipse(8, 28, 9, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cabeza
-    ctx.save();
-    const headRot = a.aimAngle * 0.25;
-    ctx.translate(2, -14 + breathing);
-    ctx.rotate(headRot);
-
-    ctx.fillStyle = '#FEF3C7';
-    ctx.beginPath();
-    ctx.arc(0, 0, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#D97706';
-    ctx.stroke();
-
-    // Mejillas
-    ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
-    ctx.beginPath();
-    ctx.arc(-11, 6, 5, 0, Math.PI * 2);
-    ctx.arc(11, 6, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Hocico
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.ellipse(4, 5, 11, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#78350F';
-    ctx.beginPath();
-    ctx.arc(5, 2, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Ojos
-    if (a.isBlinking) {
-      ctx.strokeStyle = '#78350F';
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(-4, -4, 4, Math.PI, 0);
-      ctx.arc(10, -4, 4, Math.PI, 0);
-      ctx.stroke();
-    } else {
-      const eyeLookX = Math.cos(a.aimAngle) * 2;
-      const eyeLookY = Math.sin(a.aimAngle) * 2;
-
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.ellipse(-4, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#1E293B';
-      ctx.beginPath();
-      ctx.arc(-4 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(-5 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
+      ctx.ellipse(0, 32, 40, 10, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
       ctx.fill();
 
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.ellipse(10, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#1E293B';
-      ctx.beginPath();
-      ctx.arc(10 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.arc(9 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Orejas
-    ctx.fillStyle = '#F59E0B';
-    ctx.beginPath();
-    ctx.ellipse(-14, -18, 7, 13, -0.4, 0, Math.PI * 2);
-    ctx.ellipse(14, -18, 7, 13, 0.4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cuerno
-    if (petType.includes('🦄') || true) {
-      ctx.fillStyle = '#FACC15';
-      ctx.beginPath();
-      ctx.moveTo(2, -22);
-      ctx.lineTo(8, -38);
-      ctx.lineTo(14, -22);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#EAB308';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-
-    // Sombrero de arquero con pluma
-    ctx.fillStyle = '#059669';
-    ctx.beginPath();
-    ctx.ellipse(0, -22, 22, 7, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(-16, -22);
-    ctx.lineTo(0, -34);
-    ctx.lineTo(16, -22);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#FEF08A';
-    ctx.beginPath();
-    ctx.moveTo(8, -26);
-    ctx.quadraticCurveTo(24, -38, 20, -48);
-    ctx.quadraticCurveTo(12, -40, 6, -26);
-    ctx.fill();
-
-    ctx.restore();
-
-    // Arco y flecha
-    ctx.save();
-    const recoilOffset = a.recoil;
-    ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
-    ctx.rotate(a.aimAngle);
-
-    const bowRadius = 38;
-    ctx.lineWidth = 4.5;
-    ctx.strokeStyle = '#78350F';
-    ctx.beginPath();
-    ctx.arc(0, 0, bowRadius, -Math.PI * 0.45, Math.PI * 0.45);
-    ctx.stroke();
-
-    ctx.fillStyle = '#F59E0B';
-    const topTipX = Math.cos(-Math.PI * 0.45) * bowRadius;
-    const topTipY = Math.sin(-Math.PI * 0.45) * bowRadius;
-    const botTipX = Math.cos(Math.PI * 0.45) * bowRadius;
-    const botTipY = Math.sin(Math.PI * 0.45) * bowRadius;
-    ctx.beginPath();
-    ctx.arc(topTipX, topTipY, 3.5, 0, Math.PI * 2);
-    ctx.arc(botTipX, botTipY, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    const drawDist = (a.isAiming || a.pointer.isDown) ? 22 : 4;
-    const stringPullX = -drawDist;
-
-    ctx.lineWidth = 1.8;
-    ctx.strokeStyle = '#FDE047';
-    ctx.beginPath();
-    ctx.moveTo(topTipX, topTipY);
-    ctx.lineTo(stringPullX, 0);
-    ctx.lineTo(botTipX, botTipY);
-    ctx.stroke();
-
-    if (a.shootCooldown < 6) {
+      // Carcaj
       ctx.save();
-      ctx.translate(stringPullX, 0);
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = '#D97706';
+      ctx.rotate(0.35);
+      ctx.fillStyle = '#78350F';
+      ctx.fillRect(-38, -35, 14, 38);
+      for (let k = 0; k < 3; k++) {
+        ctx.fillStyle = k === 1 ? '#FDE047' : '#10B981';
+        ctx.beginPath();
+        ctx.moveTo(-35 + k * 4, -35);
+        ctx.lineTo(-37 + k * 4, -48);
+        ctx.lineTo(-33 + k * 4, -48);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Cola
+      ctx.save();
+      ctx.translate(-28, 5);
+      ctx.rotate(-0.3 + tailWag);
+      ctx.fillStyle = '#F59E0B';
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(44, 0);
+      ctx.ellipse(-14, 0, 16, 8, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Cuerpo
+      ctx.save();
+      ctx.translate(0, breathing);
+      ctx.fillStyle = '#FEF3C7';
+      ctx.beginPath();
+      ctx.ellipse(-5, 8, 28, 24, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#D97706';
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.ellipse(8, 10, 14, 16, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Patitas
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.ellipse(-15, 28, 9, 6, 0, 0, Math.PI * 2);
+      ctx.ellipse(8, 28, 9, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cabeza
+      ctx.save();
+      const headRot = a.aimAngle * 0.25;
+      ctx.translate(2, -14 + breathing);
+      ctx.rotate(headRot);
+
+      ctx.fillStyle = '#FEF3C7';
+      ctx.beginPath();
+      ctx.arc(0, 0, 24, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#D97706';
+      ctx.stroke();
+
+      // Mejillas
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
+      ctx.beginPath();
+      ctx.arc(-11, 6, 5, 0, Math.PI * 2);
+      ctx.arc(11, 6, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hocico
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.ellipse(4, 5, 11, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#78350F';
+      ctx.beginPath();
+      ctx.arc(5, 2, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ojos
+      if (a.isBlinking) {
+        ctx.strokeStyle = '#78350F';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(-4, -4, 4, Math.PI, 0);
+        ctx.arc(10, -4, 4, Math.PI, 0);
+        ctx.stroke();
+      } else {
+        const eyeLookX = Math.cos(a.aimAngle) * 2;
+        const eyeLookY = Math.sin(a.aimAngle) * 2;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.ellipse(-4, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1E293B';
+        ctx.beginPath();
+        ctx.arc(-4 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(-5 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.ellipse(10, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#1E293B';
+        ctx.beginPath();
+        ctx.arc(10 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(9 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Orejas
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.ellipse(-14, -18, 7, 13, -0.4, 0, Math.PI * 2);
+      ctx.ellipse(14, -18, 7, 13, 0.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cuerno
+      if (petType.includes('🦄') || true) {
+        ctx.fillStyle = '#FACC15';
+        ctx.beginPath();
+        ctx.moveTo(2, -22);
+        ctx.lineTo(8, -38);
+        ctx.lineTo(14, -22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#EAB308';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Sombrero de arquero con pluma
+      ctx.fillStyle = '#059669';
+      ctx.beginPath();
+      ctx.ellipse(0, -22, 22, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-16, -22);
+      ctx.lineTo(0, -34);
+      ctx.lineTo(16, -22);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#FEF08A';
+      ctx.beginPath();
+      ctx.moveTo(8, -26);
+      ctx.quadraticCurveTo(24, -38, 20, -48);
+      ctx.quadraticCurveTo(12, -40, 6, -26);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Arco y flecha
+      ctx.save();
+      const recoilOffset = a.recoil;
+      ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
+      ctx.rotate(a.aimAngle);
+
+      const bowRadius = 38;
+      ctx.lineWidth = 4.5;
+      ctx.strokeStyle = '#78350F';
+      ctx.beginPath();
+      ctx.arc(0, 0, bowRadius, -Math.PI * 0.45, Math.PI * 0.45);
       ctx.stroke();
 
       ctx.fillStyle = '#F59E0B';
+      const topTipX = Math.cos(-Math.PI * 0.45) * bowRadius;
+      const topTipY = Math.sin(-Math.PI * 0.45) * bowRadius;
+      const botTipX = Math.cos(Math.PI * 0.45) * bowRadius;
+      const botTipY = Math.sin(Math.PI * 0.45) * bowRadius;
       ctx.beginPath();
-      ctx.moveTo(44, -4);
-      ctx.lineTo(52, 0);
-      ctx.lineTo(44, 4);
-      ctx.closePath();
+      ctx.arc(topTipX, topTipY, 3.5, 0, Math.PI * 2);
+      ctx.arc(botTipX, botTipY, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = '#10B981';
+      const drawDist = (a.isAiming || a.pointer.isDown) ? 22 : 4;
+      const stringPullX = -drawDist;
+
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = '#FDE047';
       ctx.beginPath();
-      ctx.moveTo(2, -3);
-      ctx.lineTo(10, 0);
-      ctx.lineTo(2, 3);
-      ctx.fill();
+      ctx.moveTo(topTipX, topTipY);
+      ctx.lineTo(stringPullX, 0);
+      ctx.lineTo(botTipX, botTipY);
+      ctx.stroke();
+
+      if (a.shootCooldown < 6) {
+        ctx.save();
+        ctx.translate(stringPullX, 0);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#D97706';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(44, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath();
+        ctx.moveTo(44, -4);
+        ctx.lineTo(52, 0);
+        ctx.lineTo(44, 4);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#10B981';
+        ctx.beginPath();
+        ctx.moveTo(2, -3);
+        ctx.lineTo(10, 0);
+        ctx.lineTo(2, 3);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.restore();
+
+      if (a.isCelebrating) {
+        for (let s = 0; s < 4; s++) {
+          const starAng = time * 0.008 + s * (Math.PI / 2);
+          const starX = Math.cos(starAng) * 35;
+          const starY = -50 + Math.sin(starAng) * 12;
+          ctx.fillStyle = '#FACC15';
+          ctx.beginPath();
+          ctx.arc(starX, starY, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } finally {
       ctx.restore();
     }
-
-    ctx.restore();
-
-    if (a.isCelebrating) {
-      for (let s = 0; s < 4; s++) {
-        const starAng = time * 0.008 + s * (Math.PI / 2);
-        const starX = Math.cos(starAng) * 35;
-        const starY = -50 + Math.sin(starAng) * 12;
-        ctx.fillStyle = '#FACC15';
-        ctx.beginPath();
-        ctx.arc(starX, starY, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    ctx.restore();
   }
 
   // --- DIBUJADO DE OBJETIVOS CON SUS PALABRAS ---
@@ -901,115 +909,114 @@
     if (t.alpha <= 0.01) return;
 
     ctx.save();
-    ctx.translate(t.x, t.y);
-    ctx.scale(t.scale, t.scale);
-    ctx.globalAlpha = t.alpha;
+    try {
+      ctx.translate(t.x, t.y);
+      ctx.scale(t.scale, t.scale);
+      ctx.globalAlpha = t.alpha;
 
-    if (t.wobble > 0) {
-      ctx.rotate(Math.sin(time * 0.04) * (t.wobble * 0.02));
-    }
+      if (t.wobble > 0) {
+        ctx.rotate(Math.sin(time * 0.04) * (t.wobble * 0.02));
+      }
 
-    // Aura pulsante de la palabra objetivo
-    if (t.isTarget) {
-      const pulse = Math.sin(time * 0.008) * 5;
+      // Aura pulsante de la palabra objetivo
+      if (t.isTarget) {
+        const pulse = Math.sin(time * 0.008) * 5;
+        ctx.beginPath();
+        ctx.arc(0, 0, t.radius + 12 + pulse, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
+        ctx.fill();
+      }
+
+      // Diana de tiro con arco
       ctx.beginPath();
-      ctx.arc(0, 0, t.radius + 12 + pulse, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(250, 204, 21, 0.35)';
+      ctx.arc(0, 0, t.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#78350F';
       ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, t.radius - 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#F8FAFC';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, t.radius - 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#EF4444';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, t.radius - 20, 0, Math.PI * 2);
+      ctx.fillStyle = '#FACC15';
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#D97706';
+      ctx.stroke();
+
+      // Dibujo / Icono arriba de la diana (imagen real o emoji, NUNCA texto "assets/...")
+      drawWordIcon(ctx, t.emoji, 0, -t.radius - 12, 30);
+
+      // Cartel con la palabra en letras grandes (usando drawRoundedRect 100% compatible)
+      const fontSize = Math.min(20, Math.max(15, 230 / (t.word.length + 4)));
+      ctx.font = `900 ${fontSize}px "Comic Sans MS", "Nunito", sans-serif`;
+      const textWidth = ctx.measureText(t.word).width;
+      const badgeW = Math.max(90, textWidth + 24);
+      const badgeH = 34;
+      const badgeY = t.radius + 6;
+
+      ctx.fillStyle = t.isTarget ? '#FEF08A' : '#FFFFFF';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 3;
+
+      drawRoundedRect(ctx, -badgeW / 2, badgeY, badgeW, badgeH, 12);
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+      ctx.lineWidth = t.isTarget ? 3 : 2;
+      ctx.strokeStyle = t.isTarget ? '#CA8A04' : '#94A3B8';
+      ctx.stroke();
+
+      ctx.fillStyle = t.isTarget ? '#854D0E' : '#1E293B';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(t.word, 0, badgeY + badgeH / 2 + 1);
+
+    } finally {
+      ctx.restore();
     }
-
-    // Diana de tiro con arco
-    ctx.beginPath();
-    ctx.arc(0, 0, t.radius, 0, Math.PI * 2);
-    ctx.fillStyle = '#78350F';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 0, t.radius - 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#F8FAFC';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 0, t.radius - 12, 0, Math.PI * 2);
-    ctx.fillStyle = '#EF4444';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 0, t.radius - 20, 0, Math.PI * 2);
-    ctx.fillStyle = '#FACC15';
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = '#D97706';
-    ctx.stroke();
-
-    // Emoji/Icono arriba de la diana
-    ctx.save();
-    ctx.translate(0, -t.radius - 10);
-    ctx.font = '24px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(t.emoji || '⭐', 0, 0);
-    ctx.restore();
-
-    // Cartel con la palabra en letras grandes (usando drawRoundedRect 100% compatible)
-    const fontSize = Math.min(20, Math.max(15, 230 / (t.word.length + 4)));
-    ctx.font = `900 ${fontSize}px "Comic Sans MS", "Nunito", sans-serif`;
-    const textWidth = ctx.measureText(t.word).width;
-    const badgeW = Math.max(90, textWidth + 24);
-    const badgeH = 34;
-    const badgeY = t.radius + 6;
-
-    ctx.fillStyle = t.isTarget ? '#FEF08A' : '#FFFFFF';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 3;
-
-    drawRoundedRect(ctx, -badgeW / 2, badgeY, badgeW, badgeH, 12);
-    ctx.fill();
-
-    ctx.shadowColor = 'transparent';
-    ctx.lineWidth = t.isTarget ? 3 : 2;
-    ctx.strokeStyle = t.isTarget ? '#CA8A04' : '#94A3B8';
-    ctx.stroke();
-
-    ctx.fillStyle = t.isTarget ? '#854D0E' : '#1E293B';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(t.word, 0, badgeY + badgeH / 2 + 1);
-
-    ctx.restore();
   }
 
   // --- FLECHAS, ESTELAS Y PARTÍCULAS ---
   function drawArrow(ctx, arr) {
     ctx.save();
-    ctx.translate(arr.x, arr.y);
-    ctx.rotate(arr.angle);
+    try {
+      ctx.translate(arr.x, arr.y);
+      ctx.rotate(arr.angle);
 
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#78350F';
-    ctx.beginPath();
-    ctx.moveTo(-22, 0);
-    ctx.lineTo(16, 0);
-    ctx.stroke();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#78350F';
+      ctx.beginPath();
+      ctx.moveTo(-22, 0);
+      ctx.lineTo(16, 0);
+      ctx.stroke();
 
-    ctx.fillStyle = '#E2E8F0';
-    ctx.beginPath();
-    ctx.moveTo(16, -4.5);
-    ctx.lineTo(26, 0);
-    ctx.lineTo(16, 4.5);
-    ctx.closePath();
-    ctx.fill();
+      ctx.fillStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.moveTo(16, -4.5);
+      ctx.lineTo(26, 0);
+      ctx.lineTo(16, 4.5);
+      ctx.closePath();
+      ctx.fill();
 
-    ctx.fillStyle = '#10B981';
-    ctx.beginPath();
-    ctx.moveTo(-22, -4);
-    ctx.lineTo(-12, 0);
-    ctx.lineTo(-22, 4);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.restore();
+      ctx.fillStyle = '#10B981';
+      ctx.beginPath();
+      ctx.moveTo(-22, -4);
+      ctx.lineTo(-12, 0);
+      ctx.lineTo(-22, 4);
+      ctx.closePath();
+      ctx.fill();
+    } finally {
+      ctx.restore();
+    }
   }
 
   function drawTrajectoryDots(ctx) {
@@ -1025,19 +1032,22 @@
     let simVx = Math.cos(angle) * speed;
 
     ctx.save();
-    for (let k = 1; k <= 9; k++) {
-      simX += simVx * 1.2;
-      simY += simVy * 1.2;
-      simVy += 0.06 * 1.2;
+    try {
+      for (let k = 1; k <= 9; k++) {
+        simX += simVx * 1.2;
+        simY += simVy * 1.2;
+        simVy += 0.06 * 1.2;
 
-      const alpha = 1 - (k / 10);
-      const size = 3.5 * alpha;
-      ctx.fillStyle = `rgba(253, 224, 71, ${alpha * 0.85})`;
-      ctx.beginPath();
-      ctx.arc(simX, simY, size, 0, Math.PI * 2);
-      ctx.fill();
+        const alpha = 1 - (k / 10);
+        const size = 3.5 * alpha;
+        ctx.fillStyle = `rgba(253, 224, 71, ${alpha * 0.85})`;
+        ctx.beginPath();
+        ctx.arc(simX, simY, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } finally {
+      ctx.restore();
     }
-    ctx.restore();
   }
 
   function drawParticles(ctx) {
@@ -1053,12 +1063,15 @@
       }
 
       ctx.save();
-      ctx.globalAlpha = Math.max(0, p.alpha);
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      try {
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      } finally {
+        ctx.restore();
+      }
     }
   }
 
@@ -1074,14 +1087,17 @@
       }
 
       ctx.save();
-      ctx.globalAlpha = Math.max(0, ft.alpha);
-      ctx.font = '900 20px "Comic Sans MS", "Nunito", sans-serif';
-      ctx.fillStyle = ft.color;
-      ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 6;
-      ctx.fillText(ft.text, ft.x, ft.y);
-      ctx.restore();
+      try {
+        ctx.globalAlpha = Math.max(0, ft.alpha);
+        ctx.font = '900 20px "Comic Sans MS", "Nunito", sans-serif';
+        ctx.fillStyle = ft.color;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 6;
+        ctx.fillText(ft.text, ft.x, ft.y);
+      } finally {
+        ctx.restore();
+      }
     }
   }
 
@@ -1142,31 +1158,37 @@
     ctx.fillRect(0, 0, w, h);
 
     ctx.save();
-    ctx.beginPath();
-    ctx.arc(80, 70, 48, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(80, 70, 32, 0, Math.PI * 2);
-    ctx.fillStyle = '#FEF08A';
-    ctx.fill();
-    ctx.restore();
+    try {
+      ctx.beginPath();
+      ctx.arc(80, 70, 48, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(80, 70, 32, 0, Math.PI * 2);
+      ctx.fillStyle = '#FEF08A';
+      ctx.fill();
+    } finally {
+      ctx.restore();
+    }
 
     ArcheryGame.bgClouds.forEach(c => {
       c.x += c.speed;
       if (c.x > w + 100) c.x = -120;
 
       ctx.save();
-      ctx.translate(c.x, c.y);
-      ctx.scale(c.scale, c.scale);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.beginPath();
-      ctx.arc(0, 0, 28, 0, Math.PI * 2);
-      ctx.arc(24, -8, 22, 0, Math.PI * 2);
-      ctx.arc(48, 0, 25, 0, Math.PI * 2);
-      ctx.arc(24, 12, 20, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
+      try {
+        ctx.translate(c.x, c.y);
+        ctx.scale(c.scale, c.scale);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.arc(24, -8, 22, 0, Math.PI * 2);
+        ctx.arc(48, 0, 25, 0, Math.PI * 2);
+        ctx.arc(24, 12, 20, 0, Math.PI * 2);
+        ctx.fill();
+      } finally {
+        ctx.restore();
+      }
     });
 
     // Colinas lejanas
@@ -1200,7 +1222,7 @@
     }
   }
 
-  // --- BUCLE PRINCIPAL (BLINDADO CON TRY...CATCH PARA NUNCA CONGELARSE) ---
+  // --- BUCLE PRINCIPAL (CON RESETEO DE TRANSFORMACIÓN INCONDICIONAL) ---
   function archeryGameLoop(timestamp) {
     if (!ArcheryGame.isRunning) return;
 
@@ -1210,6 +1232,8 @@
       const w = ArcheryGame.width;
       const h = ArcheryGame.height;
 
+      // 🛑 RESETEAR MATRIZ DE TRANSFORMACIÓN PARA QUE LA PANTALLA NUNCA ROTE NI SE DEFORME
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
       // 1. Entorno
@@ -1239,7 +1263,6 @@
       console.error('ArcheryGameLoop error protegido:', err);
     }
 
-    // SIEMPRE reprogramar el siguiente frame para que el juego nunca se detenga
     if (ArcheryGame.isRunning) {
       ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
     }
@@ -1272,7 +1295,6 @@
       };
     }
 
-    // Al mover cursor
     function onPointerMove(e) {
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.x = pos.x;
@@ -1283,7 +1305,6 @@
       ArcheryGame.archer.targetAimAngle = Math.atan2(pos.y - ay, pos.x - ax);
     }
 
-    // Al hacer click o tocar: apuntar y disparar de inmediato hacia la posición
     function onPointerDown(e) {
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.isDown = true;
@@ -1295,7 +1316,7 @@
       const ay = ArcheryGame.archer.y - 30;
       ArcheryGame.archer.targetAimAngle = Math.atan2(pos.y - ay, pos.x - ax);
 
-      // Disparo inmediato para máxima rapidez y respuesta
+      // Disparo inmediato para máxima rapidez de respuesta
       shootArrowAt(pos.x, pos.y);
     }
 
