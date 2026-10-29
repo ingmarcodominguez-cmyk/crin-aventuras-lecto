@@ -9,6 +9,21 @@
 // =========================================================================
 
 const CANONICAL_WORD_LEXICON = {
+  'ABANICO': {
+    escritura: 'ABANICO',
+    pronunciacion: 'Abanico',
+    letras: ['A', 'B', 'A', 'N', 'I', 'C', 'O'],
+    silabas: ['A', 'BA', 'NI', 'CO'],
+    emoji: 'assets/abanico.png'
+  },
+  'BABERO': {
+    escritura: 'BABERO',
+    pronunciacion: 'Babero',
+    letras: ['B', 'A', 'B', 'E', 'R', 'O'],
+    silabas: ['BA', 'BE', 'RO'],
+    emoji: 'assets/babero.png'
+  },
+
   // Palabras con L
   'LAMPARA': {
     escritura: 'LÁMPARA',
