@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v256';
+    const CURRENT_APP_VERSION = 'v257';
 
     function syncAppVersionLabels() {
       try {
@@ -93,15 +93,15 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=256"></script>
+  <script src="archery.js?v=257"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=256"></script>
+  <script src="cauldron.js?v=257"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=256"></script>
+  <script src="fisherman.js?v=257"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=256"></script>
+  <script src="train.js?v=257"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=256"></script>
+  <script src="detective.js?v=257"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
   <script src="aac_keyboard.js?v=251"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
@@ -542,23 +542,40 @@
       border-radius: 20px;
       flex: 1;
       position: relative;
-      overflow: hidden;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      padding: 20px 10px;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+      padding: 10px 14px;
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: #0284C7 rgba(255,255,255,0.4);
+    }
+    .map-container::-webkit-scrollbar {
+      width: 7px;
+    }
+    .map-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
+    }
+    .map-container::-webkit-scrollbar-thumb {
+      background: #0284C7;
+      border-radius: 10px;
     }
 
     .world-node {
       background: white;
-      border-radius: 24px;
-      padding: 14px 20px;
-      width: 90%;
+      border-radius: 18px;
+      padding: 10px 14px;
+      width: 100% !important;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
-      gap: 15px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       position: relative;
@@ -1363,163 +1380,179 @@
             </div>
           </div>
 
-          <!-- 🐾 ACTIVIDAD ESPECIAL: CARRERA DE LA MASCOTA -->
-          <div onclick="openPetRallyScreen()" style="background: linear-gradient(135deg, #FF9F43 0%, #FF5252 100%); color: white; padding: 14px 16px; border-radius: 20px; box-shadow: 0 6px 16px rgba(255, 82, 82, 0.3); margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #FFEAA7; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="font-size: 38px; background: rgba(255,255,255,0.25); border-radius: 50%; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🐶</div>
-              <div>
-                <div style="font-size: 15px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🐾 Carrera de la Mascota</div>
-                <div style="font-size: 11px; opacity: 0.95; font-weight: 600;">¡Búsqueda de Dibujos por Letra Objetivo!</div>
-              </div>
-            </div>
-            <button style="background: #FFFFFF; color: #D63031; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-              <span>▶️ JUGAR</span>
-            </button>
-          </div>
+          <!-- 🎮 PARQUE DE JUEGOS Y MÓDULOS PSICOPEDAGÓGICOS (GRID RESPONSIVO ZERO-OVERFLOW) -->
+          <div class="map-activities-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; width: 100%; margin-bottom: 10px;">
 
-          <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-            <div onclick="openArcheryQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #A7F3D0; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <!-- 🐾 1. CARRERA DE LA MASCOTA -->
+            <div onclick="openPetRallyScreen()" style="background: linear-gradient(135deg, #FF9F43 0%, #FF5252 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(255, 82, 82, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #FFEAA7; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); overflow: hidden;"><img src="assets/card_unicornio_arquero.png?v=248" alt="Arquero" style="width: 38px; height: 38px; object-fit: contain;"></div>
+                <div style="font-size: 26px; background: rgba(255,255,255,0.25); border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.15);">🐶</div>
                 <div>
-                  <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🏹 Arquero: Tarea</div>
-                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Palabras de tu tarea semanal</div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🐾 Carrera de la Mascota</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Búsqueda por Letra Objetivo</div>
                 </div>
               </div>
-              <button style="background: #FFFFFF; color: #047857; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-                <span>▶️ TAREA</span>
+              <button style="background: #FFFFFF; color: #D63031; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
               </button>
             </div>
-            <div onclick="openArcheryQuestScreen('random')" style="background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); color: white; padding: 10px 12px; border-radius: 20px; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #DDD6FE; min-width: 95px; text-align: center; gap: 2px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Jugar con muchas palabras aleatorias del vocabulario completo">
-              <span style="font-size: 22px;">🎲</span>
-              <span style="font-size: 11px; font-weight: 900; line-height: 1.1;">Aleatorio</span>
-              <span style="font-size: 9px; opacity: 0.9;">+200 Palabras</span>
-            </div>
-          </div>
 
-          <!-- 🧪 MÓDULO PSICOPEDAGÓGICO: EL CALDERO MÁGICO DE LAS RIMAS -->
-          <div onclick="openCauldronQuestScreen()" style="background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 50%, #A855F7 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #DDD6FE; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 26px;">🧪</div>
-              <div>
-                <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">El Caldero de las Rimas</div>
-                <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Conciencia Fonológica · Alquimia Mágica</div>
+            <!-- 🐟 2. EL PESCADOR DE SÍLABAS -->
+            <div style="display: flex; gap: 6px;">
+              <div onclick="openFishermanQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%); color: white; padding: 10px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #BAE6FD; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); font-size: 22px;">🎣</div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Pescador de Sílabas</div>
+                    <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Síntesis Silábica · Muelle</div>
+                  </div>
+                </div>
+                <button style="background: #FFFFFF; color: #0369A1; border: none; padding: 5px 9px; border-radius: 10px; font-weight: 800; font-size: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                  ▶️ TAREA
+                </button>
+              </div>
+              <div onclick="openFishermanQuestScreen('random')" style="background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); color: white; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2.5px solid #99F6E4; min-width: 80px; text-align: center; gap: 1px; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Pescar palabras aleatorias">
+                <span style="font-size: 18px;">🐟</span>
+                <span style="font-size: 10px; font-weight: 900; line-height: 1;">Aleatorio</span>
+                <span style="font-size: 8px; opacity: 0.9;">+200 Pal.</span>
               </div>
             </div>
-            <button style="background: #FFFFFF; color: #6D28D9; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-              <span>▶️ JUGAR</span>
-            </button>
-          </div>
 
-          <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-            <div onclick="openFishermanQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #0284C7 0%, #0EA5E9 50%, #38BDF8 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(14, 165, 233, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #BAE6FD; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <!-- 🏹 3. EL ARQUERO DE CRIN -->
+            <div style="display: flex; gap: 6px;">
+              <div onclick="openArcheryQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #059669 0%, #10B981 50%, #34D399 100%); color: white; padding: 10px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #A7F3D0; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); overflow: hidden;"><img src="assets/card_unicornio_arquero.png?v=248" alt="Arquero" style="width: 32px; height: 32px; object-fit: contain;"></div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">🏹 Arquero: Tarea</div>
+                    <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Palabras de la semana</div>
+                  </div>
+                </div>
+                <button style="background: #FFFFFF; color: #047857; border: none; padding: 5px 9px; border-radius: 10px; font-weight: 800; font-size: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                  ▶️ TAREA
+                </button>
+              </div>
+              <div onclick="openArcheryQuestScreen('random')" style="background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); color: white; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2.5px solid #DDD6FE; min-width: 80px; text-align: center; gap: 1px; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Palabras aleatorias">
+                <span style="font-size: 18px;">🎲</span>
+                <span style="font-size: 10px; font-weight: 900; line-height: 1;">Aleatorio</span>
+                <span style="font-size: 8px; opacity: 0.9;">+200 Pal.</span>
+              </div>
+            </div>
+
+            <!-- 🚂 4. EL TREN DE LOS SONIDOS (ELKONIN) -->
+            <div style="display: flex; gap: 6px;">
+              <div onclick="openTrainQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #DC2626 0%, #EA580C 50%, #F59E0B 100%); color: white; padding: 10px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #FECACA; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); font-size: 22px;">🚂</div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Tren de los Sonidos</div>
+                    <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Cajas Elkonin · Fonemas</div>
+                  </div>
+                </div>
+                <button style="background: #FFFFFF; color: #DC2626; border: none; padding: 5px 9px; border-radius: 10px; font-weight: 800; font-size: 10px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                  ▶️ TAREA
+                </button>
+              </div>
+              <div onclick="openTrainQuestScreen('random')" style="background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%); color: white; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(185, 28, 28, 0.35); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2.5px solid #FCA5A5; min-width: 80px; text-align: center; gap: 1px; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Tren aleatorio">
+                <span style="font-size: 18px;">🎈</span>
+                <span style="font-size: 10px; font-weight: 900; line-height: 1;">Aleatorio</span>
+                <span style="font-size: 8px; opacity: 0.9;">Fonemas</span>
+              </div>
+            </div>
+
+            <!-- 🧪 5. EL CALDERO DE LAS RIMAS -->
+            <div onclick="openCauldronQuestScreen()" style="background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 50%, #A855F7 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #DDD6FE; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); font-size: 26px;">🎣</div>
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🧪</div>
                 <div>
-                  <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Pescador de Sílabas</div>
-                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Síntesis Silábica · Río Mágico</div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">El Caldero de las Rimas</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Conciencia Fonológica · Alquimia</div>
                 </div>
               </div>
-              <button style="background: #FFFFFF; color: #0369A1; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-                <span>▶️ TAREA</span>
+              <button style="background: #FFFFFF; color: #6D28D9; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
               </button>
             </div>
-            <div onclick="openFishermanQuestScreen('random')" style="background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%); color: white; padding: 10px 12px; border-radius: 20px; box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #99F6E4; min-width: 95px; text-align: center; gap: 2px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Pescar con palabras aleatorias del vocabulario">
-              <span style="font-size: 22px;">🐟</span>
-              <span style="font-size: 11px; font-weight: 900; line-height: 1.1;">Aleatorio</span>
-              <span style="font-size: 9px; opacity: 0.9;">+200 Palabras</span>
-            </div>
-          </div>
 
-          <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-          <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-            <div onclick="openTrainQuestScreen('task')" style="flex: 1; background: linear-gradient(135deg, #DC2626 0%, #EA580C 50%, #F59E0B 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #FECACA; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <!-- 🔍 6. EL DETECTIVE DE SONIDOS GEMELOS -->
+            <div onclick="openDetectiveQuestScreen()" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #C7D2FE; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); font-size: 26px;">🚂</div>
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🔍</div>
                 <div>
-                  <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Tren de los Sonidos</div>
-                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Conciencia Fonémica · Cajas Elkonin</div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Detective de Sonidos</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Discriminación Auditiva · Pares</div>
                 </div>
               </div>
-              <button style="background: #FFFFFF; color: #DC2626; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-                <span>▶️ TAREA</span>
+              <button style="background: #FFFFFF; color: #3730A3; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
               </button>
             </div>
-            <div onclick="openTrainQuestScreen('random')" style="background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%); color: white; padding: 10px 12px; border-radius: 20px; box-shadow: 0 6px 16px rgba(185, 28, 28, 0.35); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #FCA5A5; min-width: 95px; text-align: center; gap: 2px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="Jugar tren con palabras aleatorias">
-              <span style="font-size: 22px;">🎈</span>
-              <span style="font-size: 11px; font-weight: 900; line-height: 1.1;">Aleatorio</span>
-              <span style="font-size: 9px; opacity: 0.9;">Fonemas</span>
-            </div>
+
           </div>
 
-          <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-          <div onclick="openDetectiveQuestScreen()" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(49, 46, 129, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #C7D2FE; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+          <!-- 💬 7. EL TECLADO DE PICTOGRAMAS SAAC -->
+          <div onclick="openAACQuestScreen()" style="background: linear-gradient(135deg, #D97706 0%, #F59E0B 50%, #FBBF24 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #FEF08A; margin-bottom: 14px; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 26px;">🔍</div>
+              <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">💬</div>
               <div>
-                <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Detective de Sonidos</div>
-                <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Discriminación Auditiva · Pares Mínimos</div>
+                <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Teclado Parlante de Pictogramas SAAC</div>
+                <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Comunicación Aumentativa · Sintaxis Visual Clave Fitzgerald</div>
               </div>
             </div>
-            <button style="background: #FFFFFF; color: #3730A3; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-              <span>▶️ JUGAR</span>
+            <button style="background: #FFFFFF; color: #B45309; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+              ▶️ ABRIR
             </button>
           </div>
 
-          <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-          <div onclick="openAACQuestScreen()" style="background: linear-gradient(135deg, #D97706 0%, #F59E0B 50%, #FBBF24 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #FEF08A; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="background: rgba(255,255,255,0.25); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 26px;">💬</div>
-              <div>
-                <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Teclado de Pictogramas</div>
-                <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Comunicación SAAC · Clave Fitzgerald</div>
+          <!-- SECCIÓN: MUNDOS DE AVENTURA CLÁSICOS -->
+          <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0 8px 0; font-size: 13px; font-weight: 900; color: #1E293B;">
+            <span style="font-size: 16px;">🗺️</span>
+            <span>Mundos de Aventura Clásicos</span>
+          </div>
+
+          <!-- GRID DE MUNDOS CLÁSICOS (2 COLUMNAS) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; width: 100%; margin-bottom: 16px;">
+
+            <!-- MUNDO 1: EL CUENTO DEL BOSQUE (DESBLOQUEADO INICIALMENTE) -->
+            <div id="map-node-0" class="world-node" onclick="handleMapNodeClick(0)" style="border: 3px solid #FFD700; background: linear-gradient(135deg, #FFFFFF, #FFFBEB);">
+              <div class="node-icon" style="background: linear-gradient(135deg, #FF9F43, #FF6B81);">📖</div>
+              <div class="node-details">
+                <h3 style="color: #D35400;">1. El Cuento del Bosque</h3>
+                <p style="font-weight: bold; color: #E67E22;">¡Cuento Narrado Interactivo 3D!</p>
               </div>
+              <div class="node-stars" id="node-status-0">🔓 Abierto</div>
             </div>
-            <button style="background: #FFFFFF; color: #B45309; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
-              <span>▶️ ABRIR</span>
-            </button>
-          </div>
 
-<!-- MUNDO 1: EL CUENTO DEL BOSQUE (DESBLOQUEADO INICIALMENTE) -->
-          <div id="map-node-0" class="world-node" onclick="handleMapNodeClick(0)" style="border: 3px solid #FFD700; background: linear-gradient(135deg, #FFFFFF, #FFFBEB);">
-            <div class="node-icon" style="background: linear-gradient(135deg, #FF9F43, #FF6B81);">📖</div>
-            <div class="node-details">
-              <h3 style="color: #D35400;">1. El Cuento del Bosque</h3>
-              <p style="font-weight: bold; color: #E67E22;">¡Cuento Narrado Interactivo 3D!</p>
+            <!-- MUNDO 2: EL BOSQUE DE LAS LETRAS -->
+            <div id="map-node-1" class="world-node" onclick="handleMapNodeClick(1)" style="border: 2px solid #2ECC71;">
+              <div class="node-icon" style="background: #2ECC71;">🌳</div>
+              <div class="node-details">
+                <h3 style="color: #27AE60;">2. El Bosque de las Letras</h3>
+                <p>Desafíos de Palabras Globales</p>
+              </div>
+              <div class="node-stars" id="node-status-1">⭐ Aventura Libre</div>
             </div>
-            <div class="node-stars" id="node-status-0">🔓 Abierto</div>
-          </div>
 
-          <!-- MUNDO 2: EL BOSQUE DE LAS LETRAS -->
-          <div id="map-node-1" class="world-node" onclick="handleMapNodeClick(1)" style="border: 2px solid #2ECC71;">
-            <div class="node-icon" style="background: #2ECC71;">🌳</div>
-            <div class="node-details">
-              <h3 style="color: #27AE60;">2. El Bosque de las Letras</h3>
-              <p>Desafíos de Palabras Globales</p>
+            <!-- MUNDO 3: LA CUEVA DE LAS SÍLABAS -->
+            <div id="map-node-2" class="world-node" onclick="handleMapNodeClick(2)">
+              <div class="node-icon" style="background: #FF9F43;">🦇</div>
+              <div class="node-details">
+                <h3>3. La Cueva de las Sílabas</h3>
+                <p>Desafíos de Rompecabezas Silábico</p>
+              </div>
+              <div class="node-stars" id="node-status-2">⭐ Aventura Libre</div>
             </div>
-            <div class="node-stars" id="node-status-1">⭐ Aventura Libre</div>
-          </div>
 
-          <!-- MUNDO 3: LA CUEVA DE LAS SÍLABAS -->
-          <div id="map-node-2" class="world-node" onclick="handleMapNodeClick(2)">
-            <div class="node-icon" style="background: #FF9F43;">🦇</div>
-            <div class="node-details">
-              <h3>3. La Cueva de las Sílabas</h3>
-              <p>Desafíos de Rompecabezas Silábico</p>
+            <!-- MUNDO 4: CASTILLO TAREAS CRIN -->
+            <div id="map-node-3" class="world-node" onclick="handleMapNodeClick(3)">
+              <div class="node-icon" style="background: #9B59B6;">🏰</div>
+              <div class="node-details">
+                <h3>4. Castillo Tareas Crin</h3>
+                <p>Desafíos de Frases y Apoyo Escolar</p>
+              </div>
+              <div class="node-stars" id="node-status-3">⭐ Aventura Libre</div>
             </div>
-            <div class="node-stars" id="node-status-2">⭐ Aventura Libre</div>
-          </div>
 
-          <!-- MUNDO 4: CASTILLO TAREAS CRIN -->
-          <div id="map-node-3" class="world-node" onclick="handleMapNodeClick(3)">
-            <div class="node-icon" style="background: #9B59B6;">🏰</div>
-            <div class="node-details">
-              <h3>4. Castillo Tareas Crin</h3>
-              <p>Desafíos de Frases y Apoyo Escolar</p>
-            </div>
-            <div class="node-stars" id="node-status-3">⭐ Aventura Libre</div>
           </div>
         </div>
       </div>
