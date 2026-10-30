@@ -1043,26 +1043,29 @@
     }
 
     function onPointerDown(e) {
-      if (CauldronGame.isAdvancing || CauldronGame.isSpeaking || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+      if (CauldronGame.isAdvancing || CauldronGame.isSpeaking) return;
+      if (typeof window.isNarratingNow === 'function' && window.isNarratingNow()) return;
+
       const pos = getCanvasPos(e);
       CauldronGame.pointer.x = pos.x;
       CauldronGame.pointer.y = pos.y;
       CauldronGame.pointer.isDown = true;
 
-      // Buscar si tocó alguna burbuja
+      // Buscar si tocó alguna burbuja (radio generoso para niños y pantallas táctiles)
       const bubbles = CauldronGame.bubbles;
       for (let i = bubbles.length - 1; i >= 0; i--) {
         const b = bubbles[i];
-        if (b.alpha <= 0.01) continue;
+        if (b.alpha <= 0.01 || b.isPopping) continue;
 
         const dx = pos.x - b.x;
         const dy = pos.y - b.y;
-        if (Math.sqrt(dx * dx + dy * dy) < b.radius * 1.25) {
+        if (Math.sqrt(dx * dx + dy * dy) < b.radius * 1.45) {
           CauldronGame.draggedBubble = b;
           b.isDragging = true;
+          b.pointerDownX = pos.x;
+          b.pointerDownY = pos.y;
           b.dragOffsetX = b.x - pos.x;
           b.dragOffsetY = b.y - pos.y;
-
           break;
         }
       }
@@ -1088,20 +1091,20 @@
       b.isDragging = false;
       CauldronGame.draggedBubble = null;
 
-      // Verificar si cayó en el caldero
+      // 1. Verificar si cayó en el caldero mediante arrastre
       const droppedInCauldron = checkCauldronDrop(b);
 
-      // Si no cayó en el caldero, verificar si fue un simple toque ("Tap to Cast" accesible)
+      // 2. Si no cayó por arrastre, verificar si fue un toque/clic ("Tap to Cast" ultra accesible)
       if (!droppedInCauldron) {
-        const dx = b.x - b.baseX;
-        const dy = b.y - b.baseY;
-        const movedDist = Math.sqrt(dx * dx + dy * dy);
+        const pos = getCanvasPos(e);
+        const touchDist = Math.hypot(pos.x - (b.pointerDownX || b.baseX), pos.y - (b.pointerDownY || b.baseY));
+        const baseDist = Math.hypot(b.x - b.baseX, b.y - b.baseY);
 
-        // Si casi no se movió (fue un clic/tap): animar vuelo mágico directo al caldero
-        if (movedDist < 18) {
+        // Si se movió menos de 45px (es un toque o clic en la burbuja): ¡vuelo mágico directo al caldero!
+        if (touchDist < 45 || baseDist < 45) {
           animateBubbleToCauldron(b);
         } else {
-          // Volver suavemente a su posición base
+          // Volver suavemente a su posición base si se soltó en el aire lejos del caldero
           b.x = b.baseX;
           b.y = b.baseY;
         }
