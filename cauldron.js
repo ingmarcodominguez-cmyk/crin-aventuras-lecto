@@ -501,9 +501,9 @@
       if (!CauldronGame.hasStarted && CauldronGame.currentPotionIndex === 0) {
         CauldronGame.hasStarted = true;
         // Relato pedagógico inicial completo con instrucciones claras de la tarea
-        missionText = `¡Bienvenido al Caldero Mágico de las Rimas! ... En este laboratorio mágico, buscaremos palabras que riman, es decir, que terminan con el mismo sonido. ... Para preparar esta poción mágica: busca y arrastra las burbujas que rimen con: ${p.base.pron}!`;
+        missionText = `¡Bienvenido al Caldero Mágico de las Rimas! En este laboratorio mágico, buscaremos palabras que riman, es decir, que terminan con el mismo sonido. Para preparar esta poción mágica: busca y arrastra las burbujas que rimen con: ${p.base.pron}!`;
       } else if (CauldronGame.collectedIngredients.length === 0) {
-        missionText = `¡Nueva poción mágica! ... Para esta poción: busca las burbujas que rimen con: ${p.base.pron}!`;
+        missionText = `¡Nueva poción mágica! Para esta poción: busca las burbujas que rimen con: ${p.base.pron}!`;
       } else {
         missionText = `Busca el otro ingrediente que también rime con: ${p.base.pron}!`;
       }
@@ -938,7 +938,7 @@
 
       if (typeof speakText === 'function') {
         CauldronGame.isSpeaking = true;
-        speakText(`¡Súper! ... ¡${basePron} y ${targetPron}! ... ¡Suenan igual al final!`, () => {
+        speakText(`¡Súper! ¡${basePron} y ${targetPron}! ¡Suenan igual al final!`, () => {
           CauldronGame.isSpeaking = false;
           onPraiseEnded();
         });
@@ -1000,7 +1000,7 @@
 
     if (typeof speakText === 'function') {
       CauldronGame.isSpeaking = true;
-      speakText('¡Poción mágica completada! ... ¡Excelente trabajo con las rimas!', onVictoryEnded);
+      speakText('¡Poción mágica completada! ¡Excelente trabajo con las rimas!', onVictoryEnded);
     } else {
       onVictoryEnded();
     }

@@ -232,7 +232,7 @@
 
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        speakText(`¡Excelente elección! ... ¡Tu pescador es el ${petName}!`, () => {
+        speakText(`¡Excelente elección! ¡Tu pescador es el ${petName}!`, () => {
           FishermanGame.isSpeaking = false;
           startAfterPraise();
         });
@@ -243,7 +243,7 @@
     } else {
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        speakText(`¡Genial! ... ¡Tu pescador ahora es el ${petName}!`, () => {
+        speakText(`¡Genial! ¡Tu pescador ahora es el ${petName}!`, () => {
           FishermanGame.isSpeaking = false;
         });
       }
@@ -1483,7 +1483,7 @@
 
     if (typeof speakText === 'function') {
       FishermanGame.isSpeaking = true;
-      speakText(`¡Excelente pesca! ... ¡Formaste la palabra ${wObj.pron}!`, () => {
+      speakText(`¡Excelente pesca! ¡Formaste la palabra ${wObj.pron}!`, () => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
       });

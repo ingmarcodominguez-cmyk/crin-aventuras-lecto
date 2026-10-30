@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v271';
+    const CURRENT_APP_VERSION = 'v272';
 
     function syncAppVersionLabels() {
       try {
@@ -106,19 +106,19 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=271"></script>
+  <script src="lexicon.js?v=272"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=271"></script>
+  <script src="archery.js?v=272"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=271"></script>
+  <script src="cauldron.js?v=272"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=271"></script>
+  <script src="fisherman.js?v=272"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=271"></script>
+  <script src="train.js?v=272"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=271"></script>
+  <script src="detective.js?v=272"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=271"></script>
+  <script src="aac_keyboard.js?v=272"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3525,6 +3525,10 @@
         function cleanPhoneticText(rawText) {
       if (!rawText) return '';
       let text = rawText.toString().trim();
+      // Elimina puntos suspensivos, elipsis y secuencias de puntos para que NINGUNA voz lea "punto punto punto"
+      text = text.replace(/\s*\.{2,}\s*/g, ', ');
+      text = text.replace(/(\.\s*){2,}/g, ', ');
+      text = text.replace(/\s+\.\s+/g, ', ');
       // Eliminar signos ortográficos de apertura (¡, ¿) que ciertos sintetizadores TTS leen como palabras literales
       text = text.replace(/[¡¿]/g, '');
       const exactKey = text.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
@@ -3636,7 +3640,14 @@
       text = text.replace(/\bCAFE\b/gi, 'Café');
       text = text.replace(/\bBEBE\b/gi, 'Bebé');
 
-      return text;
+      // Limpieza final de elipsis o puntos aislados que ciertas voces leen como "punto"
+      text = text.replace(/\s*\.{2,}\s*/g, ', ');
+      text = text.replace(/(\.\s*){2,}/g, ', ');
+      text = text.replace(/\s+\.\s+/g, ', ');
+      text = text.replace(/\s*,\s*,+/g, ', ');
+      text = text.replace(/,+/g, ',');
+
+      return text.trim();
     }
 
     let currentHtmlAudio = null;
@@ -3702,6 +3713,101 @@
       if (document.hidden) stopAllAudio();
     });
 
+    // --- REPRODUCTOR DE TEXTOS LARGOS EN FRAGMENTOS NATURALES (Previene límite HTTP 400 de Google TTS) ---
+    function playLongTextInChunks(fullText, onComplete, sessionId) {
+      const parts = fullText.split(/([.!?:;,]+)/);
+      const chunks = [];
+      let current = '';
+
+      for (let part of parts) {
+        if (!part) continue;
+        if ((current + part).length <= 75) {
+          current += part;
+        } else {
+          if (current.trim()) chunks.push(current.trim());
+          if (part.length <= 75) {
+            current = part.trim();
+          } else {
+            const words = part.split(' ');
+            let sub = '';
+            for (let w of words) {
+              if ((sub + ' ' + w).trim().length <= 75) {
+                sub = (sub + ' ' + w).trim();
+              } else {
+                if (sub.trim()) chunks.push(sub.trim());
+                sub = w;
+              }
+            }
+            current = sub.trim();
+          }
+        }
+      }
+      if (current.trim()) chunks.push(current.trim());
+
+      if (chunks.length === 0) {
+        if (onComplete) onComplete();
+        return;
+      }
+
+      let chunkIdx = 0;
+      function playNextChunk() {
+        if (sessionId !== currentSpeechSessionId) return;
+        if (chunkIdx >= chunks.length) {
+          if (onComplete) onComplete();
+          return;
+        }
+        const chunkText = chunks[chunkIdx];
+        chunkIdx++;
+
+        playSingleChunkTts(chunkText, () => {
+          if (sessionId !== currentSpeechSessionId) return;
+          setTimeout(playNextChunk, 100);
+        }, sessionId);
+      }
+
+      playNextChunk();
+    }
+
+    function playSingleChunkTts(chunkText, chunkDoneCallback, sessionId) {
+      if (sessionId !== currentSpeechSessionId) return;
+      let executed = false;
+      const done = () => {
+        if (executed) return;
+        executed = true;
+        if (sessionId === currentSpeechSessionId && chunkDoneCallback) chunkDoneCallback();
+      };
+
+      const durationEst = Math.max(chunkText.length * 75 + 1400, 2200);
+      const timer = setTimeout(done, durationEst);
+
+      try {
+        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=es&client=tw-ob`;
+        const audio = getGlobalTtsPlayer();
+        currentHtmlAudio = audio;
+        audio.src = audioUrl;
+        audio.playbackRate = 0.95;
+
+        audio.onended = function() {
+          clearTimeout(timer);
+          done();
+        };
+        audio.onerror = function() {
+          clearTimeout(timer);
+          fallbackToSpeechSynthesis(chunkText, done, sessionId);
+        };
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            clearTimeout(timer);
+            fallbackToSpeechSynthesis(chunkText, done, sessionId);
+          });
+        }
+      } catch (e) {
+        clearTimeout(timer);
+        fallbackToSpeechSynthesis(chunkText, done, sessionId);
+      }
+    }
+
     // --- REPRODUCCIÓN FONÉTICA CON CALLBACK DE FINALIZACIÓN Y CANCELACIÓN SEGURA ---
     function speakText(text, onEndCallback) {
       if (!text) return;
@@ -3746,6 +3852,17 @@
         return;
       }
       const textToSpeak = cleanPhoneticText(text);
+
+      // Si el texto supera 80 caracteres, dividir en oraciones fluidas para evitar el límite HTTP 400 de Google TTS
+      if (textToSpeak.length > 80) {
+        const durationEst = Math.max(textToSpeak.length * 85 + 2200, 4000);
+        activeFallbackTimer = setTimeout(() => {
+          activeFallbackTimer = null;
+          safeCallback();
+        }, durationEst);
+        playLongTextInChunks(textToSpeak, safeCallback, thisSession);
+        return;
+      }
 
       const pictoCard = document.getElementById('big-picto-box');
       if (pictoCard) {
