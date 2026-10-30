@@ -59,6 +59,10 @@
     draggedFish: null,
     pointer: { x: 0, y: 0, isDown: false },
 
+    // Selección de avatar y calibración de inicio
+    activePet: '🦄',
+    hasStarted: false,
+
     isSpeaking: false,
     isAdvancing: false,
     voiceTimeout: null
@@ -114,47 +118,130 @@
     return true;
   }
 
-  // Obtiene la imagen del pescador en el muelle
-  function getFishermanAvatarSrc() {
+  // --- REGISTRO DE PESCADORES OFICIALES Y CALIBRACIÓN DE CAÑA Y MUELLE ---
+  const FISHERMAN_AVATARS = {
+    '🦄': {
+      id: 'unicornio',
+      name: 'Unicornio Mágico',
+      src: 'assets/unicornio_pescador.png?v=254',
+      cardSrc: 'assets/card_unicornio_arquero.png?v=249',
+      rodTipNormalizedX: 0.9466,
+      rodTipNormalizedY: 0.1426,
+      chairFeetNormalizedY: 0.9766,
+      aspectRatio: 1.5
+    },
+    '🐰': {
+      id: 'conejo',
+      name: 'Conejito Pescador',
+      src: 'assets/conejo_pescador.png?v=254',
+      cardSrc: 'assets/card_conejo_arquero.png?v=249',
+      rodTipNormalizedX: 0.9450,
+      rodTipNormalizedY: 0.0350, // Ojo metálico terminal de la caña donde el usuario retiró la tanza
+      chairFeetNormalizedY: 0.9531,
+      aspectRatio: 1.5
+    }
+  };
+
+  // Pre-carga inmediata de ambos pescadores en memoria
+  getCachedImage('assets/unicornio_pescador.png?v=254');
+  getCachedImage('assets/conejo_pescador.png?v=254');
+
+  function getActiveFishermanPet() {
+    if (FishermanGame.activePet && FISHERMAN_AVATARS[FishermanGame.activePet]) {
+      return FishermanGame.activePet;
+    }
     let pet = '🦄';
     try {
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.activePet) {
-        pet = activeChildProfile.activePet;
+        if (FISHERMAN_AVATARS[activeChildProfile.activePet]) {
+          pet = activeChildProfile.activePet;
+        }
       }
     } catch(e) {}
-    // El arte oficial del Unicornio pescador en silla plegable sobre el muelle
-    const map = {
-      '🦄': 'assets/unicornio_pescador.png?v=253',
-      '🦊': 'assets/card_zorro_arquero.png?v=249',
-      '🐰': 'assets/card_conejo_arquero.png?v=249',
-      '🐶': 'assets/card_perro_arquero.png?v=249'
-    };
-    return map[pet] || 'assets/unicornio_pescador.png?v=253';
+    FishermanGame.activePet = pet;
+    return pet;
+  }
+
+  // Obtiene la imagen del pescador en el muelle
+  function getFishermanAvatarSrc() {
+    const pet = getActiveFishermanPet();
+    const def = FISHERMAN_AVATARS[pet] || FISHERMAN_AVATARS['🦄'];
+    return def.src;
   }
 
   // Obtiene la imagen de la mascota activa (tarjeta)
   function getActivePetCardSrc() {
-    let pet = '🦄';
-    try {
-      if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.activePet) {
-        pet = activeChildProfile.activePet;
-      }
-    } catch(e) {}
-    const map = {
-      '🦄': 'assets/card_unicornio_arquero.png?v=249',
-      '🦊': 'assets/card_zorro_arquero.png?v=249',
-      '🐰': 'assets/card_conejo_arquero.png?v=249',
-      '🐶': 'assets/card_perro_arquero.png?v=249'
-    };
-    return map[pet] || map['🦄'];
+    const pet = getActiveFishermanPet();
+    const def = FISHERMAN_AVATARS[pet] || FISHERMAN_AVATARS['🦄'];
+    return def.cardSrc;
   }
 
-  // Pre-carga inmediata del pescador oficial en memoria
-  getCachedImage('assets/unicornio_pescador.png?v=253');
+  // --- MODAL DE SELECCIÓN DE PESCADOR ---
+  window.openFishermanPetModal = function() {
+    const modal = document.getElementById('fisherman-pet-modal');
+    if (modal) modal.style.display = 'flex';
+  };
+
+  window.closeFishermanPetModal = function() {
+    const modal = document.getElementById('fisherman-pet-modal');
+    if (modal) modal.style.display = 'none';
+    if (!FishermanGame.hasStarted) {
+      startFishermanRounds();
+    }
+  };
+
+  window.setFishermanPet = function(petEmoji) {
+    FishermanGame.activePet = petEmoji;
+    try {
+      if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
+        activeChildProfile.activePet = petEmoji;
+        if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
+      }
+    } catch(e) {}
+
+    const modal = document.getElementById('fisherman-pet-modal');
+    if (modal) modal.style.display = 'none';
+
+    resizeFishermanCanvas();
+
+    const def = FISHERMAN_AVATARS[petEmoji] || FISHERMAN_AVATARS['🦄'];
+    const petName = def.name;
+
+    // CALIBRADO PEDAGÓGICO: Elogio de elección y arranque sin apuros
+    if (!FishermanGame.hasStarted) {
+      let started = false;
+      const startAfterPraise = () => {
+        if (started) return;
+        started = true;
+        setTimeout(() => {
+          startFishermanRounds();
+        }, 500);
+      };
+
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        speakText(`¡Excelente elección! ... ¡Tu pescador es el ${petName}!`, () => {
+          FishermanGame.isSpeaking = false;
+          startAfterPraise();
+        });
+      } else {
+        startAfterPraise();
+      }
+      setTimeout(startAfterPraise, 3500);
+    } else {
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        speakText(`¡Genial! ... ¡Tu pescador ahora es el ${petName}!`, () => {
+          FishermanGame.isSpeaking = false;
+        });
+      }
+    }
+  };
 
   // --- CONTROL DE NAVEGACIÓN Y PANTALLA ---
   window.openFishermanQuestScreen = function(mode) {
     FishermanGame.mode = mode || 'task';
+    FishermanGame.hasStarted = false;
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('fisherman');
 
@@ -167,10 +254,16 @@
     setTimeout(resizeFishermanCanvas, 50);
     setTimeout(resizeFishermanCanvas, 150);
     setTimeout(resizeFishermanCanvas, 300);
+
+    // CALIBRADO CRUCIAL: Mostrar inmediatamente la selección de pescador al ingresar
+    setTimeout(() => {
+      openFishermanPetModal();
+    }, 180);
   };
 
   window.closeFishermanAndReturnToMap = function() {
     FishermanGame.isRunning = false;
+    FishermanGame.hasStarted = false;
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     if (typeof stopAllAudio === 'function') stopAllAudio();
@@ -182,6 +275,7 @@
 
   window.stopFishermanGame = function() {
     FishermanGame.isRunning = false;
+    FishermanGame.hasStarted = false;
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
   };
@@ -197,10 +291,16 @@
     resizeFishermanCanvas();
 
     FishermanGame.currentWordIndex = 0;
-    setupWord(FishermanGame.currentWordIndex);
 
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     FishermanGame.animId = requestAnimationFrame(fishermanGameLoop);
+  }
+
+  // Inicia la ronda de pesca tras elegir avatar
+  function startFishermanRounds() {
+    if (FishermanGame.hasStarted) return;
+    FishermanGame.hasStarted = true;
+    setupWord(FishermanGame.currentWordIndex);
   }
 
   // Construye la cola de palabras permitidas
@@ -303,15 +403,17 @@
     FishermanGame.width = w;
     FishermanGame.height = h;
 
-    // Dimensiones y calibración del muelle de madera y del pescador en su silla plegable
-    // La imagen tiene proporción 1.5 (1536x1024)
+    // Dimensiones y calibración del muelle y del pescador activo
+    const activePet = getActiveFishermanPet();
+    const avatarDef = FISHERMAN_AVATARS[activePet] || FISHERMAN_AVATARS['🦄'];
+
     const pierLevel = Math.floor(h * 0.65);
     const pierW = Math.max(180, Math.floor(w * 0.38));
 
     const imgH = Math.min(250, Math.max(150, Math.floor(h * 0.44)));
-    const imgW = Math.round(imgH * 1.5);
+    const imgW = Math.round(imgH * (avatarDef.aspectRatio || 1.5));
     const imgX = Math.max(-5, Math.floor(w * 0.02));
-    const imgY = Math.round(pierLevel - imgH * 0.976);
+    const imgY = Math.round(pierLevel - imgH * (avatarDef.chairFeetNormalizedY || 0.96));
 
     FishermanGame.hero.x = imgX;
     FishermanGame.hero.y = imgY;
@@ -319,12 +421,13 @@
     FishermanGame.hero.height = imgH;
     FishermanGame.hero.pierLevel = pierLevel;
     FishermanGame.hero.pierW = pierW;
+    FishermanGame.hero.avatarDef = avatarDef;
 
-    // La punta de la caña en la ilustración se ubica con precisión en (0.9466, 0.1426)
+    // Punta de la caña calibrada con precisión para cada personaje
     FishermanGame.rod.originX = imgX + imgW * 0.60;
     FishermanGame.rod.originY = imgY + imgH * 0.55;
-    FishermanGame.rod.tipX = imgX + imgW * 0.9466;
-    FishermanGame.rod.tipY = imgY + imgH * 0.1426;
+    FishermanGame.rod.tipX = imgX + imgW * avatarDef.rodTipNormalizedX;
+    FishermanGame.rod.tipY = imgY + imgH * avatarDef.rodTipNormalizedY;
 
     if (!FishermanGame.rod.isCasting && !FishermanGame.rod.isRetracting) {
       FishermanGame.rod.hookX = FishermanGame.rod.tipX + 12;
@@ -948,8 +1051,9 @@
 
   function drawHeroFisherman(ctx) {
     const hero = FishermanGame.hero;
-    const avatarSrc = getFishermanAvatarSrc();
-    const img = getCachedImage(avatarSrc);
+    const pet = getActiveFishermanPet();
+    const avatarDef = FISHERMAN_AVATARS[pet] || FISHERMAN_AVATARS['🦄'];
+    const img = getCachedImage(avatarDef.src);
 
     ctx.save();
     const drawX = hero.x;
@@ -961,10 +1065,10 @@
       // Sombra sutil de la silla sobre los tablones de madera del muelle
       ctx.fillStyle = 'rgba(69, 26, 3, 0.35)';
       ctx.beginPath();
-      ctx.ellipse(drawX + drawW * 0.24, drawY + drawH * 0.98, drawW * 0.18, 5, 0, 0, Math.PI * 2);
+      ctx.ellipse(drawX + drawW * 0.24, drawY + drawH * (avatarDef.chairFeetNormalizedY || 0.96), drawW * 0.18, 5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Dibujo de alta resolución del pescador en su silla plegable
+      // Dibujo de alta resolución del pescador en su silla
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
     } else {
       // Mascota fallback si la imagen aún estuviese cargando

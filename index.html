@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v253';
+    const CURRENT_APP_VERSION = 'v254';
 
     function syncAppVersionLabels() {
       try {
@@ -97,7 +97,7 @@
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=251"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=253"></script>
+  <script src="fisherman.js?v=254"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
   <script src="train.js?v=252"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
@@ -2256,6 +2256,9 @@
               <span id="fisherman-word-title">El Pescador de Sílabas</span>
             </div>
           </div>
+          <button id="btn-fisherman-avatar" onclick="openFishermanPetModal()" style="background: #FEF3C7; border: 1.5px solid #F59E0B; color: #92400E; padding: 6px 10px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;" title="Cambiar avatar del pescador">
+            <span>🎣 Pescador</span>
+          </button>
           <button onclick="speakCurrentFishermanMission()" style="background: #E0F2FE; border: 1px solid #7DD3FC; color: #0369A1; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
             <span>🔊 Oír</span>
           </button>
@@ -2281,6 +2284,44 @@
         <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #38BDF8; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 8px rgba(0,0,0,0.15); border: 2px solid #0284C7;">
           <canvas id="fisherman-game-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
         </div>
+      </div>
+    </div>
+
+    <!-- 🎣 MODAL DE SELECCIÓN DE PESCADOR CON IMÁGENES OFICIALES -->
+    <div id="fisherman-pet-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.80); backdrop-filter: blur(6px); z-index: 10005; align-items: center; justify-content: center; padding: 14px;">
+      <div style="background: white; border-radius: 26px; padding: 20px; max-width: 520px; width: 100%; text-align: center; box-shadow: 0 24px 50px rgba(0,0,0,0.35); border: 3.5px solid #0284C7; animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+          <span style="font-size: 26px;">🎣</span>
+          <h3 style="font-size: 20px; font-weight: 900; color: #0284C7; margin: 0;">¡Elige a tu Pescador!</h3>
+          <span style="font-size: 26px;">🐟</span>
+        </div>
+        <p style="font-size: 13px; font-weight: 700; color: #475569; margin: 0 0 16px 0;">Toca la imagen del héroe con el que quieres pescar en el muelle:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;">
+          
+          <!-- UNICORNIO PESCADOR -->
+          <div onclick="setFishermanPet('🦄')" style="background: linear-gradient(145deg, #FAF5FF, #F3E8FF); border: 3px solid #C084FC; border-radius: 20px; padding: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(192, 132, 252, 0.25); text-align: center;" onmouseover="this.style.transform='translateY(-4px) scale(1.03)'; this.style.borderColor='#9333EA';" onmouseout="this.style.transform='none'; this.style.borderColor='#C084FC';">
+            <div style="width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 14px; background: rgba(255,255,255,0.7);">
+              <img src="assets/unicornio_pescador.png?v=254" alt="Unicornio Pescador" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <div style="font-size: 14px; font-weight: 900; color: #6B21A8; margin-top: 8px;">🦄 Unicornio Mágico</div>
+            <div style="font-size: 11px; font-weight: 700; color: #7E22CE; opacity: 0.85;">Silla plegable y caña mágica</div>
+          </div>
+
+          <!-- CONEJITO PESCADOR -->
+          <div onclick="setFishermanPet('🐰')" style="background: linear-gradient(145deg, #F0FDF4, #DCFCE7); border: 3px solid #4ADE80; border-radius: 20px; padding: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(74, 222, 128, 0.25); text-align: center;" onmouseover="this.style.transform='translateY(-4px) scale(1.03)'; this.style.borderColor='#16A34A';" onmouseout="this.style.transform='none'; this.style.borderColor='#4ADE80';">
+            <div style="width: 100%; height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 14px; background: rgba(255,255,255,0.7);">
+              <img src="assets/conejo_pescador.png?v=254" alt="Conejito Pescador" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <div style="font-size: 14px; font-weight: 900; color: #15803D; margin-top: 8px;">🐰 Conejito Pescador</div>
+            <div style="font-size: 11px; font-weight: 700; color: #166534; opacity: 0.85;">Silla de camping y gorrita</div>
+          </div>
+
+        </div>
+
+        <button onclick="closeFishermanPetModal()" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: white; border: none; border-radius: 14px; padding: 10px 26px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 10px rgba(2,132,199,0.35);">
+          ¡Listo para Pescar! 🎣
+        </button>
       </div>
     </div>
 
