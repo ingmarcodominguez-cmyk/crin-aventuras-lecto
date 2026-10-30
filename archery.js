@@ -10,13 +10,38 @@
 (function(window) {
   'use strict';
 
-  // --- CARGA DE ASSETS GRÁFICOS PERSONALIZADOS ---
-  const unicornArcherImg = new Image();
-  unicornArcherImg.src = 'assets/unicornio_arquero.png?v=240';
-  let isUnicornImgLoaded = false;
-  unicornArcherImg.onload = function() {
-    isUnicornImgLoaded = true;
+  // --- CARGA DE ASSETS GRÁFICOS PERSONALIZADOS (3 ÁNGULOS REACTIVOS 3D) ---
+  const unicornImages = {
+    center: new Image(),
+    left: new Image(),
+    right: new Image()
   };
+  unicornImages.center.src = 'assets/unicornio_tiro_delantero.png?v=241';
+  unicornImages.left.src = 'assets/unicornio_tiro_izquierda.png?v=241';
+  unicornImages.right.src = 'assets/unicornio_tiro_derecha.png?v=241';
+
+  let unicornImagesLoaded = {
+    center: false,
+    left: false,
+    right: false
+  };
+  unicornImages.center.onload = () => { unicornImagesLoaded.center = true; };
+  unicornImages.left.onload = () => { unicornImagesLoaded.left = true; };
+  unicornImages.right.onload = () => { unicornImagesLoaded.right = true; };
+
+  // Selector de sprite reactivo según el ángulo de puntería en pantalla
+  function getUnicornAimingSprite() {
+    const px = ArcheryGame.pointer.x;
+    const w = ArcheryGame.width;
+
+    if (px < w * 0.40) {
+      return { img: unicornImages.left, type: 'left', isLoaded: unicornImagesLoaded.left || unicornImages.left.complete };
+    } else if (px > w * 0.60) {
+      return { img: unicornImages.right, type: 'right', isLoaded: unicornImagesLoaded.right || unicornImages.right.complete };
+    } else {
+      return { img: unicornImages.center, type: 'center', isLoaded: unicornImagesLoaded.center || unicornImages.center.complete };
+    }
+  }
 
 
   // Helper universal de rectángulo redondeado (100% compatible con todos los navegadores)
@@ -493,8 +518,9 @@
     ArcheryGame.canvas.width = w;
     ArcheryGame.canvas.height = h;
 
-    ArcheryGame.archer.baseX = Math.max(70, Math.min(125, w * 0.14));
-    ArcheryGame.archer.baseY = h - 68;
+    // Centrar al arquero en el camino en perspectiva 3D
+    ArcheryGame.archer.baseX = w * 0.50;
+    ArcheryGame.archer.baseY = h - 52;
     ArcheryGame.archer.x = ArcheryGame.archer.baseX;
     ArcheryGame.archer.y = ArcheryGame.archer.baseY;
   }
@@ -646,9 +672,10 @@
       }
     }
 
-    const ySlots = [75, 130, 185, 240];
+    const horizonY = ArcheryGame.height * 0.42;
+    const ySlots = [65, 95, 125, Math.min(160, horizonY + 15)];
     distractors.forEach((dw, idx) => {
-      const sx = ArcheryGame.width * (0.36 + (idx % 3) * 0.22);
+      const sx = ArcheryGame.width * (0.16 + idx * 0.22);
       const sy = ySlots[idx % ySlots.length];
       spawnTarget(dw, false, sx, sy);
     });
@@ -659,10 +686,11 @@
     const speed = 1.1 + Math.random() * 0.95;
     const emoji = getWordEmoji(word);
 
-    const minSpawnY = 70;
-    const maxSpawnY = Math.max(160, ArcheryGame.height - 180);
+    const horizonY = ArcheryGame.height * 0.42;
+    const minSpawnY = 65;
+    const maxSpawnY = Math.max(85, horizonY + 20);
     const spawnY = initialY !== undefined ? initialY : (minSpawnY + Math.random() * (maxSpawnY - minSpawnY));
-    const spawnX = initialX !== undefined ? initialX : (direction > 0 ? (ArcheryGame.width * 0.35) : (ArcheryGame.width - 70));
+    const spawnX = initialX !== undefined ? initialX : (direction > 0 ? 80 : (ArcheryGame.width - 80));
 
     ArcheryGame.targets.push({
       word: word,
@@ -703,8 +731,8 @@
       t.waveOffset += t.waveSpeed;
       t.y = t.baseY + Math.sin(t.waveOffset) * t.waveAmp;
 
-      const minX = ArcheryGame.width * 0.30;
-      const maxX = ArcheryGame.width - 65;
+      const minX = 70;
+      const maxX = ArcheryGame.width - 70;
       if (t.x < minX) {
         t.x = minX;
         t.vx = Math.abs(t.vx);
@@ -734,8 +762,9 @@
 
     // 1. Si la palabra objetivo desapareció o se desvaneció, reponerla de inmediato
     if (!hasTargetWord && !ArcheryGame.isAdvancing) {
-      const rx = ArcheryGame.width * (0.40 + Math.random() * 0.45);
-      const ry = 75 + Math.random() * Math.max(110, ArcheryGame.height - 240);
+      const horizonY = ArcheryGame.height * 0.42;
+      const rx = 80 + Math.random() * (ArcheryGame.width - 160);
+      const ry = 65 + Math.random() * Math.max(70, horizonY - 15);
       spawnTarget(ArcheryGame.targetWord, true, rx, ry);
       hasTargetWord = true;
     }
@@ -762,8 +791,9 @@
       }
 
       if (newWord) {
-        const rx = ArcheryGame.width * (0.38 + Math.random() * 0.48);
-        const ry = 75 + Math.random() * Math.max(110, ArcheryGame.height - 240);
+        const horizonY = ArcheryGame.height * 0.42;
+        const rx = 80 + Math.random() * (ArcheryGame.width - 160);
+        const ry = 65 + Math.random() * Math.max(70, horizonY - 15);
         spawnTarget(newWord, false, rx, ry);
       }
     }
@@ -771,16 +801,17 @@
 
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
-    const petType = getActivePet();
-    const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+    const a = ArcheryGame.archer;
+    const spriteChoice = getUnicornAimingSprite();
 
-    let ax = ArcheryGame.archer.x + 25;
-    let ay = ArcheryGame.archer.y - 30;
-
-    if (isUnicorn) {
-      const spriteSize = Math.max(120, Math.min(150, ArcheryGame.height * 0.35));
-      ax = ArcheryGame.archer.x + spriteSize * 0.44;
-      ay = ArcheryGame.archer.y - spriteSize * 0.58;
+    let ax = a.x;
+    let ay = a.y - 45;
+    if (spriteChoice.type === 'left') {
+      ax = a.x - 22;
+      ay = a.y - 50;
+    } else if (spriteChoice.type === 'right') {
+      ax = a.x + 22;
+      ay = a.y - 50;
     }
 
     const dx = targetX - ax;
@@ -789,69 +820,81 @@
     if (dist < 10) return;
 
     const angle = Math.atan2(dy, dx);
-    const speed = 26;
 
+    // Flecha balística con profundidad 3D
     ArcheryGame.arrows.push({
+      startX: ax,
+      startY: ay,
+      targetX: targetX,
+      targetY: targetY,
       x: ax,
       y: ay,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
+      progress: 0,
+      speed: 0.055, // Llega al objetivo en ~18 frames (300ms)
       angle: angle,
-      life: 90
+      scale: 1.0,
+      life: 50
     });
 
-    ArcheryGame.archer.aimAngle = angle;
-    ArcheryGame.archer.targetAimAngle = angle;
-    ArcheryGame.archer.isShooting = true;
-    ArcheryGame.archer.recoil = 16;
-    ArcheryGame.archer.shootCooldown = 8;
+    a.aimAngle = angle;
+    a.targetAimAngle = angle;
+    a.isShooting = true;
+    a.recoil = 18;
+    a.shootCooldown = 10;
 
     playBowTwangSound();
-    createSparkleBurst(ax + Math.cos(angle) * 32, ay + Math.sin(angle) * 32, '#F59E0B', 8);
+    createSparkleBurst(ax, ay, '#FDE047', 10);
   }
 
   function updateArrows() {
     for (let i = ArcheryGame.arrows.length - 1; i >= 0; i--) {
       const arr = ArcheryGame.arrows[i];
 
-      arr.x += arr.vx;
-      arr.y += arr.vy;
-      arr.vy += 0.06;
-      arr.angle = Math.atan2(arr.vy, arr.vx);
+      arr.progress += arr.speed;
+      const t = Math.min(1.0, arr.progress);
 
+      // Trayectoria en perspectiva hacia el horizonte
+      const curX = arr.startX + (arr.targetX - arr.startX) * t;
+      const arcHeight = Math.sin(t * Math.PI) * 26;
+      const curY = arr.startY + (arr.targetY - arr.startY) * t - arcHeight;
+
+      arr.x = curX;
+      arr.y = curY;
+      arr.scale = 1.0 - t * 0.52; // Reduce tamaño al viajar en profundidad 3D
+
+      // Estela mágica
       ArcheryGame.particles.push({
-        x: arr.x - Math.cos(arr.angle) * 16,
-        y: arr.y - Math.sin(arr.angle) * 16,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
-        color: '#FDE047',
-        size: 3,
+        x: arr.x + (Math.random() - 0.5) * 4,
+        y: arr.y + (Math.random() - 0.5) * 4,
+        vx: (Math.random() - 0.5) * 1,
+        vy: (Math.random() - 0.5) * 1,
+        color: Math.random() > 0.5 ? '#FDE047' : '#EF4444',
+        size: Math.max(1.5, 3.5 * arr.scale),
         alpha: 0.9,
-        decay: 0.05
+        decay: 0.06
       });
 
-      let hit = false;
-      for (let j = 0; j < ArcheryGame.targets.length; j++) {
-        const target = ArcheryGame.targets[j];
-        if (target.alpha < 0.35) continue;
+      if (arr.progress >= 1.0) {
+        let hit = false;
+        for (let j = 0; j < ArcheryGame.targets.length; j++) {
+          const target = ArcheryGame.targets[j];
+          if (target.alpha < 0.35) continue;
 
-        const tdx = arr.x - target.x;
-        const tdy = arr.y - target.y;
-        const dist = Math.sqrt(tdx * tdx + tdy * tdy);
+          const tdx = arr.x - target.x;
+          const tdy = arr.y - target.y;
+          const dist = Math.sqrt(tdx * tdx + tdy * tdy);
 
-        if (dist < target.radius + 20) {
-          handleArrowHitTarget(arr, target);
-          hit = true;
-          break;
+          if (dist < target.radius + 25) {
+            handleArrowHitTarget(arr, target);
+            hit = true;
+            break;
+          }
         }
-      }
 
-      if (hit) {
-        ArcheryGame.arrows.splice(i, 1);
-        continue;
-      }
+        if (!hit) {
+          createSparkleBurst(arr.x, arr.y, '#CBD5E1', 6);
+        }
 
-      if (arr.x > ArcheryGame.width + 60 || arr.y > ArcheryGame.height + 60 || arr.x < -60) {
         ArcheryGame.arrows.splice(i, 1);
       }
     }
@@ -979,38 +1022,41 @@
       }
     }
 
-    const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+        const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
 
-    // 🌟 SI EL USUARIO ELIGIÓ EL UNICORNIO: USAR EXCLUSIVAMENTE LA ILUSTRACIÓN REAL PROPORCIONADA
-    if (isUnicorn && (isUnicornImgLoaded || unicornArcherImg.complete || unicornArcherImg.naturalWidth > 0)) {
-      ctx.save();
-      try {
-        const recoilOffset = a.recoil;
-        const breathY = Math.sin(time * 0.0035) * 2.4;
+    // 🌟 RENDERIZADO DEL UNICORNIO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
+    if (isUnicorn) {
+      const spriteChoice = getUnicornAimingSprite();
+      const currentImg = spriteChoice.img;
+      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
 
-        ctx.translate(a.x - recoilOffset * 0.7, a.y + a.jumpY + breathY);
+      if (isLoaded) {
+        ctx.save();
+        try {
+          const recoilOffset = a.recoil;
+          const breathY = Math.sin(time * 0.0035) * 2.5;
 
-        // Sombra en el suelo bajo las pezuñas
-        ctx.beginPath();
-        ctx.ellipse(0, 32, 48, 12, 0, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-        ctx.fill();
+          // Centrado en el camino con retroceso y salto de victoria
+          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
 
-        // Inclinación reactiva al apuntar
-        const aimTilt = Math.max(-0.22, Math.min(0.22, a.aimAngle * 0.15));
-        ctx.rotate(aimTilt);
+          // Sombra en el suelo bajo las pezuñas
+          ctx.beginPath();
+          ctx.ellipse(0, 32, 52, 13, 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+          ctx.fill();
 
-        // Dibujar el dibujo oficial del unicornio arcoíris arquero
-        const spriteSize = Math.max(125, Math.min(155, ArcheryGame.height * 0.36));
-        const spriteX = -spriteSize * 0.46;
-        const spriteY = -spriteSize + 28;
+          // Tamaño del sprite en primer plano
+          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
+          const spriteX = -spriteSize * 0.50;
+          const spriteY = -spriteSize + 32;
 
-        ctx.drawImage(unicornArcherImg, spriteX, spriteY, spriteSize, spriteSize);
+          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
 
-      } finally {
-        ctx.restore();
+        } finally {
+          ctx.restore();
+        }
+        return;
       }
-      return;
     }
     const isDragon = petType.includes('🐉') || petType.includes('dragon');
     const isBear = petType.includes('🐻') || petType.includes('bear');
