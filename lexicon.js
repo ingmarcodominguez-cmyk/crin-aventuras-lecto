@@ -1732,7 +1732,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'TE': { pron: 'Te', audio: 'assets/audio/silabas/te.mp3' },
   'TER': { pron: 'Ter', audio: 'assets/audio/silabas/ter.mp3' },
   'TI': { pron: 'Ti', audio: 'assets/audio/silabas/ti.mp3' },
-  'TO': { pron: 'To', audio: 'assets/audio/silabas/to.mp3' },
+  'TO': { pron: 't-o', audio: 'assets/audio/silabas/to.mp3' },
   'TOR': { pron: 'Tor', audio: 'assets/audio/silabas/tor.mp3' },
   'TRE': { pron: 'Tre', audio: 'assets/audio/silabas/tre.mp3' },
   'TREN': { pron: 'Tren', audio: 'assets/audio/silabas/tren.mp3' },

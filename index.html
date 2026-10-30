@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v268';
+    const CURRENT_APP_VERSION = 'v269';
 
     function syncAppVersionLabels() {
       try {
@@ -106,19 +106,19 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=268"></script>
+  <script src="lexicon.js?v=269"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=268"></script>
+  <script src="archery.js?v=269"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=268"></script>
+  <script src="cauldron.js?v=269"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=268"></script>
+  <script src="fisherman.js?v=269"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=268"></script>
+  <script src="train.js?v=269"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=268"></script>
+  <script src="detective.js?v=269"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=268"></script>
+  <script src="aac_keyboard.js?v=269"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3056,6 +3056,10 @@
       'ven'
     ]);
 
+        if (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') {
+      Object.keys(CANONICAL_SYLLABLE_LEXICON).forEach(k => PRE_RENDERED_SYLLABLES.add(k.toLowerCase()));
+    }
+
     function playNarratorAudio(src, onEndCallback) {
       stopAllAudio();
       unlockAudioSystem();
@@ -3188,7 +3192,7 @@
       'RA': 'Ra', 'RE': 'Re', 'RI': 'Ri', 'RO': 'Ro', 'RU': 'Ru',
       'RRO': 'Rro',
       'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
-      'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'To', 'TU': 'Tu',
+      'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 't-o', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
       'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'Jú',
       'GUE': 'gué', 'GUI': 'guí', 'QUE': 'que', 'QUI': 'qui',
@@ -3605,7 +3609,7 @@
 
       // Evita la expansión de símbolos químicos/abreviaturas en sintetizadores de voz (NA -> Sodio)
       text = text.replace(/\bNA\b/gi, 'Náh');
-      // text.replace TO removed: use canonical To
+      text = text.replace(/\bTO\b/gi, 't-o');
       text = text.replace(/\bSABANA\b/gi, 'Sábana');
       text = text.replace(/\bLAMPARA\b/gi, 'Lámpara');
       text = text.replace(/\bMELON\b/gi, 'Melón');
