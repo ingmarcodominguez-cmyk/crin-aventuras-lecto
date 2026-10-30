@@ -279,7 +279,7 @@
     const c = DetectiveGame.currentCase;
     const targetObj = (c.target === 'A') ? c.optionA : c.optionB;
 
-    const text = `¡Atento Detective! Escucha con mucha atención la pista sonora... ¡Encuentra la palabra: ${targetObj.pron}! Repito: ¡${targetObj.pron}!`;
+    const text = `Atento Detective. Escucha con mucha atención la pista sonora... Encuentra la palabra: ${targetObj.pron}. Repito: ${targetObj.pron}.`;
 
     if (typeof speakText === 'function') {
       DetectiveGame.isSpeaking = true;
@@ -654,7 +654,7 @@
 
       if (typeof speakText === 'function') {
         DetectiveGame.isSpeaking = true;
-        speakText(`¡Caso resuelto! Era ${card.pron}. Excelente discriminación auditiva.`, () => {
+        speakText(`Caso resuelto. Era ${card.pron}. ¡Muy bien!`, () => {
           DetectiveGame.isSpeaking = false;
           onCaseDone();
         });
@@ -673,7 +673,7 @@
 
       if (typeof speakText === 'function') {
         DetectiveGame.isSpeaking = true;
-        speakText(`Esa es ${card.pron}. Escucha de nuevo la pista: ¡${targetObj.pron}!`, () => {
+        speakText(`Esa es ${card.pron}. Escucha de nuevo la pista: ${targetObj.pron}.`, () => {
           DetectiveGame.isSpeaking = false;
         });
       }
