@@ -346,15 +346,15 @@
   function spawnLetterBalloons(wObj) {
     TrainGame.balloons = [];
     const letters = wObj.letras;
-    const w = TrainGame.width;
-    const h = TrainGame.height;
-    const skyTop = 50;
+    const w = TrainGame.width || 800;
+    const h = TrainGame.height || 500;
+    const skyTop = 45;
     const skyBottom = h * 0.44;
 
     // Fonemas objetivo
     letters.forEach((letra, idx) => {
       const pal = BALLOON_PALETTES[idx % BALLOON_PALETTES.length];
-      TrainGame.balloons.push(createBalloon(letra, true, idx, pal, skyTop, skyBottom));
+      TrainGame.balloons.push(createBalloon(letra, true, idx, pal, skyTop, skyBottom, idx));
     });
 
     // 2 letras distractoras
@@ -363,19 +363,25 @@
     for (let i = 0; i < 2; i++) {
       const letra = alphabet[i];
       const pal = BALLOON_PALETTES[(letters.length + i) % BALLOON_PALETTES.length];
-      TrainGame.balloons.push(createBalloon(letra, false, -1, pal, skyTop, skyBottom));
+      TrainGame.balloons.push(createBalloon(letra, false, -1, pal, skyTop, skyBottom, letters.length + i));
     }
 
-    // Mezclar posiciones en el cielo
+    // Barajar orden de aparición y posicionar en el cielo con vuelo activo
     const total = TrainGame.balloons.length;
+    TrainGame.balloons.sort(() => Math.random() - 0.5);
+
     TrainGame.balloons.forEach((b, idx) => {
-      b.x = 45 + ((w - 90) / total) * idx + (Math.random() - 0.5) * 20;
-      b.y = skyTop + 30 + (idx % 2) * 55 + Math.random() * 20;
-      b.initialY = b.y;
+      b.x = 45 + ((w - 90) / Math.max(1, total)) * idx + (Math.random() - 0.5) * 25;
+      b.baseY = skyTop + 25 + (idx % 2) * 45 + (Math.random() - 0.5) * 15;
+      b.y = b.baseY;
+      b.initialY = b.baseY;
+      const dir = (idx % 2 === 0) ? 1 : -1;
+      b.vx = dir * (0.85 + Math.random() * 0.75);
     });
   }
 
-  function createBalloon(letter, isTarget, targetOrder, pal, skyTop, skyBottom) {
+  function createBalloon(letter, isTarget, targetOrder, pal, skyTop, skyBottom, indexOrder) {
+    const dir = ((indexOrder !== undefined ? indexOrder : 0) % 2 === 0) ? 1 : -1;
     return {
       letter: letter,
       isTarget: isTarget,
@@ -383,7 +389,13 @@
       palette: pal,
       x: 200,
       y: 120,
+      baseY: 120,
       initialY: 120,
+      vx: dir * (0.85 + Math.random() * 0.75),
+      waveOffset: Math.random() * Math.PI * 2,
+      waveSpeed: 0.025 + Math.random() * 0.02,
+      waveAmp: 9 + Math.random() * 8,
+      wobble: 0,
       radius: 28,
       floatPhase: Math.random() * Math.PI * 2,
       floatSpeed: 1.2 + Math.random() * 0.8,
@@ -491,9 +503,25 @@
         }
         b.x = b.startX + (b.targetWagonX - b.startX) * b.flyProgress;
         b.y = b.startY + (b.targetWagonY - b.startY) * b.flyProgress - Math.sin(b.flyProgress * Math.PI) * 50;
-      } else if (b !== TrainGame.draggedBalloon) {
-        b.floatPhase += b.floatSpeed * 0.03;
-        b.y = b.initialY + Math.sin(b.floatPhase) * 7;
+      } else {
+        // Vuelo activo estilo arquero por el cielo
+        b.x += b.vx;
+        b.waveOffset += b.waveSpeed;
+        b.floatPhase += 0.035;
+        b.y = b.baseY + Math.sin(b.waveOffset) * b.waveAmp;
+
+        if (b.wobble > 0) b.wobble *= 0.88;
+
+        // Rebote elástico en los márgenes de la pantalla
+        const minX = b.radius + 15;
+        const maxX = w - (b.radius + 15);
+        if (b.x < minX) {
+          b.x = minX;
+          b.vx = Math.abs(b.vx);
+        } else if (b.x > maxX) {
+          b.x = maxX;
+          b.vx = -Math.abs(b.vx);
+        }
       }
     });
 
@@ -988,7 +1016,7 @@
     }
 
     function onPointerDown(e) {
-      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
+      if (TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;
@@ -999,7 +1027,8 @@
         if (b.isPlaced || b.isFlyingToWagon) continue;
         const dx = pos.x - b.x;
         const dy = pos.y - b.y;
-        if (Math.hypot(dx, dy) < b.radius + 14) {
+        // Hitbox generosa para tocar o hacer click directamente sobre el globo volador
+        if (Math.hypot(dx, dy) < b.radius + 22) {
           handleBalloonSelected(b);
           break;
         }
@@ -1007,10 +1036,20 @@
     }
 
     function onPointerMove(e) {
-      if (!TrainGame.pointer.isDown) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;
+
+      // Cursor pointer al sobrevolar globos con el mouse
+      let hovering = false;
+      for (let i = 0; i < TrainGame.balloons.length; i++) {
+        const b = TrainGame.balloons[i];
+        if (!b.isPlaced && !b.isFlyingToWagon && Math.hypot(pos.x - b.x, pos.y - b.y) < b.radius + 20) {
+          hovering = true;
+          break;
+        }
+      }
+      canvas.style.cursor = hovering ? 'pointer' : 'default';
     }
 
     function onPointerUp() {
@@ -1034,6 +1073,9 @@
     const targetLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
     const isCorrect = (b.letter === targetLetter);
 
+    // Destello de toque directo sobre el globo volador
+    createSparklesExplosion(b.x, b.y, b.palette.main, 10);
+
     if (isCorrect) {
       // ¡ACIERTO! El globo viaja mágicamente hacia su vagón en orden canónico
       const slotIdx = TrainGame.currentLetterIndex;
@@ -1049,7 +1091,9 @@
 
       playChimeNote();
     } else {
-      // ERROR AMIGABLE: Sacudida suave y feedback verbal constructivo con pausas
+      // ERROR AMIGABLE: Sacudida suave, rebote de dirección y feedback verbal constructivo
+      b.wobble = 1.0;
+      b.vx = -b.vx * 1.25;
       playBoingSound();
       createFloatingText(b.x, b.y - 30, `¡Esa es la letra ${b.letter}!`, '#F43F5E');
 
@@ -1058,6 +1102,7 @@
         speakText(`Esa es la letra ${b.letter}. ... ¡Sigue buscando la letra ${targetLetter}!`, () => {
           TrainGame.isSpeaking = false;
         });
+        setTimeout(() => { TrainGame.isSpeaking = false; }, 2800);
       }
     }
   }

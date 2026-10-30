@@ -18,6 +18,7 @@
     // Estado de la poción activa
     currentPotionIndex: 0,
     currentPotion: null,
+    potionDeck: [],
     collectedIngredients: [],
     bubbles: [],
     particles: [],
@@ -56,22 +57,21 @@
     voiceTimeout: null
   };
 
-  // BANCO DE POCIONES Y RIMAS NATURALES CON IMÁGENES REALES
-  const RHYME_POTIONS = [
+  // BANCO EXPANDIDO DE FAMILIAS DE RIMAS NATURALES CON IMÁGENES REALES
+  const RHYME_FAMILIES = [
     {
       id: 'on',
       rhymeSound: 'ÓN',
       potionName: 'Poción del Dragón Mágico',
       potionColor: '#8B5CF6',
       potionSecondary: '#C084FC',
-      base: { word: 'BOTÓN', image: 'assets/boton.png', pron: 'botón' },
-      targets: [
+      words: [
+        { word: 'BOTÓN', image: 'assets/boton.png', pron: 'botón' },
         { word: 'RATÓN', image: 'assets/raton.png', pron: 'ratón' },
-        { word: 'LEÓN', image: 'assets/leon.png', pron: 'león' }
-      ],
-      distractors: [
-        { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' },
-        { word: 'ZAPATO', image: 'assets/zapato.png', pron: 'zapato' }
+        { word: 'LEÓN', image: 'assets/leon.png', pron: 'león' },
+        { word: 'DRAGÓN', image: 'assets/dragon.png', pron: 'dragón' },
+        { word: 'LIMÓN', image: 'assets/limon.png', pron: 'limón' },
+        { word: 'CORAZÓN', image: 'assets/corazon.png', pron: 'corazón' }
       ]
     },
     {
@@ -80,14 +80,11 @@
       potionName: 'Elixir de la Velocidad',
       potionColor: '#10B981',
       potionSecondary: '#34D399',
-      base: { word: 'PATO', image: 'assets/pato.png', pron: 'pato' },
-      targets: [
+      words: [
+        { word: 'PATO', image: 'assets/pato.png', pron: 'pato' },
+        { word: 'GATO', image: 'assets/gato.png', pron: 'gato' },
         { word: 'ZAPATO', image: 'assets/zapato.png', pron: 'zapato' },
-        { word: 'GATO', image: 'assets/gato.png', pron: 'gato' }
-      ],
-      distractors: [
-        { word: 'PELOTA', image: 'assets/pelota.png', pron: 'pelota' },
-        { word: 'LECHE', image: 'assets/leche.png', pron: 'leche' }
+        { word: 'PLATO', image: 'assets/plato.png', pron: 'plato' }
       ]
     },
     {
@@ -96,14 +93,11 @@
       potionName: 'Poción de la Luz Matutina',
       potionColor: '#F59E0B',
       potionSecondary: '#FCD34D',
-      base: { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' },
-      targets: [
+      words: [
+        { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' },
         { word: 'BANANA', image: 'assets/banana.png', pron: 'banana' },
-        { word: 'LANA', image: 'assets/lana.png', pron: 'lana' }
-      ],
-      distractors: [
-        { word: 'MESA', image: 'assets/mesa.png', pron: 'mesa' },
-        { word: 'SOL', image: 'assets/sol.png', pron: 'sol' }
+        { word: 'LANA', image: 'assets/lana.png', pron: 'lana' },
+        { word: 'VENTANA', image: 'assets/ventana.png', pron: 'ventana' }
       ]
     },
     {
@@ -112,14 +106,10 @@
       potionName: 'Brebaje del Bosque Encantado',
       potionColor: '#EC4899',
       potionSecondary: '#F472B6',
-      base: { word: 'MESA', image: 'assets/mesa.png', pron: 'mesa' },
-      targets: [
+      words: [
+        { word: 'MESA', image: 'assets/mesa.png', pron: 'mesa' },
         { word: 'FRAMBUESA', image: 'assets/frambuesa.png', pron: 'frambuesa' },
         { word: 'HAMBURGUESA', image: 'assets/hamburguesa.png', pron: 'hamburguesa' }
-      ],
-      distractors: [
-        { word: 'BOTÓN', image: 'assets/boton.png', pron: 'botón' },
-        { word: 'CASITA', image: 'assets/casita.png', pron: 'casita' }
       ]
     },
     {
@@ -128,14 +118,11 @@
       potionName: 'Poción de Flores Mágicas',
       potionColor: '#06B6D4',
       potionSecondary: '#67E8F9',
-      base: { word: 'CASITA', image: 'assets/casita.png', pron: 'casita' },
-      targets: [
+      words: [
+        { word: 'CASITA', image: 'assets/casita.png', pron: 'casita' },
         { word: 'MARGARITA', image: 'assets/margarita.png', pron: 'margarita' },
-        { word: 'CAJITA', image: 'assets/cajita.png', pron: 'cajita' }
-      ],
-      distractors: [
-        { word: 'AUTO', image: 'assets/auto.png', pron: 'auto' },
-        { word: 'BANANA', image: 'assets/banana.png', pron: 'banana' }
+        { word: 'CAJITA', image: 'assets/cajita.png', pron: 'cajita' },
+        { word: 'COPITA', image: 'assets/copita.png', pron: 'copita' }
       ]
     },
     {
@@ -144,14 +131,10 @@
       potionName: 'Fórmula de la Fuerza Dorada',
       potionColor: '#EAB308',
       potionSecondary: '#FEF08A',
-      base: { word: 'CUCHILLO', image: 'assets/cuchillo.png', pron: 'cuchillo' },
-      targets: [
+      words: [
+        { word: 'CUCHILLO', image: 'assets/cuchillo.png', pron: 'cuchillo' },
         { word: 'LADRILLO', image: 'assets/ladrillo.png', pron: 'ladrillo' },
         { word: 'AMARILLO', image: 'assets/amarillo.png', pron: 'amarillo' }
-      ],
-      distractors: [
-        { word: 'PATO', image: 'assets/pato.png', pron: 'pato' },
-        { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' }
       ]
     },
     {
@@ -160,17 +143,122 @@
       potionName: 'Esencia de la Montaña Nevada',
       potionColor: '#3B82F6',
       potionSecondary: '#93C5FD',
-      base: { word: 'PINO', image: 'assets/pino.png', pron: 'pino' },
-      targets: [
+      words: [
+        { word: 'PINO', image: 'assets/pino.png', pron: 'pino' },
         { word: 'CAMINO', image: 'assets/camino.png', pron: 'camino' },
-        { word: 'MOLINO', image: 'assets/molino.png', pron: 'molino' }
-      ],
-      distractors: [
-        { word: 'PELOTA', image: 'assets/pelota.png', pron: 'pelota' },
-        { word: 'BOTÓN', image: 'assets/boton.png', pron: 'botón' }
+        { word: 'MOLINO', image: 'assets/molino.png', pron: 'molino' },
+        { word: 'PINGÜINO', image: 'assets/pinguino.png', pron: 'pingüino' }
+      ]
+    },
+    {
+      id: 'opa',
+      rhymeSound: 'OPA',
+      potionName: 'Brebaje de la Alegría',
+      potionColor: '#F97316',
+      potionSecondary: '#FDBA74',
+      words: [
+        { word: 'SOPA', image: 'assets/sopa.png', pron: 'sopa' },
+        { word: 'COPA', image: 'assets/copa.png', pron: 'copa' },
+        { word: 'LAVARROPA', image: 'assets/lavarropa.png', pron: 'lavarropa' }
+      ]
+    },
+    {
+      id: 'rro',
+      rhymeSound: 'RRO',
+      potionName: 'Elixir de la Valentía',
+      potionColor: '#EF4444',
+      potionSecondary: '#FCA5A5',
+      words: [
+        { word: 'PERRO', image: 'assets/perro.png', pron: 'perro' },
+        { word: 'GORRO', image: 'assets/gorro.png', pron: 'gorro' },
+        { word: 'ZORRO', image: 'assets/zorro.png', pron: 'zorro' }
+      ]
+    },
+    {
+      id: 'nte',
+      rhymeSound: 'ENTE / ANTE',
+      potionName: 'Fórmula del Río Encantado',
+      potionColor: '#6366F1',
+      potionSecondary: '#A5B4FC',
+      words: [
+        { word: 'PUENTE', image: 'assets/puente.png', pron: 'puente' },
+        { word: 'FUENTE', image: 'assets/fuente.png', pron: 'fuente' },
+        { word: 'SERPIENTE', image: 'assets/serpiente.png', pron: 'serpiente' },
+        { word: 'GUANTE', image: 'assets/guante.png', pron: 'guante' },
+        { word: 'ELEFANTE', image: 'assets/elefante.png', pron: 'elefante' }
+      ]
+    },
+    {
+      id: 'ela',
+      rhymeSound: 'ELA',
+      potionName: 'Poción de las Estrellas',
+      potionColor: '#84CC16',
+      potionSecondary: '#BEF264',
+      words: [
+        { word: 'TELA', image: 'assets/tela.png', pron: 'tela' },
+        { word: 'VELA', image: 'assets/vela.png', pron: 'vela' },
+        { word: 'ABUELA', image: 'assets/abuela.png', pron: 'abuela' },
+        { word: 'ESTRELLA', image: 'assets/estrella.png', pron: 'estrella' }
+      ]
+    },
+    {
+      id: 'ila',
+      rhymeSound: 'ILA',
+      potionName: 'Elixir de las Alturas',
+      potionColor: '#0EA5E9',
+      potionSecondary: '#7DD3FC',
+      words: [
+        { word: 'PILA', image: 'assets/pila.png', pron: 'pila' },
+        { word: 'GORILA', image: 'assets/gorila.png', pron: 'gorila' },
+        { word: 'ÁGUILA', image: 'assets/aguila.png', pron: 'águila' }
+      ]
+    },
+    {
+      id: 'or',
+      rhymeSound: 'OR',
+      potionName: 'Fórmula de la Sabiduría Mágica',
+      potionColor: '#A855F7',
+      potionSecondary: '#D8B4FE',
+      words: [
+        { word: 'DOCTOR', image: 'assets/doctor.png', pron: 'doctor' },
+        { word: 'TENEDOR', image: 'assets/tenedor.png', pron: 'tenedor' },
+        { word: 'FLOR', image: 'assets/flor.png', pron: 'flor' }
       ]
     }
   ];
+
+  // GENERADOR ULTRA-DINÁMICO DE POCIONES DE RIMAS (TOTALMENTE ALEATORIO Y SIN REPETICIONES)
+  function generateDynamicRhymePotions() {
+    const shuffledFamilies = [...RHYME_FAMILIES].sort(() => Math.random() - 0.5);
+
+    return shuffledFamilies.map(fam => {
+      // Barajar palabras dentro de la familia para alternar base y targets
+      const famWords = [...fam.words].sort(() => Math.random() - 0.5);
+      const baseWord = famWords[0];
+      const targetWords = famWords.slice(1, 3); // 2 ingredientes que riman con la base
+
+      // Elegir 2 distractores de otras familias con rima diferente
+      const otherWords = [];
+      shuffledFamilies.forEach(otherFam => {
+        if (otherFam.id !== fam.id) {
+          otherFam.words.forEach(w => otherWords.push(w));
+        }
+      });
+      otherWords.sort(() => Math.random() - 0.5);
+      const distractors = otherWords.slice(0, 2);
+
+      return {
+        id: fam.id,
+        rhymeSound: fam.rhymeSound,
+        potionName: fam.potionName,
+        potionColor: fam.potionColor,
+        potionSecondary: fam.potionSecondary,
+        base: baseWord,
+        targets: targetWords,
+        distractors: distractors
+      };
+    });
+  }
 
   // Caché de imágenes
   const cauldronImgCache = {};
@@ -216,6 +304,7 @@
     if (screen) screen.classList.add('active');
 
     CauldronGame.isRunning = true;
+    CauldronGame.potionDeck = generateDynamicRhymePotions();
     CauldronGame.currentPotionIndex = 0;
     initCauldronGame();
 
@@ -285,7 +374,14 @@
 
   // Configuración de una poción
   function setupPotion(index) {
-    const p = RHYME_POTIONS[index % RHYME_POTIONS.length];
+    if (!CauldronGame.potionDeck || CauldronGame.potionDeck.length === 0) {
+      CauldronGame.potionDeck = generateDynamicRhymePotions();
+    }
+    // Re-barajar si se completan todas las pociones del mazo
+    if (index >= CauldronGame.potionDeck.length) {
+      CauldronGame.potionDeck = generateDynamicRhymePotions();
+    }
+    const p = CauldronGame.potionDeck[index % CauldronGame.potionDeck.length];
     CauldronGame.currentPotion = p;
     CauldronGame.collectedIngredients = [];
     CauldronGame.isAdvancing = false;
