@@ -226,6 +226,7 @@
         started = true;
         // Pausa respetuosa y natural (1.2s) para que el niño disfrute su elección antes de la palabra
         setTimeout(() => {
+          if (!FishermanGame.isRunning) return;
           startFishermanRounds();
         }, 1200);
       };
@@ -276,8 +277,11 @@
   window.closeFishermanAndReturnToMap = function() {
     FishermanGame.isRunning = false;
     FishermanGame.hasStarted = false;
+    FishermanGame.isSpeaking = false;
+    FishermanGame.isAdvancing = false;
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
+    FishermanGame.voiceTimeout = null;
     if (typeof stopAllAudio === 'function') stopAllAudio();
 
     if (typeof switchScreen === 'function') {
@@ -288,8 +292,12 @@
   window.stopFishermanGame = function() {
     FishermanGame.isRunning = false;
     FishermanGame.hasStarted = false;
+    FishermanGame.isSpeaking = false;
+    FishermanGame.isAdvancing = false;
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
+    FishermanGame.voiceTimeout = null;
+    if (typeof stopAllAudio === 'function') stopAllAudio();
   };
 
   // --- INICIALIZACIÓN DEL JUEGO ---
@@ -469,7 +477,7 @@
 
   // --- CONFIGURACIÓN DE UNA PALABRA ---
   function setupWord(index) {
-    if (FishermanGame.wordList.length === 0) return;
+    if (!FishermanGame.isRunning || FishermanGame.wordList.length === 0) return;
     const wObj = FishermanGame.wordList[index % FishermanGame.wordList.length];
     FishermanGame.currentWordObj = wObj;
     FishermanGame.currentSyllables = wObj.silabas || [wObj.word];
@@ -489,6 +497,7 @@
     // Locución de la misión con pausa clara
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = setTimeout(() => {
+      if (!FishermanGame.isRunning) return;
       speakCurrentFishermanMission();
     }, 450);
   }
@@ -557,9 +566,13 @@
     if (FishermanGame.currentSyllableTargetIndex === 0) {
       FishermanGame.isSpeaking = true;
       speakText(`Vamos a pescar hasta formar la palabra ${wObj.pron}.`, () => {
+        if (!FishermanGame.isRunning) return;
         FishermanGame.isSpeaking = false;
       });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 5000);
+      setTimeout(() => {
+        if (!FishermanGame.isRunning) return;
+        FishermanGame.isSpeaking = false;
+      }, 5000);
     } else {
       FishermanGame.isSpeaking = false;
     }
@@ -1398,8 +1411,14 @@
       if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
     }
 
+    let victoryHandled = false;
     const onVictoryDone = () => {
+      if (victoryHandled) return;
+      victoryHandled = true;
+
       setTimeout(() => {
+        if (!FishermanGame.isRunning) return;
+        FishermanGame.isAdvancing = false;
         FishermanGame.currentWordIndex++;
         if (FishermanGame.currentWordIndex >= FishermanGame.wordList.length) {
           // Completó todas las palabras de la ronda
@@ -1407,7 +1426,7 @@
         } else {
           setupWord(FishermanGame.currentWordIndex);
         }
-      }, 800);
+      }, 700);
     };
 
     if (typeof speakText === 'function') {
@@ -1426,6 +1445,7 @@
   }
 
   function showFishermanVictoryModal() {
+    if (!FishermanGame.isRunning) return;
     const modal = document.getElementById('fisherman-victory-modal');
     if (modal) {
       modal.style.display = 'flex';
