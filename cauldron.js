@@ -289,6 +289,9 @@
     CauldronGame.currentPotion = p;
     CauldronGame.collectedIngredients = [];
     CauldronGame.isAdvancing = false;
+    CauldronGame.isSpeaking = false;
+    if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
+    if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
     CauldronGame.particles = [];
     CauldronGame.floatingTexts = [];
     CauldronGame.draggedBubble = null;
@@ -395,7 +398,11 @@
     const p = CauldronGame.currentPotion;
     if (!p) return;
     if (typeof speakText === 'function') {
-      speakText(`Para esta poción mágica, busca lo que rime con: ${p.base.pron}`);
+      CauldronGame.isSpeaking = true;
+      speakText(`Para esta poción mágica, busca lo que rime con: ${p.base.pron}`, () => {
+        CauldronGame.isSpeaking = false;
+        if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
+      });
     }
   };
 
@@ -792,28 +799,33 @@
       const basePron = p.base.pron;
       const targetPron = bubble.pron;
 
+      let praiseHandled = false;
       const onPraiseEnded = () => {
-        // Pausa calmada de 500ms
+        if (praiseHandled) return;
+        praiseHandled = true;
         setTimeout(() => {
           CauldronGame.isAdvancing = false;
+          CauldronGame.isSpeaking = false;
+          if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
+          if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
 
           // ¿Completó los 2 ingredientes de la poción?
           if (CauldronGame.collectedIngredients.length >= 2) {
             handlePotionCompleted();
           }
-        }, 500);
+        }, 250);
       };
 
       if (typeof speakText === 'function') {
         CauldronGame.isSpeaking = true;
-        speakText(`¡Súper! ... ${basePron} y ${targetPron}. ... ¡Suenan igual al final!`, () => {
+        speakText(`Súper. ${basePron} y ${targetPron}. Suenan igual al final.`, () => {
           CauldronGame.isSpeaking = false;
           onPraiseEnded();
         });
       } else {
         onPraiseEnded();
       }
-      setTimeout(onPraiseEnded, 3600); // Respaldo
+      setTimeout(onPraiseEnded, 2800); // Respaldo de seguridad
 
     } else {
       // ❌ DISTRACTOR (NO RIMA)
@@ -850,20 +862,29 @@
       if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
     }
 
+    let victoryHandled = false;
     const onVictoryEnded = () => {
+      if (victoryHandled) return;
+      victoryHandled = true;
+      CauldronGame.isAdvancing = false;
+      CauldronGame.isSpeaking = false;
+      if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
+      if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
+
       setTimeout(() => {
         // Avanzar a la siguiente poción mágica
         CauldronGame.currentPotionIndex++;
         setupPotion(CauldronGame.currentPotionIndex);
-      }, 700);
+      }, 400);
     };
 
     if (typeof speakText === 'function') {
-      speakText('¡Poción mágica completada! ¡Excelente trabajo con las rimas!', onVictoryEnded);
+      CauldronGame.isSpeaking = true;
+      speakText('Poción mágica completada. Excelente trabajo con las rimas.', onVictoryEnded);
     } else {
       onVictoryEnded();
     }
-    setTimeout(onVictoryEnded, 3800);
+    setTimeout(onVictoryEnded, 3000);
   }
 
   // --- SISTEMA DE PARTÍCULAS Y TEXTOS FLOTANTES ---
@@ -1042,10 +1063,6 @@
           b.dragOffsetX = b.x - pos.x;
           b.dragOffsetY = b.y - pos.y;
 
-          // Soporte multisensorial auditivo: decir la palabra inmediatamente al tocarla
-          if (typeof speakText === 'function') {
-            speakText(b.pron);
-          }
           break;
         }
       }

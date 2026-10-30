@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v259';
+    const CURRENT_APP_VERSION = 'v260';
 
     function syncAppVersionLabels() {
       try {
@@ -93,17 +93,17 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=259"></script>
+  <script src="archery.js?v=260"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=259"></script>
+  <script src="cauldron.js?v=260"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=259"></script>
+  <script src="fisherman.js?v=260"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=259"></script>
+  <script src="train.js?v=260"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=259"></script>
+  <script src="detective.js?v=260"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=259"></script>
+  <script src="aac_keyboard.js?v=260"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3749,7 +3749,7 @@
         setTimeout(() => pictoCard.classList.remove('speaking'), 600);
       }
 
-      const durationEst = Math.max(textToSpeak.length * 85 + 800, 1500);
+      const durationEst = Math.max(textToSpeak.length * 65 + 1600, 2600);
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         safeCallback();
