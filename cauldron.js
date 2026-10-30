@@ -318,6 +318,9 @@
     CauldronGame.isRunning = false;
     if (CauldronGame.animId) cancelAnimationFrame(CauldronGame.animId);
     if (CauldronGame.voiceTimeout) clearTimeout(CauldronGame.voiceTimeout);
+    CauldronGame.voiceTimeout = null;
+    CauldronGame.isSpeaking = false;
+    CauldronGame.isAdvancing = false;
     if (typeof stopAllAudio === 'function') stopAllAudio();
 
     if (typeof switchScreen === 'function') {
@@ -329,6 +332,10 @@
     CauldronGame.isRunning = false;
     if (CauldronGame.animId) cancelAnimationFrame(CauldronGame.animId);
     if (CauldronGame.voiceTimeout) clearTimeout(CauldronGame.voiceTimeout);
+    CauldronGame.voiceTimeout = null;
+    CauldronGame.isSpeaking = false;
+    CauldronGame.isAdvancing = false;
+    if (typeof stopAllAudio === 'function') stopAllAudio();
   };
 
   // Inicialización de la partida
@@ -492,6 +499,7 @@
 
   // --- LOCUCIÓN PEDAGÓGICA Y CALIBRADA ---
   window.speakCauldronMission = function() {
+    if (!CauldronGame.isRunning) return;
     const p = CauldronGame.currentPotion;
     if (!p) return;
     if (typeof speakText === 'function') {
@@ -914,6 +922,7 @@
 
         // Pausa pedagógica respetuosa (1.3s) para que el niño procese el elogio antes de que comience el siguiente relato
         setTimeout(() => {
+          if (!CauldronGame.isRunning) return;
           CauldronGame.isAdvancing = false;
           CauldronGame.isSpeaking = false;
           if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
@@ -944,7 +953,10 @@
       } else {
         onPraiseEnded();
       }
-      setTimeout(onPraiseEnded, 8500); // Respaldo de seguridad amplio (8.5s) para NUNCA cortar el relato
+      setTimeout(() => {
+        if (!CauldronGame.isRunning) return;
+        onPraiseEnded();
+      }, 8500); // Respaldo de seguridad amplio (8.5s) para NUNCA cortar el relato
 
     } else {
       // ❌ DISTRACTOR (NO RIMA)
@@ -991,6 +1003,7 @@
       if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
 
       setTimeout(() => {
+        if (!CauldronGame.isRunning) return;
         // Avanzar a la siguiente poción mágica
         CauldronGame.currentPotionIndex++;
         setupPotion(CauldronGame.currentPotionIndex);

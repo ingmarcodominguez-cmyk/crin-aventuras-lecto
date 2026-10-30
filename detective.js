@@ -42,7 +42,9 @@
 
     isSpeaking: false,
     isAdvancing: false,
-    voiceTimeout: null
+    voiceTimeout: null,
+    speechWatchdog: null,
+    listenersAttached: false
   };
 
   // BANCO CANÓNICO DE CASOS DE PARES MÍNIMOS CON IMÁGENES REALES
@@ -144,6 +146,11 @@
     DetectiveGame.isRunning = false;
     if (DetectiveGame.animId) cancelAnimationFrame(DetectiveGame.animId);
     if (DetectiveGame.voiceTimeout) clearTimeout(DetectiveGame.voiceTimeout);
+    if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
+    DetectiveGame.voiceTimeout = null;
+    DetectiveGame.speechWatchdog = null;
+    DetectiveGame.isSpeaking = false;
+    DetectiveGame.isAdvancing = false;
     if (typeof stopAllAudio === 'function') stopAllAudio();
 
     if (typeof switchScreen === 'function') {
@@ -155,6 +162,12 @@
     DetectiveGame.isRunning = false;
     if (DetectiveGame.animId) cancelAnimationFrame(DetectiveGame.animId);
     if (DetectiveGame.voiceTimeout) clearTimeout(DetectiveGame.voiceTimeout);
+    if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
+    DetectiveGame.voiceTimeout = null;
+    DetectiveGame.speechWatchdog = null;
+    DetectiveGame.isSpeaking = false;
+    DetectiveGame.isAdvancing = false;
+    if (typeof stopAllAudio === 'function') stopAllAudio();
   };
 
   // --- INICIALIZACIÓN ---
@@ -189,7 +202,7 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     DetectiveGame.canvas.width = w * dpr;
     DetectiveGame.canvas.height = h * dpr;
-    DetectiveGame.ctx.scale(dpr, dpr);
+    DetectiveGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     DetectiveGame.width = w;
     DetectiveGame.height = h;
@@ -279,13 +292,20 @@
     const c = DetectiveGame.currentCase;
     const targetObj = (c.target === 'A') ? c.optionA : c.optionB;
 
-    const text = `Atento Detective. Escucha con mucha atención la pista sonora... Encuentra la palabra: ${targetObj.pron}. Repito: ${targetObj.pron}.`;
+    const text = `Encuentra la palabra ${targetObj.pron}.`;
 
     if (typeof speakText === 'function') {
       DetectiveGame.isSpeaking = true;
+      if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
       speakText(text, () => {
+        if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
         DetectiveGame.isSpeaking = false;
       });
+      DetectiveGame.speechWatchdog = setTimeout(() => {
+        DetectiveGame.isSpeaking = false;
+      }, 4000);
+    } else {
+      DetectiveGame.isSpeaking = false;
     }
   };
 
@@ -583,13 +603,16 @@
 
   // --- INTERACCIÓN Y EVENTOS TÁCTILES ---
   function setupDetectiveEventListeners() {
+    if (DetectiveGame.listenersAttached) return;
     const canvas = DetectiveGame.canvas;
     if (!canvas) return;
+    DetectiveGame.listenersAttached = true;
 
     function getCoords(e) {
       const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+      const clientX = touch ? touch.clientX : e.clientX;
+      const clientY = touch ? touch.clientY : e.clientY;
       return {
         x: (clientX - rect.left) * (DetectiveGame.width / rect.width),
         y: (clientY - rect.top) * (DetectiveGame.height / rect.height)
@@ -597,8 +620,9 @@
     }
 
     function onPointerDown(e) {
-      if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing) return;
+      if (!DetectiveGame.isRunning || DetectiveGame.isAdvancing) return;
       const pos = getCoords(e);
+      if (!pos) return;
 
       // Detectar toque en alguna de las dos cartas
       DetectiveGame.cards.forEach(card => {
@@ -615,7 +639,9 @@
 
   // --- LÓGICA DE DECISIÓN DEL DETECTIVE ---
   function handleCardSelected(card) {
-    if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing) return;
+    if (!DetectiveGame.isRunning || DetectiveGame.isAdvancing) return;
+    DetectiveGame.isSpeaking = false;
+    if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
 
     // Dirigir la lupa hacia la carta seleccionada
     DetectiveGame.magnifier.targetX = card.x + card.width / 2;
@@ -637,46 +663,38 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      // Explicación metacognitiva del par mínimo
-      const c = DetectiveGame.currentCase;
-      const otherCard = DetectiveGame.cards.find(cd => cd !== card);
-
       const onCaseDone = () => {
         setTimeout(() => {
+          if (!DetectiveGame.isRunning) return;
           DetectiveGame.currentCaseIndex++;
           if (DetectiveGame.currentCaseIndex >= DetectiveGame.cases.length) {
             showDetectiveVictoryModal();
           } else {
             setupCase(DetectiveGame.currentCaseIndex);
           }
-        }, 900);
+        }, 700);
       };
 
       if (typeof speakText === 'function') {
         DetectiveGame.isSpeaking = true;
-        speakText(`Caso resuelto. Era ${card.pron}. ¡Muy bien!`, () => {
+        speakText('¡Súper, tarea lograda!', () => {
           DetectiveGame.isSpeaking = false;
           onCaseDone();
         });
+        setTimeout(() => {
+          DetectiveGame.isSpeaking = false;
+          onCaseDone();
+        }, 3500);
       } else {
         onCaseDone();
       }
 
     } else {
-      // ERROR AMIGABLE
+      // ERROR AMIGABLE: solo sonido y sacudida, SIN relato
       card.shakeOffset = 10;
       playSoftBoing();
       createFloatingText(card.x + card.width / 2, card.y - 20, `Esa es ${card.word}`, '#F43F5E');
-
-      const c = DetectiveGame.currentCase;
-      const targetObj = (c.target === 'A') ? c.optionA : c.optionB;
-
-      if (typeof speakText === 'function') {
-        DetectiveGame.isSpeaking = true;
-        speakText(`Esa es ${card.pron}. Escucha de nuevo la pista: ${targetObj.pron}.`, () => {
-          DetectiveGame.isSpeaking = false;
-        });
-      }
+      DetectiveGame.isSpeaking = false;
     }
   }
 
