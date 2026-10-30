@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v248';
+    const CURRENT_APP_VERSION = 'v249';
 
     function syncAppVersionLabels() {
       try {
@@ -93,7 +93,9 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=248"></script>
+  <script src="archery.js?v=249"></script>
+  <!-- 🧪 MÓDULO PSICOPEDAGÓGICO: EL CALDERO MÁGICO DE LAS RIMAS -->
+  <script src="cauldron.js?v=249"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1388,6 +1390,20 @@
             </div>
           </div>
 
+          <!-- 🧪 MÓDULO PSICOPEDAGÓGICO: EL CALDERO MÁGICO DE LAS RIMAS -->
+          <div onclick="openCauldronQuestScreen()" style="background: linear-gradient(135deg, #4C1D95 0%, #7C3AED 50%, #A855F7 100%); color: white; padding: 12px 14px; border-radius: 20px; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 3px solid #DDD6FE; margin-bottom: 16px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 26px;">🧪</div>
+              <div>
+                <div style="font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">El Caldero de las Rimas</div>
+                <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Conciencia Fonológica · Alquimia Mágica</div>
+              </div>
+            </div>
+            <button style="background: #FFFFFF; color: #6D28D9; border: none; padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 4px;">
+              <span>▶️ JUGAR</span>
+            </button>
+          </div>
+
 <!-- MUNDO 1: EL CUENTO DEL BOSQUE (DESBLOQUEADO INICIALMENTE) -->
           <div id="map-node-0" class="world-node" onclick="handleMapNodeClick(0)" style="border: 3px solid #FFD700; background: linear-gradient(135deg, #FFFFFF, #FFFBEB);">
             <div class="node-icon" style="background: linear-gradient(135deg, #FF9F43, #FF6B81);">📖</div>
@@ -2102,6 +2118,50 @@
           </div>
         </div>
       </div>
+
+    <!-- 🧪 SCREEN 8: EL CALDERO MÁGICO DE LAS RIMAS -->
+    <div id="screen-cauldron" class="screen" style="background: #0F172A;">
+      <div class="game-screen-container" style="position: relative; overflow: hidden; background: #0F172A; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+        
+        <!-- BARRA SUPERIOR DE NAVEGACIÓN -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: #1E293B; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); gap: 6px; border: 1px solid #334155;">
+          <button onclick="closeCauldronAndReturnToMap()" style="background: #334155; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #F1F5F9; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <span>⬅️ Salir</span>
+          </button>
+          <div style="text-align: center; flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 900; color: #C084FC; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <span>🧪</span>
+              <span id="cauldron-potion-title">El Caldero de las Rimas</span>
+              <span id="cauldron-rhyme-badge" style="font-size: 10px; font-weight: 800; background: #8B5CF6; color: white; padding: 2px 7px; border-radius: 8px;">Termina en -ÓN</span>
+            </div>
+          </div>
+          <button onclick="speakCauldronMission()" style="background: rgba(168, 85, 247, 0.2); border: 1px solid #A855F7; color: #E9D5FF; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
+            <span>🔊 Oír</span>
+          </button>
+        </div>
+
+        <!-- BANNER HUD: INGREDIENTE BASE Y SLOTS DE RIMAS -->
+        <div style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); color: white; padding: 8px 14px; border-radius: 16px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; border: 1.5px solid #4338CA;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="background: rgba(255,255,255,0.15); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.25);">
+              <img id="cauldron-base-img" src="assets/boton.png" alt="Base" style="width: 36px; height: 36px; object-fit: contain;">
+            </div>
+            <div>
+              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #A5B4FC;">Ingrediente Base</div>
+              <div id="cauldron-base-word" style="font-size: 18px; font-weight: 900; letter-spacing: 1px; color: #FCD34D; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">BOTÓN</div>
+            </div>
+          </div>
+          <div id="cauldron-slots-container">
+            <!-- Actualizado dinámicamente con los ingredientes colocados -->
+          </div>
+        </div>
+
+        <!-- ARENA DEL CALDERO Y CANVAS INTERACTIVO -->
+        <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: radial-gradient(circle at 50% 30%, #1E1B4B 0%, #090A1A 100%); border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); border: 2px solid #3730A3;">
+          <canvas id="cauldron-game-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
+        </div>
+      </div>
+    </div>
 
       <!-- Navigation Bar -->
     <div class="nav-bar">
@@ -3342,6 +3402,9 @@
     function switchScreen(screenName) {
       if (screenName !== 'archery' && typeof window.stopArcheryGame === 'function') {
         window.stopArcheryGame();
+      }
+      if (screenName !== 'cauldron' && typeof window.stopCauldronGame === 'function') {
+        window.stopCauldronGame();
       }
       stopAllAudio();
       forceUnlockStoryPuzzle();
