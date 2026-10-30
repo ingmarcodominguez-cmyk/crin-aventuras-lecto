@@ -114,7 +114,25 @@
     return true;
   }
 
-  // Obtiene la imagen de la mascota activa
+  // Obtiene la imagen del pescador en el muelle
+  function getFishermanAvatarSrc() {
+    let pet = '🦄';
+    try {
+      if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.activePet) {
+        pet = activeChildProfile.activePet;
+      }
+    } catch(e) {}
+    // El arte oficial del Unicornio pescador en silla plegable sobre el muelle
+    const map = {
+      '🦄': 'assets/unicornio_pescador.png?v=253',
+      '🦊': 'assets/card_zorro_arquero.png?v=249',
+      '🐰': 'assets/card_conejo_arquero.png?v=249',
+      '🐶': 'assets/card_perro_arquero.png?v=249'
+    };
+    return map[pet] || 'assets/unicornio_pescador.png?v=253';
+  }
+
+  // Obtiene la imagen de la mascota activa (tarjeta)
   function getActivePetCardSrc() {
     let pet = '🦄';
     try {
@@ -130,6 +148,9 @@
     };
     return map[pet] || map['🦄'];
   }
+
+  // Pre-carga inmediata del pescador oficial en memoria
+  getCachedImage('assets/unicornio_pescador.png?v=253');
 
   // --- CONTROL DE NAVEGACIÓN Y PANTALLA ---
   window.openFishermanQuestScreen = function(mode) {
@@ -282,16 +303,33 @@
     FishermanGame.width = w;
     FishermanGame.height = h;
 
-    // Ajustar posiciones según dimensiones
-    FishermanGame.hero.x = Math.max(60, w * 0.14);
-    FishermanGame.hero.y = h * 0.52;
+    // Dimensiones y calibración del muelle de madera y del pescador en su silla plegable
+    // La imagen tiene proporción 1.5 (1536x1024)
+    const pierLevel = Math.floor(h * 0.65);
+    const pierW = Math.max(180, Math.floor(w * 0.38));
 
-    FishermanGame.rod.originX = FishermanGame.hero.x + 30;
-    FishermanGame.rod.originY = FishermanGame.hero.y - 10;
-    FishermanGame.rod.tipX = FishermanGame.hero.x + 85;
-    FishermanGame.rod.tipY = FishermanGame.hero.y - 65;
-    FishermanGame.rod.hookX = FishermanGame.rod.tipX;
-    FishermanGame.rod.hookY = FishermanGame.hero.y + 40;
+    const imgH = Math.min(250, Math.max(150, Math.floor(h * 0.44)));
+    const imgW = Math.round(imgH * 1.5);
+    const imgX = Math.max(-5, Math.floor(w * 0.02));
+    const imgY = Math.round(pierLevel - imgH * 0.976);
+
+    FishermanGame.hero.x = imgX;
+    FishermanGame.hero.y = imgY;
+    FishermanGame.hero.width = imgW;
+    FishermanGame.hero.height = imgH;
+    FishermanGame.hero.pierLevel = pierLevel;
+    FishermanGame.hero.pierW = pierW;
+
+    // La punta de la caña en la ilustración se ubica con precisión en (0.9466, 0.1426)
+    FishermanGame.rod.originX = imgX + imgW * 0.60;
+    FishermanGame.rod.originY = imgY + imgH * 0.55;
+    FishermanGame.rod.tipX = imgX + imgW * 0.9466;
+    FishermanGame.rod.tipY = imgY + imgH * 0.1426;
+
+    if (!FishermanGame.rod.isCasting && !FishermanGame.rod.isRetracting) {
+      FishermanGame.rod.hookX = FishermanGame.rod.tipX + 12;
+      FishermanGame.rod.hookY = pierLevel + 32;
+    }
 
     initLiliesAndDecorations();
   }
@@ -404,10 +442,10 @@
 
     let textToSpeak = '';
     if (FishermanGame.currentSyllableTargetIndex === 0) {
-      const spelled = FishermanGame.currentSyllables.join(' - ');
-      textToSpeak = `¡Vamos a pescar la palabra ${FishermanGame.currentWordObj.pron}! ${spelled}. ¡Pesca la primera sílaba: ${targetSyl}!`;
+      const spelled = FishermanGame.currentSyllables.join(' ... ');
+      textToSpeak = `¡Vamos a pescar la palabra ${FishermanGame.currentWordObj.pron}! ... ${spelled}. ... ¡Pesca la primera sílaba: ... ${targetSyl}!`;
     } else {
-      textToSpeak = `¡Ahora pesca la siguiente sílaba: ${targetSyl}!`;
+      textToSpeak = `¡Ahora pesca la siguiente sílaba: ... ${targetSyl}!`;
     }
 
     if (typeof speakText === 'function') {
@@ -523,23 +561,33 @@
       rod.hookX = rod.tipX + (rod.targetFish.x - rod.tipX) * rod.castProgress;
       rod.hookY = rod.tipY + (rod.targetFish.y - rod.tipY) * rod.castProgress;
     } else if (rod.isRetracting && rod.targetFish) {
-      rod.castProgress -= 0.06;
+      rod.castProgress -= 0.05;
+      const bucketX = (FishermanGame.hero.pierW || (w * 0.38)) - 38;
+      const bucketY = (FishermanGame.hero.pierLevel || (h * 0.65)) - 10;
+
       if (rod.castProgress <= 0) {
         rod.castProgress = 0;
         rod.isRetracting = false;
-        // Pez llegó al balde
+        // Pez llegó exitosamente al balde en el muelle
+        createWaterSplash(bucketX, bucketY, 8);
         finishCatchingFish(rod.targetFish);
         rod.targetFish = null;
       } else {
-        rod.hookX = rod.tipX + (rod.targetFish.x - rod.tipX) * rod.castProgress;
-        rod.hookY = rod.tipY + (rod.targetFish.y - rod.tipY) * rod.castProgress;
+        // Trayectoria curva del pez en el aire hacia el balde
+        const t = 1.0 - rod.castProgress;
+        const startX = rod.targetFish.initialHookX || rod.targetFish.x;
+        const startY = rod.targetFish.initialHookY || rod.targetFish.y;
+        rod.hookX = startX + (bucketX - startX) * t;
+        const arcHeight = Math.sin(t * Math.PI) * 65;
+        rod.hookY = startY + (bucketY - startY) * t - arcHeight;
         rod.targetFish.x = rod.hookX;
         rod.targetFish.y = rod.hookY;
       }
     } else {
-      // Movimiento natural del anzuelo flotando suavemente
-      rod.hookX = rod.tipX + Math.sin(FishermanGame.time * 2) * 3;
-      rod.hookY = FishermanGame.hero.y + 40 + Math.sin(FishermanGame.time * 2.5) * 5;
+      // Movimiento natural del anzuelo y boya flotando suavemente en el agua junto al muelle
+      const idleY = (FishermanGame.hero.pierLevel || (h * 0.65)) + 32;
+      rod.hookX = rod.tipX + 12 + Math.sin(FishermanGame.time * 2) * 4;
+      rod.hookY = idleY + Math.sin(FishermanGame.time * 2.5) * 5;
     }
 
     // 3. Partículas de salpicadura
@@ -617,13 +665,15 @@
     // 3. Orilla de hierba y muelle de madera a la izquierda
     drawShoreAndPier(ctx, w, h, waterTop);
 
-    // 4. Balde de sílabas del pescador
-    drawBucket(ctx, FishermanGame.hero.x + 40, FishermanGame.hero.y + 45);
+    // 4. Balde de sílabas del pescador sobre los tablones del muelle
+    const pierLevel = FishermanGame.hero.pierLevel || Math.floor(h * 0.65);
+    const pierW = FishermanGame.hero.pierW || Math.max(180, Math.floor(w * 0.38));
+    drawBucket(ctx, pierW - 38, pierLevel);
 
-    // 5. El héroe pescador
+    // 5. El héroe pescador (Unicornio en su silla plegable sobre el muelle)
     drawHeroFisherman(ctx);
 
-    // 6. Sedal y anzuelo de la caña de pescar
+    // 6. Sedal y anzuelo dinámico desde la punta de la caña
     drawFishingRodAndLine(ctx);
 
     // 7. Peces nadando con sus sílabas
@@ -722,101 +772,208 @@
   function drawShoreAndPier(ctx, w, h, waterTop) {
     ctx.save();
 
-    // Orilla de hierba curva
-    const shoreWidth = w * 0.28;
-    ctx.fillStyle = '#22C55E';
+    const pierLevel = FishermanGame.hero.pierLevel || Math.floor(h * 0.65);
+    const pierW = FishermanGame.hero.pierW || Math.max(180, Math.floor(w * 0.38));
+    const pierH = 32;
+
+    // 1. Orilla de hierba ribereña curva en la orilla izquierda
+    const shoreWidth = w * 0.22;
+    const grassGrad = ctx.createLinearGradient(0, waterTop, shoreWidth, h);
+    grassGrad.addColorStop(0, '#15803D');
+    grassGrad.addColorStop(0.5, '#22C55E');
+    grassGrad.addColorStop(1, '#16A34A');
+    ctx.fillStyle = grassGrad;
     ctx.beginPath();
-    ctx.moveTo(0, waterTop - 25);
-    ctx.bezierCurveTo(shoreWidth * 0.7, waterTop - 20, shoreWidth * 0.9, waterTop + 40, shoreWidth * 0.75, h);
+    ctx.moveTo(0, waterTop - 30);
+    ctx.bezierCurveTo(shoreWidth * 0.6, waterTop - 25, shoreWidth * 0.85, waterTop + 40, shoreWidth * 0.6, h);
     ctx.lineTo(0, h);
     ctx.closePath();
     ctx.fill();
 
-    // Muelle de madera sobre el agua
-    const pierX = shoreWidth * 0.45;
-    const pierY = waterTop + 20;
-    const pierW = shoreWidth * 0.75;
-    const pierH = 34;
-
-    // Pilares sumergidos
-    ctx.fillStyle = '#78350F';
-    ctx.fillRect(pierX + 25, pierY + pierH, 12, 65);
-    ctx.fillRect(pierX + pierW - 18, pierY + pierH, 12, 65);
-
-    // Tablones horizontales del muelle
-    ctx.fillStyle = '#B45309';
-    ctx.beginPath();
-    ctx.roundRect(pierX, pierY, pierW, pierH, 6);
-    ctx.fill();
-
-    // Líneas de los tablones
-    ctx.strokeStyle = '#78350F';
+    // Briznas de hierba decorativas
+    ctx.strokeStyle = '#86EFAC';
     ctx.lineWidth = 2;
-    for (let tx = pierX + 16; tx < pierX + pierW; tx += 18) {
+    for (let gx = 10; gx < shoreWidth * 0.55; gx += 18) {
       ctx.beginPath();
-      ctx.moveTo(tx, pierY);
-      ctx.lineTo(tx, pierY + pierH);
+      ctx.moveTo(gx, pierLevel + 15);
+      ctx.lineTo(gx + 4, pierLevel - 6);
       ctx.stroke();
     }
+
+    // 2. Pilares de madera sumergidos en el río que sostienen el muelle
+    const stilts = [
+      { x: pierW * 0.22, w: 14 },
+      { x: pierW * 0.55, w: 14 },
+      { x: pierW * 0.88, w: 14 }
+    ];
+
+    stilts.forEach(stilt => {
+      // Sombra del pilar
+      ctx.fillStyle = '#451A03';
+      ctx.fillRect(stilt.x, pierLevel + pierH, stilt.w, h - pierLevel - pierH);
+      // Brillo del pilar
+      ctx.fillStyle = '#78350F';
+      ctx.fillRect(stilt.x + 2, pierLevel + pierH, stilt.w - 4, h - pierLevel - pierH);
+      // Vetas de madera
+      ctx.strokeStyle = '#92400E';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(stilt.x + 6, pierLevel + pierH);
+      ctx.lineTo(stilt.x + 6, h);
+      ctx.stroke();
+    });
+
+    // Viga transversal de soporte bajo las tablas
+    ctx.fillStyle = '#78350F';
+    ctx.fillRect(0, pierLevel + pierH - 6, pierW, 10);
+
+    // 3. Tablones del muelle (Deck de madera sobre el agua)
+    const plankGrad = ctx.createLinearGradient(0, pierLevel, 0, pierLevel + pierH);
+    plankGrad.addColorStop(0, '#D97706');
+    plankGrad.addColorStop(0.3, '#B45309');
+    plankGrad.addColorStop(1, '#78350F');
+    ctx.fillStyle = plankGrad;
+    ctx.beginPath();
+    ctx.roundRect(0, pierLevel, pierW, pierH, [0, 8, 8, 0]);
+    ctx.fill();
+
+    // Borde superior iluminado del muelle
+    ctx.fillStyle = '#FDE68A';
+    ctx.fillRect(0, pierLevel, pierW, 3);
+
+    // Separaciones verticales entre tablones de madera
+    ctx.strokeStyle = '#451A03';
+    ctx.lineWidth = 2.5;
+    for (let tx = 24; tx < pierW; tx += 26) {
+      ctx.beginPath();
+      ctx.moveTo(tx, pierLevel);
+      ctx.lineTo(tx, pierLevel + pierH);
+      ctx.stroke();
+
+      // Clavos de fijación en cada tablón
+      ctx.fillStyle = '#1E293B';
+      ctx.beginPath();
+      ctx.arc(tx - 6, pierLevel + 7, 1.8, 0, Math.PI * 2);
+      ctx.arc(tx - 6, pierLevel + pierH - 7, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 4. Bolardo o poste de amarre en la punta del muelle
+    const bollardX = pierW - 14;
+    const bollardY = pierLevel - 20;
+    ctx.fillStyle = '#78350F';
+    ctx.beginPath();
+    ctx.roundRect(bollardX - 6, bollardY, 14, 24, 4);
+    ctx.fill();
+    ctx.fillStyle = '#92400E';
+    ctx.fillRect(bollardX - 4, bollardY + 2, 10, 20);
+    // Tapa del bolardo
+    ctx.fillStyle = '#B45309';
+    ctx.beginPath();
+    ctx.ellipse(bollardX + 1, bollardY, 8, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Cuerda amarrada al bolardo
+    ctx.strokeStyle = '#FDE68A';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(bollardX + 1, bollardY + 10, 7, 0, Math.PI * 2);
+    ctx.stroke();
 
     ctx.restore();
   }
 
   function drawBucket(ctx, bx, by) {
     ctx.save();
-    // Cubeta / balde metálico con agua
-    ctx.fillStyle = '#64748B';
+    // Balde metálico rústico apoyado sobre los tablones del muelle (by = nivel del muelle)
+    const bW = 28;
+    const bH = 26;
+    const topY = by - bH;
+
+    // Cuerpo cónico del balde
+    const bucketGrad = ctx.createLinearGradient(bx - bW / 2, topY, bx + bW / 2, by);
+    bucketGrad.addColorStop(0, '#64748B');
+    bucketGrad.addColorStop(0.5, '#94A3B8');
+    bucketGrad.addColorStop(1, '#475569');
+    ctx.fillStyle = bucketGrad;
     ctx.beginPath();
-    ctx.moveTo(bx - 14, by - 18);
-    ctx.lineTo(bx + 14, by - 18);
-    ctx.lineTo(bx + 10, by + 12);
-    ctx.lineTo(bx - 10, by + 12);
+    ctx.moveTo(bx - bW / 2, topY);
+    ctx.lineTo(bx + bW / 2, topY);
+    ctx.lineTo(bx + (bW * 0.36), by);
+    ctx.lineTo(bx - (bW * 0.36), by);
     ctx.closePath();
     ctx.fill();
 
-    // Borde superior
-    ctx.fillStyle = '#94A3B8';
+    // Aros metálicos decorativos
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.ellipse(bx, by - 18, 14, 4, 0, 0, Math.PI * 2);
+    ctx.moveTo(bx - bW * 0.44, topY + bH * 0.4);
+    ctx.lineTo(bx + bW * 0.44, topY + bH * 0.4);
+    ctx.moveTo(bx - bW * 0.39, topY + bH * 0.8);
+    ctx.lineTo(bx + bW * 0.39, topY + bH * 0.8);
+    ctx.stroke();
+
+    // Borde elíptico superior
+    ctx.fillStyle = '#CBD5E1';
+    ctx.beginPath();
+    ctx.ellipse(bx, topY, bW / 2, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Agua dentro del balde
+    // Agua limpia dentro del balde
     ctx.fillStyle = '#38BDF8';
     ctx.beginPath();
-    ctx.ellipse(bx, by - 18, 11, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(bx, topY, (bW / 2) - 2.5, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    // Si ya ha pescado alguna sílaba de la palabra actual, una colita de pez asomando
+    if (FishermanGame.currentSyllableTargetIndex > 0) {
+      ctx.fillStyle = '#F97316';
+      ctx.beginPath();
+      ctx.moveTo(bx - 3, topY);
+      ctx.lineTo(bx - 9, topY - 8);
+      ctx.lineTo(bx + 1, topY - 6);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Asa metálica del balde
+    ctx.strokeStyle = '#CBD5E1';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(bx, topY - 4, bW * 0.52, Math.PI, 0);
+    ctx.stroke();
 
     ctx.restore();
   }
 
   function drawHeroFisherman(ctx) {
-    const hHero = FishermanGame.hero;
-    const cardSrc = getActivePetCardSrc();
-    const img = getCachedImage(cardSrc);
+    const hero = FishermanGame.hero;
+    const avatarSrc = getFishermanAvatarSrc();
+    const img = getCachedImage(avatarSrc);
 
     ctx.save();
-    const drawX = hHero.x;
-    const drawY = hHero.y + hHero.jumpY;
-    const size = 80;
+    const drawX = hero.x;
+    const drawY = hero.y + (hero.isCelebrating ? hero.jumpY : 0);
+    const drawW = hero.width || 270;
+    const drawH = hero.height || 180;
 
     if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, drawX - size / 2, drawY - size / 2, size, size);
+      // Sombra sutil de la silla sobre los tablones de madera del muelle
+      ctx.fillStyle = 'rgba(69, 26, 3, 0.35)';
+      ctx.beginPath();
+      ctx.ellipse(drawX + drawW * 0.24, drawY + drawH * 0.98, drawW * 0.18, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dibujo de alta resolución del pescador en su silla plegable
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
     } else {
-      // Mascota fallback vectorial
+      // Mascota fallback si la imagen aún estuviese cargando
+      const pierLevel = hero.pierLevel || 350;
       ctx.fillStyle = '#F59E0B';
       ctx.beginPath();
-      ctx.arc(drawX, drawY, 28, 0, Math.PI * 2);
+      ctx.arc(drawX + 80, pierLevel - 40, 28, 0, Math.PI * 2);
       ctx.fill();
     }
-
-    // Gorrito de pescador simpático
-    ctx.fillStyle = '#EAB308';
-    ctx.beginPath();
-    ctx.ellipse(drawX, drawY - 34, 22, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.roundRect(drawX - 14, drawY - 48, 28, 16, 4);
-    ctx.fill();
 
     ctx.restore();
   }
@@ -825,37 +982,79 @@
     const rod = FishermanGame.rod;
     ctx.save();
 
-    // Caña de pescar de bambú / fibra
-    ctx.strokeStyle = '#D97706';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(rod.originX, rod.originY);
-    ctx.quadraticCurveTo(rod.tipX - 15, rod.tipY - 10, rod.tipX, rod.tipY);
-    ctx.stroke();
+    // NOTA PEDAGÓGICA Y GRÁFICA:
+    // El personaje ilustrado ya posee su caña de pescar realista integrada en el dibujo.
+    // Aquí renderizamos el sedal dinámico (hilo de pesca transparente/luminoso)
+    // que nace exactamente de la punta de la caña (rod.tipX, rod.tipY) y viaja hacia el anzuelo/boya.
 
-    // Sedal transparente / brillante
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.lineWidth = 1.5;
+    // 1. Sedal de nylon con brillo sutil
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+    ctx.shadowBlur = 4;
     ctx.beginPath();
     ctx.moveTo(rod.tipX, rod.tipY);
-    ctx.quadraticCurveTo(
-      (rod.tipX + rod.hookX) / 2 + Math.sin(FishermanGame.time * 3) * 5,
-      (rod.tipY + rod.hookY) / 2 + 10,
-      rod.hookX,
-      rod.hookY
-    );
-    ctx.stroke();
 
-    // Anzuelo dorado / boya
+    if (rod.isCasting || rod.isRetracting) {
+      // Sedal en tensión cuando lanza o recoge
+      const midX = (rod.tipX + rod.hookX) / 2;
+      const midY = (rod.tipY + rod.hookY) / 2 - 15;
+      ctx.quadraticCurveTo(midX, midY, rod.hookX, rod.hookY);
+    } else {
+      // Sedal en catenaria suave con la brisa del río
+      const midX = (rod.tipX + rod.hookX) / 2 + Math.sin(FishermanGame.time * 2) * 4;
+      const midY = Math.max(rod.tipY, rod.hookY) - 10 + Math.sin(FishermanGame.time * 1.5) * 6;
+      ctx.quadraticCurveTo(midX, midY, rod.hookX, rod.hookY);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // 2. Onditas concéntricas de agua alrededor de la boya cuando flota
+    if (!rod.isCasting) {
+      const wavePhase = (FishermanGame.time * 2) % (Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(rod.hookX, rod.hookY + 3, 12 + Math.sin(wavePhase) * 4, 4 + Math.sin(wavePhase) * 1.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 3. Boya de pesca (rojo coral / blanco perla)
+    ctx.save();
+    ctx.translate(rod.hookX, rod.hookY);
+    // Mitad superior roja
     ctx.fillStyle = '#EF4444';
     ctx.beginPath();
-    ctx.arc(rod.hookX, rod.hookY - 6, 5, 0, Math.PI * 2);
+    ctx.arc(0, -3, 6.5, Math.PI, 0, false);
+    ctx.closePath();
     ctx.fill();
+    // Mitad inferior blanca
     ctx.fillStyle = '#FFFFFF';
     ctx.beginPath();
-    ctx.arc(rod.hookX, rod.hookY - 4, 3, 0, Math.PI * 2);
+    ctx.arc(0, -3, 6.5, 0, Math.PI, false);
+    ctx.closePath();
     ctx.fill();
+    // Borde de la boya
+    ctx.strokeStyle = '#991B1B';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, -3, 6.5, 0, Math.PI * 2);
+    ctx.stroke();
+    // Antena de la boya
+    ctx.fillStyle = '#F59E0B';
+    ctx.fillRect(-1, -12, 2, 7);
+    ctx.restore();
+
+    // 4. Anzuelo bajo el agua (si no está recogiendo pez grande)
+    if (!rod.isRetracting) {
+      ctx.strokeStyle = '#D97706';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(rod.hookX, rod.hookY + 3);
+      ctx.lineTo(rod.hookX, rod.hookY + 12);
+      ctx.arc(rod.hookX - 4, rod.hookY + 12, 4, 0, Math.PI);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }
@@ -1036,6 +1235,8 @@
 
     if (isCorrect) {
       // ¡ACIERTO! La caña lanza el anzuelo hacia el pez
+      fish.initialHookX = fish.x;
+      fish.initialHookY = fish.y;
       FishermanGame.rod.targetFish = fish;
       FishermanGame.rod.isCasting = true;
       FishermanGame.rod.castProgress = 0;
@@ -1049,7 +1250,7 @@
 
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        speakText(`Esa es ${fish.syllable}. ¡Sigue buscando ${targetSyl}!`, () => {
+        speakText(`Esa es ${fish.syllable}. ... ¡Sigue buscando ${targetSyl}!`, () => {
           FishermanGame.isSpeaking = false;
         });
       }
@@ -1077,7 +1278,7 @@
       const nextSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        speakText(`¡Muy bien! ¡${fish.syllable}! Ahora busca la siguiente sílaba: ${nextSyl}`, () => {
+        speakText(`¡Muy bien! ... ¡${fish.syllable}! ... Ahora busca la siguiente sílaba: ... ${nextSyl}`, () => {
           FishermanGame.isSpeaking = false;
         });
       }
@@ -1114,7 +1315,7 @@
 
     if (typeof speakText === 'function') {
       FishermanGame.isSpeaking = true;
-      speakText(`¡Excelente pesca! ¡Formaste la palabra ${wObj.pron}!`, () => {
+      speakText(`¡Excelente pesca! ... ¡Formaste la palabra ${wObj.pron}!`, () => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
       });
