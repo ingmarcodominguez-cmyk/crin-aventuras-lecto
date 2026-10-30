@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v261';
+    const CURRENT_APP_VERSION = 'v262';
 
     function syncAppVersionLabels() {
       try {
@@ -93,17 +93,17 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=261"></script>
+  <script src="archery.js?v=262"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=261"></script>
+  <script src="cauldron.js?v=262"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=261"></script>
+  <script src="fisherman.js?v=262"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=261"></script>
+  <script src="train.js?v=262"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=261"></script>
+  <script src="detective.js?v=262"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=261"></script>
+  <script src="aac_keyboard.js?v=262"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1285,12 +1285,7 @@
 </head>
 <body>
 
-  <!-- 🛡️ PILL FLOTANTE DE NARRACIÓN ACTIVA (CONTROL PSICOPEDAGÓGICO DE ATENCIÓN) -->
-  <div id="global-narration-pill" style="display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #38BDF8; border: 2.5px solid #0284C7; border-radius: 30px; padding: 7px 18px; font-size: 13px; font-weight: 800; z-index: 999999; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4); align-items: center; gap: 8px; pointer-events: none; transition: transform 0.2s;">
-    <span style="font-size: 18px; animation: pulse 1s infinite alternate;">🗣️</span>
-    <span>CRIN está hablando... ¡Escucha con atención!</span>
-    <span style="font-size: 16px;">👂</span>
-  </div>
+  
 
 
   <div class="app-container">
@@ -3575,93 +3570,17 @@
     let activeFallbackTimer = null;
 
     // ESTADO GLOBAL DE NARRACIÓN: Bloqueo de acciones y disparos mientras el narrador habla
-    // 🛡️ SISTEMA PSICOPEDAGÓGICO DE CONTROL DE ATENCIÓN Y NARRACIÓN
+    // CONTROL LIMPIO DE AUDIO Y NARRACIÓN
     window.isAppSpeaking = false;
     window.lastSpeechStartTime = 0;
 
     window.isNarratingNow = function() {
-      // 1. Si no está marcado como hablando, nunca bloquear
-      if (!window.isAppSpeaking) return false;
-
-      // 2. Watchdog de seguridad absoluta: ninguna consigna dura más de 5.2 segundos
-      if (Date.now() - (window.lastSpeechStartTime || 0) > 5200) {
-        window.isAppSpeaking = false;
-        if (typeof window.speechSynthesis !== 'undefined') {
-          try { window.speechSynthesis.cancel(); } catch(e) {}
-        }
-        return false;
-      }
-
-      // 3. Si hay audio HTML activo reproduciéndose realmente
-      if (typeof currentHtmlAudio !== 'undefined' && currentHtmlAudio && !currentHtmlAudio.paused && !currentHtmlAudio.ended && currentHtmlAudio.currentTime > 0) {
-        return true;
-      }
-
-      // 4. Si ResponsiveVoice está activo
-      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.isPlaying && responsiveVoice.isPlaying()) {
-        return true;
-      }
-
-      return window.isAppSpeaking;
+      return false; // Sin bloqueos globales intrusivos en la interfaz
     };
 
     window.updateNarrationLockUI = function() {
-      const isSpeaking = window.isNarratingNow();
-      const pill = document.getElementById('global-narration-pill');
-      if (pill) {
-        pill.style.display = isSpeaking ? 'flex' : 'none';
-      }
-      if (isSpeaking) {
-        document.body.classList.add('app-narration-active');
-      } else {
-        document.body.classList.remove('app-narration-active');
-      }
+      // No-op: sin carteles intrusivos
     };
-
-    setInterval(() => {
-      window.updateNarrationLockUI();
-    }, 180);
-
-    // 🛡️ BARRERA GLOBAL DE INTERACCIÓN PSICOPEDAGÓGICA (CAPTURING PHASE)
-    function isElementAllowedDuringNarration(target) {
-      if (!target || !target.closest) return false;
-      if (
-        target.closest('.exit-btn') ||
-        target.closest('.btn-back') ||
-        target.closest('[data-allow-during-speech]') ||
-        target.closest('#btn-exit-game') ||
-        target.closest('.bottom-nav') ||
-        target.closest('#screen-map') ||
-        target.id === 'screen-map'
-      ) {
-        return true;
-      }
-      const txt = (target.textContent || '').trim();
-      if (txt.includes('Salir') || txt.includes('Volver') || txt.includes('⬅️') || txt.includes('Ajustes') || txt.includes('Pescador')) {
-        return true;
-      }
-      return false;
-    }
-
-    function interceptNarrationEvent(e) {
-      if (window.isNarratingNow()) {
-        if (!isElementAllowedDuringNarration(e.target)) {
-          e.stopImmediatePropagation();
-          e.preventDefault();
-          const pill = document.getElementById('global-narration-pill');
-          if (pill) {
-            pill.style.transform = 'translateX(-50%) scale(1.08)';
-            setTimeout(() => { if (pill) pill.style.transform = 'translateX(-50%) scale(1)'; }, 180);
-          }
-          return false;
-        }
-      }
-    }
-
-    window.addEventListener('pointerdown', interceptNarrationEvent, true);
-    window.addEventListener('mousedown', interceptNarrationEvent, true);
-    window.addEventListener('touchstart', interceptNarrationEvent, { capture: true, passive: false });
-    window.addEventListener('click', interceptNarrationEvent, true);
 
 
     function stopAllAudio() {

@@ -401,8 +401,8 @@
       CauldronGame.isSpeaking = true;
       speakText(`Para esta poción mágica, busca lo que rime con: ${p.base.pron}`, () => {
         CauldronGame.isSpeaking = false;
-        if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
       });
+      setTimeout(() => { CauldronGame.isSpeaking = false; }, 2600);
     }
   };
 
@@ -1044,7 +1044,6 @@
 
     function onPointerDown(e) {
       if (CauldronGame.isAdvancing || CauldronGame.isSpeaking) return;
-      if (typeof window.isNarratingNow === 'function' && window.isNarratingNow()) return;
 
       const pos = getCanvasPos(e);
       CauldronGame.pointer.x = pos.x;

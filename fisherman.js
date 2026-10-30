@@ -1301,7 +1301,7 @@
     }
 
     function onPointerDown(e) {
-      if (FishermanGame.isSpeaking || FishermanGame.isAdvancing || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+      if (FishermanGame.isSpeaking || FishermanGame.isAdvancing || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
       const pos = getCoords(e);
       FishermanGame.pointer.x = pos.x;
       FishermanGame.pointer.y = pos.y;
@@ -1343,7 +1343,7 @@
 
   // --- LÓGICA DE SELECCIÓN DE PEZ ---
   function handleFishSelected(fish) {
-    if (fish.isCaught || fish.isHooked || FishermanGame.isSpeaking || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+    if (fish.isCaught || fish.isHooked || FishermanGame.isSpeaking || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
 
     const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
     const isCorrect = (fish.syllable === targetSyl);

@@ -405,9 +405,9 @@
     if (TrainGame.currentLetterIndex === 0) {
       // Deletreo claro con pausas prosódicas para evitar que se pegue la última letra con "busca"
       const letterNames = TrainGame.currentLetters.map(l => `letra ${l}`).join(', ');
-      textToSpeak = `¡Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... ¡Busca la primera! ... ¡Toca la letra ${targetLetter}!`;
+      textToSpeak = `Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... Busca la primera: toca la letra ${targetLetter}!`;
     } else {
-      textToSpeak = `¡Muy bien! ... Ahora busca la siguiente letra: ... ¡la letra ${targetLetter}!`;
+      textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetLetter}!`;
     }
 
     if (typeof speakText === 'function') {
@@ -415,6 +415,7 @@
       speakText(textToSpeak, () => {
         TrainGame.isSpeaking = false;
       });
+      setTimeout(() => { TrainGame.isSpeaking = false; }, 3600);
     }
   };
 
@@ -987,7 +988,7 @@
     }
 
     function onPointerDown(e) {
-      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;

@@ -1132,7 +1132,7 @@
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
     if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
-    if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+    if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing) return;
     const a = ArcheryGame.archer;
     const petType = getActivePet();
     const isFox = petType.includes('🦊') || petType.includes('fox');
@@ -2165,7 +2165,7 @@
 
     function onPointerDown(e) {
       if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
-      if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+      if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing) return;
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.isDown = true;
       ArcheryGame.pointer.x = pos.x;

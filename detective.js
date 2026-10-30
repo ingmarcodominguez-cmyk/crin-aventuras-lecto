@@ -597,7 +597,7 @@
     }
 
     function onPointerDown(e) {
-      if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+      if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing) return;
       const pos = getCoords(e);
 
       // Detectar toque en alguna de las dos cartas
@@ -615,7 +615,7 @@
 
   // --- LÓGICA DE DECISIÓN DEL DETECTIVE ---
   function handleCardSelected(card) {
-    if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
+    if (DetectiveGame.isSpeaking || DetectiveGame.isAdvancing) return;
 
     // Dirigir la lupa hacia la carta seleccionada
     DetectiveGame.magnifier.targetX = card.x + card.width / 2;
