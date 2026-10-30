@@ -145,15 +145,21 @@
   // Obtener la mascota elegida por el usuario (prioriza la elegida en la partida activa)
   function getActivePet() {
     if (typeof ArcheryGame !== 'undefined' && ArcheryGame.selectedPet) {
-      return ArcheryGame.selectedPet;
+      if (['🦄', '🦊', '🐰', '🐶'].includes(ArcheryGame.selectedPet)) {
+        return ArcheryGame.selectedPet;
+      }
     }
-    if (typeof gameState !== 'undefined' && gameState && gameState.pet) {
-      return gameState.pet;
-    }
-    if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.pet) {
-      return activeChildProfile.pet;
-    }
-    return '🐶';
+    try {
+      const saved = localStorage.getItem('crin_archery_pet');
+      if (saved && ['🦄', '🦊', '🐰', '🐶'].includes(saved)) {
+        if (typeof ArcheryGame !== 'undefined') ArcheryGame.selectedPet = saved;
+        return saved;
+      }
+    } catch (e) {}
+
+    // Por defecto al héroe Unicornio Mágico
+    if (typeof ArcheryGame !== 'undefined') ArcheryGame.selectedPet = '🦄';
+    return '🦄';
   }
 
   // --- SELECCIÓN Y CAMBIO DIRECTO DE MASCOTA ARQUERA ---
@@ -166,6 +172,10 @@
         ArcheryGame.archer.jumpVy = -8.5;
       }
     }
+    try {
+      localStorage.setItem('crin_archery_pet', petEmoji);
+    } catch (e) {}
+
     if (typeof gameState !== 'undefined') {
       gameState.pet = petEmoji;
     }
@@ -176,10 +186,10 @@
     const iconBtn = document.getElementById('archery-pet-btn-icon');
     if (iconBtn) {
       const petThumbnails = {
-        '🦄': 'assets/card_unicornio_arquero.png?v=246',
-        '🦊': 'assets/card_zorro_arquero.png?v=246',
-        '🐰': 'assets/card_conejo_arquero.png?v=246',
-        '🐶': 'assets/card_perro_arquero.png?v=246'
+        '🦄': 'assets/card_unicornio_arquero.png?v=247',
+        '🦊': 'assets/card_zorro_arquero.png?v=247',
+        '🐰': 'assets/card_conejo_arquero.png?v=247',
+        '🐶': 'assets/card_perro_arquero.png?v=247'
       };
       if (petThumbnails[petEmoji]) {
         iconBtn.innerHTML = `<img src="${petThumbnails[petEmoji]}" style="width: 26px; height: 26px; object-fit: contain; vertical-align: middle;">`;
@@ -196,11 +206,13 @@
 
     if (typeof speakText === 'function') {
       const names = {
-        '🐶': 'Perrito', '🐱': 'Gatito', '🦊': 'Zorrito', '🐰': 'Conejito',
-        '🦄': 'Unicornio', '🐻': 'Osito', '🦁': 'León', '🐉': 'Dragón'
+        '🦄': 'Unicornio Mágico',
+        '🦊': 'Zorro Héroe',
+        '🐰': 'Conejito Ágil',
+        '🐶': 'Perrito Valiente'
       };
-      const name = names[petEmoji] || 'Mascota';
-      speakText('¡Genial! Tu arquero ahora es el ' + name + '!');
+      const name = names[petEmoji] || 'Héroe Arquero';
+      speakText('¡Genial! Tu arquero es el ' + name + '!');
     }
   };
 
@@ -584,6 +596,13 @@
     setTimeout(resizeArcheryCanvas, 50);
     setTimeout(resizeArcheryCanvas, 150);
     setTimeout(resizeArcheryCanvas, 300);
+
+    // INMEDIATAMENTE AL ELEGIR EL JUEGO DE ARQUERÍA: ABRIR EL SELECTOR VISUAL DE HÉROES
+    setTimeout(function() {
+      if (typeof openArcheryPetModal === 'function') {
+        openArcheryPetModal();
+      }
+    }, 60);
   };
 
   window.toggleArcheryGameMode = function() {
@@ -786,10 +805,10 @@
     if (iconBtn) {
       const curPet = getActivePet();
       const petThumbnails = {
-        '🦄': 'assets/card_unicornio_arquero.png?v=246',
-        '🦊': 'assets/card_zorro_arquero.png?v=246',
-        '🐰': 'assets/card_conejo_arquero.png?v=246',
-        '🐶': 'assets/card_perro_arquero.png?v=246'
+        '🦄': 'assets/card_unicornio_arquero.png?v=247',
+        '🦊': 'assets/card_zorro_arquero.png?v=247',
+        '🐰': 'assets/card_conejo_arquero.png?v=247',
+        '🐶': 'assets/card_perro_arquero.png?v=247'
       };
       if (petThumbnails[curPet]) {
         iconBtn.innerHTML = `<img src="${petThumbnails[curPet]}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">`;
@@ -1328,13 +1347,10 @@
     initArcheryGame();
   };
 
-  // --- RENDERIZADO DEL ARQUERO (ADAPTADO A LA MASCOTA ELEGIDA POR EL USUARIO) ---
+  // --- RENDERIZADO DEL ARQUERO (EXCLUSIVAMENTE LOS 4 HÉROES OFICIALES CON SPRITES REACTIVOS 3D) ---
   function drawMascotArcher(ctx, time) {
     const a = ArcheryGame.archer;
     const petType = getActivePet();
-
-    const breathing = Math.sin(time * 0.0035) * 2.8;
-    const tailWag = Math.sin(time * 0.007) * 0.32;
 
     if (a.isCelebrating) {
       a.jumpY += a.jumpVy;
@@ -1354,740 +1370,59 @@
     if (a.recoil > 0) a.recoil *= 0.82;
     if (a.shootCooldown > 0) a.shootCooldown--;
 
-    a.blinkTimer--;
-    if (a.blinkTimer <= 0) {
-      a.isBlinking = true;
-      if (a.blinkTimer < -8) {
-        a.isBlinking = false;
-        a.blinkTimer = 160 + Math.random() * 120;
-      }
-    }
-
     const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
     const isFox = petType.includes('🦊') || petType.includes('fox');
     const isBunny = petType.includes('🐰') || petType.includes('bunny') || petType.includes('conejo');
-    const isDog = petType.includes('🐶') || petType.includes('dog') || petType.includes('perro') || (!isUnicorn && !isFox && !isBunny && !petType.includes('🐱') && !petType.includes('🐉') && !petType.includes('🐻') && !petType.includes('🦁'));
+    // Si no es unicornio, zorro ni conejo, por defecto es perrito (🐶)
+    const isDog = !isUnicorn && !isFox && !isBunny;
 
-    // 🐶 RENDERIZADO DEL PERRITO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
-    if (isDog) {
-      const spriteChoice = getDogAimingSprite();
-      const currentImg = spriteChoice.img;
-      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
+    let spriteChoice = null;
+    let shadowWidth = 50;
+    let shadowHeight = 12;
 
-      if (isLoaded) {
-        ctx.save();
-        try {
-          const recoilOffset = a.recoil;
-          const breathY = Math.sin(time * 0.0035) * 2.5;
-
-          // Centrado en el camino con retroceso y salto de victoria
-          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
-
-          // Sombra en el suelo bajo las patitas
-          ctx.beginPath();
-          ctx.ellipse(0, 32, 50, 12, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-          ctx.fill();
-
-          // Tamaño del sprite en primer plano
-          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
-          const spriteX = -spriteSize * 0.50;
-          const spriteY = -spriteSize + 32;
-
-          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
-
-        } finally {
-          ctx.restore();
-        }
-        return;
-      }
-    }
-
-    // 🌟 RENDERIZADO DEL UNICORNIO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
     if (isUnicorn) {
-      const spriteChoice = getUnicornAimingSprite();
-      const currentImg = spriteChoice.img;
-      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
-
-      if (isLoaded) {
-        ctx.save();
-        try {
-          const recoilOffset = a.recoil;
-          const breathY = Math.sin(time * 0.0035) * 2.5;
-
-          // Centrado en el camino con retroceso y salto de victoria
-          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
-
-          // Sombra en el suelo bajo las pezuñas
-          ctx.beginPath();
-          ctx.ellipse(0, 32, 52, 13, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-          ctx.fill();
-
-          // Tamaño del sprite en primer plano
-          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
-          const spriteX = -spriteSize * 0.50;
-          const spriteY = -spriteSize + 32;
-
-          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
-
-        } finally {
-          ctx.restore();
-        }
-        return;
-      }
-    }
-
-    // 🦊 RENDERIZADO DEL ZORRO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
-    if (isFox) {
-      const spriteChoice = getFoxAimingSprite();
-      const currentImg = spriteChoice.img;
-      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
-
-      if (isLoaded) {
-        ctx.save();
-        try {
-          const recoilOffset = a.recoil;
-          const breathY = Math.sin(time * 0.0035) * 2.5;
-
-          // Centrado en el camino con retroceso y salto de victoria
-          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
-
-          // Sombra en el suelo bajo las patitas
-          ctx.beginPath();
-          ctx.ellipse(0, 32, 50, 12, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-          ctx.fill();
-
-          // Tamaño del sprite en primer plano
-          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
-          const spriteX = -spriteSize * 0.50;
-          const spriteY = -spriteSize + 32;
-
-          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
-
-        } finally {
-          ctx.restore();
-        }
-        return;
-      }
-    }
-
-    // 🐰 RENDERIZADO DEL CONEJITO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
-    if (isBunny) {
-      const spriteChoice = getBunnyAimingSprite();
-      const currentImg = spriteChoice.img;
-      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
-
-      if (isLoaded) {
-        ctx.save();
-        try {
-          const recoilOffset = a.recoil;
-          const breathY = Math.sin(time * 0.0035) * 2.5;
-
-          // Centrado en el camino con retroceso y salto de victoria
-          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
-
-          // Sombra en el suelo bajo las patitas
-          ctx.beginPath();
-          ctx.ellipse(0, 32, 50, 12, 0, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-          ctx.fill();
-
-          // Tamaño del sprite en primer plano
-          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
-          const spriteX = -spriteSize * 0.50;
-          const spriteY = -spriteSize + 32;
-
-          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
-
-        } finally {
-          ctx.restore();
-        }
-        return;
-      }
-    }
-    const isDragon = petType.includes('🐉') || petType.includes('dragon');
-    const isBear = petType.includes('🐻') || petType.includes('bear');
-    const isLion = petType.includes('🦁') || petType.includes('lion');
-    const isCat = petType.includes('🐱') || petType.includes('cat');
-
-    // Paleta de colores distintiva por animal
-    let coatColor = '#E0A96D';
-    let coatStroke = '#B87333';
-    let headColor = '#FFFBEB';
-    let chestColor = '#FFFFFF';
-
-    if (isCat) {
-      coatColor = '#FED7AA'; // Naranja melocotón atigrado
-      coatStroke = '#EA580C';
-      headColor = '#FFF7ED';
-      chestColor = '#FFFFFF';
+      spriteChoice = getUnicornAimingSprite();
+      shadowWidth = 54;
+      shadowHeight = 13;
     } else if (isFox) {
-      coatColor = '#EA580C'; // Naranja zorro intenso
-      coatStroke = '#9A3412';
-      headColor = '#FFEDD5';
-      chestColor = '#FFFFFF';
+      spriteChoice = getFoxAimingSprite();
+      shadowWidth = 50;
+      shadowHeight = 12;
     } else if (isBunny) {
-      coatColor = '#FFFFFF'; // Conejo blanco puro
-      coatStroke = '#94A3B8';
-      headColor = '#FFFFFF';
-      chestColor = '#F8FAFC';
-    } else if (isUnicorn) {
-      coatColor = '#FFFFFF'; // Unicornio perla
-      coatStroke = '#818CF8';
-      headColor = '#FEF3C7';
-      chestColor = '#FFFFFF';
-    } else if (isDragon) {
-      coatColor = '#10B981'; // Dragón verde esmeralda
-      coatStroke = '#047857';
-      headColor = '#D1FAE5';
-      chestColor = '#6EE7B7';
-    } else if (isBear) {
-      coatColor = '#78350F'; // Oso marrón chocolate
-      coatStroke = '#451A03';
-      headColor = '#92400E';
-      chestColor = '#D97706';
-    } else if (isLion) {
-      coatColor = '#D97706'; // León dorado sabana
-      coatStroke = '#92400E';
-      headColor = '#FEF3C7';
-      chestColor = '#FDE68A';
+      spriteChoice = getBunnyAimingSprite();
+      shadowWidth = 48;
+      shadowHeight = 12;
     } else {
-      // 🐶 Perrito
-      coatColor = '#E0A96D';
-      coatStroke = '#92400E';
-      headColor = '#FFFBEB';
-      chestColor = '#FFFFFF';
+      spriteChoice = getDogAimingSprite();
+      shadowWidth = 50;
+      shadowHeight = 12;
     }
+
+    const currentImg = spriteChoice ? spriteChoice.img : null;
+    const isLoaded = currentImg && (currentImg.complete || currentImg.naturalWidth > 0);
 
     ctx.save();
     try {
-      ctx.translate(a.x, a.y + a.jumpY);
-
-      // Sombra en el suelo
-      ctx.beginPath();
-      ctx.ellipse(0, 32, 40, 10, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-      ctx.fill();
-
-      // Carcaj de flechas en la espalda
-      ctx.save();
-      ctx.rotate(0.35);
-      ctx.fillStyle = '#78350F';
-      ctx.fillRect(-38, -35, 14, 38);
-      for (let k = 0; k < 3; k++) {
-        ctx.fillStyle = k === 1 ? '#FDE047' : '#10B981';
-        ctx.beginPath();
-        ctx.moveTo(-35 + k * 4, -35);
-        ctx.lineTo(-37 + k * 4, -48);
-        ctx.lineTo(-33 + k * 4, -48);
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // ALAS PEQUEÑAS DE DRAGÓN (SI ES DRAGÓN)
-      if (isDragon) {
-        ctx.save();
-        ctx.translate(-15, -6 + breathing);
-        ctx.fillStyle = '#059669';
-        ctx.strokeStyle = '#047857';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(-24, -20);
-        ctx.lineTo(-12, -10);
-        ctx.lineTo(-18, -4);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // COLA ESPECÍFICA DE CADA ANIMAL
-      ctx.save();
-      ctx.translate(-26, 6);
-      ctx.rotate(-0.25 + tailWag);
-
-      if (isBunny) {
-        // Pompón blanco de conejito
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(-8, 2, 11, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#CBD5E1';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      } else if (isFox) {
-        // Enorme cola tupida de zorro con punta blanca
-        ctx.fillStyle = '#EA580C';
-        ctx.beginPath();
-        ctx.ellipse(-20, 2, 25, 12, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.ellipse(-38, -2, 10, 8, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (isCat) {
-        // Cola esbelta y curvada de gatito
-        ctx.lineWidth = 6;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = coatColor;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(-18, -12, -22, -28);
-        ctx.stroke();
-      } else if (isUnicorn) {
-        // Cola mágica ondeante de unicornio (capas pastel)
-        ctx.fillStyle = '#F472B6';
-        ctx.beginPath();
-        ctx.ellipse(-18, 2, 20, 10, -0.3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#60A5FA';
-        ctx.beginPath();
-        ctx.ellipse(-16, 6, 16, 8, -0.3, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (isDragon) {
-        // Cola de dragón con púas y punta de flecha
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = coatColor;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(-18, 4, -28, -6);
-        ctx.stroke();
-        ctx.fillStyle = '#FACC15';
-        ctx.beginPath();
-        ctx.moveTo(-28, -6);
-        ctx.lineTo(-36, -2);
-        ctx.lineTo(-34, -12);
-        ctx.closePath();
-        ctx.fill();
-      } else if (isLion) {
-        // Cola de león con mechón oscuro en la punta
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = coatColor;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(-16, -10, -26, -18);
-        ctx.stroke();
-        ctx.fillStyle = '#78350F';
-        ctx.beginPath();
-        ctx.arc(-26, -18, 7, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (isBear) {
-        // Colita redondeada de osito
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.arc(-8, 4, 8, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Cola batiente de perrito
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.ellipse(-15, 0, 17, 8, -0.25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-      }
-      ctx.restore();
-
-      // CUERPO
-      ctx.save();
-      ctx.translate(0, breathing);
-      ctx.fillStyle = coatColor;
-      ctx.beginPath();
-      ctx.ellipse(-5, 8, 28, 24, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = coatStroke;
-      ctx.stroke();
-
-      // Pecho esponjoso
-      ctx.fillStyle = chestColor;
-      ctx.beginPath();
-      ctx.ellipse(8, 10, 14, 16, 0.2, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Medalla dorada en el pecho con el emoji de la mascota elegida
-      ctx.beginPath();
-      ctx.arc(6, 14, 13, 0, Math.PI * 2);
-      ctx.fillStyle = '#FEF08A';
-      ctx.fill();
-      ctx.strokeStyle = '#CA8A04';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.font = '16px "Segoe UI Emoji", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(petType, 6, 14);
-
-      ctx.restore();
-
-      // Patitas
-      ctx.fillStyle = coatColor;
-      ctx.beginPath();
-      ctx.ellipse(-15, 28, 9, 6, 0, 0, Math.PI * 2);
-      ctx.ellipse(8, 28, 9, 6, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // CABEZA Y RASGOS FACIALES
-      ctx.save();
-      const headRot = a.aimAngle * 0.22;
-      ctx.translate(2, -14 + breathing);
-      ctx.rotate(headRot);
-
-      // MELENA GIGANTE DE LEÓN (SI ES LEÓN)
-      if (isLion) {
-        ctx.fillStyle = '#B45309';
-        ctx.beginPath();
-        ctx.arc(0, 0, 36, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#D97706';
-        ctx.beginPath();
-        ctx.arc(0, 0, 30, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // CRÁNEO
-      ctx.fillStyle = headColor;
-      ctx.beginPath();
-      ctx.arc(0, 0, 24, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = coatStroke;
-      ctx.stroke();
-
-      // MEJILLAS BLANCAS SI ES ZORRO
-      if (isFox) {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.ellipse(-14, 8, 8, 6, -0.2, 0, Math.PI * 2);
-        ctx.ellipse(14, 8, 8, 6, 0.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // MEJILLAS SONROJADAS
-      ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
-      ctx.beginPath();
-      ctx.arc(-11, 7, 5, 0, Math.PI * 2);
-      ctx.arc(11, 7, 5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // HOCICO Y NARIZ SEGÚN LA ESPECIE
-      ctx.fillStyle = (isCat || isBunny || isUnicorn) ? '#FFFFFF' : '#FEF3C7';
-      ctx.beginPath();
-      ctx.ellipse(4, 6, 11, 8.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (isCat || isBunny) {
-        // Nariz rosita
-        ctx.fillStyle = '#F472B6';
-        ctx.beginPath();
-        ctx.arc(5, 3, 3.2, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (isDragon) {
-        // Fosas nasales de dragón
-        ctx.fillStyle = '#047857';
-        ctx.beginPath();
-        ctx.arc(2, 3, 1.8, 0, Math.PI * 2);
-        ctx.arc(7, 3, 1.8, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Nariz negra de perrito / zorrito / osito
-        ctx.fillStyle = '#0F172A';
-        ctx.beginPath();
-        ctx.arc(5, 2.5, 3.8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // LENGÜITA DE PERRITO FELIZ
-      if (isDog) {
-        ctx.fillStyle = '#FB7185';
-        ctx.beginPath();
-        ctx.ellipse(6, 11, 4, 5, 0, 0, Math.PI);
-        ctx.fill();
-      }
-
-      // DIENTES DE CONEJITO
-      if (isBunny) {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.strokeStyle = '#CBD5E1';
-        ctx.lineWidth = 1;
-        ctx.fillRect(3, 7, 3, 4);
-        ctx.strokeRect(3, 7, 3, 4);
-        ctx.fillRect(6, 7, 3, 4);
-        ctx.strokeRect(6, 7, 3, 4);
-      }
-
-      // BIGOTES SI ES GATO
-      if (isCat) {
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 1.3;
-        ctx.beginPath();
-        ctx.moveTo(13, 3); ctx.lineTo(26, 1);
-        ctx.moveTo(13, 6); ctx.lineTo(25, 8);
-        ctx.moveTo(-5, 3); ctx.lineTo(-18, 1);
-        ctx.moveTo(-5, 6); ctx.lineTo(-17, 8);
-        ctx.stroke();
-      }
-
-      // OJOS EXPRESIVOS
-      if (a.isBlinking) {
-        ctx.strokeStyle = '#1E293B';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(-4, -4, 4, Math.PI, 0);
-        ctx.arc(10, -4, 4, Math.PI, 0);
-        ctx.stroke();
-      } else {
-        const eyeLookX = Math.cos(a.aimAngle) * 2;
-        const eyeLookY = Math.sin(a.aimAngle) * 2;
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.ellipse(-4, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#1E293B';
-        ctx.beginPath();
-        ctx.arc(-4 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(-5 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.ellipse(10, -4, 5.5, 7.5, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#1E293B';
-        ctx.beginPath();
-        ctx.arc(10 + eyeLookX, -4 + eyeLookY, 3.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(9 + eyeLookX, -6 + eyeLookY, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // OREJAS Y RASGOS SUPERIORES VISIBLES (SIN SOMBRERO QUE LAS TAPE)
-      if (isBunny) {
-        // Orejas largas y erguidas de conejito (32px de alto)
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.ellipse(-8, -32, 6.5, 20, -0.15, 0, Math.PI * 2);
-        ctx.ellipse(8, -32, 6.5, 20, 0.15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-
-        ctx.fillStyle = '#FBCFE8';
-        ctx.beginPath();
-        ctx.ellipse(-8, -32, 3.8, 15, -0.15, 0, Math.PI * 2);
-        ctx.ellipse(8, -32, 3.8, 15, 0.15, 0, Math.PI * 2);
-        ctx.fill();
-
-      } else if (isCat) {
-        // Orejas puntiagudas triangulares de gatito con interior rosa
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.moveTo(-16, -14); ctx.lineTo(-20, -32); ctx.lineTo(-6, -20); ctx.closePath();
-        ctx.moveTo(16, -14); ctx.lineTo(20, -32); ctx.lineTo(6, -20); ctx.closePath();
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-
-        ctx.fillStyle = '#F472B6';
-        ctx.beginPath();
-        ctx.moveTo(-14, -16); ctx.lineTo(-17, -28); ctx.lineTo(-8, -20); ctx.closePath();
-        ctx.moveTo(14, -16); ctx.lineTo(17, -28); ctx.lineTo(8, -20); ctx.closePath();
-        ctx.fill();
-
-      } else if (isFox) {
-        // Orejas de zorro con punta negra
-        ctx.fillStyle = '#EA580C';
-        ctx.beginPath();
-        ctx.moveTo(-16, -14); ctx.lineTo(-21, -34); ctx.lineTo(-6, -20); ctx.closePath();
-        ctx.moveTo(16, -14); ctx.lineTo(21, -34); ctx.lineTo(6, -20); ctx.closePath();
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-
-        // Puntas oscuras
-        ctx.fillStyle = '#0F172A';
-        ctx.beginPath();
-        ctx.moveTo(-19, -28); ctx.lineTo(-21, -34); ctx.lineTo(-14, -28); ctx.closePath();
-        ctx.moveTo(19, -28); ctx.lineTo(21, -34); ctx.lineTo(14, -28); ctx.closePath();
-        ctx.fill();
-
-      } else if (isBear) {
-        // Orejas redondas de osito
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.arc(-16, -18, 10, 0, Math.PI * 2);
-        ctx.arc(16, -18, 10, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-
-        ctx.fillStyle = '#D97706';
-        ctx.beginPath();
-        ctx.arc(-16, -18, 5.5, 0, Math.PI * 2);
-        ctx.arc(16, -18, 5.5, 0, Math.PI * 2);
-        ctx.fill();
-
-      } else if (isDragon) {
-        // Cuernos de dragón dorados y cresta
-        ctx.fillStyle = '#FACC15';
-        ctx.beginPath();
-        ctx.moveTo(-12, -18); ctx.lineTo(-18, -34); ctx.lineTo(-6, -22); ctx.closePath();
-        ctx.moveTo(12, -18); ctx.lineTo(18, -34); ctx.lineTo(6, -22); ctx.closePath();
-        ctx.fill();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#D97706';
-        ctx.stroke();
-
-      } else if (isUnicorn) {
-        // Orejitas de unicornio
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.ellipse(-14, -18, 6, 12, -0.3, 0, Math.PI * 2);
-        ctx.ellipse(14, -18, 6, 12, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Melena arcoíris pastel
-        ctx.fillStyle = '#F472B6';
-        ctx.beginPath();
-        ctx.ellipse(-4, -24, 7, 10, -0.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#60A5FA';
-        ctx.beginPath();
-        ctx.ellipse(4, -24, 7, 10, 0.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // CUERNO MÁGICO DORADO BRILLANTE
-        ctx.fillStyle = '#FACC15';
-        ctx.beginPath();
-        ctx.moveTo(0, -22);
-        ctx.lineTo(6, -42);
-        ctx.lineTo(12, -22);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = '#CA8A04';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Destello mágico
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(6, -42, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-      } else if (isLion) {
-        // Orejas redondeadas de león dentro de la melena
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.arc(-16, -18, 8, 0, Math.PI * 2);
-        ctx.arc(16, -18, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-      } else {
-        // Orejas caídas y tiernas de perrito
-        ctx.fillStyle = coatColor;
-        ctx.beginPath();
-        ctx.ellipse(-16, -12, 8, 16, -0.4, 0, Math.PI * 2);
-        ctx.ellipse(16, -12, 8, 16, 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = coatStroke;
-        ctx.stroke();
-      }
-
-      // DISTINTIVO DE ARQUERO: Pluma heroica lateral (sin tapar cabeza ni orejas)
-      ctx.fillStyle = '#10B981';
-      ctx.beginPath();
-      ctx.moveTo(-16, -20);
-      ctx.quadraticCurveTo(-28, -32, -24, -40);
-      ctx.quadraticCurveTo(-18, -30, -14, -22);
-      ctx.fill();
-      ctx.fillStyle = '#FACC15';
-      ctx.beginPath();
-      ctx.moveTo(-14, -20);
-      ctx.quadraticCurveTo(-22, -28, -20, -34);
-      ctx.quadraticCurveTo(-16, -26, -12, -21);
-      ctx.fill();
-
-      ctx.restore();
-
-      // ARCO Y FLECHA MAGICA
-      ctx.save();
       const recoilOffset = a.recoil;
-      ctx.translate(14 - recoilOffset * Math.cos(a.aimAngle), -10 - recoilOffset * Math.sin(a.aimAngle));
-      ctx.rotate(a.aimAngle);
+      const breathY = Math.sin(time * 0.0035) * 2.5;
 
-      const bowRadius = 38;
-      ctx.lineWidth = 4.5;
-      ctx.strokeStyle = '#78350F';
-      ctx.beginPath();
-      ctx.arc(0, 0, bowRadius, -Math.PI * 0.38, Math.PI * 0.38, false);
-      ctx.stroke();
+      // Posicionamiento centrado en el camino con respiración suave, retroceso de tiro y salto de victoria
+      ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
 
-      // Extremos dorados del arco
-      ctx.fillStyle = '#F59E0B';
+      // Sombra suave bajo el héroe arquero
       ctx.beginPath();
-      ctx.arc(Math.cos(-Math.PI * 0.38) * bowRadius, Math.sin(-Math.PI * 0.38) * bowRadius, 4, 0, Math.PI * 2);
-      ctx.arc(Math.cos(Math.PI * 0.38) * bowRadius, Math.sin(Math.PI * 0.38) * bowRadius, 4, 0, Math.PI * 2);
+      ctx.ellipse(0, 32, shadowWidth, shadowHeight, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
       ctx.fill();
 
-      // Cuerda
-      const pull = ArcheryGame.pointer.isDown ? 14 : (a.shootCooldown > 0 ? -6 : 2);
-      ctx.lineWidth = 1.6;
-      ctx.strokeStyle = '#E2E8F0';
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(-Math.PI * 0.38) * bowRadius, Math.sin(-Math.PI * 0.38) * bowRadius);
-      ctx.lineTo(-pull, 0);
-      ctx.lineTo(Math.cos(Math.PI * 0.38) * bowRadius, Math.sin(Math.PI * 0.38) * bowRadius);
-      ctx.stroke();
+      // Tamaño equilibrado y proporcionado del héroe en primer plano
+      const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
+      const spriteX = -spriteSize * 0.50;
+      const spriteY = -spriteSize + 32;
 
-      // Flecha tensada
-      if (a.shootCooldown <= 2) {
-        ctx.lineWidth = 2.8;
-        ctx.strokeStyle = '#92400E';
-        ctx.beginPath();
-        ctx.moveTo(-pull, 0);
-        ctx.lineTo(34, 0);
-        ctx.stroke();
-
-        // Punta de flecha dorada resplandeciente
-        ctx.fillStyle = '#F59E0B';
-        ctx.beginPath();
-        ctx.moveTo(34, -5);
-        ctx.lineTo(44, 0);
-        ctx.lineTo(34, 5);
-        ctx.closePath();
-        ctx.fill();
-
-        // Plumas traseras
-        ctx.fillStyle = '#10B981';
-        ctx.beginPath();
-        ctx.moveTo(-pull, -4);
-        ctx.lineTo(-pull + 7, -2);
-        ctx.lineTo(-pull + 4, 0);
-        ctx.lineTo(-pull + 7, 2);
-        ctx.lineTo(-pull, 4);
-        ctx.closePath();
-        ctx.fill();
+      if (isLoaded) {
+        ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
       }
-
-      ctx.restore();
-
     } finally {
       ctx.restore();
     }
