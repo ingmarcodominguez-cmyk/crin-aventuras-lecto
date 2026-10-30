@@ -429,37 +429,22 @@
   function speakCurrentTrainMission() {
     try {
       if (!TrainGame.isRunning || !TrainGame.currentWordObj) return;
-      const targetLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
-      if (!targetLetter) return;
 
-      let textToSpeak = '';
-      if (!TrainGame.hasStarted) {
-        TrainGame.hasStarted = true;
-        // Relato pedagógico inicial sin elipsis ni puntos que las voces lean literal como 'punto punto'
-        const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(', ');
-        const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `¡Bienvenido al Tren de los Sonidos! Vamos a llenar los vagones para la palabra ${TrainGame.currentWordObj.pron}. Escucha sus letras: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
-      } else if (TrainGame.currentLetterIndex === 0) {
-        const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(', ');
-        const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `¡Nueva palabra! Vamos a llenar los vagones para la palabra ${TrainGame.currentWordObj.pron}. Sus letras son: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
-      } else {
-        const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetName}!`;
-      }
-
-      if (typeof speakText === 'function') {
-        TrainGame.isSpeaking = true;
-        if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-        speakText(textToSpeak, () => {
+      if (TrainGame.currentLetterIndex === 0) {
+        const textToSpeak = `Completa los vagones hasta formar la palabra ${TrainGame.currentWordObj.pron}.`;
+        if (typeof speakText === 'function') {
+          TrainGame.isSpeaking = true;
           if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
+          speakText(textToSpeak, () => {
+            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
+            TrainGame.isSpeaking = false;
+          });
+          TrainGame.speechWatchdog = setTimeout(() => {
+            TrainGame.isSpeaking = false;
+          }, 5000);
+        } else {
           TrainGame.isSpeaking = false;
-        });
-        // Watchdog de seguridad adaptativo amplio para permitir que el relato termine completo
-        const watchdogMs = Math.max(12000, textToSpeak.length * 90);
-        TrainGame.speechWatchdog = setTimeout(() => {
-          TrainGame.isSpeaking = false;
-        }, watchdogMs);
+        }
       } else {
         TrainGame.isSpeaking = false;
       }
@@ -1174,23 +1159,12 @@
 
         playChimeNote();
       } else {
-        // ERROR AMIGABLE: Sacudida suave, rebote de dirección y feedback verbal constructivo
+        // ERROR AMIGABLE: Sacudida suave, rebote de dirección y sonido de error, SIN relato
         b.wobble = 1.0;
         b.vx = -b.vx * 1.25;
         playBoingSound();
         createFloatingText(b.x, b.y - 30, `¡Esa es la letra ${b.letter}!`, '#F43F5E');
-
-        if (typeof speakText === 'function') {
-          TrainGame.isSpeaking = true;
-          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-          const bName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[b.letter]) || b.letter;
-          const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-          speakText(`Esa es la letra ${bName}. Sigue buscando la letra ${targetName}.`, () => {
-            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-            TrainGame.isSpeaking = false;
-          });
-          TrainGame.speechWatchdog = setTimeout(() => { TrainGame.isSpeaking = false; }, 6500);
-        }
+        TrainGame.isSpeaking = false;
       }
     } catch (err) {
       console.error('Error in handleBalloonSelected:', err);
@@ -1215,20 +1189,7 @@
       if (TrainGame.currentLetterIndex >= TrainGame.currentLetters.length) {
         handleTrainCompleted();
       } else {
-        const nextLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
-        if (typeof speakText === 'function') {
-          TrainGame.isSpeaking = true;
-          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-          const bName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[b.letter]) || b.letter;
-          const nextName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[nextLetter]) || nextLetter;
-          speakText(`¡Muy bien! La letra ${bName}. Ahora busca la siguiente: la letra ${nextName}!`, () => {
-            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-            TrainGame.isSpeaking = false;
-          });
-          TrainGame.speechWatchdog = setTimeout(() => { TrainGame.isSpeaking = false; }, 7500);
-        } else {
-          TrainGame.isSpeaking = false;
-        }
+        TrainGame.isSpeaking = false;
       }
     } catch (err) {
       console.error('Error in finishPlacingLetter:', err);
@@ -1277,7 +1238,7 @@
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
         if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-        speakText(`¡Chuuu chuuu! ¡Formaste la palabra ${wObj.pron}! ¡El tren de los sonidos está viajando!`, () => {
+        speakText('¡Súper, tarea lograda!', () => {
           if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           TrainGame.isSpeaking = false;
           onTrainDone();
@@ -1285,7 +1246,7 @@
         TrainGame.speechWatchdog = setTimeout(() => {
           TrainGame.isSpeaking = false;
           onTrainDone();
-        }, 9000);
+        }, 5000);
       } else {
         onTrainDone();
       }

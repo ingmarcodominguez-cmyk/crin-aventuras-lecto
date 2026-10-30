@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v273';
+    const CURRENT_APP_VERSION = 'v274';
 
     function syncAppVersionLabels() {
       try {
@@ -106,19 +106,19 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=273"></script>
+  <script src="lexicon.js?v=274"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=273"></script>
+  <script src="archery.js?v=274"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=273"></script>
+  <script src="cauldron.js?v=274"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=273"></script>
+  <script src="fisherman.js?v=274"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=273"></script>
+  <script src="train.js?v=274"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=273"></script>
+  <script src="detective.js?v=274"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=273"></script>
+  <script src="aac_keyboard.js?v=274"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3753,6 +3753,7 @@
       function playNextChunk() {
         if (sessionId !== currentSpeechSessionId) return;
         if (chunkIdx >= chunks.length) {
+          if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
           if (onComplete) onComplete();
           return;
         }
@@ -3777,7 +3778,7 @@
         if (sessionId === currentSpeechSessionId && chunkDoneCallback) chunkDoneCallback();
       };
 
-      const durationEst = Math.max(chunkText.length * 75 + 1400, 2200);
+      const durationEst = Math.max(chunkText.length * 150 + 4000, 6000);
       const timer = setTimeout(done, durationEst);
 
       try {
@@ -3856,7 +3857,7 @@
 
       // Si el texto supera 80 caracteres, dividir en oraciones fluidas para evitar el límite HTTP 400 de Google TTS
       if (textToSpeak.length > 80) {
-        const durationEst = Math.max(textToSpeak.length * 85 + 2200, 4000);
+        const durationEst = Math.max(textToSpeak.length * 200 + 8000, 15000);
         activeFallbackTimer = setTimeout(() => {
           activeFallbackTimer = null;
           safeCallback();
@@ -3871,7 +3872,7 @@
         setTimeout(() => pictoCard.classList.remove('speaking'), 600);
       }
 
-      const durationEst = Math.max(textToSpeak.length * 65 + 1600, 2600);
+      const durationEst = Math.max(textToSpeak.length * 150 + 5000, 7500);
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         safeCallback();

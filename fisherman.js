@@ -552,56 +552,16 @@
   // --- LOCUCIÓN PROSÓDICA PEDAGÓGICA ---
   window.speakCurrentFishermanMission = function() {
     if (!FishermanGame.isRunning || !FishermanGame.currentWordObj) return;
-    const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
-    if (!targetSyl) return;
-
-    FishermanGame.isSpeaking = true;
     const wObj = FishermanGame.currentWordObj;
 
     if (FishermanGame.currentSyllableTargetIndex === 0) {
-      // 1. Decir la palabra de forma canónica
-      speakText(`Vamos a pescar la palabra: ${wObj.pron}.`, () => {
-        // Pausa respetuosa (400ms) antes de cantar las sílabas
-        setTimeout(() => {
-          // 2. Tocar la secuencia de sílabas usando los audios humanos pre-grabados
-          if (typeof window.playSyllablesSequence === 'function') {
-            window.playSyllablesSequence(FishermanGame.currentSyllables, () => {
-              // Pausa de 500ms antes de pedir la sílaba objetivo
-              setTimeout(() => {
-                // 3. Pedir la primera sílaba con su audio canónico
-                speakText('Pesca la primera sílaba:', () => {
-                  setTimeout(() => {
-                    if (typeof window.playSyllableSound === 'function') {
-                      window.playSyllableSound(targetSyl, () => {
-                        FishermanGame.isSpeaking = false;
-                      });
-                    } else {
-                      FishermanGame.isSpeaking = false;
-                    }
-                  }, 250);
-                });
-              }, 500);
-            });
-          } else {
-            FishermanGame.isSpeaking = false;
-          }
-        }, 400);
+      FishermanGame.isSpeaking = true;
+      speakText(`Vamos a pescar hasta formar la palabra ${wObj.pron}.`, () => {
+        FishermanGame.isSpeaking = false;
       });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 9500);
+      setTimeout(() => { FishermanGame.isSpeaking = false; }, 5000);
     } else {
-      // Siguientes sílabas con audio canónico de estudio
-      speakText('Ahora pesca la sílaba:', () => {
-        setTimeout(() => {
-          if (typeof window.playSyllableSound === 'function') {
-            window.playSyllableSound(targetSyl, () => {
-              FishermanGame.isSpeaking = false;
-            });
-          } else {
-            FishermanGame.isSpeaking = false;
-          }
-        }, 250);
-      });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 4800);
+      FishermanGame.isSpeaking = false;
     }
   };
 
@@ -1392,27 +1352,12 @@
       FishermanGame.rod.castProgress = 0;
       playCastSound();
     } else {
-      // ERROR AMIGABLE: El pez se sumerge un instante y la voz guía suavemente
+      // ERROR AMIGABLE: El pez se sumerge un instante y sonido de error, SIN relato
       fish.diveTimer = 1.0;
       playPlopSound();
       createWaterSplash(fish.x, fish.y, 6);
       createFloatingText(fish.x, fish.y - 30, `¡Esa es ${fish.syllable}!`, '#F43F5E');
-
-      FishermanGame.isSpeaking = true;
-      speakText('Esa es:', () => {
-        if (typeof window.playSyllableSound === 'function') {
-          window.playSyllableSound(fish.syllable, () => {
-            speakText('Sigue buscando:', () => {
-              window.playSyllableSound(targetSyl, () => {
-                FishermanGame.isSpeaking = false;
-              });
-            });
-          });
-        } else {
-          FishermanGame.isSpeaking = false;
-        }
-      });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 3800);
+      FishermanGame.isSpeaking = false;
     }
   }
 
@@ -1433,23 +1378,7 @@
     if (FishermanGame.currentSyllableTargetIndex >= FishermanGame.currentSyllables.length) {
       handleWordCompleted();
     } else {
-      // Siguiente sílaba con pronunciación canónica de estudio
-      const nextSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
-      FishermanGame.isSpeaking = true;
-      speakText('Muy bien:', () => {
-        if (typeof window.playSyllableSound === 'function') {
-          window.playSyllableSound(fish.syllable, () => {
-            speakText('Ahora busca:', () => {
-              window.playSyllableSound(nextSyl, () => {
-                FishermanGame.isSpeaking = false;
-              });
-            });
-          });
-        } else {
-          FishermanGame.isSpeaking = false;
-        }
-      });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 4200);
+      FishermanGame.isSpeaking = false;
     }
   }
 
@@ -1483,10 +1412,14 @@
 
     if (typeof speakText === 'function') {
       FishermanGame.isSpeaking = true;
-      speakText(`¡Excelente pesca! ¡Formaste la palabra ${wObj.pron}!`, () => {
+      speakText('¡Súper, tarea lograda!', () => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
       });
+      setTimeout(() => {
+        FishermanGame.isSpeaking = false;
+        onVictoryDone();
+      }, 4500);
     } else {
       onVictoryDone();
     }

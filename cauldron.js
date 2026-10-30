@@ -500,12 +500,11 @@
       let missionText = '';
       if (!CauldronGame.hasStarted && CauldronGame.currentPotionIndex === 0) {
         CauldronGame.hasStarted = true;
-        // Relato pedagógico inicial completo con instrucciones claras de la tarea
-        missionText = `¡Bienvenido al Caldero Mágico de las Rimas! En este laboratorio mágico, buscaremos palabras que riman, es decir, que terminan con el mismo sonido. Para preparar esta poción mágica: busca y arrastra las burbujas que rimen con: ${p.base.pron}!`;
+        missionText = `¡Bienvenido al Caldero de las Rimas! Busca las palabras que riman con: ${p.base.pron}. ¡La palabra a rimar es ${p.base.pron}!`;
       } else if (CauldronGame.collectedIngredients.length === 0) {
-        missionText = `¡Nueva poción mágica! Para esta poción: busca las burbujas que rimen con: ${p.base.pron}!`;
+        missionText = `¡Nueva poción! Busca las palabras que riman con: ${p.base.pron}. ¡La palabra a rimar es ${p.base.pron}!`;
       } else {
-        missionText = `Busca el otro ingrediente que también rime con: ${p.base.pron}!`;
+        missionText = `Busca el otro ingrediente que también rime con: ${p.base.pron}. ¡La palabra a rimar es ${p.base.pron}!`;
       }
 
       speakText(missionText, () => {
@@ -927,7 +926,7 @@
             // Guía constructiva para el segundo ingrediente
             if (typeof speakText === 'function') {
               CauldronGame.isSpeaking = true;
-              speakText(`¡Genial! Ahora busca el otro ingrediente que también rime con ${basePron}.`, () => {
+              speakText(`¡Genial! Ahora busca el otro ingrediente que también rime con ${basePron}. ¡La palabra a rimar es ${basePron}!`, () => {
                 CauldronGame.isSpeaking = false;
               });
               setTimeout(() => { CauldronGame.isSpeaking = false; }, 4500);
@@ -964,7 +963,7 @@
       const distractorPron = bubble.pron;
 
       if (typeof speakText === 'function') {
-        speakText(`${basePron} y ${distractorPron} no suenan igual. ¡Busquemos otra!`);
+        speakText(`${basePron} y ${distractorPron} no suenan igual. ¡Busca una que rime con ${basePron}!`);
       }
     }
   }
