@@ -48,6 +48,8 @@
 
     isSpeaking: false,
     isAdvancing: false,
+    hasStarted: false,
+    speechWatchdog: null,
     voiceTimeout: null
   };
 
@@ -77,7 +79,7 @@
 
   // DICCIONARIO CANÓNICO DE NOMBRES DE LETRAS EN ESPAÑOL (FONÉTICA CLARA)
   const SPANISH_LETTER_NAMES = (typeof window !== 'undefined' && window.SPANISH_LETTER_NAMES) ? window.SPANISH_LETTER_NAMES : {
-    'A': 'A', 'B': 'Be', 'C': 'Ce', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
+    'A': 'A', 'B': 'beh', 'C': 'Ce', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
     'I': 'I', 'J': 'Jota', 'K': 'Ka', 'L': 'Ele', 'M': 'Eme', 'N': 'Ene', 'Ñ': 'Eñe', 'O': 'O',
     'P': 'Pe', 'Q': 'Cu', 'R': 'Erre', 'S': 'Ese', 'T': 'Te', 'U': 'U', 'V': 'Ve', 'W': 'Doble ve',
     'X': 'Equis', 'Y': 'I griega', 'Z': 'Zeta'
@@ -139,6 +141,9 @@
     if (screen) screen.classList.add('active');
 
     TrainGame.isRunning = true;
+    TrainGame.hasStarted = false;
+    TrainGame.isSpeaking = true;
+    TrainGame.isAdvancing = false;
     initTrainGame();
 
     setTimeout(resizeTrainCanvas, 50);
@@ -338,6 +343,8 @@
     TrainGame.currentLetters = wObj.letras;
     TrainGame.currentLetterIndex = 0;
     TrainGame.isAdvancing = false;
+    TrainGame.isSpeaking = true;
+    if (TrainGame.speechWatchdog) { clearTimeout(TrainGame.speechWatchdog); TrainGame.speechWatchdog = null; }
     TrainGame.sparkles = [];
     TrainGame.floatingTexts = [];
     TrainGame.steamPuffs = [];
@@ -427,22 +434,35 @@
       if (!targetLetter) return;
 
       let textToSpeak = '';
-      if (TrainGame.currentLetterIndex === 0) {
-        // Deletreo fonético inequívoco con pausas prosódicas para que ninguna letra se corte o se trague
+      if (!TrainGame.hasStarted) {
+        TrainGame.hasStarted = true;
+        // Relato pedagógico inicial completo con consigna clara
         const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(' ... ');
         const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... Busca la primera: toca la letra ${targetName}!`;
+        textToSpeak = `¡Bienvenido al Tren de los Sonidos! ... En esta aventura, armaremos cada palabra colocando sus letras en los vagones del tren. ... Para la palabra ${TrainGame.currentWordObj.pron}: ... Escucha sus letras: ... ${letterNames}. ... ¡Busca la primera: toca la letra ${targetName}!`;
+      } else if (TrainGame.currentLetterIndex === 0) {
+        const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(' ... ');
+        const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
+        textToSpeak = `¡Nueva palabra! ... Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... ¡Toca la primera letra: la letra ${targetName}!`;
       } else {
         const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetName}!`;
+        textToSpeak = `Muy bien. Ahora busca la siguiente letra: ... ¡la letra ${targetName}!`;
       }
 
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
+        if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
         speakText(textToSpeak, () => {
+          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           TrainGame.isSpeaking = false;
         });
-        setTimeout(() => { TrainGame.isSpeaking = false; }, 3600);
+        // Watchdog de seguridad adaptativo amplio para permitir que el relato termine completo
+        const watchdogMs = Math.max(12000, textToSpeak.length * 90);
+        TrainGame.speechWatchdog = setTimeout(() => {
+          TrainGame.isSpeaking = false;
+        }, watchdogMs);
+      } else {
+        TrainGame.isSpeaking = false;
       }
     } catch (err) {
       console.error('Error in speakCurrentTrainMission:', err);
@@ -658,6 +678,38 @@
     // 6. Destellos y textos flotantes
     drawSparkles(ctx);
     drawFloatingTexts(ctx);
+
+    // 7. Cartel pedagógico indicador cuando la voz está narrando la consigna
+    if (TrainGame.isSpeaking) {
+      drawTrainListeningBanner(ctx, w, 24);
+    }
+  }
+
+  // --- CARTEL DE ESCUCHA ACTIVA (BLOQUEO RESPETUOSO) ---
+  function drawTrainListeningBanner(ctx, w, y) {
+    ctx.save();
+    const txt = '🎧 Escuchando al conductor...';
+    ctx.font = 'bold 13px system-ui, -apple-system, sans-serif';
+    const textWidth = ctx.measureText(txt).width;
+    const pillW = textWidth + 32;
+    const pillH = 28;
+    const pillX = (w - pillW) / 2;
+    const pillY = y;
+
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = '#FCD34D';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(txt, w / 2, pillY + pillH / 2);
+    ctx.restore();
   }
 
   // --- DIBUJO DE ELEMENTOS ESCÉNICOS ---
@@ -1040,7 +1092,8 @@
     }
 
     function onPointerDown(e) {
-      if (TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
+      // Respetar que termine el relato antes de permitir accionar
+      if (TrainGame.isAdvancing || TrainGame.train.isDeparting || TrainGame.isSpeaking) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;
@@ -1060,6 +1113,10 @@
     }
 
     function onPointerMove(e) {
+      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting) {
+        canvas.style.cursor = 'default';
+        return;
+      }
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;
@@ -1093,7 +1150,7 @@
   // --- LÓGICA DE ACIERTO O ERROR ---
   function handleBalloonSelected(b) {
     try {
-      if (b.isPlaced || b.isFlyingToWagon || TrainGame.isAdvancing) return;
+      if (b.isPlaced || b.isFlyingToWagon || TrainGame.isAdvancing || TrainGame.isSpeaking) return;
 
       const targetLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
       const isCorrect = (b.letter === targetLetter);
@@ -1102,7 +1159,9 @@
       createSparklesExplosion(b.x, b.y, b.palette.main, 10);
 
       if (isCorrect) {
-        // ¡ACIERTO! El globo viaja mágicamente hacia su vagón en orden canónico
+        // Bloquear toques mientras el globo viaja hacia el vagón
+        TrainGame.isSpeaking = true;
+
         const slotIdx = TrainGame.currentLetterIndex;
         const geom = getTrainConvoyGeometry();
         const targetWagon = (geom.wagons && geom.wagons[slotIdx]) ? geom.wagons[slotIdx] : null;
@@ -1124,12 +1183,14 @@
 
         if (typeof speakText === 'function') {
           TrainGame.isSpeaking = true;
+          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           const bName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[b.letter]) || b.letter;
           const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
           speakText(`Esa es la letra ${bName}. ... ¡Sigue buscando la letra ${targetName}!`, () => {
+            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
             TrainGame.isSpeaking = false;
           });
-          setTimeout(() => { TrainGame.isSpeaking = false; }, 2800);
+          TrainGame.speechWatchdog = setTimeout(() => { TrainGame.isSpeaking = false; }, 6500);
         }
       }
     } catch (err) {
@@ -1158,12 +1219,16 @@
         const nextLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
         if (typeof speakText === 'function') {
           TrainGame.isSpeaking = true;
+          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           const bName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[b.letter]) || b.letter;
           const nextName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[nextLetter]) || nextLetter;
           speakText(`¡Muy bien! ... ¡La letra ${bName}! ... Ahora busca la siguiente: ... ¡la letra ${nextName}!`, () => {
+            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
             TrainGame.isSpeaking = false;
           });
-          setTimeout(() => { TrainGame.isSpeaking = false; }, 3200);
+          TrainGame.speechWatchdog = setTimeout(() => { TrainGame.isSpeaking = false; }, 7500);
+        } else {
+          TrainGame.isSpeaking = false;
         }
       }
     } catch (err) {
@@ -1212,15 +1277,16 @@
 
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
+        if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
         speakText(`¡Chuuu chuuu! ... ¡Formaste la palabra ${wObj.pron}! ... ¡El tren de los sonidos está viajando!`, () => {
+          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           TrainGame.isSpeaking = false;
           onTrainDone();
         });
-        // Watchdog de seguridad (4.5s) por si speakText se demora o falla el callback
-        setTimeout(() => {
+        TrainGame.speechWatchdog = setTimeout(() => {
           TrainGame.isSpeaking = false;
           onTrainDone();
-        }, 4500);
+        }, 9000);
       } else {
         onTrainDone();
       }
