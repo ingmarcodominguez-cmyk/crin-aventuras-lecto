@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v255';
+    const CURRENT_APP_VERSION = 'v256';
 
     function syncAppVersionLabels() {
       try {
@@ -93,15 +93,15 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=249"></script>
+  <script src="archery.js?v=256"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=251"></script>
+  <script src="cauldron.js?v=256"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=255"></script>
+  <script src="fisherman.js?v=256"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=252"></script>
+  <script src="train.js?v=256"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=251"></script>
+  <script src="detective.js?v=256"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
   <script src="aac_keyboard.js?v=251"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
@@ -3530,7 +3530,14 @@
     let currentSpeechSessionId = 0;
     let activeFallbackTimer = null;
 
+    // ESTADO GLOBAL DE NARRACIÓN: Bloqueo de acciones y disparos mientras el narrador habla
+    window.isAppSpeaking = false;
+    window.isNarratingNow = function() {
+      return !!window.isAppSpeaking;
+    };
+
     function stopAllAudio() {
+      window.isAppSpeaking = false;
       if (currentPhonemeGain && appPhonemeAudioCtx) {
         try { currentPhonemeGain.gain.setValueAtTime(0, appPhonemeAudioCtx.currentTime); } catch(e) {}
         currentPhonemeGain = null;
@@ -3581,10 +3588,13 @@
       stopAllAudio();
       unlockAudioSystem();
 
+      window.isAppSpeaking = true;
+
       const thisSession = currentSpeechSessionId;
       let callbackExecuted = false;
       const safeCallback = () => {
         if (thisSession !== currentSpeechSessionId) return; // Audio cancelado/detenido por el usuario
+        window.isAppSpeaking = false;
         if (!callbackExecuted && onEndCallback) {
           callbackExecuted = true;
           onEndCallback();

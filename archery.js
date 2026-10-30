@@ -364,6 +364,7 @@
     score: 0,
     streak: 0,
     isAdvancing: false,
+    isSpeaking: false,
     advanceTimeout: null,
     missionVoiceTimeout: null,
 
@@ -923,7 +924,10 @@
     if (typeof speakText === 'function') {
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
-      speakText(`Apunta a: ${pronWord}`);
+      ArcheryGame.isSpeaking = true;
+      speakText(`Apunta a: ... ${pronWord}`, () => {
+        ArcheryGame.isSpeaking = false;
+      });
     }
   };
 
@@ -1127,6 +1131,8 @@
 
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
+    if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
+    if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
     const a = ArcheryGame.archer;
     const petType = getActivePet();
     const isFox = petType.includes('🦊') || petType.includes('fox');
@@ -1249,7 +1255,10 @@
     if (typeof speakText === 'function') {
       if (!ArcheryGame.lastBounceVoice || (Date.now() - ArcheryGame.lastBounceVoice > 5000)) {
         ArcheryGame.lastBounceVoice = Date.now();
-        speakText('¡Rebotó! Espera que pase la otra palabra para disparar.');
+        ArcheryGame.isSpeaking = true;
+        speakText('¡Rebotó! ... Espera que pase la otra palabra para disparar.', () => {
+          ArcheryGame.isSpeaking = false;
+        });
       }
     }
   }
@@ -1396,7 +1405,11 @@
 
         // DECIR ¡SÚPER! Y ESPERAR A QUE TERMINE COMPLETAMENTE LA FRASE ANTES DE AVANZAR
         if (typeof speakText === 'function') {
-          speakText('¡Súper!', proceedToNextWord);
+          ArcheryGame.isSpeaking = true;
+          speakText('¡Súper!', () => {
+            ArcheryGame.isSpeaking = false;
+            proceedToNextWord();
+          });
         } else {
           proceedToNextWord();
         }
@@ -1417,7 +1430,10 @@
       const pronTarget = targetCanon ? targetCanon.pronunciacion : ArcheryGame.targetWord;
 
       if (typeof speakText === 'function') {
-        speakText(`Casi. Esa es ${pronHit}. Busca ${pronTarget}.`);
+        ArcheryGame.isSpeaking = true;
+        speakText(`Casi. ... Esa es ${pronHit}. ... Busca ${pronTarget}.`, () => {
+          ArcheryGame.isSpeaking = false;
+        });
       }
     }
   }
@@ -2148,6 +2164,8 @@
     }
 
     function onPointerDown(e) {
+      if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
+      if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.isDown = true;
       ArcheryGame.pointer.x = pos.x;

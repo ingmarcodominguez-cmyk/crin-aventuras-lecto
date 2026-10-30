@@ -987,7 +987,7 @@
     }
 
     function onPointerDown(e) {
-      if (TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
+      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;

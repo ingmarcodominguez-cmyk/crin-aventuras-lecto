@@ -52,6 +52,7 @@
     },
 
     isAdvancing: false,
+    isSpeaking: false,
     voiceTimeout: null
   };
 
@@ -804,7 +805,11 @@
       };
 
       if (typeof speakText === 'function') {
-        speakText(`¡Súper! ${basePron} y ${targetPron}. ¡Suenan igual al final!`, onPraiseEnded);
+        CauldronGame.isSpeaking = true;
+        speakText(`¡Súper! ... ${basePron} y ${targetPron}. ... ¡Suenan igual al final!`, () => {
+          CauldronGame.isSpeaking = false;
+          onPraiseEnded();
+        });
       } else {
         onPraiseEnded();
       }
@@ -1017,7 +1022,7 @@
     }
 
     function onPointerDown(e) {
-      if (CauldronGame.isAdvancing) return;
+      if (CauldronGame.isAdvancing || CauldronGame.isSpeaking || (typeof window.isNarratingNow === 'function' && window.isNarratingNow())) return;
       const pos = getCanvasPos(e);
       CauldronGame.pointer.x = pos.x;
       CauldronGame.pointer.y = pos.y;
