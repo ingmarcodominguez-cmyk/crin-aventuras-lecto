@@ -415,11 +415,13 @@
 
     let textToSpeak = '';
     if (TrainGame.currentLetterIndex === 0) {
-      // Deletreo claro con pausas prosódicas para evitar que se pegue la última letra con "busca"
-      const letterNames = TrainGame.currentLetters.map(l => `letra ${l}`).join(', ');
-      textToSpeak = `Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... Busca la primera: toca la letra ${targetLetter}!`;
+      // Deletreo fonético inequívoco con pausas prosódicas para que ninguna letra se corte o se trague
+      const letterNames = TrainGame.currentLetters.map(l => SPANISH_LETTER_NAMES[l] || l).join(' ... ');
+      const targetName = SPANISH_LETTER_NAMES[targetLetter] || targetLetter;
+      textToSpeak = `Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... Busca la primera: toca la letra ${targetName}!`;
     } else {
-      textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetLetter}!`;
+      const targetName = SPANISH_LETTER_NAMES[targetLetter] || targetLetter;
+      textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetName}!`;
     }
 
     if (typeof speakText === 'function') {
@@ -1099,7 +1101,9 @@
 
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
-        speakText(`Esa es la letra ${b.letter}. ... ¡Sigue buscando la letra ${targetLetter}!`, () => {
+        const bName = SPANISH_LETTER_NAMES[b.letter] || b.letter;
+        const targetName = SPANISH_LETTER_NAMES[targetLetter] || targetLetter;
+        speakText(`Esa es la letra ${bName}. ... ¡Sigue buscando la letra ${targetName}!`, () => {
           TrainGame.isSpeaking = false;
         });
         setTimeout(() => { TrainGame.isSpeaking = false; }, 2800);
@@ -1127,7 +1131,9 @@
       const nextLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
-        speakText(`¡Muy bien! ... ¡La letra ${b.letter}! ... Ahora busca la siguiente: ... ¡la letra ${nextLetter}!`, () => {
+        const bName = SPANISH_LETTER_NAMES[b.letter] || b.letter;
+        const nextName = SPANISH_LETTER_NAMES[nextLetter] || nextLetter;
+        speakText(`¡Muy bien! ... ¡La letra ${bName}! ... Ahora busca la siguiente: ... ¡la letra ${nextName}!`, () => {
           TrainGame.isSpeaking = false;
         });
       }

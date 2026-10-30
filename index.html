@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v265';
+    const CURRENT_APP_VERSION = 'v266';
 
     function syncAppVersionLabels() {
       try {
@@ -106,19 +106,19 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=265"></script>
+  <script src="lexicon.js?v=266"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=265"></script>
+  <script src="archery.js?v=266"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=265"></script>
+  <script src="cauldron.js?v=266"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=265"></script>
+  <script src="fisherman.js?v=266"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=265"></script>
+  <script src="train.js?v=266"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=265"></script>
+  <script src="detective.js?v=266"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=265"></script>
+  <script src="aac_keyboard.js?v=266"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3106,42 +3106,13 @@
     }
 
     
-        // --- MOTOR FONOLÓGICO CANÓNICO DE SÍLABAS Y PREVENCIÓN DE DELETREO DE SIGLAS ---
+        // --- MOTOR FONOLÓGICO CANÓNICO DE SÍLABAS (BASADO EN DICCIONARIO CANÓNICO) ---
     function getCanonicalSyllablePronunciation(syl) {
       if (!syl) return '';
-      const s = syl.toString().trim().toUpperCase();
-      const vowelAccents = { 'A': 'á', 'E': 'é', 'I': 'í', 'O': 'ó', 'U': 'ú' };
-      
-      const specialMap = {
-        'JU': 'Jú', 'GUE': 'Gué', 'GUI': 'Guí', 'QUE': 'Qué', 'QUI': 'Quí',
-        'GE': 'Jé', 'GI': 'Jí', 'NA': 'Nah', 'TO': 'To', 'CHA': 'Cha',
-        'CHE': 'Che', 'CHI': 'Chi', 'CHO': 'Cho', 'CHU': 'Chu',
-        'LLA': 'Lla', 'LLE': 'Lle', 'LLI': 'Lli', 'LLO': 'Llo', 'LLU': 'Llu',
-        'RRA': 'Rra', 'RRE': 'Rre', 'RRI': 'Rri', 'RRO': 'Rro', 'RRU': 'Rru',
-        'SI': 'Sí', 'NO': 'No', 'EL': 'Él', 'TU': 'Tú'
-      };
-      if (specialMap[s]) return specialMap[s];
-
-      if (/[ÁÉÍÓÚ]/.test(s)) {
-        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+      if (typeof getCanonicalSyllable === 'function') {
+        return getCanonicalSyllable(syl).pron;
       }
-
-      // Sílabas trabadas/cerradas terminadas en consonante (ej: DOR, PAN, BAR, SOL, DEL, VER, TAS, TIN)
-      // Se añade tilde prosódica para que el sintetizador la pronuncie como sílaba tónica indivisible y jamás como sigla
-      const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
-      if (s.length >= 3 && consonants.includes(s[s.length - 1])) {
-        const chars = s.toLowerCase().split('');
-        for (let i = chars.length - 1; i >= 0; i--) {
-          const u = chars[i].toUpperCase();
-          if (vowelAccents[u]) {
-            chars[i] = vowelAccents[u];
-            break;
-          }
-        }
-        chars[0] = chars[0].toUpperCase();
-        return chars.join('');
-      }
-
+      const s = syl.toString().trim();
       return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
     }
     window.getCanonicalSyllablePronunciation = getCanonicalSyllablePronunciation;
@@ -3149,13 +3120,15 @@
 // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (AUDIOS PRE-GRABADOS EN ESTUDIO) ---
     window.playSyllableSound = function(syl, onEnd) {
       if (!syl) { if (onEnd) onEnd(); return; }
-      const clean = syl.toLowerCase().replace(/[^a-záéíóúüñ]/g, '').trim();
-      if (typeof PRE_RENDERED_SYLLABLES !== 'undefined' && PRE_RENDERED_SYLLABLES.has(clean)) {
-        playNarratorAudio('assets/audio/silabas/' + clean + '.mp3', onEnd);
+      const canon = (typeof getCanonicalSyllable === 'function')
+        ? getCanonicalSyllable(syl)
+        : { pron: syl.charAt(0).toUpperCase() + syl.slice(1).toLowerCase(), audio: null };
+
+      if (canon.audio) {
+        playNarratorAudio(canon.audio, onEnd);
         return;
       }
-      const pron = getCanonicalSyllablePronunciation(syl);
-      speakText(pron, onEnd);
+      speakText(canon.pron, onEnd);
     };
 
     window.playSyllablesSequence = function(sylList, onComplete) {
@@ -3171,13 +3144,16 @@
       const rest = sylList.slice(1);
       const audioPath = PRE_RENDERED_SYLLABLES.has(firstSyl) ? ('assets/audio/silabas/' + firstSyl + '.mp3') : null;
 
-      if (audioPath) {
-        playNarratorAudio(audioPath, () => {
+      const canon = (typeof getCanonicalSyllable === 'function')
+        ? getCanonicalSyllable(firstSyl)
+        : { pron: firstSyl.charAt(0).toUpperCase() + firstSyl.slice(1).toLowerCase(), audio: null };
+
+      if (canon.audio) {
+        playNarratorAudio(canon.audio, () => {
           setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
         });
       } else {
-        const pron = getCanonicalSyllablePronunciation(firstSyl);
-        speakText(pron, () => {
+        speakText(canon.pron, () => {
           setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
         });
       }
@@ -3212,7 +3188,7 @@
       'RA': 'Ra', 'RE': 'Re', 'RI': 'Ri', 'RO': 'Ro', 'RU': 'Ru',
       'RRO': 'Rro',
       'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
-      'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'Tho', 'TU': 'Tu',
+      'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'To', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
       'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'Jú',
       'GUE': 'gué', 'GUI': 'guí', 'QUE': 'que', 'QUI': 'qui',
@@ -3629,7 +3605,7 @@
 
       // Evita la expansión de símbolos químicos/abreviaturas en sintetizadores de voz (NA -> Sodio)
       text = text.replace(/\bNA\b/gi, 'Náh');
-      text = text.replace(/\bTO\b/gi, 'Tho');
+      // text.replace TO removed: use canonical To
       text = text.replace(/\bSABANA\b/gi, 'Sábana');
       text = text.replace(/\bLAMPARA\b/gi, 'Lámpara');
       text = text.replace(/\bMELON\b/gi, 'Melón');
