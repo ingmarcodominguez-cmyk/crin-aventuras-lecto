@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v262';
+    const CURRENT_APP_VERSION = 'v263';
 
     function syncAppVersionLabels() {
       try {
@@ -93,17 +93,17 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=262"></script>
+  <script src="archery.js?v=263"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=262"></script>
+  <script src="cauldron.js?v=263"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=262"></script>
+  <script src="fisherman.js?v=263"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=262"></script>
+  <script src="train.js?v=263"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=262"></script>
+  <script src="detective.js?v=263"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=262"></script>
+  <script src="aac_keyboard.js?v=263"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3090,6 +3090,23 @@
       });
     }
 
+    
+    // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (AUDIOS PRE-GRABADOS EN ESTUDIO) ---
+    window.playSyllableSound = function(syl, onEnd) {
+      if (!syl) { if (onEnd) onEnd(); return; }
+      const clean = syl.toLowerCase().replace(/[^a-záéíóúüñ]/g, '').trim();
+      if (typeof PRE_RENDERED_SYLLABLES !== 'undefined' && PRE_RENDERED_SYLLABLES.has(clean)) {
+        playNarratorAudio('assets/audio/silabas/' + clean + '.mp3', onEnd);
+        return;
+      }
+      const pron = (typeof phoneticMap !== 'undefined' && phoneticMap[syl.toUpperCase()]) ? phoneticMap[syl.toUpperCase()] : syl;
+      speakText(pron, onEnd);
+    };
+
+    window.playSyllablesSequence = function(sylList, onComplete) {
+      playSyllableAudioSequence(sylList, onComplete);
+    };
+
     function playSyllableAudioSequence(sylList, onComplete) {
       if (!sylList || sylList.length === 0) {
         if (onComplete) onComplete();
@@ -3141,8 +3158,8 @@
       'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
       'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'Tho', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
-      'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'ju',
-      'GUE': 'gue', 'GUI': 'gui', 'QUE': 'que', 'QUI': 'qui',
+      'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'Jú',
+      'GUE': 'gué', 'GUI': 'guí', 'QUE': 'que', 'QUI': 'qui',
       'GÜE': 'güe', 'GÜI': 'güi',
       'QU': 'Ku',
       'LLA': 'Ya', 'LLE': 'Ye', 'LLI': 'Yi', 'LLO': 'Yo', 'LLU': 'Yu',
@@ -3508,7 +3525,15 @@
       }
 
       // Prevención de sigla en dígrafos en mayúsculas aislados
-      text = text.replace(/\bGUE\b/gi, 'gue');
+      text = text.replace(/\bJU\b/g, 'Jú');
+      text = text.replace(/\bGUE\b/gi, 'gué');
+      text = text.replace(/\bGUI\b/gi, 'guí');
+      text = text.replace(/\bQUE\b/gi, 'qué');
+      text = text.replace(/\bQUI\b/gi, 'quí');
+      text = text.replace(/\bJA\b/g, 'Já');
+      text = text.replace(/\bJE\b/g, 'Jé');
+      text = text.replace(/\bJI\b/g, 'Jí');
+      text = text.replace(/\bJO\b/g, 'Jó');
       text = text.replace(/\bGUI\b/gi, 'gui');
       text = text.replace(/\bQUE\b/gi, 'que');
       text = text.replace(/\bQUI\b/gi, 'qui');
