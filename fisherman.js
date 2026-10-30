@@ -323,17 +323,39 @@
     setupWord(FishermanGame.currentWordIndex);
   }
 
+  // Obtiene las palabras de la tarea activa seleccionada en la app
+  function getActiveTaskWordStrings() {
+    let words = [];
+    if (typeof window.getActiveTaskWords === 'function') {
+      words = window.getActiveTaskWords();
+    } else {
+      if (typeof activeTaskPackId !== 'undefined' && typeof allTaskPacks !== 'undefined') {
+        const pack = allTaskPacks[activeTaskPackId];
+        if (pack && pack.words && pack.words.length > 0) {
+          words = [...pack.words];
+        }
+      }
+      if (typeof activeTaskPackId !== 'undefined' && activeTaskPackId === 'custom' && typeof customWordsList !== 'undefined' && customWordsList.length > 0) {
+        words = customWordsList.map(item => item.word);
+      }
+      if (words.length === 0 && typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.taskWords && activeChildProfile.taskWords.length > 0) {
+        words = [...activeChildProfile.taskWords];
+      }
+    }
+    return words;
+  }
+
   // Construye la cola de palabras permitidas
   function buildWordQueue() {
     const list = [];
-    // 1. Si el modo es tarea, intentar cargar palabras de la tarea del perfil
+    // 1. Si el modo es tarea, cargar estrictamente las palabras de la tarea activa
     if (FishermanGame.mode === 'task') {
       try {
-        if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.taskWords && activeChildProfile.taskWords.length > 0) {
-          activeChildProfile.taskWords.forEach(wText => {
+        const taskWords = getActiveTaskWordStrings();
+        if (taskWords && taskWords.length > 0) {
+          taskWords.forEach(wText => {
             const clean = (typeof removeAccents === 'function') ? removeAccents(wText) : wText.toUpperCase();
             if (isWordPermitted(clean)) {
-              // Buscar en léxico canónico
               if (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[clean]) {
                 const item = CANONICAL_WORD_LEXICON[clean];
                 list.push({
@@ -343,7 +365,6 @@
                   pron: item.pronunciacion || item.escritura
                 });
               } else {
-                // Desglose silábico aproximado si no estuviera en léxico
                 list.push({
                   word: clean,
                   silabas: approximateSyllables(clean),

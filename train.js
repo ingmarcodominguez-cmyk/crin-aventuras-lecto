@@ -185,12 +185,34 @@
     TrainGame.animId = requestAnimationFrame(trainGameLoop);
   }
 
+  function getActiveTaskWordStrings() {
+    let words = [];
+    if (typeof window.getActiveTaskWords === 'function') {
+      words = window.getActiveTaskWords();
+    } else {
+      if (typeof activeTaskPackId !== 'undefined' && typeof allTaskPacks !== 'undefined') {
+        const pack = allTaskPacks[activeTaskPackId];
+        if (pack && pack.words && pack.words.length > 0) {
+          words = [...pack.words];
+        }
+      }
+      if (typeof activeTaskPackId !== 'undefined' && activeTaskPackId === 'custom' && typeof customWordsList !== 'undefined' && customWordsList.length > 0) {
+        words = customWordsList.map(item => item.word);
+      }
+      if (words.length === 0 && typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.taskWords && activeChildProfile.taskWords.length > 0) {
+        words = [...activeChildProfile.taskWords];
+      }
+    }
+    return words;
+  }
+
   function buildWordQueue() {
     const list = [];
     if (TrainGame.mode === 'task') {
       try {
-        if (typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.taskWords && activeChildProfile.taskWords.length > 0) {
-          activeChildProfile.taskWords.forEach(wText => {
+        const taskWords = getActiveTaskWordStrings();
+        if (taskWords && taskWords.length > 0) {
+          taskWords.forEach(wText => {
             const clean = (typeof removeAccents === 'function') ? removeAccents(wText) : wText.toUpperCase();
             if (isWordPermitted(clean)) {
               if (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[clean]) {
