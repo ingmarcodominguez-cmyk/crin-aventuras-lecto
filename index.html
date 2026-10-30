@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v257';
+    const CURRENT_APP_VERSION = 'v258';
 
     function syncAppVersionLabels() {
       try {
@@ -93,17 +93,17 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=241"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=257"></script>
+  <script src="archery.js?v=258"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=257"></script>
+  <script src="cauldron.js?v=258"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=257"></script>
+  <script src="fisherman.js?v=258"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=257"></script>
+  <script src="train.js?v=258"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=257"></script>
+  <script src="detective.js?v=258"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=251"></script>
+  <script src="aac_keyboard.js?v=258"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1284,6 +1284,14 @@
   </style>
 </head>
 <body>
+
+  <!-- 🛡️ PILL FLOTANTE DE NARRACIÓN ACTIVA (CONTROL PSICOPEDAGÓGICO DE ATENCIÓN) -->
+  <div id="global-narration-pill" style="display: none; position: fixed; top: 12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #38BDF8; border: 2.5px solid #0284C7; border-radius: 30px; padding: 7px 18px; font-size: 13px; font-weight: 800; z-index: 999999; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4); align-items: center; gap: 8px; pointer-events: none; transition: transform 0.2s;">
+    <span style="font-size: 18px; animation: pulse 1s infinite alternate;">🗣️</span>
+    <span>CRIN está hablando... ¡Escucha con atención!</span>
+    <span style="font-size: 16px;">👂</span>
+  </div>
+
 
   <div class="app-container">
     <!-- Header Bar -->
@@ -3042,6 +3050,10 @@
       stopAllAudio();
       unlockAudioSystem();
 
+      window.isAppSpeaking = true;
+      window.lastSpeechStartTime = Date.now();
+      window.updateNarrationLockUI();
+
       const pictoCard = document.getElementById('big-picto-box');
       if (pictoCard) {
         pictoCard.classList.add('speaking');
@@ -3061,10 +3073,7 @@
         }
       };
 
-      const fallbackTimer = setTimeout(() => {
-        if (currentHtmlAudio === audio) currentHtmlAudio = null;
-        safeCallback();
-      }, 850);
+      const fallbackTimer = setTimeout(() => { if (currentHtmlAudio === audio) currentHtmlAudio = null; safeCallback(); }, 8000);
 
       audio.onended = () => {
         clearTimeout(fallbackTimer);
@@ -3286,7 +3295,7 @@
     }
 
     function clearSlotAt(idx) {
-      if (isNarratingLock) return;
+      if (isNarratingLock || window.isNarratingNow()) return;
       if (!currentSlots || currentSlots[idx] === undefined) return;
       if (currentSlots[idx] !== '') {
         const val = currentSlots[idx];
@@ -3325,7 +3334,7 @@
     }
 
     function eraseLastSlot() {
-      if (isNarratingLock) return;
+      if (isNarratingLock || window.isNarratingNow()) return;
       if (!currentSlots) return;
       for (let i = currentSlots.length - 1; i >= 0; i--) {
         if (currentSlots[i] && currentSlots[i] !== '') {
@@ -3564,10 +3573,83 @@
     let activeFallbackTimer = null;
 
     // ESTADO GLOBAL DE NARRACIÓN: Bloqueo de acciones y disparos mientras el narrador habla
+    // 🛡️ SISTEMA PSICOPEDAGÓGICO DE CONTROL DE ATENCIÓN Y NARRACIÓN
     window.isAppSpeaking = false;
+    window.lastSpeechStartTime = 0;
+
     window.isNarratingNow = function() {
-      return !!window.isAppSpeaking;
+      if (window.isAppSpeaking) return true;
+      if (typeof isNarratingLock !== 'undefined' && isNarratingLock) return true;
+      if (typeof currentHtmlAudio !== 'undefined' && currentHtmlAudio && !currentHtmlAudio.paused && !currentHtmlAudio.ended) {
+        return true;
+      }
+      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.isPlaying && responsiveVoice.isPlaying()) {
+        return true;
+      }
+      if (typeof window.speechSynthesis !== 'undefined' && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        return true;
+      }
+      return false;
     };
+
+    window.updateNarrationLockUI = function() {
+      const isSpeaking = window.isNarratingNow();
+      const pill = document.getElementById('global-narration-pill');
+      if (pill) {
+        pill.style.display = isSpeaking ? 'flex' : 'none';
+      }
+      if (isSpeaking) {
+        document.body.classList.add('app-narration-active');
+      } else {
+        document.body.classList.remove('app-narration-active');
+      }
+    };
+
+    setInterval(() => {
+      window.updateNarrationLockUI();
+    }, 180);
+
+    // 🛡️ BARRERA GLOBAL DE INTERACCIÓN PSICOPEDAGÓGICA (CAPTURING PHASE)
+    function isElementAllowedDuringNarration(target) {
+      if (!target || !target.closest) return false;
+      if (
+        target.closest('.exit-btn') ||
+        target.closest('.btn-back') ||
+        target.closest('[data-allow-during-speech]') ||
+        target.closest('#btn-exit-game') ||
+        target.closest('.bottom-nav') ||
+        target.closest('#screen-map') ||
+        target.id === 'screen-map'
+      ) {
+        return true;
+      }
+      const txt = (target.textContent || '').trim();
+      if (txt.includes('Salir') || txt.includes('Volver') || txt.includes('⬅️') || txt.includes('Ajustes') || txt.includes('Pescador')) {
+        return true;
+      }
+      return false;
+    }
+
+    function interceptNarrationEvent(e) {
+      if (window.isNarratingNow()) {
+        if (!isElementAllowedDuringNarration(e.target)) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          const pill = document.getElementById('global-narration-pill');
+          if (pill) {
+            pill.style.transform = 'translateX(-50%) scale(1.08)';
+            setTimeout(() => { if (pill) pill.style.transform = 'translateX(-50%) scale(1)'; }, 180);
+          }
+          return false;
+        }
+      }
+    }
+
+    window.addEventListener('pointerdown', interceptNarrationEvent, true);
+    window.addEventListener('mousedown', interceptNarrationEvent, true);
+    window.addEventListener('touchstart', interceptNarrationEvent, { capture: true, passive: false });
+    window.addEventListener('click', interceptNarrationEvent, true);
+
 
     function stopAllAudio() {
       window.isAppSpeaking = false;
@@ -4462,7 +4544,7 @@
     }
 
     function selectSyllable(syllable, btnElement) {
-      if (isNarratingLock) return;
+      if (isNarratingLock || window.isNarratingNow()) return;
       const emptyIdx = currentSlots.indexOf('');
       if (emptyIdx !== -1) {
         currentSlots[emptyIdx] = syllable;
@@ -4503,7 +4585,7 @@
     }
 
     function selectLetter(letter, btnElement) {
-      if (isNarratingLock) return;
+      if (isNarratingLock || window.isNarratingNow()) return;
       const emptyIdx = currentSlots.indexOf('');
       if (emptyIdx !== -1) {
         currentSlots[emptyIdx] = letter;
@@ -9201,7 +9283,7 @@
     }
 
     function handleRallyCardClick(index) {
-      if (rallyGameState.isAnimating) return;
+      if (rallyGameState.isAnimating || window.isNarratingNow()) return;
       const item = rallyGameState.items[index];
       if (!item) return;
 
