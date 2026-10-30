@@ -79,9 +79,9 @@
 
   // DICCIONARIO CANÓNICO DE NOMBRES DE LETRAS EN ESPAÑOL (FONÉTICA CLARA)
   const SPANISH_LETTER_NAMES = (typeof window !== 'undefined' && window.SPANISH_LETTER_NAMES) ? window.SPANISH_LETTER_NAMES : {
-    'A': 'A', 'B': 'beh', 'C': 'Ce', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
-    'I': 'I', 'J': 'Jota', 'K': 'Ka', 'L': 'Ele', 'M': 'Eme', 'N': 'Ene', 'Ñ': 'Eñe', 'O': 'O',
-    'P': 'Pe', 'Q': 'Cu', 'R': 'Erre', 'S': 'Ese', 'T': 'Te', 'U': 'U', 'V': 'Ve', 'W': 'Doble ve',
+    'A': 'A', 'B': 'beh', 'C': 'Ce', 'CH': 'Che', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
+    'I': 'I', 'J': 'Jota', 'K': 'Ka', 'L': 'Ele', 'LL': 'Elle', 'M': 'Eme', 'N': 'Ene', 'Ñ': 'Eñe', 'O': 'O',
+    'P': 'Pe', 'Q': 'Cu', 'R': 'Erre', 'RR': 'Doble erre', 'S': 'Ese', 'T': 'Te', 'U': 'U', 'V': 'Ve', 'W': 'Doble ve',
     'X': 'Equis', 'Y': 'I griega', 'Z': 'Zeta'
   };
   if (typeof window !== 'undefined') {
@@ -438,11 +438,11 @@
         // Relato pedagógico inicial sin elipsis ni puntos que las voces lean literal como 'punto punto'
         const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(', ');
         const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `¡Bienvenido al Tren de los Sonidos! Para la palabra ${TrainGame.currentWordObj.pron}, escucha sus letras: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
+        textToSpeak = `¡Bienvenido al Tren de los Sonidos! Vamos a llenar los vagones para la palabra ${TrainGame.currentWordObj.pron}. Escucha sus letras: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
       } else if (TrainGame.currentLetterIndex === 0) {
         const letterNames = TrainGame.currentLetters.map(l => (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[l]) || l).join(', ');
         const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
-        textToSpeak = `¡Nueva palabra! Para la palabra ${TrainGame.currentWordObj.pron}, escucha sus letras: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
+        textToSpeak = `¡Nueva palabra! Vamos a llenar los vagones para la palabra ${TrainGame.currentWordObj.pron}. Sus letras son: ${letterNames}. ¡Toca la primera letra: la letra ${targetName}!`;
       } else {
         const targetName = (SPANISH_LETTER_NAMES && SPANISH_LETTER_NAMES[targetLetter]) || targetLetter;
         textToSpeak = `Muy bien. Ahora busca la siguiente letra: la letra ${targetName}!`;

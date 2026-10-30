@@ -1776,9 +1776,9 @@ if (typeof window !== 'undefined') {
 
 // DICCIONARIO CANÓNICO DE NOMBRES DE LETRAS EN ESPAÑOL
 const SPANISH_LETTER_NAMES = {
-  'A': 'A', 'B': 'beh', 'C': 'Ce', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
-  'I': 'I', 'J': 'Jota', 'K': 'Ka', 'L': 'Ele', 'M': 'Eme', 'N': 'Ene', 'Ñ': 'Eñe', 'O': 'O',
-  'P': 'Pe', 'Q': 'Cu', 'R': 'Erre', 'S': 'Ese', 'T': 'Te', 'U': 'U', 'V': 'Ve', 'W': 'Doble ve',
+  'A': 'A', 'B': 'beh', 'C': 'Ce', 'CH': 'Che', 'D': 'De', 'E': 'E', 'F': 'Efe', 'G': 'Ge', 'H': 'Hache',
+  'I': 'I', 'J': 'Jota', 'K': 'Ka', 'L': 'Ele', 'LL': 'Elle', 'M': 'Eme', 'N': 'Ene', 'Ñ': 'Eñe', 'O': 'O',
+  'P': 'Pe', 'Q': 'Cu', 'R': 'Erre', 'RR': 'Doble erre', 'S': 'Ese', 'T': 'Te', 'U': 'U', 'V': 'Ve', 'W': 'Doble ve',
   'X': 'Equis', 'Y': 'I griega', 'Z': 'Zeta'
 };
 if (typeof window !== 'undefined') {
