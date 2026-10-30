@@ -30,15 +30,15 @@
     steamPuffs: [],
     sparkles: [],
     floatingTexts: [],
+    wagonBounce: [],
 
     // Estado del tren
     train: {
-      x: 120,
-      y: 380,
-      targetX: 120,
-      isDeparting: false,
+      departOffset: 0,
       departSpeed: 0,
+      isDeparting: false,
       wheelAngle: 0,
+      idleBob: 0,
       whistleSteam: 0
     },
 
@@ -109,10 +109,10 @@
       }
     } catch(e) {}
     const map = {
-      '🦄': 'assets/card_unicornio_arquero.png?v=250',
-      '🦊': 'assets/card_zorro_arquero.png?v=250',
-      '🐰': 'assets/card_conejo_arquero.png?v=250',
-      '🐶': 'assets/card_perro_arquero.png?v=250'
+      '🦄': 'assets/card_unicornio_arquero.png?v=252',
+      '🦊': 'assets/card_zorro_arquero.png?v=252',
+      '🐰': 'assets/card_conejo_arquero.png?v=252',
+      '🐶': 'assets/card_perro_arquero.png?v=252'
     };
     return map[pet] || map['🦄'];
   }
@@ -239,10 +239,83 @@
 
     TrainGame.width = w;
     TrainGame.height = h;
+  }
 
-    TrainGame.train.y = h * 0.72;
-    TrainGame.train.x = Math.max(70, w * 0.12);
-    TrainGame.train.targetX = TrainGame.train.x;
+  // --- CÁLCULO GEOMÉTRICO EXACTO DEL TREN Y VAGONES ---
+  // Organiza los vagones para que quepan SIEMPRE en pantalla y se lean estrictamente de IZQUIERDA a DERECHA
+  function getTrainConvoyGeometry() {
+    const w = TrainGame.width;
+    const h = TrainGame.height;
+    const letters = TrainGame.currentLetters || ['P', 'A', 'T', 'O'];
+    const n = Math.max(1, letters.length);
+
+    // Margen lateral cómodo para que nada quede pegado a los bordes
+    const margin = Math.max(8, Math.min(16, Math.floor(w * 0.025)));
+    const availW = w - (margin * 2);
+
+    // Espacio de enganche entre unidades
+    const gap = Math.max(4, Math.min(8, Math.floor(w * 0.012)));
+
+    // Tamaño de la locomotora (proporcional pero legible)
+    let locoW = Math.max(62, Math.min(92, Math.floor(availW * 0.22)));
+    let wagonW = Math.floor((availW - locoW - (n * gap)) / n);
+
+    if (wagonW < 44) {
+      locoW = Math.max(50, locoW - 14);
+      wagonW = Math.max(38, Math.floor((availW - locoW - (n * gap)) / n));
+    }
+    wagonW = Math.min(76, wagonW);
+    const wagonH = Math.round(wagonW * 0.62);
+    const locoH = Math.round(locoW * 0.60);
+
+    const totalTrainW = n * wagonW + n * gap + locoW;
+
+    // Posición X base (centrado en la pantalla) + desplazamiento cuando arranca
+    const baseX = Math.max(margin, Math.floor((w - totalTrainW) / 2)) + (TrainGame.train.departOffset || 0);
+    const baseY = h * 0.74 + (TrainGame.train.idleBob || 0);
+
+    // VAGONES EN ORDEN CANÓNICO (DE IZQUIERDA A DERECHA):
+    // wagons[0] es la PRIMERA LETRA (ej: 'C' en 'CINE') en el vagón de la izquierda
+    // wagons[n-1] es la ÚLTIMA LETRA (ej: 'E' en 'CINE')
+    // loco está al frente a la derecha, tirando de todos hacia la derecha
+    const wagons = [];
+    for (let i = 0; i < n; i++) {
+      const wx = baseX + i * (wagonW + gap);
+      const bounce = (TrainGame.wagonBounce && TrainGame.wagonBounce[i]) ? TrainGame.wagonBounce[i] : 0;
+      wagons.push({
+        index: i,
+        letter: letters[i],
+        x: wx,
+        y: baseY - bounce,
+        width: wagonW,
+        height: wagonH,
+        centerX: wx + wagonW / 2,
+        centerY: baseY - bounce - wagonH / 2
+      });
+    }
+
+    const locoX = baseX + n * (wagonW + gap);
+    const loco = {
+      x: locoX,
+      y: baseY,
+      width: locoW,
+      height: locoH,
+      centerX: locoX + locoW / 2,
+      centerY: baseY - locoH / 2
+    };
+
+    return {
+      baseX,
+      baseY,
+      wagonW,
+      wagonH,
+      locoW,
+      locoH,
+      gap,
+      wagons,
+      loco,
+      totalTrainW
+    };
   }
 
   // --- CONFIGURACIÓN DE PALABRA / TREN ---
@@ -258,7 +331,8 @@
     TrainGame.steamPuffs = [];
     TrainGame.train.isDeparting = false;
     TrainGame.train.departSpeed = 0;
-    TrainGame.train.x = Math.max(70, TrainGame.width * 0.12);
+    TrainGame.train.departOffset = 0;
+    TrainGame.wagonBounce = new Array(wObj.letras.length).fill(0);
 
     spawnLetterBalloons(wObj);
     updateTrainHUD();
@@ -321,7 +395,7 @@
     };
   }
 
-  // --- LOCUCIÓN PROSÓDICA ---
+  // --- LOCUCIÓN PROSÓDICA CON PAUSAS CLARAS Y CALIBRADAS ---
   window.speakCurrentTrainMission = function() {
     if (!TrainGame.isRunning || !TrainGame.currentWordObj) return;
     const targetLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
@@ -329,10 +403,11 @@
 
     let textToSpeak = '';
     if (TrainGame.currentLetterIndex === 0) {
-      const spelled = TrainGame.currentLetters.join(' - ');
-      textToSpeak = `¡Llenemos el tren de la palabra ${TrainGame.currentWordObj.pron}! Los sonidos son: ${spelled}. ¡Busca la primera letra: ${targetLetter}!`;
+      // Deletreo claro con pausas prosódicas para evitar que se pegue la última letra con "busca"
+      const letterNames = TrainGame.currentLetters.map(l => `letra ${l}`).join(', ');
+      textToSpeak = `¡Llenemos los vagones del tren para la palabra ${TrainGame.currentWordObj.pron}! ... Escucha sus letras: ... ${letterNames}. ... ¡Busca la primera! ... ¡Toca la letra ${targetLetter}!`;
     } else {
-      textToSpeak = `¡Muy bien! Ahora busca el siguiente sonido: ${targetLetter}`;
+      textToSpeak = `¡Muy bien! ... Ahora busca la siguiente letra: ... ¡la letra ${targetLetter}!`;
     }
 
     if (typeof speakText === 'function') {
@@ -421,21 +496,38 @@
       }
     });
 
-    // 2. Avance del tren cuando parte
+    // 2. Movimiento y animación del tren
     const t = TrainGame.train;
+    const geom = getTrainConvoyGeometry();
+
     if (t.isDeparting) {
-      t.departSpeed += 0.12;
-      t.x += t.departSpeed;
+      t.departSpeed += 0.25;
+      t.departOffset += t.departSpeed;
       t.wheelAngle += t.departSpeed * 0.08;
 
-      // Vapor festivo constante
-      if (Math.random() < 0.6) {
-        createSteamPuff(t.x + 85, t.y - 65, '#FFFFFF', 18 + Math.random() * 12);
+      // Vapor festivo saliendo de la chimenea
+      if (Math.random() < 0.65) {
+        createSteamPuff(geom.loco.x + geom.loco.width * 0.7, geom.loco.y - geom.loco.height - 10, '#FFFFFF', 16 + Math.random() * 12);
       }
     } else {
+      // Movimiento natural en ralentí (respiración del tren)
+      t.idleBob = Math.sin(TrainGame.time * 4) * 2;
+      t.wheelAngle += 0.005;
+
       // Vapor suave en ralentí
-      if (Math.random() < 0.15) {
-        createSteamPuff(t.x + 85, t.y - 65, 'rgba(255,255,255,0.7)', 10 + Math.random() * 8);
+      if (Math.random() < 0.12) {
+        createSteamPuff(geom.loco.x + geom.loco.width * 0.7, geom.loco.y - geom.loco.height - 10, 'rgba(255,255,255,0.7)', 10 + Math.random() * 6);
+      }
+    }
+
+    // Amortiguación de rebote de los vagones
+    if (TrainGame.wagonBounce) {
+      for (let i = 0; i < TrainGame.wagonBounce.length; i++) {
+        if (TrainGame.wagonBounce[i] > 0.1) {
+          TrainGame.wagonBounce[i] *= 0.88;
+        } else {
+          TrainGame.wagonBounce[i] = 0;
+        }
       }
     }
 
@@ -496,12 +588,13 @@
     drawRollingHills(ctx, w, h * 0.68);
 
     // 2. Terreno y vías del ferrocarril
-    drawRailway(ctx, w, h, TrainGame.train.y + 35);
+    const geom = getTrainConvoyGeometry();
+    drawRailway(ctx, w, h, geom.baseY + 12);
 
     // 3. Vapor de la locomotora
     drawSteamPuffs(ctx);
 
-    // 4. El Tren (Locomotora + Vagones de Elkonin)
+    // 4. El Tren (Vagones en orden canónico + Locomotora al frente)
     drawTrainAndWagons(ctx);
 
     // 5. Globos aerostáticos con fonemas
@@ -573,124 +666,126 @@
     ctx.restore();
   }
 
-  // --- DIBUJO DEL TREN Y VAGONES DE ELKONIN ---
+  // --- DIBUJO DEL TREN Y VAGONES ---
   function drawTrainAndWagons(ctx) {
-    const t = TrainGame.train;
-    const lx = t.x;
-    const ly = t.y;
+    const geom = getTrainConvoyGeometry();
 
-    // 1. Locomotora a vapor estilizada
-    drawLocomotive(ctx, lx, ly, t.wheelAngle);
-
-    // 2. Vagones de Elkonin (tantos como fonemas tenga la palabra)
-    const letters = TrainGame.currentLetters;
-    const wagonWidth = 72;
-    const wagonSpacing = 82;
-
-    letters.forEach((letra, idx) => {
-      // Cada vagón va acoplado detrás de la locomotora (hacia la izquierda o derecha)
-      // Locomotora avanza hacia la derecha, vagones cuelgan hacia la izquierda
-      const wx = lx - 40 - (idx + 1) * wagonSpacing;
-      const wy = ly;
-
-      drawElkoninWagon(ctx, wx, wy, letra, idx);
+    // 1. Dibujar los vagones en orden de izquierda a derecha (Vagón 0 = 1ª letra)
+    geom.wagons.forEach(wagon => {
+      drawElkoninWagon(ctx, wagon.x, wagon.y, wagon.width, wagon.height, wagon.letter, wagon.index, geom.gap);
     });
+
+    // 2. Dibujar la locomotora a la derecha tirando del convoy
+    drawLocomotive(ctx, geom.loco.x, geom.loco.y, geom.loco.width, geom.loco.height, TrainGame.train.wheelAngle);
   }
 
-  function drawLocomotive(ctx, x, y, wheelAngle) {
+  function drawLocomotive(ctx, x, y, width, height, wheelAngle) {
     ctx.save();
+    const scale = width / 90;
 
-    // Caldera de la locomotora
-    ctx.fillStyle = '#DC2626'; // Rojo llamativo
+    // Enganche al último vagón
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(x - 8, y - height * 0.35, 10, 5);
+
+    // Caldera de la locomotora (frente hacia la derecha)
+    ctx.fillStyle = '#DC2626'; // Rojo vibrante
     ctx.beginPath();
-    ctx.roundRect(x, y - 48, 95, 48, 10);
+    ctx.roundRect(x + width * 0.28, y - height * 0.68, width * 0.72, height * 0.68, 8 * scale);
     ctx.fill();
 
-    // Franja dorada decorativa
+    // Franja dorada decorativa en la caldera
     ctx.fillStyle = '#F59E0B';
-    ctx.fillRect(x + 10, y - 44, 6, 44);
-    ctx.fillRect(x + 50, y - 44, 6, 44);
+    ctx.fillRect(x + width * 0.52, y - height * 0.65, 5 * scale, height * 0.62);
+    ctx.fillRect(x + width * 0.82, y - height * 0.65, 5 * scale, height * 0.62);
 
-    // Cabina del conductor
+    // Cabina del conductor (a la izquierda de la caldera)
     ctx.fillStyle = '#B91C1C';
     ctx.beginPath();
-    ctx.roundRect(x - 35, y - 72, 45, 72, 8);
+    ctx.roundRect(x, y - height, width * 0.36, height, 6 * scale);
     ctx.fill();
 
-    // Techo curvo de la cabina
+    // Techo de la cabina
     ctx.fillStyle = '#7F1D1D';
     ctx.beginPath();
-    ctx.roundRect(x - 42, y - 78, 58, 12, 4);
+    ctx.roundRect(x - 4 * scale, y - height - 6 * scale, width * 0.44, 8 * scale, 3 * scale);
     ctx.fill();
 
-    // Ventanilla con la mascota activa asomada
+    // Ventanilla con la mascota activa
     ctx.fillStyle = '#FEF08A';
     ctx.beginPath();
-    ctx.roundRect(x - 28, y - 62, 30, 26, 6);
+    ctx.roundRect(x + 5 * scale, y - height * 0.85, width * 0.26, height * 0.42, 4 * scale);
     ctx.fill();
     ctx.strokeStyle = '#78350F';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     const petCard = getCachedImage(getActivePetCardSrc());
     if (petCard && petCard.complete && petCard.naturalWidth > 0) {
-      ctx.drawImage(petCard, x - 26, y - 60, 26, 26);
+      ctx.drawImage(petCard, x + 6 * scale, y - height * 0.83, width * 0.24, height * 0.38);
     }
 
-    // Chimenea de vapor
+    // Chimenea de vapor (en la parte delantera de la caldera)
     ctx.fillStyle = '#1E293B';
     ctx.beginPath();
-    ctx.moveTo(x + 68, y - 48);
-    ctx.lineTo(x + 65, y - 72);
-    ctx.lineTo(x + 85, y - 72);
-    ctx.lineTo(x + 82, y - 48);
+    ctx.moveTo(x + width * 0.70, y - height * 0.68);
+    ctx.lineTo(x + width * 0.68, y - height * 1.05);
+    ctx.lineTo(x + width * 0.82, y - height * 1.05);
+    ctx.lineTo(x + width * 0.80, y - height * 0.68);
     ctx.closePath();
     ctx.fill();
 
-    // Corona de la chimenea
+    // Corona dorada de la chimenea
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
-    ctx.roundRect(x + 62, y - 76, 26, 6, 2);
+    ctx.roundRect(x + width * 0.65, y - height * 1.10, width * 0.20, 6 * scale, 2);
     ctx.fill();
 
     // Foco delantero brillante
     ctx.fillStyle = '#FBBF24';
     ctx.beginPath();
-    ctx.arc(x + 95, y - 24, 8, 0, Math.PI * 2);
+    ctx.arc(x + width, y - height * 0.35, 6 * scale, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#D97706';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Ruedas de la locomotora (grandes con radios)
-    drawTrainWheel(ctx, x - 15, y + 4, 18, wheelAngle);
-    drawTrainWheel(ctx, x + 30, y + 4, 18, wheelAngle);
-    drawTrainWheel(ctx, x + 72, y + 4, 18, wheelAngle);
-
-    // Barra de transmisión de las ruedas
-    ctx.strokeStyle = '#CBD5E1';
-    ctx.lineWidth = 4;
+    // Quitapiedras delantero (cowcatcher)
+    ctx.fillStyle = '#475569';
     ctx.beginPath();
-    ctx.moveTo(x - 15 + Math.cos(wheelAngle) * 10, y + 4 + Math.sin(wheelAngle) * 10);
-    ctx.lineTo(x + 72 + Math.cos(wheelAngle) * 10, y + 4 + Math.sin(wheelAngle) * 10);
+    ctx.moveTo(x + width - 4, y);
+    ctx.lineTo(x + width + 10 * scale, y + 6 * scale);
+    ctx.lineTo(x + width - 4, y + 6 * scale);
+    ctx.closePath();
+    ctx.fill();
+
+    // Ruedas de la locomotora (3 ruedas proporcionadas)
+    const wheelR = Math.round(height * 0.28);
+    drawTrainWheel(ctx, x + width * 0.18, y + 2, wheelR, wheelAngle);
+    drawTrainWheel(ctx, x + width * 0.52, y + 2, wheelR, wheelAngle);
+    drawTrainWheel(ctx, x + width * 0.82, y + 2, wheelR, wheelAngle);
+
+    // Barra de transmisión
+    ctx.strokeStyle = '#CBD5E1';
+    ctx.lineWidth = 3 * scale;
+    ctx.beginPath();
+    ctx.moveTo(x + width * 0.18 + Math.cos(wheelAngle) * (wheelR * 0.5), y + 2 + Math.sin(wheelAngle) * (wheelR * 0.5));
+    ctx.lineTo(x + width * 0.82 + Math.cos(wheelAngle) * (wheelR * 0.5), y + 2 + Math.sin(wheelAngle) * (wheelR * 0.5));
     ctx.stroke();
 
     ctx.restore();
   }
 
-  function drawElkoninWagon(ctx, wx, wy, letter, slotIdx) {
+  function drawElkoninWagon(ctx, wx, wy, w, h, letter, slotIdx, gap) {
     ctx.save();
 
-    const w = 72;
-    const h = 42;
     const isCompleted = slotIdx < TrainGame.currentLetterIndex;
     const isCurrent = slotIdx === TrainGame.currentLetterIndex;
 
-    // Enganche entre vagones
+    // Enganche hacia la siguiente unidad
     ctx.fillStyle = '#475569';
-    ctx.fillRect(wx + w, wy - 14, 14, 6);
+    ctx.fillRect(wx + w, wy - h * 0.35, gap + 2, 5);
 
-    // Cuerpo del vagón
+    // Cuerpo del vagón de Elkonin
     const grad = ctx.createLinearGradient(wx, wy - h, wx, wy);
     if (isCompleted) {
       grad.addColorStop(0, '#10B981');
@@ -710,34 +805,41 @@
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Caja de Elkonin (recuadro central donde encaja la letra)
-    ctx.fillStyle = isCompleted ? '#ECFDF5' : (isCurrent ? '#FEFCE8' : 'rgba(255,255,255,0.2)');
+    // Recuadro interior (Caja de Elkonin donde se posa la letra)
+    ctx.fillStyle = isCompleted ? '#ECFDF5' : (isCurrent ? '#FEFCE8' : 'rgba(255,255,255,0.22)');
     ctx.beginPath();
-    ctx.roundRect(wx + 10, wy - h + 6, w - 20, h - 14, 6);
+    ctx.roundRect(wx + 6, wy - h + 5, w - 12, h - 11, 6);
     ctx.fill();
     ctx.strokeStyle = isCompleted ? '#10B981' : (isCurrent ? '#EAB308' : '#CBD5E1');
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Contenido del vagón: Letra si ya fue encajada
+    // Letra o indicador
+    const fontSize = Math.max(16, Math.min(26, Math.round(h * 0.58)));
     if (isCompleted) {
       ctx.fillStyle = '#065F46';
-      ctx.font = '900 24px system-ui, -apple-system, sans-serif';
+      ctx.font = `900 ${fontSize}px system-ui, -apple-system, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(letter, wx + w / 2, wy - h / 2 - 1);
+      ctx.fillText(letter, wx + w / 2, wy - h / 2);
     } else if (isCurrent) {
-      // Indicador pulsante "?"
       ctx.fillStyle = '#854D0E';
-      ctx.font = '900 20px system-ui, -apple-system, sans-serif';
+      ctx.font = `900 ${fontSize - 2}px system-ui, -apple-system, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('?', wx + w / 2, wy - h / 2 - 1);
+      ctx.fillText('?', wx + w / 2, wy - h / 2);
+    } else {
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = `900 ${fontSize - 4}px system-ui, -apple-system, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('—', wx + w / 2, wy - h / 2);
     }
 
     // Ruedas del vagón
-    drawTrainWheel(ctx, wx + 16, wy + 4, 12, TrainGame.train.wheelAngle);
-    drawTrainWheel(ctx, wx + w - 16, wy + 4, 12, TrainGame.train.wheelAngle);
+    const wheelR = Math.max(8, Math.round(h * 0.28));
+    drawTrainWheel(ctx, wx + w * 0.25, wy + 2, wheelR, TrainGame.train.wheelAngle);
+    drawTrainWheel(ctx, wx + w * 0.75, wy + 2, wheelR, TrainGame.train.wheelAngle);
 
     ctx.restore();
   }
@@ -771,7 +873,7 @@
     // Eje central
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
-    ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+    ctx.arc(0, 0, Math.max(2, r * 0.25), 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();
@@ -932,28 +1034,27 @@
     const isCorrect = (b.letter === targetLetter);
 
     if (isCorrect) {
-      // ¡ACIERTO! El globo viaja mágicamente hacia su vagón
+      // ¡ACIERTO! El globo viaja mágicamente hacia su vagón en orden canónico
       const slotIdx = TrainGame.currentLetterIndex;
-      const wagonSpacing = 82;
-      const targetX = TrainGame.train.x - 40 - (slotIdx + 1) * wagonSpacing + 36;
-      const targetY = TrainGame.train.y - 20;
+      const geom = getTrainConvoyGeometry();
+      const targetWagon = geom.wagons[slotIdx];
 
       b.isFlyingToWagon = true;
       b.startX = b.x;
       b.startY = b.y;
-      b.targetWagonX = targetX;
-      b.targetWagonY = targetY;
+      b.targetWagonX = targetWagon.centerX;
+      b.targetWagonY = targetWagon.centerY;
       b.flyProgress = 0;
 
       playChimeNote();
     } else {
-      // ERROR AMIGABLE: Sacudida suave y feedback verbal constructivo
+      // ERROR AMIGABLE: Sacudida suave y feedback verbal constructivo con pausas
       playBoingSound();
-      createFloatingText(b.x, b.y - 30, `¡Esa es ${b.letter}!`, '#F43F5E');
+      createFloatingText(b.x, b.y - 30, `¡Esa es la letra ${b.letter}!`, '#F43F5E');
 
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
-        speakText(`Esa es ${b.letter}. ¡Sigue buscando ${targetLetter}!`, () => {
+        speakText(`Esa es la letra ${b.letter}. ... ¡Sigue buscando la letra ${targetLetter}!`, () => {
           TrainGame.isSpeaking = false;
         });
       }
@@ -961,7 +1062,12 @@
   }
 
   function finishPlacingLetter(b) {
-    createSparklesExplosion(b.targetWagonX, b.targetWagonY, '#10B981', 16);
+    const slotIdx = TrainGame.currentLetterIndex;
+    if (TrainGame.wagonBounce) {
+      TrainGame.wagonBounce[slotIdx] = 12;
+    }
+
+    createSparklesExplosion(b.targetWagonX, b.targetWagonY, '#10B981', 18);
     createFloatingText(b.targetWagonX, b.targetWagonY - 40, `¡${b.letter}! ✨`, '#10B981');
     playSuccessDing();
 
@@ -975,7 +1081,7 @@
       const nextLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
-        speakText(`¡Excelente! ¡${b.letter}! Ahora busca el siguiente sonido: ${nextLetter}`, () => {
+        speakText(`¡Muy bien! ... ¡La letra ${b.letter}! ... Ahora busca la siguiente: ... ¡la letra ${nextLetter}!`, () => {
           TrainGame.isSpeaking = false;
         });
       }
@@ -989,13 +1095,15 @@
 
     // Silbato alegre del tren
     playTrainWhistleSound();
-    createSteamPuff(TrainGame.train.x + 85, TrainGame.train.y - 70, '#FFFFFF', 30);
+    const geom = getTrainConvoyGeometry();
+    createSteamPuff(geom.loco.x + geom.loco.width * 0.7, geom.loco.y - geom.loco.height - 15, '#FFFFFF', 30);
 
     createFloatingText(TrainGame.width * 0.5, TrainGame.height * 0.35, `¡${wObj.word}! 🚂💨`, '#F59E0B');
     createSparklesExplosion(TrainGame.width * 0.5, TrainGame.height * 0.45, '#FBBF24', 50);
 
     // Arrancar el tren
     TrainGame.train.isDeparting = true;
+    TrainGame.train.departSpeed = 2.0;
 
     // Recompensas en el perfil
     if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
@@ -1012,12 +1120,12 @@
         } else {
           setupTrainWord(TrainGame.currentWordIndex);
         }
-      }, 900);
+      }, 1000);
     };
 
     if (typeof speakText === 'function') {
       TrainGame.isSpeaking = true;
-      speakText(`¡Chuu chuu! ¡Completaste todos los sonidos de ${wObj.pron}! ¡El tren está en marcha!`, () => {
+      speakText(`¡Chuuu chuuu! ... ¡Formaste la palabra ${wObj.pron}! ... ¡El tren de los sonidos está viajando!`, () => {
         TrainGame.isSpeaking = false;
         onTrainDone();
       });
