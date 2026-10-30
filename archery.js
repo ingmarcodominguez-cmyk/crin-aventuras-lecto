@@ -174,7 +174,19 @@
       if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
     }
     const iconBtn = document.getElementById('archery-pet-btn-icon');
-    if (iconBtn) iconBtn.innerText = petEmoji;
+    if (iconBtn) {
+      const petThumbnails = {
+        '🦄': 'assets/card_unicornio_arquero.png?v=246',
+        '🦊': 'assets/card_zorro_arquero.png?v=246',
+        '🐰': 'assets/card_conejo_arquero.png?v=246',
+        '🐶': 'assets/card_perro_arquero.png?v=246'
+      };
+      if (petThumbnails[petEmoji]) {
+        iconBtn.innerHTML = `<img src="${petThumbnails[petEmoji]}" style="width: 26px; height: 26px; object-fit: contain; vertical-align: middle;">`;
+      } else {
+        iconBtn.innerText = petEmoji;
+      }
+    }
     const petDisplay = document.getElementById('pet-display');
     if (petDisplay) petDisplay.innerText = petEmoji;
 
@@ -768,6 +780,23 @@
     }
 
     updateArcheryModeUI();
+
+    // Actualizar miniatura del arquero actual en el HUD
+    const iconBtn = document.getElementById('archery-pet-btn-icon');
+    if (iconBtn) {
+      const curPet = getActivePet();
+      const petThumbnails = {
+        '🦄': 'assets/card_unicornio_arquero.png?v=246',
+        '🦊': 'assets/card_zorro_arquero.png?v=246',
+        '🐰': 'assets/card_conejo_arquero.png?v=246',
+        '🐶': 'assets/card_perro_arquero.png?v=246'
+      };
+      if (petThumbnails[curPet]) {
+        iconBtn.innerHTML = `<img src="${petThumbnails[curPet]}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">`;
+      } else {
+        iconBtn.innerText = curPet;
+      }
+    }
   }
 
   function updateArcheryModeUI() {
