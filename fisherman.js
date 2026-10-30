@@ -218,15 +218,16 @@
     const def = FISHERMAN_AVATARS[petEmoji] || FISHERMAN_AVATARS['🦄'];
     const petName = def.name;
 
-    // CALIBRADO PEDAGÓGICO: Elogio de elección y arranque sin apuros
+    // CALIBRADO PEDAGÓGICO: Elogio de elección completo y arranque sin apuros
     if (!FishermanGame.hasStarted) {
       let started = false;
       const startAfterPraise = () => {
         if (started) return;
         started = true;
+        // Pausa respetuosa y natural (1.2s) para que el niño disfrute su elección antes de la palabra
         setTimeout(() => {
           startFishermanRounds();
-        }, 500);
+        }, 1200);
       };
 
       if (typeof speakText === 'function') {
@@ -238,7 +239,7 @@
       } else {
         startAfterPraise();
       }
-      setTimeout(startAfterPraise, 3500);
+      setTimeout(startAfterPraise, 8500); // 8.5s de respaldo para que NUNCA corte "Perrito Pescador"
     } else {
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
@@ -560,37 +561,47 @@
     if (FishermanGame.currentSyllableTargetIndex === 0) {
       // 1. Decir la palabra de forma canónica
       speakText(`Vamos a pescar la palabra: ${wObj.pron}.`, () => {
-        // 2. Tocar la secuencia de sílabas usando los audios humanos pre-grabados (ej: ju.mp3, gue.mp3, te.mp3)
-        if (typeof window.playSyllablesSequence === 'function') {
-          window.playSyllablesSequence(FishermanGame.currentSyllables, () => {
-            // 3. Pedir la primera sílaba con su audio canónico
-            speakText('Pesca la primera sílaba:', () => {
-              if (typeof window.playSyllableSound === 'function') {
-                window.playSyllableSound(targetSyl, () => {
-                  FishermanGame.isSpeaking = false;
+        // Pausa respetuosa (400ms) antes de cantar las sílabas
+        setTimeout(() => {
+          // 2. Tocar la secuencia de sílabas usando los audios humanos pre-grabados
+          if (typeof window.playSyllablesSequence === 'function') {
+            window.playSyllablesSequence(FishermanGame.currentSyllables, () => {
+              // Pausa de 500ms antes de pedir la sílaba objetivo
+              setTimeout(() => {
+                // 3. Pedir la primera sílaba con su audio canónico
+                speakText('Pesca la primera sílaba:', () => {
+                  setTimeout(() => {
+                    if (typeof window.playSyllableSound === 'function') {
+                      window.playSyllableSound(targetSyl, () => {
+                        FishermanGame.isSpeaking = false;
+                      });
+                    } else {
+                      FishermanGame.isSpeaking = false;
+                    }
+                  }, 250);
                 });
-              } else {
-                FishermanGame.isSpeaking = false;
-              }
+              }, 500);
             });
-          });
-        } else {
-          FishermanGame.isSpeaking = false;
-        }
+          } else {
+            FishermanGame.isSpeaking = false;
+          }
+        }, 400);
       });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 6500);
+      setTimeout(() => { FishermanGame.isSpeaking = false; }, 9500);
     } else {
       // Siguientes sílabas con audio canónico de estudio
       speakText('Ahora pesca la sílaba:', () => {
-        if (typeof window.playSyllableSound === 'function') {
-          window.playSyllableSound(targetSyl, () => {
+        setTimeout(() => {
+          if (typeof window.playSyllableSound === 'function') {
+            window.playSyllableSound(targetSyl, () => {
+              FishermanGame.isSpeaking = false;
+            });
+          } else {
             FishermanGame.isSpeaking = false;
-          });
-        } else {
-          FishermanGame.isSpeaking = false;
-        }
+          }
+        }, 250);
       });
-      setTimeout(() => { FishermanGame.isSpeaking = false; }, 3200);
+      setTimeout(() => { FishermanGame.isSpeaking = false; }, 4800);
     }
   };
 

@@ -304,6 +304,7 @@
     if (screen) screen.classList.add('active');
 
     CauldronGame.isRunning = true;
+    CauldronGame.hasStarted = false;
     CauldronGame.potionDeck = generateDynamicRhymePotions();
     CauldronGame.currentPotionIndex = 0;
     initCauldronGame();
@@ -495,10 +496,22 @@
     if (!p) return;
     if (typeof speakText === 'function') {
       CauldronGame.isSpeaking = true;
-      speakText(`Para esta poción mágica, busca lo que rime con: ${p.base.pron}`, () => {
+
+      let missionText = '';
+      if (!CauldronGame.hasStarted && CauldronGame.currentPotionIndex === 0) {
+        CauldronGame.hasStarted = true;
+        // Relato pedagógico inicial completo con instrucciones claras de la tarea
+        missionText = `¡Bienvenido al Caldero Mágico de las Rimas! ... En este laboratorio mágico, buscaremos palabras que riman, es decir, que terminan con el mismo sonido. ... Para preparar esta poción mágica: busca y arrastra las burbujas que rimen con: ${p.base.pron}!`;
+      } else if (CauldronGame.collectedIngredients.length === 0) {
+        missionText = `¡Nueva poción mágica! ... Para esta poción: busca las burbujas que rimen con: ${p.base.pron}!`;
+      } else {
+        missionText = `Busca el otro ingrediente que también rime con: ${p.base.pron}!`;
+      }
+
+      speakText(missionText, () => {
         CauldronGame.isSpeaking = false;
       });
-      setTimeout(() => { CauldronGame.isSpeaking = false; }, 2600);
+      setTimeout(() => { CauldronGame.isSpeaking = false; }, 9500);
     }
   };
 
@@ -899,6 +912,8 @@
       const onPraiseEnded = () => {
         if (praiseHandled) return;
         praiseHandled = true;
+
+        // Pausa pedagógica respetuosa (1.3s) para que el niño procese el elogio antes de que comience el siguiente relato
         setTimeout(() => {
           CauldronGame.isAdvancing = false;
           CauldronGame.isSpeaking = false;
@@ -908,20 +923,29 @@
           // ¿Completó los 2 ingredientes de la poción?
           if (CauldronGame.collectedIngredients.length >= 2) {
             handlePotionCompleted();
+          } else {
+            // Guía constructiva para el segundo ingrediente
+            if (typeof speakText === 'function') {
+              CauldronGame.isSpeaking = true;
+              speakText(`¡Genial! Ahora busca el otro ingrediente que también rime con ${basePron}.`, () => {
+                CauldronGame.isSpeaking = false;
+              });
+              setTimeout(() => { CauldronGame.isSpeaking = false; }, 4500);
+            }
           }
-        }, 250);
+        }, 1300);
       };
 
       if (typeof speakText === 'function') {
         CauldronGame.isSpeaking = true;
-        speakText(`Súper. ${basePron} y ${targetPron}. Suenan igual al final.`, () => {
+        speakText(`¡Súper! ... ¡${basePron} y ${targetPron}! ... ¡Suenan igual al final!`, () => {
           CauldronGame.isSpeaking = false;
           onPraiseEnded();
         });
       } else {
         onPraiseEnded();
       }
-      setTimeout(onPraiseEnded, 2800); // Respaldo de seguridad
+      setTimeout(onPraiseEnded, 8500); // Respaldo de seguridad amplio (8.5s) para NUNCA cortar el relato
 
     } else {
       // ❌ DISTRACTOR (NO RIMA)
@@ -976,11 +1000,11 @@
 
     if (typeof speakText === 'function') {
       CauldronGame.isSpeaking = true;
-      speakText('Poción mágica completada. Excelente trabajo con las rimas.', onVictoryEnded);
+      speakText('¡Poción mágica completada! ... ¡Excelente trabajo con las rimas!', onVictoryEnded);
     } else {
       onVictoryEnded();
     }
-    setTimeout(onVictoryEnded, 3000);
+    setTimeout(onVictoryEnded, 7500);
   }
 
   // --- SISTEMA DE PARTÍCULAS Y TEXTOS FLOTANTES ---
