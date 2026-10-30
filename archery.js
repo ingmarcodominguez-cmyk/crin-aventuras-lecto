@@ -11,14 +11,15 @@
   'use strict';
 
   // --- CARGA DE ASSETS GRÁFICOS PERSONALIZADOS (3 ÁNGULOS REACTIVOS 3D) ---
+  // 1. Unicornio Arquero
   const unicornImages = {
     center: new Image(),
     left: new Image(),
     right: new Image()
   };
-  unicornImages.center.src = 'assets/unicornio_tiro_delantero.png?v=242';
-  unicornImages.left.src = 'assets/unicornio_tiro_izquierda.png?v=242';
-  unicornImages.right.src = 'assets/unicornio_tiro_derecha.png?v=242';
+  unicornImages.center.src = 'assets/unicornio_tiro_delantero.png?v=243';
+  unicornImages.left.src = 'assets/unicornio_tiro_izquierda.png?v=243';
+  unicornImages.right.src = 'assets/unicornio_tiro_derecha.png?v=243';
 
   let unicornImagesLoaded = {
     center: false,
@@ -29,7 +30,26 @@
   unicornImages.left.onload = () => { unicornImagesLoaded.left = true; };
   unicornImages.right.onload = () => { unicornImagesLoaded.right = true; };
 
-  // Selector de sprite reactivo según el ángulo de puntería en pantalla
+  // 2. Zorro Arquero
+  const foxImages = {
+    center: new Image(),
+    left: new Image(),
+    right: new Image()
+  };
+  foxImages.center.src = 'assets/zorro_tiro_delantero.png?v=243';
+  foxImages.left.src = 'assets/zorro_tiro_izquierda.png?v=243';
+  foxImages.right.src = 'assets/zorro_tiro_derecha.png?v=243';
+
+  let foxImagesLoaded = {
+    center: false,
+    left: false,
+    right: false
+  };
+  foxImages.center.onload = () => { foxImagesLoaded.center = true; };
+  foxImages.left.onload = () => { foxImagesLoaded.left = true; };
+  foxImages.right.onload = () => { foxImagesLoaded.right = true; };
+
+  // Selectores de sprites reactivos según el ángulo de puntería en pantalla
   function getUnicornAimingSprite() {
     const px = ArcheryGame.pointer.x;
     const w = ArcheryGame.width;
@@ -40,6 +60,19 @@
       return { img: unicornImages.right, type: 'right', isLoaded: unicornImagesLoaded.right || unicornImages.right.complete };
     } else {
       return { img: unicornImages.center, type: 'center', isLoaded: unicornImagesLoaded.center || unicornImages.center.complete };
+    }
+  }
+
+  function getFoxAimingSprite() {
+    const px = ArcheryGame.pointer.x;
+    const w = ArcheryGame.width;
+
+    if (px < w * 0.40) {
+      return { img: foxImages.left, type: 'left', isLoaded: foxImagesLoaded.left || foxImages.left.complete };
+    } else if (px > w * 0.60) {
+      return { img: foxImages.right, type: 'right', isLoaded: foxImagesLoaded.right || foxImages.right.complete };
+    } else {
+      return { img: foxImages.center, type: 'center', isLoaded: foxImagesLoaded.center || foxImages.center.complete };
     }
   }
 
@@ -896,14 +929,16 @@
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
     const a = ArcheryGame.archer;
-    const spriteChoice = getUnicornAimingSprite();
+    const petType = getActivePet();
+    const isFox = petType.includes('🦊') || petType.includes('fox');
+    const spriteChoice = isFox ? getFoxAimingSprite() : getUnicornAimingSprite();
 
     let ax = a.x;
     let ay = a.y - 45;
-    if (spriteChoice.type === 'left') {
+    if (spriteChoice && spriteChoice.type === 'left') {
       ax = a.x - 22;
       ay = a.y - 50;
-    } else if (spriteChoice.type === 'right') {
+    } else if (spriteChoice && spriteChoice.type === 'right') {
       ax = a.x + 22;
       ay = a.y - 50;
     }
@@ -1222,7 +1257,8 @@
       }
     }
 
-        const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+    const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
+    const isFox = petType.includes('🦊') || petType.includes('fox');
 
     // 🌟 RENDERIZADO DEL UNICORNIO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
     if (isUnicorn) {
@@ -1242,6 +1278,41 @@
           // Sombra en el suelo bajo las pezuñas
           ctx.beginPath();
           ctx.ellipse(0, 32, 52, 13, 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+          ctx.fill();
+
+          // Tamaño del sprite en primer plano
+          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
+          const spriteX = -spriteSize * 0.50;
+          const spriteY = -spriteSize + 32;
+
+          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
+
+        } finally {
+          ctx.restore();
+        }
+        return;
+      }
+    }
+
+    // 🦊 RENDERIZADO DEL ZORRO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
+    if (isFox) {
+      const spriteChoice = getFoxAimingSprite();
+      const currentImg = spriteChoice.img;
+      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
+
+      if (isLoaded) {
+        ctx.save();
+        try {
+          const recoilOffset = a.recoil;
+          const breathY = Math.sin(time * 0.0035) * 2.5;
+
+          // Centrado en el camino con retroceso y salto de victoria
+          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
+
+          // Sombra en el suelo bajo las patitas
+          ctx.beginPath();
+          ctx.ellipse(0, 32, 50, 12, 0, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
           ctx.fill();
 
