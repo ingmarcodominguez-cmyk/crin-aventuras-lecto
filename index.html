@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v263';
+    const CURRENT_APP_VERSION = 'v264';
 
     function syncAppVersionLabels() {
       try {
@@ -24,7 +24,7 @@
       setTimeout(syncAppVersionLabels, 500);
     }
 
-    function forceAppUpdate() {
+    function forceAppUpdate(targetVer) {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(registrations) {
           for(let registration of registrations) { registration.unregister(); }
@@ -38,7 +38,7 @@
         }
         sessionStorage.clear();
       } catch(e) {}
-      const cleanVer = CURRENT_APP_VERSION.replace('v', '');
+      const cleanVer = (targetVer || CURRENT_APP_VERSION).replace('v', '');
       window.location.href = window.location.pathname + '?v=' + cleanVer + '&_nocache=' + Date.now();
       return;
     }
@@ -76,6 +76,21 @@
       }
     } catch(e) {}
 
+    // Detección automática en segundo plano de nueva versión en el servidor para forzar actualización
+    (function checkRemoteVersion() {
+      try {
+        fetch('index.html?check=' + Date.now(), { cache: 'no-store' })
+          .then(r => r.text())
+          .then(t => {
+            const m = t.match(/CURRENT_APP_VERSION\s*=\s*['"]([^'"]+)['"]/);
+            if (m && m[1] && m[1] !== CURRENT_APP_VERSION) {
+              console.log('[CRIN] Nueva versión detectada en servidor:', m[1]);
+              forceAppUpdate(m[1]);
+            }
+          }).catch(e => {});
+      } catch(e) {}
+    })();
+
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
@@ -91,19 +106,19 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=241"></script>
+  <script src="lexicon.js?v=264"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=263"></script>
+  <script src="archery.js?v=264"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=263"></script>
+  <script src="cauldron.js?v=264"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=263"></script>
+  <script src="fisherman.js?v=264"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=263"></script>
+  <script src="train.js?v=264"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=263"></script>
+  <script src="detective.js?v=264"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=263"></script>
+  <script src="aac_keyboard.js?v=264"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -3091,7 +3106,47 @@
     }
 
     
-    // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (AUDIOS PRE-GRABADOS EN ESTUDIO) ---
+        // --- MOTOR FONOLÓGICO CANÓNICO DE SÍLABAS Y PREVENCIÓN DE DELETREO DE SIGLAS ---
+    function getCanonicalSyllablePronunciation(syl) {
+      if (!syl) return '';
+      const s = syl.toString().trim().toUpperCase();
+      const vowelAccents = { 'A': 'á', 'E': 'é', 'I': 'í', 'O': 'ó', 'U': 'ú' };
+      
+      const specialMap = {
+        'JU': 'Jú', 'GUE': 'Gué', 'GUI': 'Guí', 'QUE': 'Qué', 'QUI': 'Quí',
+        'GE': 'Jé', 'GI': 'Jí', 'NA': 'Nah', 'TO': 'To', 'CHA': 'Cha',
+        'CHE': 'Che', 'CHI': 'Chi', 'CHO': 'Cho', 'CHU': 'Chu',
+        'LLA': 'Lla', 'LLE': 'Lle', 'LLI': 'Lli', 'LLO': 'Llo', 'LLU': 'Llu',
+        'RRA': 'Rra', 'RRE': 'Rre', 'RRI': 'Rri', 'RRO': 'Rro', 'RRU': 'Rru',
+        'SI': 'Sí', 'NO': 'No', 'EL': 'Él', 'TU': 'Tú'
+      };
+      if (specialMap[s]) return specialMap[s];
+
+      if (/[ÁÉÍÓÚ]/.test(s)) {
+        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+      }
+
+      // Sílabas trabadas/cerradas terminadas en consonante (ej: DOR, PAN, BAR, SOL, DEL, VER, TAS, TIN)
+      // Se añade tilde prosódica para que el sintetizador la pronuncie como sílaba tónica indivisible y jamás como sigla
+      const consonants = 'BCDFGHJKLMNPQRSTVWXYZ';
+      if (s.length >= 3 && consonants.includes(s[s.length - 1])) {
+        const chars = s.toLowerCase().split('');
+        for (let i = chars.length - 1; i >= 0; i--) {
+          const u = chars[i].toUpperCase();
+          if (vowelAccents[u]) {
+            chars[i] = vowelAccents[u];
+            break;
+          }
+        }
+        chars[0] = chars[0].toUpperCase();
+        return chars.join('');
+      }
+
+      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+    window.getCanonicalSyllablePronunciation = getCanonicalSyllablePronunciation;
+
+// --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (AUDIOS PRE-GRABADOS EN ESTUDIO) ---
     window.playSyllableSound = function(syl, onEnd) {
       if (!syl) { if (onEnd) onEnd(); return; }
       const clean = syl.toLowerCase().replace(/[^a-záéíóúüñ]/g, '').trim();
@@ -3099,7 +3154,7 @@
         playNarratorAudio('assets/audio/silabas/' + clean + '.mp3', onEnd);
         return;
       }
-      const pron = (typeof phoneticMap !== 'undefined' && phoneticMap[syl.toUpperCase()]) ? phoneticMap[syl.toUpperCase()] : syl;
+      const pron = getCanonicalSyllablePronunciation(syl);
       speakText(pron, onEnd);
     };
 
@@ -3121,7 +3176,8 @@
           setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
         });
       } else {
-        speakText(firstSyl, () => {
+        const pron = getCanonicalSyllablePronunciation(firstSyl);
+        speakText(pron, () => {
           setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
         });
       }
@@ -3492,6 +3548,14 @@
       // Eliminar signos ortográficos de apertura (¡, ¿) que ciertos sintetizadores TTS leen como palabras literales
       text = text.replace(/[¡¿]/g, '');
       const exactKey = text.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+
+      // 0. Si es una sola sílaba exacta (longitud 2 a 4 caracteres sin espacios), aplicar fonética canónica para evitar deletreo como sigla
+      if (typeof getCanonicalSyllablePronunciation === 'function' && exactKey.length >= 2 && exactKey.length <= 4 && !exactKey.includes(' ')) {
+        const isKnownWord = (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[exactKey]);
+        if (!isKnownWord) {
+          return getCanonicalSyllablePronunciation(exactKey);
+        }
+      }
 
       // 1. Si es una sola palabra exacta y está en el léxico canónico, usar su pronunciación
       if (typeof getCanonicalWord === 'function' && exactKey.length > 1 && !exactKey.includes(' ')) {
@@ -4522,10 +4586,18 @@
               checkSyllables();
             }
           };
-          speakText(syllable, doCheck);
+          if (typeof window.playSyllableSound === 'function') {
+            window.playSyllableSound(syllable, doCheck);
+          } else {
+            speakText(syllable, doCheck);
+          }
           setTimeout(doCheck, 700);
         } else {
-          speakText(syllable);
+          if (typeof window.playSyllableSound === 'function') {
+            window.playSyllableSound(syllable);
+          } else {
+            speakText(syllable);
+          }
         }
       }
     }
