@@ -17,9 +17,9 @@
     left: new Image(),
     right: new Image()
   };
-  unicornImages.center.src = 'assets/unicornio_tiro_delantero.png?v=244';
-  unicornImages.left.src = 'assets/unicornio_tiro_izquierda.png?v=244';
-  unicornImages.right.src = 'assets/unicornio_tiro_derecha.png?v=244';
+  unicornImages.center.src = 'assets/unicornio_tiro_delantero.png?v=245';
+  unicornImages.left.src = 'assets/unicornio_tiro_izquierda.png?v=245';
+  unicornImages.right.src = 'assets/unicornio_tiro_derecha.png?v=245';
 
   let unicornImagesLoaded = {
     center: false,
@@ -36,9 +36,9 @@
     left: new Image(),
     right: new Image()
   };
-  foxImages.center.src = 'assets/zorro_tiro_delantero.png?v=244';
-  foxImages.left.src = 'assets/zorro_tiro_izquierda.png?v=244';
-  foxImages.right.src = 'assets/zorro_tiro_derecha.png?v=244';
+  foxImages.center.src = 'assets/zorro_tiro_delantero.png?v=245';
+  foxImages.left.src = 'assets/zorro_tiro_izquierda.png?v=245';
+  foxImages.right.src = 'assets/zorro_tiro_derecha.png?v=245';
 
   let foxImagesLoaded = {
     center: false,
@@ -55,9 +55,9 @@
     left: new Image(),
     right: new Image()
   };
-  bunnyImages.center.src = 'assets/conejo_tiro_delantero.png?v=244';
-  bunnyImages.left.src = 'assets/conejo_tiro_izquierda.png?v=244';
-  bunnyImages.right.src = 'assets/conejo_tiro_derecha.png?v=244';
+  bunnyImages.center.src = 'assets/conejo_tiro_delantero.png?v=245';
+  bunnyImages.left.src = 'assets/conejo_tiro_izquierda.png?v=245';
+  bunnyImages.right.src = 'assets/conejo_tiro_derecha.png?v=245';
 
   let bunnyImagesLoaded = {
     center: false,
@@ -67,6 +67,25 @@
   bunnyImages.center.onload = () => { bunnyImagesLoaded.center = true; };
   bunnyImages.left.onload = () => { bunnyImagesLoaded.left = true; };
   bunnyImages.right.onload = () => { bunnyImagesLoaded.right = true; };
+
+  // 4. Perrito Arquero
+  const dogImages = {
+    center: new Image(),
+    left: new Image(),
+    right: new Image()
+  };
+  dogImages.center.src = 'assets/perro_tiro_delantero.png?v=245';
+  dogImages.left.src = 'assets/perro_tiro_izquierda.png?v=245';
+  dogImages.right.src = 'assets/perro_tiro_derecha.png?v=245';
+
+  let dogImagesLoaded = {
+    center: false,
+    left: false,
+    right: false
+  };
+  dogImages.center.onload = () => { dogImagesLoaded.center = true; };
+  dogImages.left.onload = () => { dogImagesLoaded.left = true; };
+  dogImages.right.onload = () => { dogImagesLoaded.right = true; };
 
   // Selectores de sprites reactivos según el ángulo de puntería en pantalla
   function getUnicornAimingSprite() {
@@ -105,6 +124,19 @@
       return { img: bunnyImages.right, type: 'right', isLoaded: bunnyImagesLoaded.right || bunnyImages.right.complete };
     } else {
       return { img: bunnyImages.center, type: 'center', isLoaded: bunnyImagesLoaded.center || bunnyImages.center.complete };
+    }
+  }
+
+  function getDogAimingSprite() {
+    const px = ArcheryGame.pointer.x;
+    const w = ArcheryGame.width;
+
+    if (px < w * 0.40) {
+      return { img: dogImages.left, type: 'left', isLoaded: dogImagesLoaded.left || dogImages.left.complete };
+    } else if (px > w * 0.60) {
+      return { img: dogImages.right, type: 'right', isLoaded: dogImagesLoaded.right || dogImages.right.complete };
+    } else {
+      return { img: dogImages.center, type: 'center', isLoaded: dogImagesLoaded.center || dogImages.center.complete };
     }
   }
 
@@ -964,14 +996,18 @@
     const petType = getActivePet();
     const isFox = petType.includes('🦊') || petType.includes('fox');
     const isBunny = petType.includes('🐰') || petType.includes('bunny') || petType.includes('conejo');
+    const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
 
     let spriteChoice = null;
     if (isFox) {
       spriteChoice = getFoxAimingSprite();
     } else if (isBunny) {
       spriteChoice = getBunnyAimingSprite();
-    } else {
+    } else if (isUnicorn) {
       spriteChoice = getUnicornAimingSprite();
+    } else {
+      // Por defecto o si es perrito (🐶)
+      spriteChoice = getDogAimingSprite();
     }
 
     let ax = a.x;
@@ -1301,6 +1337,42 @@
     const isUnicorn = petType.includes('🦄') || petType.includes('unicorn');
     const isFox = petType.includes('🦊') || petType.includes('fox');
     const isBunny = petType.includes('🐰') || petType.includes('bunny') || petType.includes('conejo');
+    const isDog = petType.includes('🐶') || petType.includes('dog') || petType.includes('perro') || (!isUnicorn && !isFox && !isBunny && !petType.includes('🐱') && !petType.includes('🐉') && !petType.includes('🐻') && !petType.includes('🦁'));
+
+    // 🐶 RENDERIZADO DEL PERRITO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
+    if (isDog) {
+      const spriteChoice = getDogAimingSprite();
+      const currentImg = spriteChoice.img;
+      const isLoaded = spriteChoice.isLoaded || currentImg.complete || currentImg.naturalWidth > 0;
+
+      if (isLoaded) {
+        ctx.save();
+        try {
+          const recoilOffset = a.recoil;
+          const breathY = Math.sin(time * 0.0035) * 2.5;
+
+          // Centrado en el camino con retroceso y salto de victoria
+          ctx.translate(a.x, a.y + a.jumpY + breathY + recoilOffset * 0.5);
+
+          // Sombra en el suelo bajo las patitas
+          ctx.beginPath();
+          ctx.ellipse(0, 32, 50, 12, 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+          ctx.fill();
+
+          // Tamaño del sprite en primer plano
+          const spriteSize = Math.max(135, Math.min(170, ArcheryGame.height * 0.38));
+          const spriteX = -spriteSize * 0.50;
+          const spriteY = -spriteSize + 32;
+
+          ctx.drawImage(currentImg, spriteX, spriteY, spriteSize, spriteSize);
+
+        } finally {
+          ctx.restore();
+        }
+        return;
+      }
+    }
 
     // 🌟 RENDERIZADO DEL UNICORNIO ARQUERO EN PERSPECTIVA 3D (3 ÁNGULOS REACTIVOS)
     if (isUnicorn) {
@@ -1409,7 +1481,7 @@
     const isDragon = petType.includes('🐉') || petType.includes('dragon');
     const isBear = petType.includes('🐻') || petType.includes('bear');
     const isLion = petType.includes('🦁') || petType.includes('lion');
-    const isDog = (!isBunny && !isCat && !isFox && !isUnicorn && !isDragon && !isBear && !isLion);
+    const isCat = petType.includes('🐱') || petType.includes('cat');
 
     // Paleta de colores distintiva por animal
     let coatColor = '#E0A96D';
