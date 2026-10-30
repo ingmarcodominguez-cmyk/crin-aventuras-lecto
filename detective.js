@@ -211,7 +211,7 @@
   }
 
   function setupCase(index) {
-    if (DetectiveGame.cases.length === 0) return;
+    if (!DetectiveGame.isRunning || DetectiveGame.cases.length === 0) return;
     const c = DetectiveGame.cases[index % DetectiveGame.cases.length];
     DetectiveGame.currentCase = c;
     DetectiveGame.isAdvancing = false;
@@ -663,9 +663,14 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
+      let caseDoneHandled = false;
       const onCaseDone = () => {
+        if (caseDoneHandled) return;
+        caseDoneHandled = true;
+
         setTimeout(() => {
           if (!DetectiveGame.isRunning) return;
+          DetectiveGame.isAdvancing = false;
           DetectiveGame.currentCaseIndex++;
           if (DetectiveGame.currentCaseIndex >= DetectiveGame.cases.length) {
             showDetectiveVictoryModal();
@@ -699,6 +704,7 @@
   }
 
   function showDetectiveVictoryModal() {
+    if (!DetectiveGame.isRunning) return;
     const modal = document.getElementById('detective-victory-modal');
     if (modal) {
       modal.style.display = 'flex';
