@@ -162,6 +162,33 @@
     return '🦄';
   }
 
+  // --- VALIDADOR DE PALABRAS PERMITIDAS (FILTRA ESTRICTAMENTE CUALQUIER PALABRA DESACTIVADA) ---
+  function isArcheryWordAllowed(word) {
+    if (!word || typeof word !== 'string') return false;
+    const clean = word.toUpperCase().replace(/[¡!¿?.,]/g, '').trim();
+    if (clean.length < 2) return false;
+
+    // 1. Chequeo de función global del diccionario CRIN
+    if (typeof isWordDeleted === 'function' && isWordDeleted(clean)) {
+      return false;
+    }
+
+    // 2. Chequeo directo en localStorage crin_deleted_words
+    try {
+      const deletedStored = JSON.parse(localStorage.getItem('crin_deleted_words') || '[]');
+      if (Array.isArray(deletedStored) && deletedStored.includes(clean)) {
+        return false;
+      }
+    } catch (e) {}
+
+    // 3. Chequeo de deletedWordsList en memoria si existe
+    if (typeof deletedWordsList !== 'undefined' && Array.isArray(deletedWordsList) && deletedWordsList.includes(clean)) {
+      return false;
+    }
+
+    return true;
+  }
+
   // --- SELECCIÓN Y CAMBIO DIRECTO DE MASCOTA ARQUERA ---
   window.setArcheryPet = function(petEmoji) {
     if (typeof ArcheryGame !== 'undefined') {
@@ -186,10 +213,10 @@
     const iconBtn = document.getElementById('archery-pet-btn-icon');
     if (iconBtn) {
       const petThumbnails = {
-        '🦄': 'assets/card_unicornio_arquero.png?v=247',
-        '🦊': 'assets/card_zorro_arquero.png?v=247',
-        '🐰': 'assets/card_conejo_arquero.png?v=247',
-        '🐶': 'assets/card_perro_arquero.png?v=247'
+        '🦄': 'assets/card_unicornio_arquero.png?v=248',
+        '🦊': 'assets/card_zorro_arquero.png?v=248',
+        '🐰': 'assets/card_conejo_arquero.png?v=248',
+        '🐶': 'assets/card_perro_arquero.png?v=248'
       };
       if (petThumbnails[petEmoji]) {
         iconBtn.innerHTML = `<img src="${petThumbnails[petEmoji]}" style="width: 26px; height: 26px; object-fit: contain; vertical-align: middle;">`;
@@ -200,30 +227,56 @@
     const petDisplay = document.getElementById('pet-display');
     if (petDisplay) petDisplay.innerText = petEmoji;
 
-    if (typeof closeArcheryPetModal === 'function') {
-      closeArcheryPetModal();
-    }
+    const modal = document.getElementById('archery-pet-modal');
+    if (modal) modal.style.display = 'none';
 
-    if (typeof speakText === 'function') {
-      const names = {
-        '🦄': 'Unicornio Mágico',
-        '🦊': 'Zorro Héroe',
-        '🐰': 'Conejito Ágil',
-        '🐶': 'Perrito Valiente'
+    const names = {
+      '🦄': 'Unicornio Mágico',
+      '🦊': 'Zorro Héroe',
+      '🐰': 'Conejito Ágil',
+      '🐶': 'Perrito Valiente'
+    };
+    const name = names[petEmoji] || 'Héroe Arquero';
+
+    // CALIBRADO CRUCIAL: El juego NO comienza hasta que el niño elija su avatar.
+    // El relato termina de decir el héroe y recién arranca el juego con calma.
+    if (!ArcheryGame.hasStarted) {
+      let started = false;
+      const startAfterPraise = () => {
+        if (started) return;
+        started = true;
+        setTimeout(() => {
+          startArcheryMatch();
+        }, 500);
       };
-      const name = names[petEmoji] || 'Héroe Arquero';
-      speakText('¡Genial! Tu arquero es el ' + name + '!');
+
+      if (typeof speakText === 'function') {
+        speakText('¡Excelente elección! ¡Tu arquero es el ' + name + '!', startAfterPraise);
+      } else {
+        startAfterPraise();
+      }
+      setTimeout(startAfterPraise, 3200);
+    } else {
+      if (typeof speakText === 'function') {
+        speakText('¡Genial! Tu arquero ahora es el ' + name + '!');
+      }
+    }
+  };
+
+  window.closeArcheryPetModal = function() {
+    const modal = document.getElementById('archery-pet-modal');
+    if (modal) modal.style.display = 'none';
+
+    if (!ArcheryGame.hasStarted) {
+      setTimeout(() => {
+        startArcheryMatch();
+      }, 400);
     }
   };
 
   window.openArcheryPetModal = function() {
     const modal = document.getElementById('archery-pet-modal');
     if (modal) modal.style.display = 'flex';
-  };
-
-  window.closeArcheryPetModal = function() {
-    const modal = document.getElementById('archery-pet-modal');
-    if (modal) modal.style.display = 'none';
   };
 
   function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -467,7 +520,7 @@
     } catch(e) {}
   }
 
-  // --- OBTENER PALABRAS DE LA TAREA ACTIVA ---
+  // --- OBTENER PALABRAS DE LA TAREA ACTIVA (SOLO PERMITIDAS) ---
   function getArcheryTaskWords() {
     let words = [];
     if (typeof activeTaskPackId !== 'undefined' && typeof allTaskPacks !== 'undefined') {
@@ -480,59 +533,68 @@
       words = customWordsList.map(item => item.word);
     }
     if (!words || words.length === 0) {
-      words = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMÁ', 'GATO', 'PERRO', 'CASA', 'SOL'];
+      words = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMA', 'GATO', 'PERRO', 'CASA', 'SOL'];
     }
 
-    return words.filter(w => {
-      const clean = w.toUpperCase().trim();
-      return typeof isWordDeleted === 'function' ? !isWordDeleted(clean) : true;
-    });
+    return words.filter(isArcheryWordAllowed);
   }
 
-  // --- OBTENER BANCO DE PALABRAS PARA MODO ALEATORIO (+200 PALABRAS) ---
+  // --- OBTENER BANCO DE PALABRAS PARA MODO ALEATORIO (SOLO PERMITIDAS, NO DESACTIVADAS) ---
   function getArcheryRandomWords() {
     const wordsSet = new Set();
     
-    // 1. De la Base de Datos Léxica Canónica
+    // 1. De la Base de Datos Léxica Canónica (filtrando solo palabras permitidas)
     if (typeof CANONICAL_WORD_LEXICON !== 'undefined') {
       Object.keys(CANONICAL_WORD_LEXICON).forEach(k => {
         const item = CANONICAL_WORD_LEXICON[k];
         const w = (item && item.escritura) ? item.escritura : k;
         if (w && w.length >= 2 && w.length <= 11) {
-          wordsSet.add(w.toUpperCase().trim());
+          const clean = w.toUpperCase().trim();
+          if (isArcheryWordAllowed(clean)) {
+            wordsSet.add(clean);
+          }
         }
       });
     }
 
-    // 2. De todas las tareas registradas en la aplicación
+    // 2. De todas las tareas registradas en la aplicación (filtrando solo palabras permitidas)
     if (typeof allTaskPacks !== 'undefined') {
       Object.values(allTaskPacks).forEach(pack => {
         if (pack && pack.words) {
           pack.words.forEach(w => {
-            if (w && w.length >= 2) wordsSet.add(w.toUpperCase().trim());
+            if (w && w.length >= 2) {
+              const clean = w.toUpperCase().trim();
+              if (isArcheryWordAllowed(clean)) {
+                wordsSet.add(clean);
+              }
+            }
           });
         }
       });
     }
 
-    // 3. De la lista personalizada si existe
+    // 3. De la lista personalizada si existe (filtrando solo palabras permitidas)
     if (typeof customWordsList !== 'undefined' && Array.isArray(customWordsList)) {
       customWordsList.forEach(item => {
         const w = item.word || item;
-        if (w && typeof w === 'string') wordsSet.add(w.toUpperCase().trim());
+        if (w && typeof w === 'string') {
+          const clean = w.toUpperCase().trim();
+          if (isArcheryWordAllowed(clean)) {
+            wordsSet.add(clean);
+          }
+        }
       });
     }
 
-    // Fallbacks robustos y variados
+    // Fallbacks robustos (únicamente los que estén permitidos)
+    const baseFallbacks = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMA', 'PAPA', 'GATO', 'PERRO', 'CASA', 'SOL', 'LUNA', 'MESA', 'PATO', 'MONO', 'SAPO', 'BARCO', 'DADO', 'LEON', 'OSO', 'FLOR', 'TREN', 'AVION'];
     if (wordsSet.size < 12) {
-      ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMA', 'PAPA', 'GATO', 'PERRO', 'CASA', 'SOL', 'LUNA', 'MESA', 'PATO', 'MONO', 'SAPO', 'BARCO', 'DADO', 'LEON', 'OSO', 'FLOR', 'TREN', 'AVION'].forEach(w => wordsSet.add(w));
+      baseFallbacks.forEach(w => {
+        if (isArcheryWordAllowed(w)) wordsSet.add(w);
+      });
     }
 
-    const list = Array.from(wordsSet).filter(w => {
-      const clean = w.toUpperCase().trim();
-      return typeof isWordDeleted === 'function' ? !isWordDeleted(clean) : true;
-    });
-
+    const list = Array.from(wordsSet).filter(isArcheryWordAllowed);
     return shuffleArrayLocal(list);
   }
 
@@ -591,17 +653,29 @@
     if (screen) screen.classList.add('active');
 
     ArcheryGame.mode = (mode === 'random') ? 'random' : 'task';
+    ArcheryGame.hasStarted = false;
+    ArcheryGame.isRunning = false;
+    ArcheryGame.isAdvancing = false;
+    ArcheryGame.targets = [];
+    ArcheryGame.arrows = [];
+    if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
+    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
 
-    initArcheryGame();
+    // Preparar lienzo y entorno estático sin iniciar el juego ni decir frases todavía
+    ArcheryGame.canvas = document.getElementById('archery-game-canvas');
+    if (ArcheryGame.canvas) {
+      ArcheryGame.ctx = ArcheryGame.canvas.getContext('2d');
+      resizeArcheryCanvas();
+      drawArcheryEnvironment(ArcheryGame.ctx, ArcheryGame.width, ArcheryGame.height, 0);
+    }
+    setupArcheryEventListeners();
     setTimeout(resizeArcheryCanvas, 50);
     setTimeout(resizeArcheryCanvas, 150);
-    setTimeout(resizeArcheryCanvas, 300);
 
-    // INMEDIATAMENTE AL ELEGIR EL JUEGO DE ARQUERÍA: ABRIR EL SELECTOR VISUAL DE HÉROES
+    // ABRIR DE INMEDIATO EL SELECTOR DE HÉROES: EL JUEGO NO ARRANCA HASTA ELEGIR
     setTimeout(function() {
-      if (typeof openArcheryPetModal === 'function') {
-        openArcheryPetModal();
-      }
+      const modal = document.getElementById('archery-pet-modal');
+      if (modal) modal.style.display = 'flex';
     }, 60);
   };
 
@@ -630,13 +704,15 @@
     updateArcheryHUD();
   };
 
-  function initArcheryGame() {
+  function startArcheryMatch() {
     ArcheryGame.canvas = document.getElementById('archery-game-canvas');
     if (!ArcheryGame.canvas) return;
     ArcheryGame.ctx = ArcheryGame.canvas.getContext('2d');
 
     resizeArcheryCanvas();
 
+    ArcheryGame.hasStarted = true;
+    ArcheryGame.isRunning = true;
     ArcheryGame.taskWords = getArcheryTaskWords();
     ArcheryGame.randomWords = getArcheryRandomWords();
     ArcheryGame.score = 0;
@@ -654,14 +730,21 @@
       { x: 740, y: 60, scale: 0.55, speed: 0.15 }
     ];
 
-    // Árboles y Pájaros en Perspectiva 3D (Cuento del Bosque)
+    // Árboles Grandes y Variados en Perspectiva 3D a la orilla del camino (estáticos y firmes)
     ArcheryGame.roadOffset = 0;
     ArcheryGame.archeryTrees3D = [];
-    for (let i = 0; i < 16; i++) {
+    const treeShapes = ['pine', 'oak', 'poplar', 'autumn', 'fir', 'flowering'];
+    for (let i = 0; i < 20; i++) {
+      const z = (i / 20) * 0.94 + 0.03;
+      const side = (i % 2 === 0) ? -1 : 1;
+      const shape = treeShapes[i % treeShapes.length];
+      const heightVar = 0.90 + (i * 17 % 7) * 0.05;
       ArcheryGame.archeryTrees3D.push({
-        z: (i / 16) + Math.random() * 0.04,
-        side: i % 2 === 0 ? -1 : 1,
-        type: Math.random() > 0.4 ? '🌲' : (Math.random() > 0.5 ? '🌳' : '🌲')
+        z: z,
+        side: side,
+        shape: shape,
+        heightVar: heightVar,
+        xOffset: (i * 19 % 13) - 6
       });
     }
 
@@ -681,11 +764,14 @@
       setupTargetWord(0);
     }
 
-    ArcheryGame.isRunning = true;
     if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
     ArcheryGame.animId = requestAnimationFrame(archeryGameLoop);
 
     updateArcheryHUD();
+  }
+
+  function initArcheryGame() {
+    startArcheryMatch();
   }
 
   function resizeArcheryCanvas() {
@@ -732,7 +818,7 @@
     if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
     ArcheryGame.missionVoiceTimeout = setTimeout(() => {
       speakCurrentArcheryMission();
-    }, 300);
+    }, 600);
   }
 
   // --- SELECCIÓN Y PROPUESTA DE NUEVA PALABRA EN MODO ALEATORIO ---
@@ -805,10 +891,10 @@
     if (iconBtn) {
       const curPet = getActivePet();
       const petThumbnails = {
-        '🦄': 'assets/card_unicornio_arquero.png?v=247',
-        '🦊': 'assets/card_zorro_arquero.png?v=247',
-        '🐰': 'assets/card_conejo_arquero.png?v=247',
-        '🐶': 'assets/card_perro_arquero.png?v=247'
+        '🦄': 'assets/card_unicornio_arquero.png?v=248',
+        '🦊': 'assets/card_zorro_arquero.png?v=248',
+        '🐰': 'assets/card_conejo_arquero.png?v=248',
+        '🐶': 'assets/card_perro_arquero.png?v=248'
       };
       if (petThumbnails[curPet]) {
         iconBtn.innerHTML = `<img src="${petThumbnails[curPet]}" style="width: 28px; height: 28px; object-fit: contain; vertical-align: middle;">`;
@@ -833,10 +919,11 @@
   }
 
   window.speakCurrentArcheryMission = function() {
+    if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
     if (typeof speakText === 'function') {
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
-      speakText(`¡Apunta y dispara a: ${pronWord}!`);
+      speakText(`Apunta a: ${pronWord}`);
     }
   };
 
@@ -854,11 +941,11 @@
     spawnTarget(ArcheryGame.targetWord, true, ArcheryGame.width * 0.50, targetBaseY, targetZ);
 
     // 2. Distractores únicos distribuidos en las 3 capas de profundidad
-    const availablePool = activePool.filter(w => w !== ArcheryGame.targetWord);
+    const availablePool = activePool.filter(w => w !== ArcheryGame.targetWord && isArcheryWordAllowed(w));
     const shuffled = shuffleArrayLocal(availablePool);
     const distractors = [];
     for (let w of shuffled) {
-      if (!distractors.includes(w) && w !== ArcheryGame.targetWord) {
+      if (!distractors.includes(w) && w !== ArcheryGame.targetWord && isArcheryWordAllowed(w)) {
         distractors.push(w);
         if (distractors.length >= 4) break;
       }
@@ -867,7 +954,7 @@
     if (distractors.length < 4) {
       const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO', 'MESA', 'PATO', 'BARCO', 'DADO', 'LEON', 'OSO', 'RANA', 'TREN'];
       for (let f of fallbacks) {
-        if (f !== ArcheryGame.targetWord && !distractors.includes(f)) {
+        if (f !== ArcheryGame.targetWord && !distractors.includes(f) && isArcheryWordAllowed(f)) {
           distractors.push(f);
           if (distractors.length >= 4) break;
         }
@@ -1018,14 +1105,14 @@
         : ArcheryGame.taskWords;
 
       const flyingWords = activeTargets.map(t => t.word);
-      const candidates = activePool.filter(w => !flyingWords.includes(w) && w !== ArcheryGame.targetWord);
+      const candidates = activePool.filter(w => !flyingWords.includes(w) && w !== ArcheryGame.targetWord && isArcheryWordAllowed(w));
 
       let newWord = null;
       if (candidates.length > 0) {
         newWord = candidates[Math.floor(Math.random() * candidates.length)];
       } else {
         const fallbacks = ['SOL', 'LUNA', 'CASA', 'FLOR', 'PELOTA', 'GATO', 'MESA', 'PATO', 'BARCO', 'DADO', 'LEON', 'OSO', 'RANA', 'TREN', 'AVION'];
-        const fallbackCandidates = fallbacks.filter(f => !flyingWords.includes(f) && f !== ArcheryGame.targetWord);
+        const fallbackCandidates = fallbacks.filter(f => !flyingWords.includes(f) && f !== ArcheryGame.targetWord && isArcheryWordAllowed(f));
         if (fallbackCandidates.length > 0) {
           newWord = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
         }
@@ -1162,7 +1249,7 @@
     if (typeof speakText === 'function') {
       if (!ArcheryGame.lastBounceVoice || (Date.now() - ArcheryGame.lastBounceVoice > 5000)) {
         ArcheryGame.lastBounceVoice = Date.now();
-        speakText('¡Rebotó! Espera que pase la otra palabra para un tiro pleno.');
+        speakText('¡Rebotó! Espera que pase la otra palabra para disparar.');
       }
     }
   }
@@ -1262,12 +1349,12 @@
 
   function handleArrowHitTarget(arrow, target) {
     if (target.isTarget) {
-      // ✅ ACIERTO EN LA PALABRA CORRECTA (TIRO PLENO)
+      // ✅ ACIERTO EN LA PALABRA CORRECTA (¡SÚPER!)
       playArrowHitSound();
       playArcherySuccessChime();
 
       createConfettiBurst(target.x, target.y, 30);
-      createFloatingText(target.x, target.y - 25, '¡TIRO PLENO! +10 🪙', '#059669');
+      createFloatingText(target.x, target.y - 25, '¡SÚPER! +10 🪙', '#059669');
 
       ArcheryGame.archer.isCelebrating = true;
       ArcheryGame.archer.celebrateTimer = 90;
@@ -1280,12 +1367,6 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(target.word) : null;
-      const pronWord = canon ? canon.pronunciacion : target.word;
-      if (typeof speakText === 'function') {
-        speakText(`¡Tiro pleno! ¡Excelente! ¡Le diste a ${pronWord}!`);
-      }
-
       target.isFading = true;
       target.targetScale = 1.35;
       target.targetAlpha = 0;
@@ -1294,14 +1375,34 @@
       if (!ArcheryGame.isAdvancing) {
         ArcheryGame.isAdvancing = true;
         if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
-        ArcheryGame.advanceTimeout = setTimeout(() => {
-          if (ArcheryGame.mode === 'random') {
-            ArcheryGame.randomHits = (ArcheryGame.randomHits || 0) + 1;
-            setupNextRandomWord();
-          } else {
-            setupTargetWord(ArcheryGame.targetWordIndex + 1);
-          }
-        }, 1300);
+
+        // FUNCIÓN SEGURA PARA AVANZAR A LA SIGUIENTE PALABRA
+        let hasAdvanced = false;
+        const proceedToNextWord = () => {
+          if (hasAdvanced) return;
+          hasAdvanced = true;
+          if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
+
+          // Pausa suave de 350ms tras terminar completamente de decir ¡Súper! antes de proponer la siguiente
+          ArcheryGame.advanceTimeout = setTimeout(() => {
+            if (ArcheryGame.mode === 'random') {
+              ArcheryGame.randomHits = (ArcheryGame.randomHits || 0) + 1;
+              setupNextRandomWord();
+            } else {
+              setupTargetWord(ArcheryGame.targetWordIndex + 1);
+            }
+          }, 350);
+        };
+
+        // DECIR ¡SÚPER! Y ESPERAR A QUE TERMINE COMPLETAMENTE LA FRASE ANTES DE AVANZAR
+        if (typeof speakText === 'function') {
+          speakText('¡Súper!', proceedToNextWord);
+        } else {
+          proceedToNextWord();
+        }
+
+        // Temporizador de respaldo por si el audio está silenciado en el navegador
+        ArcheryGame.advanceTimeout = setTimeout(proceedToNextWord, 2800);
       }
 
     } else {
@@ -1691,6 +1792,164 @@
     });
   }
 
+  // --- DIBUJADO DE ÁRBOLES GRANDES Y DE DIFERENTES FORMAS A LA ORILLA DEL CAMINO ---
+  function drawIllustratedTree(ctx, x, y, scale, tree) {
+    const s = scale * (tree.heightVar || 1.0);
+    const trunkW = Math.max(6, Math.round(14 * s));
+    const trunkH = Math.max(16, Math.round(36 * s));
+    const treeW = Math.max(28, Math.round(72 * s));
+    const shape = tree.shape || 'pine';
+
+    ctx.save();
+
+    // 1. Sombra de contacto suave en el césped
+    ctx.beginPath();
+    ctx.ellipse(x, y + 2, treeW * 0.44, Math.max(4, treeW * 0.12), 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(6, 78, 59, 0.30)';
+    ctx.fill();
+
+    // 2. Tronco de madera con volumen
+    ctx.fillStyle = (shape === 'autumn') ? '#713F12' : '#78350F';
+    ctx.beginPath();
+    ctx.moveTo(x - trunkW * 0.5, y);
+    ctx.lineTo(x - trunkW * 0.35, y - trunkH);
+    ctx.lineTo(x + trunkW * 0.35, y - trunkH);
+    ctx.lineTo(x + trunkW * 0.5, y);
+    ctx.closePath();
+    ctx.fill();
+
+    // 3. Copa con diferentes formas y colores
+    if (shape === 'pine' || shape === 'fir') {
+      // PINO / ABETO: 3 niveles triangulares escalonados
+      const tiers = [
+        { y: y - trunkH * 0.6, w: treeW * 0.95, h: trunkH * 1.05, col: '#065F46', hi: '#047857' },
+        { y: y - trunkH * 1.35, w: treeW * 0.75, h: trunkH * 0.95, col: '#059669', hi: '#10B981' },
+        { y: y - trunkH * 2.05, w: treeW * 0.52, h: trunkH * 0.90, col: '#10B981', hi: '#34D399' }
+      ];
+      tiers.forEach(t => {
+        ctx.fillStyle = t.col;
+        ctx.beginPath();
+        ctx.moveTo(x - t.w * 0.5, t.y);
+        ctx.lineTo(x, t.y - t.h);
+        ctx.lineTo(x + t.w * 0.5, t.y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = t.hi;
+        ctx.beginPath();
+        ctx.moveTo(x - t.w * 0.5, t.y);
+        ctx.lineTo(x, t.y - t.h);
+        ctx.lineTo(x, t.y);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+    } else if (shape === 'oak') {
+      // ROBLE FRONDOSO: Copa esponjosa en nubes verdes
+      const baseY = y - trunkH * 0.9;
+      const r = treeW * 0.34;
+      ctx.fillStyle = '#14532D';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.7, baseY - r * 0.3, r * 0.85, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.7, baseY - r * 0.3, r * 0.85, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.1, r * 0.95, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#15803D';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.6, baseY - r * 0.45, r * 0.75, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.6, baseY - r * 0.45, r * 0.75, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.15, r * 0.85, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#22C55E';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.35, baseY - r * 0.95, r * 0.60, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.35, baseY - r * 0.95, r * 0.60, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.35, r * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (shape === 'poplar') {
+      // ÁLAMO / CIPRÉS: Copa alta, esbelta y elegante
+      ctx.fillStyle = '#065F46';
+      ctx.beginPath();
+      ctx.ellipse(x, y - trunkH * 1.5, treeW * 0.28, trunkH * 1.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0D9488';
+      ctx.beginPath();
+      ctx.ellipse(x - treeW * 0.05, y - trunkH * 1.55, treeW * 0.22, trunkH * 1.15, -0.05, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#14B8A6';
+      ctx.beginPath();
+      ctx.ellipse(x - treeW * 0.08, y - trunkH * 1.6, treeW * 0.14, trunkH * 0.85, -0.05, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else if (shape === 'autumn') {
+      // ARCE OTOÑAL: Copa en tonos dorados, ámbar y cálidos
+      const baseY = y - trunkH * 0.9;
+      const r = treeW * 0.33;
+      ctx.fillStyle = '#9A3412';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.7, baseY - r * 0.3, r * 0.85, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.7, baseY - r * 0.3, r * 0.85, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.1, r * 0.95, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#D97706';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.6, baseY - r * 0.45, r * 0.75, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.6, baseY - r * 0.45, r * 0.75, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.15, r * 0.85, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.3, baseY - r * 0.9, r * 0.58, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.3, baseY - r * 0.9, r * 0.58, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.3, r * 0.62, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FCD34D';
+      ctx.beginPath();
+      ctx.arc(x, baseY - r * 1.38, r * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+
+    } else {
+      // ÁRBOL FLORECIDO DE FANTASÍA: Copa esmeralda con flores mágicas
+      const baseY = y - trunkH * 0.9;
+      const r = treeW * 0.32;
+      ctx.fillStyle = '#065F46';
+      ctx.beginPath();
+      ctx.arc(x - r * 0.6, baseY - r * 0.35, r * 0.8, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.6, baseY - r * 0.35, r * 0.8, 0, Math.PI * 2);
+      ctx.arc(x, baseY - r * 1.1, r * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#10B981';
+      ctx.beginPath();
+      ctx.arc(x, baseY - r * 1.05, r * 0.78, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#F472B6';
+      const flowers = [
+        { dx: -r * 0.5, dy: -r * 0.4 },
+        { dx: r * 0.4, dy: -r * 0.3 },
+        { dx: -r * 0.2, dy: -r * 1.0 },
+        { dx: r * 0.35, dy: -r * 0.9 },
+        { dx: 0, dy: -r * 1.3 }
+      ];
+      flowers.forEach(fl => {
+        ctx.beginPath();
+        ctx.arc(x + fl.dx, baseY + fl.dy, Math.max(2, Math.round(3.5 * s)), 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    ctx.restore();
+  }
+
   // --- DIBUJADO DEL ESCENARIO 3D (DEL CUENTO DEL BOSQUE) ---
   function drawArcheryEnvironment(ctx, w, h, time) {
     const horizonY = h * 0.44;
@@ -1760,7 +2019,7 @@
     ctx.fillStyle = groundGrad;
     ctx.fillRect(0, horizonY, w, h - horizonY);
 
-    // 3. CAMINO DE TIERRA EN PERSPECTIVA 3D (DEL CUENTO DEL BOSQUE)
+    // 3. CAMINO DE TIERRA EN PERSPECTIVA 3D (FIJO Y ESTÁTICO, SIN MOVIMIENTO)
     const roadTopWidth = Math.max(34, w * 0.07);
     const roadBottomWidth = Math.min(w * 0.74, 580);
 
@@ -1778,7 +2037,7 @@
     ctx.closePath();
     ctx.fill();
 
-    // Bordes del camino de tierra
+    // Bordes cálidos del camino de tierra (fijo)
     ctx.strokeStyle = '#D97706';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -1787,37 +2046,19 @@
     ctx.moveTo(vanishingX + roadTopWidth / 2, horizonY);
     ctx.lineTo(vanishingX + roadBottomWidth / 2, h);
     ctx.stroke();
-
-    // Franjas de movimiento 3D en el camino (avanzando hacia el bosque)
-    ArcheryGame.roadOffset = (ArcheryGame.roadOffset || 0) + 0.008;
-    ctx.strokeStyle = 'rgba(211, 84, 0, 0.32)';
-    ctx.lineWidth = 3;
-    const stripeCount = 7;
-    for (let i = 0; i < stripeCount; i++) {
-      let stripeZ = (i / stripeCount + (ArcheryGame.roadOffset % (1 / stripeCount))) % 1.0;
-      let sy = horizonY + (1 - stripeZ) * (h - horizonY);
-      let sw = roadTopWidth + (1 - stripeZ) * (roadBottomWidth - roadTopWidth);
-      ctx.beginPath();
-      ctx.moveTo(vanishingX - sw / 2, sy);
-      ctx.lineTo(vanishingX + sw / 2, sy);
-      ctx.stroke();
-    }
     ctx.restore();
 
-    // 4. ÁRBOLES EN PERSPECTIVA 3D A AMBOS LADOS DEL CAMINO
+    // 4. ÁRBOLES GRANDES Y DE DIFERENTES FORMAS A AMBOS LADOS DEL CAMINO
     if (ArcheryGame.archeryTrees3D) {
       const sortedTrees = [...ArcheryGame.archeryTrees3D].sort((a, b) => b.z - a.z);
       sortedTrees.forEach(t => {
-        let treeY = horizonY + (1 - t.z) * (h - horizonY - 15);
-        let scale = 0.22 + (1 - t.z) * 1.05;
-        let roadWAtZ = roadTopWidth + (1 - t.z) * (roadBottomWidth - roadTopWidth);
-        let treeX = vanishingX + t.side * (roadWAtZ / 2 + 28 * scale + 14);
+        const treeY = horizonY + (1 - t.z) * (h - horizonY - 8);
+        const scale = 0.32 + (1 - t.z) * 1.30;
+        const roadWAtZ = roadTopWidth + (1 - t.z) * (roadBottomWidth - roadTopWidth);
+        const marginOffset = (42 + (1 - t.z) * 36) * scale + (t.xOffset || 0);
+        const treeX = vanishingX + t.side * (roadWAtZ / 2 + marginOffset);
 
-        ctx.save();
-        ctx.font = `${Math.round(52 * scale)}px "Segoe UI Emoji", serif`;
-        ctx.textAlign = 'center';
-        ctx.fillText(t.type, treeX, treeY);
-        ctx.restore();
+        drawIllustratedTree(ctx, treeX, treeY, scale, t);
       });
     }
   }
