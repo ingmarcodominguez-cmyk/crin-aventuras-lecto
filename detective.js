@@ -47,55 +47,217 @@
     listenersAttached: false
   };
 
-  // BANCO CANÓNICO DE CASOS DE PARES MÍNIMOS CON IMÁGENES REALES
+  // BANCO CANÓNICO EXPANDIDO DE PARES MÍNIMOS (30 CASOS DE DISCRIMINACIÓN FONOLÓGICA FINA)
   const MINIMAL_PAIR_CASES = [
     {
       id: 'pato_gato',
-      contrastDescription: 'Sonido /P/ vs Sonido /G/',
+      contrastDescription: 'Sonido /P/ vs /G/ inicial',
       clueHint: 'Presta atención al inicio de la palabra',
-      optionA: { word: 'PATO', image: 'assets/pato.png', pron: 'pato', startLetter: 'P' },
-      optionB: { word: 'GATO', image: 'assets/gato.png', pron: 'gato', startLetter: 'G' },
-      target: 'A' // PATO
+      optionA: { word: 'PATO', image: 'assets/pato.png', pron: 'Pato', startLetter: 'P' },
+      optionB: { word: 'GATO', image: 'assets/gato.png', pron: 'Gato', startLetter: 'G' }
     },
     {
-      id: 'casa_taza',
-      contrastDescription: 'Sonido /K/ vs Sonido /T/',
+      id: 'boca_foca',
+      contrastDescription: 'Sonido /B/ vs /F/ inicial',
+      clueHint: 'Presta atención al sonido inicial',
+      optionA: { word: 'BOCA', image: 'assets/boca.png', pron: 'Boca', startLetter: 'B' },
+      optionB: { word: 'FOCA', image: 'assets/foca.png', pron: 'Foca', startLetter: 'F' }
+    },
+    {
+      id: 'cuna_luna',
+      contrastDescription: 'Sonido /C/ vs /L/ inicial',
       clueHint: 'Escucha bien la primera letra',
-      optionA: { word: 'CASA', image: 'assets/casa.png', pron: 'casa', startLetter: 'C' },
-      optionB: { word: 'TAZA', image: 'assets/taza.png', pron: 'taza', startLetter: 'T' },
-      target: 'B' // TAZA
+      optionA: { word: 'CUNA', image: 'assets/cuna.png', pron: 'Cuna', startLetter: 'C' },
+      optionB: { word: 'LUNA', image: 'assets/luna.png', pron: 'Luna', startLetter: 'L' }
     },
     {
-      id: 'luna_cuna',
-      contrastDescription: 'Sonido /L/ vs Sonido /K/',
+      id: 'copa_sopa',
+      contrastDescription: 'Sonido /C/ vs /S/ inicial',
       clueHint: 'Fíjate cómo suena al empezar',
-      optionA: { word: 'LUNA', image: 'assets/luna.png', pron: 'luna', startLetter: 'L' },
-      optionB: { word: 'CUNA', image: 'assets/cuna.png', pron: 'cuna', startLetter: 'C' },
-      target: 'A' // LUNA
+      optionA: { word: 'COPA', image: 'assets/copa.png', pron: 'Copa', startLetter: 'C' },
+      optionB: { word: 'SOPA', image: 'assets/sopa.png', pron: 'Sopa', startLetter: 'S' }
     },
     {
-      id: 'pala_sala',
-      contrastDescription: 'Sonido /P/ vs Sonido /S/',
-      clueHint: 'Diferencia el golpe del aire al inicio',
-      optionA: { word: 'PALA', image: 'assets/pala.png', pron: 'pala', startLetter: 'P' },
-      optionB: { word: 'SALA', image: 'assets/sala.png', pron: 'sala', startLetter: 'S' },
-      target: 'A' // PALA
+      id: 'fuente_puente',
+      contrastDescription: 'Sonido /F/ vs /P/ inicial',
+      clueHint: 'Diferencia el sonido de inicio',
+      optionA: { word: 'FUENTE', image: 'assets/fuente.png', pron: 'Fuente', startLetter: 'F' },
+      optionB: { word: 'PUENTE', image: 'assets/puente.png', pron: 'Puente', startLetter: 'P' }
     },
     {
-      id: 'bota_bola',
-      contrastDescription: 'Sonido final /TA/ vs /LA/',
+      id: 'foto_moto',
+      contrastDescription: 'Sonido /F/ vs /M/ inicial',
+      clueHint: 'Presta atención al inicio',
+      optionA: { word: 'FOTO', image: 'assets/foto.png', pron: 'Foto', startLetter: 'F' },
+      optionB: { word: 'MOTO', image: 'assets/moto.png', pron: 'Moto', startLetter: 'M' }
+    },
+    {
+      id: 'lago_mago',
+      contrastDescription: 'Sonido /L/ vs /M/ inicial',
+      clueHint: 'Escucha atentamente el inicio',
+      optionA: { word: 'LAGO', image: 'assets/lago.png', pron: 'Lago', startLetter: 'L' },
+      optionB: { word: 'MAGO', image: 'assets/mago.png', pron: 'Mago', startLetter: 'M' }
+    },
+    {
+      id: 'gorro_zorro',
+      contrastDescription: 'Sonido /G/ vs /Z/ inicial',
+      clueHint: 'Escucha bien cómo empieza',
+      optionA: { word: 'GORRO', image: 'assets/gorro.png', pron: 'Gorro', startLetter: 'G' },
+      optionB: { word: 'ZORRO', image: 'assets/zorro.png', pron: 'Zorro', startLetter: 'Z' }
+    },
+    {
+      id: 'tela_vela',
+      contrastDescription: 'Sonido /T/ vs /V/ inicial',
+      clueHint: 'Diferencia la primera consonante',
+      optionA: { word: 'TELA', image: 'assets/tela.png', pron: 'Tela', startLetter: 'T' },
+      optionB: { word: 'VELA', image: 'assets/vela.png', pron: 'Vela', startLetter: 'V' }
+    },
+    {
+      id: 'goma_loma',
+      contrastDescription: 'Sonido /G/ vs /L/ inicial',
+      clueHint: 'Presta atención al inicio de la palabra',
+      optionA: { word: 'GOMA', image: 'assets/goma.png', pron: 'Goma', startLetter: 'G' },
+      optionB: { word: 'LOMA', image: 'assets/loma.png', pron: 'Loma', startLetter: 'L' }
+    },
+    {
+      id: 'dado_dedo',
+      contrastDescription: 'Vocal /A/ vs /E/ medial',
+      clueHint: 'Escucha la primera vocal en el medio',
+      optionA: { word: 'DADO', image: 'assets/dado.png', pron: 'Dado', startLetter: 'D' },
+      optionB: { word: 'DEDO', image: 'assets/dedo.png', pron: 'Dedo', startLetter: 'D' }
+    },
+    {
+      id: 'mano_mono',
+      contrastDescription: 'Vocal /A/ vs /O/ medial',
+      clueHint: 'Diferencia el sonido de la vocal',
+      optionA: { word: 'MANO', image: 'assets/mano.png', pron: 'Mano', startLetter: 'M' },
+      optionB: { word: 'MONO', image: 'assets/mono.png', pron: 'Mono', startLetter: 'M' }
+    },
+    {
+      id: 'lana_luna',
+      contrastDescription: 'Vocal /A/ vs /U/ medial',
+      clueHint: 'Fíjate en la primera vocal',
+      optionA: { word: 'LANA', image: 'assets/lana.png', pron: 'Lana', startLetter: 'L' },
+      optionB: { word: 'LUNA', image: 'assets/luna.png', pron: 'Luna', startLetter: 'L' }
+    },
+    {
+      id: 'pala_pila',
+      contrastDescription: 'Vocal /A/ vs /I/ medial',
+      clueHint: 'Presta atención a la vocal del medio',
+      optionA: { word: 'PALA', image: 'assets/pala.png', pron: 'Pala', startLetter: 'P' },
+      optionB: { word: 'PILA', image: 'assets/pila.png', pron: 'Pila', startLetter: 'P' }
+    },
+    {
+      id: 'cabra_cebra',
+      contrastDescription: 'Vocal /A/ vs /E/ medial',
+      clueHint: 'Escucha bien la vocal en la primera sílaba',
+      optionA: { word: 'CABRA', image: 'assets/cabra.png', pron: 'Cabra', startLetter: 'C' },
+      optionB: { word: 'CEBRA', image: 'assets/cebra.png', pron: 'Cebra', startLetter: 'C' }
+    },
+    {
+      id: 'cena_cuna',
+      contrastDescription: 'Vocal /E/ vs /U/ medial',
+      clueHint: 'Diferencia la vocal en la primera sílaba',
+      optionA: { word: 'CENA', image: 'assets/cena.png', pron: 'Cena', startLetter: 'C' },
+      optionB: { word: 'CUNA', image: 'assets/cuna.png', pron: 'Cuna', startLetter: 'C' }
+    },
+    {
+      id: 'pato_pito',
+      contrastDescription: 'Vocal /A/ vs /I/ medial',
+      clueHint: 'Escucha la vocal del medio',
+      optionA: { word: 'PATO', image: 'assets/pato.png', pron: 'Pato', startLetter: 'P' },
+      optionB: { word: 'PITO', image: 'assets/silbato.png', pron: 'Pito', startLetter: 'P' }
+    },
+    {
+      id: 'boca_bota',
+      contrastDescription: 'Consonante /C/ vs /T/ medial',
+      clueHint: 'Escucha la consonante de la segunda sílaba',
+      optionA: { word: 'BOCA', image: 'assets/boca.png', pron: 'Boca', startLetter: 'B' },
+      optionB: { word: 'BOTA', image: 'assets/bota.png', pron: 'Bota', startLetter: 'B' }
+    },
+    {
+      id: 'cama_casa',
+      contrastDescription: 'Consonante /M/ vs /S/ medial',
+      clueHint: 'Presta atención a la consonante del medio',
+      optionA: { word: 'CAMA', image: 'assets/cama.png', pron: 'Cama', startLetter: 'C' },
+      optionB: { word: 'CASA', image: 'assets/casa.png', pron: 'Casa', startLetter: 'C' }
+    },
+    {
+      id: 'caja_casa',
+      contrastDescription: 'Consonante /J/ vs /S/ medial',
+      clueHint: 'Diferencia el sonido del medio',
+      optionA: { word: 'CAJA', image: 'assets/caja.png', pron: 'Caja', startLetter: 'C' },
+      optionB: { word: 'CASA', image: 'assets/casa.png', pron: 'Casa', startLetter: 'C' }
+    },
+    {
+      id: 'cajita_casita',
+      contrastDescription: 'Consonante /J/ vs /S/ medial',
+      clueHint: 'Escucha con atención el centro de la palabra',
+      optionA: { word: 'CAJITA', image: 'assets/cajita.png', pron: 'Cajita', startLetter: 'C' },
+      optionB: { word: 'CASITA', image: 'assets/casita.png', pron: 'Casita', startLetter: 'C' }
+    },
+    {
+      id: 'lana_lata',
+      contrastDescription: 'Consonante /N/ vs /T/ medial',
+      clueHint: 'Diferencia la segunda sílaba',
+      optionA: { word: 'LANA', image: 'assets/lana.png', pron: 'Lana', startLetter: 'L' },
+      optionB: { word: 'LATA', image: 'assets/lata.png', pron: 'Lata', startLetter: 'L' }
+    },
+    {
+      id: 'mono_moto',
+      contrastDescription: 'Consonante /N/ vs /T/ medial',
+      clueHint: 'Presta atención al sonido central',
+      optionA: { word: 'MONO', image: 'assets/mono.png', pron: 'Mono', startLetter: 'M' },
+      optionB: { word: 'MOTO', image: 'assets/moto.png', pron: 'Moto', startLetter: 'M' }
+    },
+    {
+      id: 'mono_moño',
+      contrastDescription: 'Consonante /N/ vs /Ñ/ medial',
+      clueHint: 'Escucha bien el sonido de la N y la Ñ',
+      optionA: { word: 'MONO', image: 'assets/mono.png', pron: 'Mono', startLetter: 'M' },
+      optionB: { word: 'MOÑO', image: 'assets/monio.png', pron: 'Moño', startLetter: 'M' }
+    },
+    {
+      id: 'pino_pito',
+      contrastDescription: 'Consonante /N/ vs /T/ medial',
+      clueHint: 'Fíjate en la consonante del medio',
+      optionA: { word: 'PINO', image: 'assets/pino.png', pron: 'Pino', startLetter: 'P' },
+      optionB: { word: 'PITO', image: 'assets/silbato.png', pron: 'Pito', startLetter: 'P' }
+    },
+    {
+      id: 'pipa_piña',
+      contrastDescription: 'Consonante /P/ vs /Ñ/ medial',
+      clueHint: 'Diferencia la segunda sílaba',
+      optionA: { word: 'PIPA', image: 'assets/pipa.png', pron: 'Pipa', startLetter: 'P' },
+      optionB: { word: 'PIÑA', image: 'assets/pina.png', pron: 'Piña', startLetter: 'P' }
+    },
+    {
+      id: 'pila_pipa',
+      contrastDescription: 'Consonante /L/ vs /P/ medial',
+      clueHint: 'Escucha el sonido de la segunda letra',
+      optionA: { word: 'PILA', image: 'assets/pila.png', pron: 'Pila', startLetter: 'P' },
+      optionB: { word: 'PIPA', image: 'assets/pipa.png', pron: 'Pipa', startLetter: 'P' }
+    },
+    {
+      id: 'soda_sopa',
+      contrastDescription: 'Consonante /D/ vs /P/ medial',
+      clueHint: 'Presta atención a la consonante del medio',
+      optionA: { word: 'SODA', image: 'assets/soda.png', pron: 'Soda', startLetter: 'S' },
+      optionB: { word: 'SOPA', image: 'assets/sopa.png', pron: 'Sopa', startLetter: 'S' }
+    },
+    {
+      id: 'gorra_gorro',
+      contrastDescription: 'Terminación /A/ vs /O/',
       clueHint: 'Escucha atentamente el final de la palabra',
-      optionA: { word: 'BOTA', image: 'assets/bota.png', pron: 'bota', startLetter: 'B' },
-      optionB: { word: 'BOLA', image: 'assets/bola.png', pron: 'bola', startLetter: 'B' },
-      target: 'A' // BOTA
+      optionA: { word: 'GORRA', image: 'assets/gorro.png', pron: 'Gorra', startLetter: 'G' },
+      optionB: { word: 'GORRO', image: 'assets/gorro.png', pron: 'Gorro', startLetter: 'G' }
     },
     {
-      id: 'gato_pato_2',
-      contrastDescription: 'Sonido /G/ vs Sonido /P/',
-      clueHint: 'Escucha el rugido suave o el toque suave',
-      optionA: { word: 'GATO', image: 'assets/gato.png', pron: 'gato', startLetter: 'G' },
-      optionB: { word: 'PATO', image: 'assets/pato.png', pron: 'pato', startLetter: 'P' },
-      target: 'A' // GATO
+      id: 'abuela_abuelo',
+      contrastDescription: 'Terminación /A/ vs /O/',
+      clueHint: 'Presta atención al sonido final',
+      optionA: { word: 'ABUELA', image: 'assets/abuela.png', pron: 'Abuela', startLetter: 'A' },
+      optionB: { word: 'ABUELO', image: 'assets/abuelo.png', pron: 'Abuelo', startLetter: 'A' }
     }
   ];
 
@@ -176,9 +338,12 @@
     if (!DetectiveGame.canvas) return;
     DetectiveGame.ctx = DetectiveGame.canvas.getContext('2d');
 
-    DetectiveGame.cases = MINIMAL_PAIR_CASES.slice();
-    // Barajar casos
-    DetectiveGame.cases.sort(() => Math.random() - 0.5);
+    // Barajar el banco de 30 pares mínimos y seleccionar 6 casos únicos y variados por partida
+    const shuffled = MINIMAL_PAIR_CASES.slice().sort(() => Math.random() - 0.5);
+    DetectiveGame.cases = shuffled.slice(0, 6).map(c => ({
+      ...c,
+      target: Math.random() < 0.5 ? 'A' : 'B'
+    }));
 
     setupDetectiveEventListeners();
     resizeDetectiveCanvas();
@@ -723,8 +888,7 @@
   window.replayDetectiveQuest = function() {
     const modal = document.getElementById('detective-victory-modal');
     if (modal) modal.style.display = 'none';
-    DetectiveGame.currentCaseIndex = 0;
-    setupCase(0);
+    initDetectiveGame();
   };
 
   // --- EFECTOS VISUALES ---
