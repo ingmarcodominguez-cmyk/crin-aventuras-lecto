@@ -123,11 +123,11 @@
     '🦄': {
       id: 'unicornio',
       name: 'Unicornio Mágico',
-      src: 'assets/unicornio_pescador.png?v=255',
+      src: 'assets/unicornio_pescador.png?v=280',
       cardSrc: 'assets/card_unicornio_arquero.png?v=249',
-      rodTipNormalizedX: 0.9466,
-      rodTipNormalizedY: 0.1426,
-      chairFeetNormalizedY: 0.9766,
+      rodTipNormalizedX: 0.9603,
+      rodTipNormalizedY: 0.0469, // Ojo metálico terminal de la caña donde nace la tanza dinámica
+      chairFeetNormalizedY: 0.9688,
       aspectRatio: 1.5
     },
     '🐰': {
@@ -153,9 +153,9 @@
   };
 
   // Pre-carga inmediata de los pescadores oficiales en memoria
-  getCachedImage('assets/unicornio_pescador.png?v=255');
-  getCachedImage('assets/conejo_pescador.png?v=255');
-  getCachedImage('assets/perro_pescador.png?v=255');
+  getCachedImage('assets/unicornio_pescador.png?v=280');
+  getCachedImage('assets/conejo_pescador.png?v=280');
+  getCachedImage('assets/perro_pescador.png?v=280');
 
   function getActiveFishermanPet() {
     if (FishermanGame.activePet && FISHERMAN_AVATARS[FishermanGame.activePet]) {
