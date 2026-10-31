@@ -167,7 +167,7 @@
       icon: '🚀',
       title: 'El Tobogán de Fusión Suave (Continuous Blending)',
       level: 'Fusión Fonémica Continua sin Sobrecarga de Memoria',
-      neuroBasis: 'Resuelve el cuello de botella de la memoria de trabajo fonológica. Al unir los sonidos de manera continua y sostenida sin pausas secas ("ssss-oooo-pppp-aaaa"), evita el olvido de los primeros fonemas habitual en niños con dislexia.',
+      neuroBasis: 'Resuelve la sobrecarga de memoria de trabajo fonológica. En idioma español, las consonantes no pueden articularse solas en el vacío sin distorsión o deletreo ("ese", "eme"); por ello, la neuropsicología hispanohablante (Cuetos, Defior) estructura la síntesis en torno a la fusión silábica fluida (SO + PA = SOPA) con audios humanos reales, facilitando el reconocimiento holístico de la palabra.',
       framework: 'Continuous Phonics / Successive Blending Intervention',
       objectives: [
         'Conectar fonemas de forma continua y prolongada sin interrupciones acústicas intermedias.',
@@ -175,9 +175,9 @@
         'Sincronizar el barrido visual de izquierda a derecha con la articulación vocal fluida.'
       ],
       interventionTips: [
-        'Motive al niño a deslizar su dedo por el tobogán al mismo ritmo que escucha el sonido continuo.',
-        'Evite decir los nombres de las letras ("ese", "o", "pe", "a"); use siempre el sonido fónico puro.',
-        'Al llegar al final de la rampa, celebren juntos el despegue de la nave espacial con la palabra completa.'
+        'Acompañe al niño a deslizar el cohete observando cómo se unen las estaciones silábicas sin pausas secas.',
+        'Enfatice la unión sonora: "SO" con "PA" se abrazan y forman "¡SOPA!".',
+        'Al llegar a la plataforma final, celebren juntos el aterrizaje espacial y la identificación de la imagen correspondiente.'
       ],
       progressIndicators: [
         'Desaparición del silabeo entrecortado e inconexo durante la lectura en voz alta.',

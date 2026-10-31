@@ -1,6 +1,6 @@
 // =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - EL TOBOGÁN DE FUSIÓN SUAVE
-// Módulo de Continuous Blending / Síntesis Fonémica sin Sobrecarga (Science of Reading)
+// Módulo de Fusión y Síntesis Fonológica con Audios Reales Pregrabados
 // =========================================================================
 
 (function() {
@@ -41,13 +41,13 @@
 
   window.SlideGame = SlideGame;
 
-  // BANCO DE PALABRAS DE FUSIÓN CONTINUA
-  // Consonantes continuas iniciales (S, M, L, R, F, N, V) ideales para síntesis sin pausas
+  // BANCO CANÓNICO DE FUSIÓN SILÁBICA CON AUDIOS REALES HUMANOS
+  // En español la fusión fonológica se sustenta en el núcleo silábico
   const SLIDE_CASES = [
     {
       word: 'SOPA',
-      phonemes: ['S', 'O', 'P', 'A'],
-      blendSpeech: ['Sssss', 'Soooo', 'Sop', '¡SOPA!'],
+      syllables: ['SO', 'PA'],
+      audioFiles: ['assets/audio/silabas/so.mp3', 'assets/audio/silabas/pa.mp3'],
       pron: 'sopa',
       image: 'assets/sopa.png',
       distractors: [
@@ -57,8 +57,8 @@
     },
     {
       word: 'MESA',
-      phonemes: ['M', 'E', 'S', 'A'],
-      blendSpeech: ['Mmmmm', 'Meeee', 'Mes', '¡MESA!'],
+      syllables: ['ME', 'SA'],
+      audioFiles: ['assets/audio/silabas/me.mp3', 'assets/audio/silabas/sa.mp3'],
       pron: 'mesa',
       image: 'assets/mesa.png',
       distractors: [
@@ -68,8 +68,8 @@
     },
     {
       word: 'LUNA',
-      phonemes: ['L', 'U', 'N', 'A'],
-      blendSpeech: ['Lllll', 'Luuuu', 'Lun', '¡LUNA!'],
+      syllables: ['LU', 'NA'],
+      audioFiles: ['assets/audio/silabas/lu.mp3', 'assets/audio/silabas/na.mp3'],
       pron: 'luna',
       image: 'assets/luna.png',
       distractors: [
@@ -79,8 +79,8 @@
     },
     {
       word: 'PATO',
-      phonemes: ['P', 'A', 'T', 'O'],
-      blendSpeech: ['P', 'Paaaa', 'Pat', '¡PATO!'],
+      syllables: ['PA', 'TO'],
+      audioFiles: ['assets/audio/silabas/pa.mp3', 'assets/audio/silabas/to.mp3'],
       pron: 'pato',
       image: 'assets/pato.png',
       distractors: [
@@ -90,8 +90,8 @@
     },
     {
       word: 'PINO',
-      phonemes: ['P', 'I', 'N', 'O'],
-      blendSpeech: ['P', 'Piiii', 'Pin', '¡PINO!'],
+      syllables: ['PI', 'NO'],
+      audioFiles: ['assets/audio/silabas/pi.mp3', 'assets/audio/silabas/no.mp3'],
       pron: 'pino',
       image: 'assets/pino.png',
       distractors: [
@@ -101,8 +101,8 @@
     },
     {
       word: 'VELA',
-      phonemes: ['V', 'E', 'L', 'A'],
-      blendSpeech: ['Vvvvv', 'Veeee', 'Vel', '¡VELA!'],
+      syllables: ['VE', 'LA'],
+      audioFiles: ['assets/audio/silabas/ve.mp3', 'assets/audio/silabas/la.mp3'],
       pron: 'vela',
       image: 'assets/vela.png',
       distractors: [
@@ -112,8 +112,8 @@
     },
     {
       word: 'FOCA',
-      phonemes: ['F', 'O', 'C', 'A'],
-      blendSpeech: ['Fffff', 'Foooo', 'Foc', '¡FOCA!'],
+      syllables: ['FO', 'CA'],
+      audioFiles: ['assets/audio/silabas/fo.mp3', 'assets/audio/silabas/ca.mp3'],
       pron: 'foca',
       image: 'assets/foca.png',
       distractors: [
@@ -123,13 +123,35 @@
     },
     {
       word: 'MANO',
-      phonemes: ['M', 'A', 'N', 'O'],
-      blendSpeech: ['Mmmmm', 'Maaaa', 'Man', '¡MANO!'],
+      syllables: ['MA', 'NO'],
+      audioFiles: ['assets/audio/silabas/ma.mp3', 'assets/audio/silabas/no.mp3'],
       pron: 'mano',
       image: 'assets/mano.png',
       distractors: [
         { word: 'MONO', image: 'assets/mono.png', pron: 'mono' },
         { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' }
+      ]
+    },
+    {
+      word: 'PELOTA',
+      syllables: ['PE', 'LO', 'TA'],
+      audioFiles: ['assets/audio/silabas/pe.mp3', 'assets/audio/silabas/lo.mp3', 'assets/audio/silabas/ta.mp3'],
+      pron: 'pelota',
+      image: 'assets/pelota.png',
+      distractors: [
+        { word: 'PALETA', image: 'assets/pala.png', pron: 'pala' },
+        { word: 'BOTELLA', image: 'assets/botella.png', pron: 'botella' }
+      ]
+    },
+    {
+      word: 'TOMATE',
+      syllables: ['TO', 'MA', 'TE'],
+      audioFiles: ['assets/audio/silabas/to.mp3', 'assets/audio/silabas/ma.mp3', 'assets/audio/silabas/te.mp3'],
+      pron: 'tomate',
+      image: 'assets/tomate.png',
+      distractors: [
+        { word: 'ZAPATO', image: 'assets/zapato.png', pron: 'zapato' },
+        { word: 'PATATA', image: 'assets/pato.png', pron: 'pato' }
       ]
     }
   ];
@@ -144,7 +166,31 @@
     return img;
   }
 
-  // --- AUDIO SYSTEM RESILIENTE ---
+  // --- REPRODUCCIÓN DE AUDIOS REALES CON FALLBACK SEGURO ---
+  function playAudioFile(src, onComplete) {
+    try {
+      if (typeof playNarratorAudio === 'function') {
+        playNarratorAudio(src, onComplete);
+        return;
+      }
+      const audio = new Audio(src);
+      let done = false;
+      const finish = () => {
+        if (!done) {
+          done = true;
+          if (onComplete) onComplete();
+        }
+      };
+      audio.onended = finish;
+      audio.onerror = finish;
+      setTimeout(finish, 1800);
+      audio.play().catch(finish);
+    } catch(e) {
+      if (onComplete) onComplete();
+    }
+  }
+
+  // Audio system Web Audio para chimes y efectos
   let slideAudioCtx = null;
   function getSlideAudioCtx() {
     try {
@@ -227,35 +273,6 @@
       osc.start();
       osc.stop(ac.currentTime + 0.25);
     } catch(e) {}
-  }
-
-  // Locución paso a paso sin solapamiento ni cancelaciones bruscas
-  function speakStepAudio(text, callback) {
-    if (typeof window.speechSynthesis !== 'undefined') {
-      try {
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'es-ES';
-        utter.rate = 0.85; // Velocidad pausada y nítida para discriminación fonémica
-        utter.pitch = 1.05;
-
-        let called = false;
-        const done = () => {
-          if (!called) {
-            called = true;
-            if (callback) callback();
-          }
-        };
-
-        utter.onend = done;
-        utter.onerror = done;
-        setTimeout(done, 1500); // Watchdog de seguridad
-
-        window.speechSynthesis.speak(utter);
-        return;
-      } catch(e) {}
-    }
-    if (callback) setTimeout(callback, 800);
   }
 
   // --- CONTROL DE PANTALLA ---
@@ -408,7 +425,7 @@
 
     if (!SlideGame.hasLanded) {
       if (bannerText) {
-        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir los sonidos!</span>';
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir las sílabas!</span>';
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
@@ -429,7 +446,9 @@
 
   function speakSlideIntro() {
     if (!SlideGame.isRunning) return;
-    speakStepAudio('Toca el cohete o el botón para escuchar cómo se unen los sonidos.', () => {});
+    if (typeof speakText === 'function') {
+      speakText('Toca el cohete o el botón para escuchar cómo se unen los sonidos.', () => {});
+    }
   }
 
   // --- BOTÓN SUPERIOR ---
@@ -445,7 +464,7 @@
     startContinuousBlendSequence();
   };
 
-  // --- SECUENCIA DE DESLIZAMIENTO GUIADA PASO A PASO (CONTINUOUS BLENDING REAL) ---
+  // --- SECUENCIA DE FUSIÓN CON AUDIOS HUMANOS REALES PREGRABADOS ---
   function startContinuousBlendSequence() {
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
 
@@ -459,43 +478,42 @@
 
     const bannerText = document.getElementById('slide-instruction-text');
     if (bannerText) {
-      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
+      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen las sílabas...</span>';
     }
 
-    const numPhonemes = c.phonemes.length;
+    const numStations = c.syllables.length;
     const pitches = [261.6, 329.6, 392.0, 523.2];
 
     function glideToStation(idx) {
       if (!SlideGame.isRunning) return;
-      const targetP = (idx + 0.5) / numPhonemes;
+      const targetP = (idx + 0.5) / numStations;
 
-      animateRocketTo(targetP, 900, () => {
+      animateRocketTo(targetP, 850, () => {
         if (!SlideGame.isRunning) return;
         SlideGame.activeStation = idx;
 
-        // Estación alcanzada: partículas, nota musical y sonido prolongado
+        // Estación alcanzada: partículas, nota musical y audio real de la sílaba
         const coords = getStationCoords(idx);
         spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
         playChimeNote(pitches[idx % pitches.length]);
 
-        const soundText = (c.blendSpeech && c.blendSpeech[idx]) ? c.blendSpeech[idx] : c.phonemes[idx];
-
-        speakStepAudio(soundText, () => {
+        const audioFile = c.audioFiles[idx];
+        playAudioFile(audioFile, () => {
           setTimeout(() => {
             if (!SlideGame.isRunning) return;
-            if (idx + 1 < numPhonemes) {
+            if (idx + 1 < numStations) {
               glideToStation(idx + 1);
             } else {
               glideToLanding();
             }
-          }, 350);
+          }, 280);
         });
       });
     }
 
     function glideToLanding() {
       if (!SlideGame.isRunning) return;
-      animateRocketTo(1.0, 800, () => {
+      animateRocketTo(1.0, 750, () => {
         if (!SlideGame.isRunning) return;
         SlideGame.rocketProgress = 1.0;
         SlideGame.hasLanded = true;
@@ -507,7 +525,9 @@
         spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
 
         // Palabra completa fusionada
-        speakStepAudio(`¡${c.word}! Ahora busca cuál de estas imágenes es la ${c.pron}.`, () => {});
+        if (typeof speakText === 'function') {
+          speakText(`¡${c.word}! Ahora busca cuál de estas imágenes es la ${c.pron}.`, () => {});
+        }
         updateSlideHUD();
       });
     }
@@ -554,7 +574,7 @@
   function getStationCoords(stationIdx) {
     const geom = getRampGeometry();
     const c = SlideGame.currentCase;
-    const num = (c && c.phonemes) ? c.phonemes.length : 4;
+    const num = (c && c.syllables) ? c.syllables.length : 2;
     const t = (stationIdx + 0.5) / num;
     return {
       x: getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, t),
@@ -628,12 +648,12 @@
     ctx.stroke();
     ctx.restore();
 
-    // 3. Estaciones de letras fonémicas
-    const phonemes = c.phonemes;
-    phonemes.forEach((letter, i) => {
+    // 3. Estaciones de sílabas
+    const syllables = c.syllables;
+    syllables.forEach((syllable, i) => {
       const coords = getStationCoords(i);
       const isCurrent = (SlideGame.activeStation === i);
-      const isPassed = (SlideGame.rocketProgress >= (i + 0.5) / phonemes.length);
+      const isPassed = (SlideGame.rocketProgress >= (i + 0.5) / syllables.length);
 
       ctx.save();
       if (isCurrent) {
@@ -648,7 +668,7 @@
         ctx.fillStyle = '#1E293B';
       }
 
-      const radius = isCurrent ? 28 : 22;
+      const radius = isCurrent ? 32 : 26;
       ctx.beginPath();
       ctx.arc(coords.x, coords.y - 26, radius, 0, Math.PI * 2);
       ctx.fill();
@@ -657,11 +677,11 @@
       ctx.lineWidth = isCurrent ? 4 : 3;
       ctx.stroke();
 
-      ctx.font = `900 ${isCurrent ? 26 : 20}px "Comic Neue", "Nunito", sans-serif`;
+      ctx.font = `900 ${isCurrent ? 24 : 19}px "Comic Neue", "Nunito", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = (isCurrent || isPassed) ? '#FFFFFF' : '#BAE6FD';
-      ctx.fillText(letter, coords.x, coords.y - 25);
+      ctx.fillText(syllable, coords.x, coords.y - 25);
       ctx.restore();
     });
 
@@ -848,7 +868,7 @@
       const sp = SlideGame.sparks[i];
       sp.x += sp.vx;
       sp.y += sp.vy;
-      sp.vy += 0.08; // Gravedad suave
+      sp.vy += 0.08;
       sp.alpha -= 0.025;
       if (sp.alpha <= 0) {
         SlideGame.sparks.splice(i, 1);
@@ -950,7 +970,9 @@
         vy: -1.2
       });
 
-      speakStepAudio('Primero toca el cohete para unir los sonidos de las estrellas.', () => {});
+      if (typeof speakText === 'function') {
+        speakText('Primero toca el cohete para unir los sonidos de las estrellas.', () => {});
+      }
 
       setTimeout(() => { card.shake = 0; }, 400);
       return;
@@ -978,7 +1000,9 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      speakStepAudio(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
+      if (typeof speakText === 'function') {
+        speakText(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
+      }
 
       setTimeout(() => {
         if (!SlideGame.isRunning) return;
@@ -1005,7 +1029,9 @@
 
       setTimeout(() => { card.shake = 0; }, 400);
 
-      speakStepAudio(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
+      if (typeof speakText === 'function') {
+        speakText(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
+      }
     }
   }
 
