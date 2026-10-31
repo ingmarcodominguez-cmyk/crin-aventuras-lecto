@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba de Voces Neuronales - El Tobogán de Fusión</title>
+  <title>Comparación de Audios - El Tobogán de Fusión</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -20,10 +20,14 @@
       border: 2px solid #0284C7;
       border-radius: 16px;
       padding: 18px;
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
       margin-bottom: 16px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+    .card.highlight {
+      border: 2.5px solid #10B981;
+      background: linear-gradient(135deg, #064E3B 0%, #1E293B 100%);
     }
     h1 { font-size: 20px; color: #38BDF8; margin-top: 0; text-align: center; }
     h3 { font-size: 16px; color: #FBBF24; margin: 0 0 6px 0; }
@@ -39,14 +43,23 @@
       border-radius: 8px;
       margin-left: 6px;
     }
+    .badge.green {
+      background: #10B981;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🚀 Pruebas de Fusión Sonora: "SOPA"</h1>
+  <h1>🚀 Comparación de Fusión Sonora</h1>
   <p style="text-align: center; max-width: 480px; color: #CBD5E1;">
-    Escucha cada una de las pruebas generadas con voces neuronales humanas de alta fidelidad y dime cuál te parece más natural y pedagógica para los niños:
+    Aquí puedes escuchar la muestra que generaste en ElevenLabs y compararla con las otras opciones:
   </p>
+
+  <div class="card highlight">
+    <h3>⭐ Tu Muestra de ElevenLabs <span class="badge green">Voz "Clear Teacher"</span></h3>
+    <p>Archivo descargado de ElevenLabs recién subido:</p>
+    <audio controls autoplay src="assets/audio/pruebas/elevenlabs_sample.mp3"></audio>
+  </div>
 
   <div class="card">
     <h3>1. Fusión Silábica Estirada <span class="badge">Voz Elena (Argentina)</span></h3>
@@ -61,13 +74,7 @@
   </div>
 
   <div class="card">
-    <h3>3. Fusión Ligada Corta <span class="badge">Voz Elena (Argentina)</span></h3>
-    <p>Texto: <em>"Ssooo... paaa... ¡Sopa!"</em> (Un poco más ágil, sin pausas largas).</p>
-    <audio controls src="assets/audio/pruebas/test_sopa_v3_ar.mp3"></audio>
-  </div>
-
-  <div class="card">
-    <h3>4. Fusión Silábica Estirada <span class="badge">Voz Elvira (Neutra)</span></h3>
+    <h3>3. Fusión Silábica Estirada <span class="badge">Voz Elvira (Neutra)</span></h3>
     <p>Texto: <em>"Soooo... paaaa... ¡SOPA!"</em> con tono cálido neutral.</p>
     <audio controls src="assets/audio/pruebas/test_sopa_v1_es.mp3"></audio>
   </div>
