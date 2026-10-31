@@ -58,7 +58,10 @@
     voiceTimeout: null
   };
 
-  // BANCO EXPANDIDO DE FAMILIAS DE RIMAS NATURALES CON IMÁGENES REALES
+  // BANCO RIGUROSO Y CANÓNICO DE FAMILIAS DE RIMA CONSONANTE PERFECTA
+  // Regla general: Coincidencia fonológica exacta desde la última vocal tónica (acentuada).
+  // Agudas: Rima desde la vocal tónica final (-ÓN, -OR).
+  // Graves: Rima desde la vocal tónica penúltima (-ATO, -ANA, -ERA, -ITA, -INO, -ERO, -ILLO, -OPA, -ELO, -ENTE, -ELA, -ESA).
   const RHYME_FAMILIES = [
     {
       id: 'on',
@@ -72,7 +75,9 @@
         { word: 'LEÓN', image: 'assets/leon.png', pron: 'león' },
         { word: 'DRAGÓN', image: 'assets/dragon.png', pron: 'dragón' },
         { word: 'LIMÓN', image: 'assets/limon.png', pron: 'limón' },
-        { word: 'CORAZÓN', image: 'assets/corazon.png', pron: 'corazón' }
+        { word: 'CORAZÓN', image: 'assets/corazon.png', pron: 'corazón' },
+        { word: 'MELÓN', image: 'assets/melon.png', pron: 'melón' },
+        { word: 'PANTALÓN', image: 'assets/pantalon.png', pron: 'pantalón' }
       ]
     },
     {
@@ -99,6 +104,19 @@
         { word: 'BANANA', image: 'assets/banana.png', pron: 'banana' },
         { word: 'LANA', image: 'assets/lana.png', pron: 'lana' },
         { word: 'VENTANA', image: 'assets/ventana.png', pron: 'ventana' }
+      ]
+    },
+    {
+      id: 'era',
+      rhymeSound: 'ERA',
+      potionName: 'Néctar del Jardín Frutal',
+      potionColor: '#059669',
+      potionSecondary: '#6EE7B7',
+      words: [
+        { word: 'PERA', image: 'assets/pera.png', pron: 'pera' },
+        { word: 'MANGUERA', image: 'assets/manguera.png', pron: 'manguera' },
+        { word: 'TIJERA', image: 'assets/tijera.png', pron: 'tijera' },
+        { word: 'MAMADERA', image: 'assets/mamadera.png', pron: 'mamadera' }
       ]
     },
     {
@@ -152,6 +170,18 @@
       ]
     },
     {
+      id: 'ero',
+      rhymeSound: 'ERO',
+      potionName: 'Elixir de la Aventura',
+      potionColor: '#D97706',
+      potionSecondary: '#FCD34D',
+      words: [
+        { word: 'BABERO', image: 'assets/babero.png', pron: 'babero' },
+        { word: 'SOMBRERO', image: 'assets/sombrero.png', pron: 'sombrero' },
+        { word: 'MENSAJERO', image: 'assets/mensajero.png', pron: 'mensajero' }
+      ]
+    },
+    {
       id: 'opa',
       rhymeSound: 'OPA',
       potionName: 'Brebaje de la Alegría',
@@ -164,54 +194,39 @@
       ]
     },
     {
-      id: 'rro',
-      rhymeSound: 'RRO',
-      potionName: 'Elixir de la Valentía',
-      potionColor: '#EF4444',
-      potionSecondary: '#FCA5A5',
+      id: 'elo',
+      rhymeSound: 'ELO',
+      potionName: 'Poción de la Dulzura',
+      potionColor: '#8B5CF6',
+      potionSecondary: '#DDD6FE',
       words: [
-        { word: 'PERRO', image: 'assets/perro.png', pron: 'perro' },
-        { word: 'GORRO', image: 'assets/gorro.png', pron: 'gorro' },
-        { word: 'ZORRO', image: 'assets/zorro.png', pron: 'zorro' }
+        { word: 'CARAMELO', image: 'assets/caramelo.png', pron: 'caramelo' },
+        { word: 'POMELO', image: 'assets/pomelo.png', pron: 'pomelo' },
+        { word: 'ABUELO', image: 'assets/abuelo.png', pron: 'abuelo' }
       ]
     },
     {
-      id: 'nte',
-      rhymeSound: 'ENTE / ANTE',
+      id: 'ente',
+      rhymeSound: 'ENTE',
       potionName: 'Fórmula del Río Encantado',
       potionColor: '#6366F1',
       potionSecondary: '#A5B4FC',
       words: [
         { word: 'PUENTE', image: 'assets/puente.png', pron: 'puente' },
         { word: 'FUENTE', image: 'assets/fuente.png', pron: 'fuente' },
-        { word: 'SERPIENTE', image: 'assets/serpiente.png', pron: 'serpiente' },
-        { word: 'GUANTE', image: 'assets/guante.png', pron: 'guante' },
-        { word: 'ELEFANTE', image: 'assets/elefante.png', pron: 'elefante' }
+        { word: 'SERPIENTE', image: 'assets/serpiente.png', pron: 'serpiente' }
       ]
     },
     {
       id: 'ela',
       rhymeSound: 'ELA',
-      potionName: 'Poción de las Estrellas',
+      potionName: 'Poción de la Calma Mágica',
       potionColor: '#84CC16',
       potionSecondary: '#BEF264',
       words: [
         { word: 'TELA', image: 'assets/tela.png', pron: 'tela' },
         { word: 'VELA', image: 'assets/vela.png', pron: 'vela' },
-        { word: 'ABUELA', image: 'assets/abuela.png', pron: 'abuela' },
-        { word: 'ESTRELLA', image: 'assets/estrella.png', pron: 'estrella' }
-      ]
-    },
-    {
-      id: 'ila',
-      rhymeSound: 'ILA',
-      potionName: 'Elixir de las Alturas',
-      potionColor: '#0EA5E9',
-      potionSecondary: '#7DD3FC',
-      words: [
-        { word: 'PILA', image: 'assets/pila.png', pron: 'pila' },
-        { word: 'GORILA', image: 'assets/gorila.png', pron: 'gorila' },
-        { word: 'ÁGUILA', image: 'assets/aguila.png', pron: 'águila' }
+        { word: 'ABUELA', image: 'assets/abuela.png', pron: 'abuela' }
       ]
     },
     {
@@ -228,7 +243,7 @@
     }
   ];
 
-  // GENERADOR ULTRA-DINÁMICO DE POCIONES DE RIMAS (TOTALMENTE ALEATORIO Y SIN REPETICIONES)
+// GENERADOR ULTRA-DINÁMICO DE POCIONES DE RIMAS (TOTALMENTE ALEATORIO Y SIN REPETICIONES)
   function generateDynamicRhymePotions() {
     const shuffledFamilies = [...RHYME_FAMILIES].sort(() => Math.random() - 0.5);
 
