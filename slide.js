@@ -1,6 +1,6 @@
 // =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - EL TOBOGÁN DE FUSIÓN SUAVE
-// Módulo de Fusión Continua Dinámico integrado con el Léxico Canónico (200+ palabras)
+// Módulo de Fusión Continua Sincronizada Estación por Estación (Science of Reading)
 // =========================================================================
 
 (function() {
@@ -43,6 +43,18 @@
 
   window.SlideGame = SlideGame;
 
+  function sylToAudioPath(syl) {
+    let s = (syl || '').trim().toLowerCase();
+    s = s.replace(/á/g, 'a_tilde')
+         .replace(/é/g, 'e_tilde')
+         .replace(/í/g, 'i_tilde')
+         .replace(/ó/g, 'o_tilde')
+         .replace(/ú/g, 'u_tilde')
+         .replace(/ñ/g, 'enie');
+    s = s.replace(/[^a-z0-9_]/g, '');
+    return `assets/audio/silabas_estiradas/${s}.mp3`;
+  }
+
   function cleanWordKey(text) {
     if (!text) return '';
     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
@@ -70,9 +82,6 @@
 
     return selected.map(key => {
       const item = CANONICAL_WORD_LEXICON[key];
-      const cleanK = cleanWordKey(key);
-      const audioPath = `assets/audio/tobogan/${cleanK}_fusion.mp3`;
-
       const otherKeys = allKeys.filter(k => k !== key).sort(() => Math.random() - 0.5);
       const distractors = otherKeys.slice(0, 2).map(dk => {
         const dItem = CANONICAL_WORD_LEXICON[dk];
@@ -86,7 +95,6 @@
       return {
         word: item.escritura || key,
         syllables: item.silabas,
-        fusionAudio: audioPath,
         pron: item.pronunciacion || key,
         image: item.emoji,
         distractors: distractors
@@ -99,7 +107,6 @@
       {
         word: 'SOPA',
         syllables: ['SO', 'PA'],
-        fusionAudio: 'assets/audio/tobogan/sopa_fusion.mp3',
         pron: 'sopa',
         image: 'assets/sopa.png',
         distractors: [
@@ -108,11 +115,10 @@
         ]
       },
       {
-        word: 'MESA',
-        syllables: ['ME', 'SA'],
-        fusionAudio: 'assets/audio/tobogan/mesa_fusion.mp3',
-        pron: 'mesa',
-        image: 'assets/mesa.png',
+        word: 'MAMA',
+        syllables: ['MA', 'MÁ'],
+        pron: 'mamá',
+        image: 'assets/mama.png',
         distractors: [
           { word: 'CASA', image: 'assets/casa.png', pron: 'casa' },
           { word: 'PATO', image: 'assets/pato.png', pron: 'pato' }
@@ -121,7 +127,6 @@
       {
         word: 'LUNA',
         syllables: ['LU', 'NA'],
-        fusionAudio: 'assets/audio/tobogan/luna_fusion.mp3',
         pron: 'luna',
         image: 'assets/luna.png',
         distractors: [
@@ -132,7 +137,6 @@
       {
         word: 'PATO',
         syllables: ['PA', 'TO'],
-        fusionAudio: 'assets/audio/tobogan/pato_fusion.mp3',
         pron: 'pato',
         image: 'assets/pato.png',
         distractors: [
@@ -141,14 +145,13 @@
         ]
       },
       {
-        word: 'PINO',
-        syllables: ['PI', 'NO'],
-        fusionAudio: 'assets/audio/tobogan/pino_fusion.mp3',
-        pron: 'pino',
-        image: 'assets/pino.png',
+        word: 'PELOTA',
+        syllables: ['PE', 'LO', 'TA'],
+        pron: 'pelota',
+        image: 'assets/pelota.png',
         distractors: [
-          { word: 'PILA', image: 'assets/pila.png', pron: 'pila' },
-          { word: 'MOLINO', image: 'assets/molino.png', pron: 'molino' }
+          { word: 'PALETA', image: 'assets/pala.png', pron: 'pala' },
+          { word: 'BOTELLA', image: 'assets/botella.png', pron: 'botella' }
         ]
       }
     ];
@@ -164,7 +167,29 @@
     return img;
   }
 
-  // --- AUDIO WEB AUDIO AUXILIAR ---
+  // --- REPRODUCCIÓN DE AUDIO ASISTIDA ---
+  function playAudioFile(src, onComplete) {
+    try {
+      const audio = new Audio(src);
+      SlideGame.currentAudio = audio;
+      let done = false;
+      const finish = () => {
+        if (!done) {
+          done = true;
+          SlideGame.currentAudio = null;
+          if (onComplete) onComplete();
+        }
+      };
+      audio.onended = finish;
+      audio.onerror = finish;
+      setTimeout(finish, 1800); // Watchdog
+      audio.play().catch(finish);
+    } catch(e) {
+      if (onComplete) onComplete();
+    }
+  }
+
+  // Audio system Web Audio para chimes y efectos
   let slideAudioCtx = null;
   function getSlideAudioCtx() {
     try {
@@ -189,7 +214,7 @@
       gain.connect(ac.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq || 440, ac.currentTime);
-      gain.gain.setValueAtTime(0.25, ac.currentTime);
+      gain.gain.setValueAtTime(0.28, ac.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
       osc.start();
       osc.stop(ac.currentTime + 0.45);
@@ -405,7 +430,7 @@
 
     if (!SlideGame.hasLanded) {
       if (bannerText) {
-        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir los sonidos!</span>';
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el cohete o el botón para deslizar los sonidos!</span>';
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
@@ -414,7 +439,7 @@
       }
     } else {
       if (bannerText) {
-        bannerText.innerHTML = `<span>👉</span><span><strong>Paso 2:</strong> ¡Cohete aterrizó! ¿Cuál es la <strong>${SlideGame.currentCase.word}</strong>?</span>`;
+        bannerText.innerHTML = `<span>👉</span><span><strong>Paso 2:</strong> ¡Cohete aterrizó! ¿Cuál es la imagen de <strong>${SlideGame.currentCase.word}</strong>?</span>`;
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
@@ -444,7 +469,8 @@
     startContinuousBlendSequence();
   };
 
-  // --- SECUENCIA DE FUSIÓN CONTINUA SINCRONIZADA CON AUDIO NEURONAL ---
+  // --- SECUENCIA DE FUSIÓN 100% SINCRONIZADA ESTACIÓN POR ESTACIÓN ---
+  // El cohete llega a cada estación, se posa y en ese instante exacto suena la sílaba estirada.
   function startContinuousBlendSequence() {
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
 
@@ -461,109 +487,149 @@
       bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
     }
 
-    const audio = new Audio(c.fusionAudio);
-    SlideGame.currentAudio = audio;
+    const syllables = c.syllables || ['A', 'B'];
+    const numStations = syllables.length;
+    const pitches = [261.6, 329.6, 392.0, 523.2];
 
-    const numStations = (c.syllables && c.syllables.length) ? c.syllables.length : 2;
+    function glideToStation(idx) {
+      if (!SlideGame.isRunning) return;
 
-    let executed = false;
-    function runGlide(durationMs) {
-      if (executed) return;
-      executed = true;
+      const stationT = getStationT(idx, numStations);
 
-      const startTime = performance.now();
-      audio.play().catch(() => {});
-
-      function step(now) {
+      // Deslizar el cohete hasta la estación correspondiente (800ms)
+      animateRocketProgressTo(stationT, 800, () => {
         if (!SlideGame.isRunning) return;
-        const elapsed = now - startTime;
-        const p = Math.min(1.0, elapsed / durationMs);
-        SlideGame.rocketProgress = p;
 
-        // Estaciones intermedias según número de sílabas
-        for (let sIdx = 0; sIdx < numStations; sIdx++) {
-          const segStart = (sIdx + 0.2) / numStations;
-          const segEnd = (sIdx + 0.85) / numStations;
-          if (p >= segStart && p < segEnd) {
-            if (SlideGame.activeStation !== sIdx) {
-              SlideGame.activeStation = sIdx;
-              const coords = getStationCoords(sIdx);
-              spawnSparks(coords.x, coords.y - 24, '#FBBF24', 22);
-              const pitches = [261.6, 329.6, 392.0, 523.2];
-              playChimeNote(pitches[sIdx % pitches.length]);
-            }
-          }
-        }
+        // ¡COHETE POSADO EN LA ESTACIÓN!
+        SlideGame.activeStation = idx;
+        const coords = getStationCoords(idx, numStations);
+        spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
+        playChimeNote(pitches[idx % pitches.length]);
 
-        if (p < 1.0) {
-          SlideGame.slideAnimId = requestAnimationFrame(step);
-        } else {
-          // Aterrizaje en plataforma
-          SlideGame.rocketProgress = 1.0;
-          SlideGame.hasLanded = true;
-          SlideGame.isSliding = false;
-          SlideGame.activeStation = -1;
+        // Reproducir el audio estirado de esa sílaba exacta
+        const syl = syllables[idx];
+        const audioSrc = sylToAudioPath(syl);
 
-          playRocketWhoosh();
-          const endCoords = getLandingCoords();
-          spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
-
-          updateSlideHUD();
-
+        playAudioFile(audioSrc, () => {
+          // Breve pausa respiratoria antes de deslizarse a la siguiente estación
           setTimeout(() => {
             if (!SlideGame.isRunning) return;
-            if (typeof speakText === 'function') {
-              speakText(`¿Cuál de estas imágenes es la ${c.pron}?`, () => {});
-            }
-          }, 350);
-        }
-      }
 
-      SlideGame.slideAnimId = requestAnimationFrame(step);
+            if (idx + 1 < numStations) {
+              glideToStation(idx + 1);
+            } else {
+              glideToLanding();
+            }
+          }, 180);
+        });
+      });
     }
 
-    audio.onloadedmetadata = function() {
-      const dur = Math.max(2600, Math.floor(audio.duration * 1000) || 3500);
-      runGlide(dur);
-    };
+    function glideToLanding() {
+      if (!SlideGame.isRunning) return;
 
-    audio.onerror = function() {
-      // Fallback robusto en caso de que un audio nuevo aún no se haya generado
-      runGlide(3500);
-    };
+      // Descenso final a toda velocidad hacia la plataforma de aterrizaje (650ms)
+      animateRocketProgressTo(1.0, 650, () => {
+        if (!SlideGame.isRunning) return;
 
-    audio.load();
-    setTimeout(() => {
-      if (!executed) runGlide(3500);
-    }, 400);
+        SlideGame.rocketProgress = 1.0;
+        SlideGame.hasLanded = true;
+        SlideGame.isSliding = false;
+        SlideGame.activeStation = -1;
+
+        playRocketWhoosh();
+        const endCoords = getLandingCoords(numStations);
+        spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
+
+        updateSlideHUD();
+
+        // Palabra completa proclamada con entusiasmo
+        if (typeof speakText === 'function') {
+          speakText(`¡${c.word}!`, () => {
+            setTimeout(() => {
+              if (!SlideGame.isRunning) return;
+              // Consigna con concordancia gramatical perfecta (sin error de género "la lago")
+              speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {});
+            }, 300);
+          });
+        }
+      });
+    }
+
+    glideToStation(0);
   }
 
-  function getRampGeometry() {
+  function animateRocketProgressTo(targetP, durationMs, onDone) {
+    const startP = SlideGame.rocketProgress;
+    const startTime = performance.now();
+
+    function step(now) {
+      if (!SlideGame.isRunning) return;
+      const elapsed = now - startTime;
+      const t = Math.min(1.0, elapsed / durationMs);
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      SlideGame.rocketProgress = startP + (targetP - startP) * ease;
+
+      if (t < 1.0) {
+        SlideGame.slideAnimId = requestAnimationFrame(step);
+      } else {
+        SlideGame.rocketProgress = targetP;
+        if (onDone) onDone();
+      }
+    }
+
+    SlideGame.slideAnimId = requestAnimationFrame(step);
+  }
+
+  // --- GEOMETRÍA ADAPTABLE SEGÚN NÚMERO DE SÍLABAS ---
+  function getRampGeometry(numSyllables) {
     const w = SlideGame.width;
     const h = SlideGame.height;
-    return {
-      startX: w * 0.12,
-      startY: h * 0.16,
-      ctrlX: w * 0.45,
-      ctrlY: h * 0.18 + 50,
-      endX: w * 0.88,
-      endY: h * 0.46
-    };
+    const count = numSyllables || 2;
+
+    if (count <= 2) {
+      // Rampa espaciosa y pausada para 2 sílabas
+      return {
+        startX: w * 0.14,
+        startY: h * 0.16,
+        ctrlX: w * 0.44,
+        ctrlY: h * 0.20 + 40,
+        endX: w * 0.86,
+        endY: h * 0.46
+      };
+    } else {
+      // Rampa extendida más larga para 3 sílabas
+      return {
+        startX: w * 0.10,
+        startY: h * 0.13,
+        ctrlX: w * 0.46,
+        ctrlY: h * 0.18 + 55,
+        endX: w * 0.90,
+        endY: h * 0.48
+      };
+    }
   }
 
-  function getStationCoords(stationIdx) {
-    const geom = getRampGeometry();
-    const c = SlideGame.currentCase;
-    const num = (c && c.syllables) ? c.syllables.length : 2;
-    const t = (stationIdx + 0.5) / num;
+  function getStationT(stationIdx, numSyllables) {
+    const count = numSyllables || 2;
+    if (count <= 2) {
+      return (stationIdx === 0) ? 0.36 : 0.74;
+    } else {
+      return [0.25, 0.53, 0.79][stationIdx] || ((stationIdx + 0.5) / count);
+    }
+  }
+
+  function getStationCoords(stationIdx, numSyllables) {
+    const geom = getRampGeometry(numSyllables);
+    const t = getStationT(stationIdx, numSyllables);
     return {
       x: getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, t),
       y: getQuadraticBezierPoint(geom.startY, geom.ctrlY, geom.endY, t)
     };
   }
 
-  function getLandingCoords() {
-    const geom = getRampGeometry();
+  function getLandingCoords(numSyllables) {
+    const geom = getRampGeometry(numSyllables);
     return { x: geom.endX, y: geom.endY };
   }
 
@@ -604,8 +670,10 @@
 
     if (!c) return;
 
-    // 2. Geometría de la Rampa
-    const geom = getRampGeometry();
+    // 2. Geometría de la Rampa Adaptada
+    const syllables = c.syllables || ['A', 'B'];
+    const numStations = syllables.length;
+    const geom = getRampGeometry(numStations);
 
     // Tubo base exterior con brillo de neón
     ctx.save();
@@ -629,13 +697,13 @@
     ctx.restore();
 
     // 3. Estaciones de sílabas
-    const syllables = c.syllables || ['A', 'B'];
-    const radius = syllables.length > 2 ? 26 : 30;
+    const radius = numStations > 2 ? 26 : 30;
 
     syllables.forEach((syllable, i) => {
-      const coords = getStationCoords(i);
+      const coords = getStationCoords(i, numStations);
       const isCurrent = (SlideGame.activeStation === i);
-      const isPassed = (SlideGame.rocketProgress >= (i + 0.5) / syllables.length);
+      const stationT = getStationT(i, numStations);
+      const isPassed = (SlideGame.rocketProgress >= stationT);
 
       ctx.save();
       if (isCurrent) {
@@ -678,7 +746,7 @@
     ctx.stroke();
     ctx.restore();
 
-    // 5. Cohete
+    // 5. Cohete deslizándose
     const rx = getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, SlideGame.rocketProgress);
     const ry = getQuadraticBezierPoint(geom.startY, geom.ctrlY, geom.endY, SlideGame.rocketProgress);
 
@@ -983,7 +1051,7 @@
       }
 
       if (typeof speakText === 'function') {
-        speakText(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
+        speakText(`¡Excelente! ¡Esa es ${card.pron}!`, () => {});
       }
 
       setTimeout(() => {
@@ -1012,7 +1080,7 @@
       setTimeout(() => { card.shake = 0; }, 400);
 
       if (typeof speakText === 'function') {
-        speakText(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
+        speakText(`Esa es ${card.pron}. Busca la imagen de ${SlideGame.currentCase.pron}.`);
       }
     }
   }
