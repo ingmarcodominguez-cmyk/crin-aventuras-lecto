@@ -20,28 +20,39 @@
     currentCase: null,
 
     // Estado del cohete y la rampa
-    rocketProgress: 0, // 0.0 (arriba) a 1.0 (abajo/lanzamiento)
-    isDraggingRocket: false,
+    rocketProgress: 0, // 0.0 (arriba) a 1.0 (abajo/aterrizaje)
+    isSliding: false,
     hasLanded: false,
+    isDraggingRocket: false,
+    dragStartX: 0,
+    lastStationPassed: -1,
 
+    // Opciones inferiores
     cards: [],
     selectedCard: null,
     isAdvancing: false,
     isSpeaking: false,
     voiceTimeout: null,
-    speechWatchdog: null,
+    promptWatchdog: null,
 
     stars: [],
-    floatingTexts: []
+    floatingTexts: [],
+    sparks: [],
+
+    // Flecha indicadora animada cuando está esperando deslizamiento
+    pulseTimer: 0
   };
 
   window.SlideGame = SlideGame;
 
-  // BANCO CANÓNICO DE PALABRAS DE FUSIÓN CONTINUA
+  // BANCO CANÓNICO DE PALABRAS DE FUSIÓN CONTINUA (Science of Reading)
+  // Consonantes continuas iniciales (S, M, L, R, F, N, V) ideales para síntesis sin pausas
   const SLIDE_CASES = [
     {
       word: 'SOPA',
       phonemes: ['S', 'O', 'P', 'A'],
+      // Síntesis fónica continua acumulativa (Additive Continuous Blending)
+      sounds: ['ssss', 'soooo', 'sop', 'sopa'],
       pron: 'sopa',
       image: 'assets/sopa.png',
       distractors: [
@@ -52,16 +63,18 @@
     {
       word: 'MESA',
       phonemes: ['M', 'E', 'S', 'A'],
+      sounds: ['mmmm', 'meeee', 'mes', 'mesa'],
       pron: 'mesa',
       image: 'assets/mesa.png',
       distractors: [
-        { word: 'PESA', image: 'assets/pato.png', pron: 'pato' },
-        { word: 'CASA', image: 'assets/casa.png', pron: 'casa' }
+        { word: 'CASA', image: 'assets/casa.png', pron: 'casa' },
+        { word: 'PATO', image: 'assets/pato.png', pron: 'pato' }
       ]
     },
     {
       word: 'LUNA',
       phonemes: ['L', 'U', 'N', 'A'],
+      sounds: ['llll', 'luuuu', 'lun', 'luna'],
       pron: 'luna',
       image: 'assets/luna.png',
       distractors: [
@@ -72,6 +85,7 @@
     {
       word: 'PATO',
       phonemes: ['P', 'A', 'T', 'O'],
+      sounds: ['p', 'paaaa', 'pat', 'pato'],
       pron: 'pato',
       image: 'assets/pato.png',
       distractors: [
@@ -82,6 +96,7 @@
     {
       word: 'PINO',
       phonemes: ['P', 'I', 'N', 'O'],
+      sounds: ['p', 'piiii', 'pin', 'pino'],
       pron: 'pino',
       image: 'assets/pino.png',
       distractors: [
@@ -92,11 +107,34 @@
     {
       word: 'VELA',
       phonemes: ['V', 'E', 'L', 'A'],
+      sounds: ['vvvv', 'veeee', 'vel', 'vela'],
       pron: 'vela',
       image: 'assets/vela.png',
       distractors: [
         { word: 'TELA', image: 'assets/tela.png', pron: 'tela' },
-        { word: 'BOLA', image: 'assets/bola.png', pron: 'bola' }
+        { word: 'BOTA', image: 'assets/bota.png', pron: 'bota' }
+      ]
+    },
+    {
+      word: 'FOCA',
+      phonemes: ['F', 'O', 'C', 'A'],
+      sounds: ['ffff', 'foooo', 'foc', 'foca'],
+      pron: 'foca',
+      image: 'assets/foca.png',
+      distractors: [
+        { word: 'BOCA', image: 'assets/boca.png', pron: 'boca' },
+        { word: 'ROSA', image: 'assets/rosa.png', pron: 'rosa' }
+      ]
+    },
+    {
+      word: 'MANO',
+      phonemes: ['M', 'A', 'N', 'O'],
+      sounds: ['mmmm', 'maaaa', 'man', 'mano'],
+      pron: 'mano',
+      image: 'assets/mano.png',
+      distractors: [
+        { word: 'MONO', image: 'assets/mono.png', pron: 'mono' },
+        { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' }
       ]
     }
   ];
@@ -122,16 +160,16 @@
     SlideGame.isRunning = true;
     initSlideGame();
 
-    setTimeout(resizeSlideCanvas, 50);
-    setTimeout(resizeSlideCanvas, 150);
-    setTimeout(resizeSlideCanvas, 300);
+    setTimeout(resizeSlideCanvas, 60);
+    setTimeout(resizeSlideCanvas, 200);
+    setTimeout(resizeSlideCanvas, 350);
   };
 
   window.closeSlideAndReturnToMap = function() {
     SlideGame.isRunning = false;
     if (SlideGame.animId) cancelAnimationFrame(SlideGame.animId);
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
-    if (SlideGame.speechWatchdog) clearTimeout(SlideGame.speechWatchdog);
+    if (SlideGame.promptWatchdog) clearTimeout(SlideGame.promptWatchdog);
     SlideGame.isSpeaking = false;
     SlideGame.isAdvancing = false;
     if (typeof stopAllAudio === 'function') stopAllAudio();
@@ -145,13 +183,13 @@
     if (!SlideGame.canvas) return;
     SlideGame.ctx = SlideGame.canvas.getContext('2d');
 
-    // Inicializar estrellas de fondo
+    // Inicializar estrellas cósmicas
     SlideGame.stars = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 45; i++) {
       SlideGame.stars.push({
         x: Math.random(),
         y: Math.random(),
-        size: 1 + Math.random() * 2,
+        size: 1 + Math.random() * 2.5,
         twinkle: Math.random() * Math.PI * 2
       });
     }
@@ -193,10 +231,13 @@
     const c = SlideGame.cases[index % SlideGame.cases.length];
     SlideGame.currentCase = c;
     SlideGame.isAdvancing = false;
+    SlideGame.isSliding = false;
     SlideGame.selectedCard = null;
     SlideGame.rocketProgress = 0;
     SlideGame.hasLanded = false;
+    SlideGame.lastStationPassed = -1;
     SlideGame.floatingTexts = [];
+    SlideGame.sparks = [];
 
     // Opciones ilustradas para cuando el cohete aterrice
     const opts = [
@@ -224,7 +265,7 @@
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
     SlideGame.voiceTimeout = setTimeout(() => {
       speakSlideIntro();
-    }, 300);
+    }, 350);
   }
 
   function repositionSlideCards() {
@@ -233,35 +274,74 @@
     const cards = SlideGame.cards;
     if (!cards || cards.length === 0) return;
 
-    const cardW = Math.min(140, Math.floor(w * 0.28));
-    const cardH = Math.min(160, Math.floor(h * 0.35));
-    const startX = w * 0.5 - ((cards.length * cardW + (cards.length - 1) * 16) / 2);
-    const posY = h * 0.65;
+    const cardW = Math.min(145, Math.floor(w * 0.28));
+    const cardH = Math.min(155, Math.floor(h * 0.33));
+    const startX = w * 0.5 - ((cards.length * cardW + (cards.length - 1) * 14) / 2);
+    const posY = h * 0.63;
 
     cards.forEach((c, i) => {
       c.w = cardW;
       c.h = cardH;
-      c.x = startX + i * (cardW + 16);
+      c.x = startX + i * (cardW + 14);
       c.y = posY;
     });
   }
 
   function updateSlideHUD() {
     const titleEl = document.getElementById('slide-case-title');
-    if (titleEl) titleEl.innerText = `Misión Espacial ${SlideGame.currentCaseIndex + 1} de ${SlideGame.cases.length}`;
+    if (titleEl) {
+      titleEl.innerText = `Misión ${SlideGame.currentCaseIndex + 1} de ${SlideGame.cases.length}`;
+    }
+
+    const bannerText = document.getElementById('slide-instruction-text');
+    const actionBtn = document.getElementById('slide-action-btn');
+
+    if (!SlideGame.hasLanded) {
+      if (bannerText) {
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Desliza o toca el cohete para unir los sonidos!</span>';
+      }
+      if (actionBtn) {
+        actionBtn.style.display = 'flex';
+        actionBtn.innerHTML = '<span>🚀 ¡DESLIZAR!</span>';
+        actionBtn.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
+      }
+    } else {
+      if (bannerText) {
+        bannerText.innerHTML = `<span>👉</span><span><strong>Paso 2:</strong> ¡Cohete aterrizó! ¿Cuál es la <strong>${SlideGame.currentCase.word}</strong>?</span>`;
+      }
+      if (actionBtn) {
+        actionBtn.style.display = 'flex';
+        actionBtn.innerHTML = '<span>🔊 Repetir Sonidos</span>';
+        actionBtn.style.background = 'linear-gradient(135deg, #0284C7, #0369A1)';
+      }
+    }
   }
 
   function speakSlideIntro() {
     if (!SlideGame.isRunning) return;
     if (typeof speakText === 'function') {
-      speakText('Desliza el cohete por el tobogán para unir los sonidos.');
+      speakText('Desliza el cohete por el tobogán para escuchar cómo se unen los sonidos.', () => {});
     }
   }
+
+  // Función invocable desde el botón HTML superior "¡DESLIZAR!" o "Repetir"
+  window.triggerSlideFromButton = function() {
+    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
+    if (SlideGame.hasLanded) {
+      // Re-deslizar para repasar la palabra
+      SlideGame.rocketProgress = 0;
+      SlideGame.hasLanded = false;
+      SlideGame.lastStationPassed = -1;
+      updateSlideHUD();
+    }
+    startRocketSlide();
+  };
 
   // --- DIBUJADO DE LA ESCENA ESPACIAL Y TOBOGÁN ---
   function slideLoop() {
     if (!SlideGame.isRunning) return;
     SlideGame.time += 0.02;
+    SlideGame.pulseTimer += 0.04;
 
     renderSlideScene();
     SlideGame.animId = requestAnimationFrame(slideLoop);
@@ -275,14 +355,15 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Cielo cósmico con estrellas parpadeantes
+    // 1. Cielo cósmico profundo
     const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-    bgGrad.addColorStop(0, '#0F172A');
-    bgGrad.addColorStop(0.6, '#1E1B4B');
-    bgGrad.addColorStop(1, '#312E81');
+    bgGrad.addColorStop(0, '#090D16');
+    bgGrad.addColorStop(0.5, '#1E1B4B');
+    bgGrad.addColorStop(1, '#0F172A');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
+    // Estrellas parpadeantes
     ctx.fillStyle = '#FFFFFF';
     SlideGame.stars.forEach(st => {
       const alpha = 0.3 + 0.7 * Math.abs(Math.sin(SlideGame.time * 2 + st.twinkle));
@@ -293,110 +374,221 @@
 
     if (!c) return;
 
-    // 2. Curva del tobogán espacial (Rampa luminosa)
-    const startX = w * 0.15;
-    const startY = h * 0.18;
-    const endX = w * 0.85;
-    const endY = h * 0.48;
+    // 2. Coordenadas de la Rampa Cósmica (Curva suave de Bézier)
+    const startX = w * 0.12;
+    const startY = h * 0.16;
+    const ctrlX = w * 0.45;
+    const ctrlY = h * 0.18 + 50;
+    const endX = w * 0.88;
+    const endY = h * 0.46;
 
-    // Tubo del tobogán
+    // Tubo base exterior de la rampa
     ctx.save();
     ctx.shadowColor = '#38BDF8';
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 14;
     ctx.strokeStyle = '#0284C7';
     ctx.lineWidth = 14;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(w * 0.5, startY + 40, endX, endY);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
     ctx.stroke();
 
-    // Riel brillante interior
+    // Riel luminoso interior
     ctx.strokeStyle = '#BAE6FD';
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(w * 0.5, startY + 40, endX, endY);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
     ctx.stroke();
     ctx.restore();
 
-    // 3. Estaciones de letras a lo largo de la rampa
+    // 3. Estaciones de letras fonémicas a lo largo de la rampa
     const phonemes = c.phonemes;
     phonemes.forEach((letter, i) => {
       const t = (i + 0.5) / phonemes.length;
-      const lx = getQuadraticBezierPoint(startX, w * 0.5, endX, t);
-      const ly = getQuadraticBezierPoint(startY, startY + 40, endY, t);
+      const lx = getQuadraticBezierPoint(startX, ctrlX, endX, t);
+      const ly = getQuadraticBezierPoint(startY, ctrlY, endY, t);
+
+      const isPassed = (SlideGame.rocketProgress >= t);
+      const isCurrent = (SlideGame.isSliding && Math.abs(SlideGame.rocketProgress - t) < 0.14);
 
       // Círculo luminoso para cada letra
-      const isPassed = (SlideGame.rocketProgress >= t);
-      ctx.fillStyle = isPassed ? '#10B981' : '#1E293B';
+      ctx.save();
+      if (isCurrent) {
+        ctx.shadowColor = '#FBBF24';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#F59E0B';
+      } else if (isPassed) {
+        ctx.shadowColor = '#34D399';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#10B981';
+      } else {
+        ctx.fillStyle = '#1E293B';
+      }
+
+      const radius = isCurrent ? 26 : 22;
       ctx.beginPath();
-      ctx.arc(lx, ly - 28, 22, 0, Math.PI * 2);
+      ctx.arc(lx, ly - 26, radius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = isPassed ? '#6EE7B7' : '#38BDF8';
-      ctx.lineWidth = 3;
+
+      ctx.strokeStyle = isCurrent ? '#FDE68A' : (isPassed ? '#6EE7B7' : '#38BDF8');
+      ctx.lineWidth = isCurrent ? 4 : 3;
       ctx.stroke();
 
-      ctx.font = '900 20px "Comic Neue", "Nunito", sans-serif';
+      // Letra impresa en negrita
+      ctx.font = `900 ${isCurrent ? 24 : 20}px "Comic Neue", "Nunito", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = isPassed ? '#FFFFFF' : '#BAE6FD';
-      ctx.fillText(letter, lx, ly - 27);
+      ctx.fillStyle = (isCurrent || isPassed) ? '#FFFFFF' : '#BAE6FD';
+      ctx.fillText(letter, lx, ly - 25);
+      ctx.restore();
     });
 
-    // 4. Cohete deslizándose por la curva
-    const rx = getQuadraticBezierPoint(startX, w * 0.5, endX, SlideGame.rocketProgress);
-    const ry = getQuadraticBezierPoint(startY, startY + 40, endY, SlideGame.rocketProgress);
+    // 4. Plataforma de aterrizaje al final de la rampa
+    ctx.save();
+    ctx.fillStyle = SlideGame.hasLanded ? '#047857' : '#334155';
+    ctx.strokeStyle = SlideGame.hasLanded ? '#34D399' : '#64748B';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(endX, endY + 12, 34, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
 
-    // Fuego del cohete si está deslizándose
-    if (SlideGame.rocketProgress > 0.05 && SlideGame.rocketProgress < 0.98) {
+    // 5. Cohete deslizándose por la curva de Bézier
+    const rx = getQuadraticBezierPoint(startX, ctrlX, endX, SlideGame.rocketProgress);
+    const ry = getQuadraticBezierPoint(startY, ctrlY, endY, SlideGame.rocketProgress);
+
+    // Llamarada y estela del cohete durante el deslizamiento
+    if (SlideGame.rocketProgress > 0.03 && SlideGame.rocketProgress < 0.98) {
       ctx.save();
-      ctx.translate(rx - 25, ry);
+      ctx.translate(rx - 28, ry - 6);
       ctx.fillStyle = '#F59E0B';
       ctx.beginPath();
-      ctx.arc(0, 0, 10 + Math.random() * 6, 0, Math.PI * 2);
+      ctx.arc(0, 0, 9 + Math.random() * 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.arc(-8, 0, 6 + Math.random() * 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
-    // Dibujar cohete emoji estilizado
-    ctx.font = '40px sans-serif';
+    // Dibujar el cohete
+    ctx.save();
+    ctx.font = '42px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('🚀', rx, ry - 10);
 
-    // 5. Dibujar opciones ilustradas abajo
+    // Inclinación del cohete siguiendo la rampa
+    const angle = (SlideGame.rocketProgress < 0.95) ? 0.35 : 0;
+    ctx.translate(rx, ry - 14);
+    ctx.rotate(angle);
+    ctx.fillText('🚀', 0, 0);
+    ctx.restore();
+
+    // 6. Flecha y pista visual si está esperando que el niño deslice el cohete
+    if (!SlideGame.hasLanded && !SlideGame.isSliding) {
+      const bounce = Math.sin(SlideGame.pulseTimer * 4) * 8;
+      ctx.save();
+      ctx.fillStyle = '#FBBF24';
+      ctx.font = '900 13px "Comic Neue", "Nunito", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 4;
+      ctx.fillText('¡Tócame o deslízame! 👇', rx, ry - 42 + bounce);
+      ctx.font = '22px sans-serif';
+      ctx.fillText('👇', rx, ry - 24 + bounce);
+      ctx.restore();
+    }
+
+    // 7. Cartel central de Palabra Fusionada al Aterrizar
+    if (SlideGame.hasLanded) {
+      ctx.save();
+      const bannerW = Math.min(320, w * 0.7);
+      const bannerH = 46;
+      const bx = (w - bannerW) / 2;
+      const by = h * 0.47;
+
+      ctx.shadowColor = '#38BDF8';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      roundRect(ctx, bx, by, bannerW, bannerH, 20);
+      ctx.fill();
+      ctx.strokeStyle = '#38BDF8';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.font = '900 22px "Comic Neue", "Nunito", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#FBBF24';
+      ctx.fillText(`✨ ${c.word} ✨`, w / 2, by + bannerH / 2);
+      ctx.restore();
+    }
+
+    // 8. Dibujar las 3 tarjetas inferiores
     SlideGame.cards.forEach(card => {
       ctx.save();
       ctx.translate(card.x + card.w / 2 + (card.shake ? Math.sin(SlideGame.time * 30) * card.shake : 0), card.y + card.h / 2);
       ctx.scale(card.scale, card.scale);
 
-      ctx.shadowColor = 'rgba(0,0,0,0.35)';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#FFFFFF';
-      roundRect(ctx, -card.w / 2, -card.h / 2, card.w, card.h, 16);
-      ctx.fill();
-      ctx.strokeStyle = (card === SlideGame.selectedCard) ? '#10B981' : '#38BDF8';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      // Si aún no aterrizó el cohete, las tarjetas se muestran bloqueadas (Modo Misterio)
+      if (!SlideGame.hasLanded) {
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = '#1E293B';
+        roundRect(ctx, -card.w / 2, -card.h / 2, card.w, card.h, 16);
+        ctx.fill();
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
 
-      const img = getCachedImg(card.image);
-      if (img && img.complete && img.naturalWidth > 0) {
-        const ih = card.h * 0.54;
-        const iw = (img.naturalWidth / img.naturalHeight) * ih;
-        ctx.drawImage(img, -iw / 2, -card.h / 2 + 10, iw, ih);
+        // Ícono de candado / misterio
+        ctx.font = '36px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🔒', 0, -15);
+
+        ctx.font = '800 11px "Comic Neue", "Nunito", sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText('Desliza el cohete', 0, card.h / 2 - 28);
+        ctx.fillText('para ver', 0, card.h / 2 - 14);
+
+      } else {
+        // Tarjeta desbloqueada: Ilustración y palabra clara
+        ctx.shadowColor = (card === SlideGame.selectedCard) ? '#34D399' : 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = (card === SlideGame.selectedCard) ? 16 : 8;
+        ctx.fillStyle = '#FFFFFF';
+        roundRect(ctx, -card.w / 2, -card.h / 2, card.w, card.h, 16);
+        ctx.fill();
+
+        ctx.strokeStyle = (card === SlideGame.selectedCard) ? '#10B981' : '#38BDF8';
+        ctx.lineWidth = (card === SlideGame.selectedCard) ? 4 : 2.5;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        const img = getCachedImg(card.image);
+        if (img && img.complete && img.naturalWidth > 0) {
+          const ih = card.h * 0.52;
+          const iw = (img.naturalWidth / img.naturalHeight) * ih;
+          ctx.drawImage(img, -iw / 2, -card.h / 2 + 10, iw, ih);
+        }
+
+        ctx.font = '900 16px "Comic Neue", "Nunito", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0F172A';
+        ctx.fillText(card.word, 0, card.h / 2 - 14);
       }
-
-      ctx.font = '900 16px "Comic Neue", "Nunito", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#0F172A';
-      ctx.fillText(card.word, 0, card.h / 2 - 16);
 
       ctx.restore();
     });
 
-    // 6. Textos flotantes
+    // 9. Efectos de partículas de chispas y textos flotantes
+    updateAndDrawSparks(ctx);
     updateAndDrawSlideEffects(ctx);
   }
 
@@ -418,6 +610,42 @@
     ctx.closePath();
   }
 
+  function spawnSparks(x, y, color) {
+    for (let i = 0; i < 12; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 3.5;
+      SlideGame.sparks.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 2 + Math.random() * 3,
+        color: color || '#FBBF24',
+        alpha: 1.0
+      });
+    }
+  }
+
+  function updateAndDrawSparks(ctx) {
+    for (let i = SlideGame.sparks.length - 1; i >= 0; i--) {
+      const sp = SlideGame.sparks[i];
+      sp.x += sp.vx;
+      sp.y += sp.vy;
+      sp.alpha -= 0.03;
+      if (sp.alpha <= 0) {
+        SlideGame.sparks.splice(i, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, sp.alpha);
+      ctx.fillStyle = sp.color;
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
   function updateAndDrawSlideEffects(ctx) {
     for (let i = SlideGame.floatingTexts.length - 1; i >= 0; i--) {
       const ft = SlideGame.floatingTexts[i];
@@ -437,7 +665,7 @@
     }
   }
 
-  // --- CONTROLES Y EVENTOS ---
+  // --- CONTROLES Y EVENTOS DE INTERACCIÓN ---
   function setupSlideEventListeners() {
     const canvas = SlideGame.canvas;
     if (!canvas) return;
@@ -456,13 +684,13 @@
       if (SlideGame.isAdvancing) return;
       const pos = getCoords(e);
 
-      // Si toca el cohete en la parte superior, iniciar deslizamiento
+      // Si hace clic en la zona superior (el cohete o la rampa)
       if (pos.y < SlideGame.height * 0.55) {
         startRocketSlide();
         return;
       }
 
-      // Si toca una de las tarjetas de abajo
+      // Si hace clic en una de las tarjetas de abajo
       SlideGame.cards.forEach(card => {
         if (pos.x >= card.x && pos.x <= card.x + card.w &&
             pos.y >= card.y && pos.y <= card.y + card.h) {
@@ -478,51 +706,125 @@
     };
   }
 
+  // Deslizamiento suave y continuo con reproducción fonémica sincrónica
   function startRocketSlide() {
-    if (SlideGame.isAdvancing || SlideGame.rocketProgress > 0.05) return;
+    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
 
     const c = SlideGame.currentCase;
     if (!c) return;
 
-    // Locución continua de fusión suave sin cortes
-    if (typeof speakText === 'function') {
-      speakText(`${c.word}`, () => {});
+    SlideGame.isSliding = true;
+    SlideGame.rocketProgress = 0;
+    SlideGame.lastStationPassed = -1;
+
+    // Actualizar indicador superior
+    const bannerText = document.getElementById('slide-instruction-text');
+    if (bannerText) {
+      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
     }
 
-    // Animación fluida de deslizamiento
+    const startX = SlideGame.width * 0.12;
+    const ctrlX = SlideGame.width * 0.45;
+    const endX = SlideGame.width * 0.88;
+    const startY = SlideGame.height * 0.16;
+    const ctrlY = SlideGame.height * 0.18 + 50;
+    const endY = SlideGame.height * 0.46;
+
+    // Duración pedagógica adecuada para que el niño perciba cada fonema (3.2 segundos)
+    const duration = 3200;
     const startTime = performance.now();
-    const duration = 1400; // ms
+    const numPhonemes = c.phonemes.length;
+
+    // Escala musical pentatónica para refuerzo auditivo
+    const pitches = [261.6, 329.6, 392.0, 523.2];
 
     function animateSlide(now) {
+      if (!SlideGame.isRunning) return;
       const elapsed = now - startTime;
       const p = Math.min(1.0, elapsed / duration);
       SlideGame.rocketProgress = p;
 
+      // Comprobar si pasa por una estación de letra
+      const stationIndex = Math.floor(p * numPhonemes);
+      if (stationIndex > SlideGame.lastStationPassed && stationIndex < numPhonemes) {
+        SlideGame.lastStationPassed = stationIndex;
+
+        const letter = c.phonemes[stationIndex];
+        const soundText = (c.sounds && c.sounds[stationIndex]) ? c.sounds[stationIndex] : letter;
+        const stationT = (stationIndex + 0.5) / numPhonemes;
+        const sx = getQuadraticBezierPoint(startX, ctrlX, endX, stationT);
+        const sy = getQuadraticBezierPoint(startY, ctrlY, endY, stationT);
+
+        spawnSparks(sx, sy - 26, '#FBBF24');
+        playStationChime(pitches[stationIndex % pitches.length] || 350);
+
+        // Locución fónica continua
+        if (typeof speakText === 'function') {
+          speakText(soundText, () => {});
+        }
+      }
+
       if (p < 1.0) {
         requestAnimationFrame(animateSlide);
       } else {
+        // Cohete llega a la meta
         SlideGame.rocketProgress = 1.0;
+        SlideGame.isSliding = false;
         SlideGame.hasLanded = true;
+
         playRocketWhoosh();
+        spawnSparks(endX, endY, '#34D399');
+
+        // Pronunciar la palabra completa fusionada y dar consigna clara
+        if (typeof speakText === 'function') {
+          speakText(`¡${c.word}! Ahora busca cuál es la imagen de ${c.pron}.`, () => {});
+        }
+
+        updateSlideHUD();
       }
     }
+
     requestAnimationFrame(animateSlide);
   }
 
+  // Manejo de clics en las tarjetas
   function handleSlideCardClick(card) {
     if (SlideGame.isAdvancing) return;
 
+    // 🔒 BLOQUEO PEDAGÓGICO: Si aún no se deslizó el cohete, no se permite responder
+    if (!SlideGame.hasLanded) {
+      card.shake = 8;
+      playErrorSound();
+
+      SlideGame.floatingTexts.push({
+        x: card.x + card.w / 2,
+        y: card.y - 15,
+        text: '¡Desliza el cohete primero! 🚀',
+        color: '#F59E0B',
+        alpha: 1.0,
+        vy: -1.2
+      });
+
+      if (typeof speakText === 'function') {
+        speakText('Primero desliza el cohete por las letras para descubrir la palabra.', () => {});
+      }
+
+      setTimeout(() => { card.shake = 0; }, 400);
+      return;
+    }
+
+    // 🎯 Cohete aterrizado: evaluar respuesta
     if (card.isTarget) {
       SlideGame.isAdvancing = true;
       SlideGame.selectedCard = card;
-      card.scale = 1.1;
+      card.scale = 1.12;
 
       playSuccessSound();
 
       SlideGame.floatingTexts.push({
         x: card.x + card.w / 2,
         y: card.y - 20,
-        text: `¡DESPEGUE! ¡Es ${card.word}! 🚀`,
+        text: `¡CORRECTO! ¡Es ${card.word}! ⭐`,
         color: '#10B981',
         alpha: 1.0,
         vy: -1.2
@@ -534,7 +836,7 @@
       }
 
       if (typeof speakText === 'function') {
-        speakText(`¡Súper, tarea lograda! ¡${card.pron}!`, () => {});
+        speakText(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
       }
 
       setTimeout(() => {
@@ -563,7 +865,7 @@
       setTimeout(() => { card.shake = 0; }, 400);
 
       if (typeof speakText === 'function') {
-        speakText(`Esa es ${card.pron}. Desliza el cohete para escuchar la palabra.`);
+        speakText(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
       }
     }
   }
@@ -585,6 +887,23 @@
     window.closeSlideAndReturnToMap();
   };
 
+  // --- EFECTOS DE SONIDO WEB AUDIO ---
+  function playStationChime(freq) {
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq || 350, ac.currentTime);
+      gain.gain.setValueAtTime(0.2, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.25);
+      osc.start();
+      osc.stop(ac.currentTime + 0.25);
+    } catch(e) {}
+  }
+
   function playRocketWhoosh() {
     try {
       const ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -593,12 +912,12 @@
       osc.connect(gain);
       gain.connect(ac.destination);
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(150, ac.currentTime + 0.3);
-      gain.gain.setValueAtTime(0.25, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.3);
+      osc.frequency.setValueAtTime(280, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, ac.currentTime + 0.35);
+      gain.gain.setValueAtTime(0.3, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.35);
       osc.start();
-      osc.stop(ac.currentTime + 0.3);
+      osc.stop(ac.currentTime + 0.35);
     } catch(e) {}
   }
 
@@ -611,7 +930,7 @@
       gain.connect(ac.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(440, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ac.currentTime + 0.25);
+      osc.frequency.exponentialRampToValueAtTime(880, ac.currentTime + 0.28);
       gain.gain.setValueAtTime(0.3, ac.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.35);
       osc.start();

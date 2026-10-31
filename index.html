@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v283';
+    const CURRENT_APP_VERSION = 'v284';
 
     function syncAppVersionLabels() {
       try {
@@ -124,7 +124,7 @@
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
   <script src="transformer.js?v=283"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="slide.js?v=283"></script>
+  <script src="slide.js?v=284"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
   <script src="mirror_lighthouse.js?v=283"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
@@ -2737,6 +2737,16 @@
               <span>ℹ️ Terapeuta</span>
             </button>
           </div>
+        </div>
+        <!-- 🚀 BANNER INSTRUCTIVO PASO A PASO CON BOTÓN DE ACCIÓN -->
+        <div id="slide-instruction-banner" style="display: flex; align-items: center; justify-content: space-between; background: #1E293B; border: 1.5px solid #0284C7; border-radius: 14px; padding: 6px 12px; margin-bottom: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); gap: 8px;">
+          <div id="slide-instruction-text" style="font-size: 12px; font-weight: 800; color: #BAE6FD; display: flex; align-items: center; gap: 6px;">
+            <span>👆</span>
+            <span><strong>Paso 1:</strong> ¡Desliza o toca el cohete para unir los sonidos!</span>
+          </div>
+          <button id="slide-action-btn" onclick="triggerSlideFromButton()" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 2px 8px rgba(245,158,11,0.4); display: flex; align-items: center; gap: 4px; white-space: nowrap;">
+            <span>🚀 ¡DESLIZAR!</span>
+          </button>
         </div>
         <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #0F172A; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); border: 2px solid #0284C7;">
           <canvas id="slide-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
