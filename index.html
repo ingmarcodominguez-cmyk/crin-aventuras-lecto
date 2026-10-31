@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v282';
+    const CURRENT_APP_VERSION = 'v283';
 
     function syncAppVersionLabels() {
       try {
@@ -106,19 +106,29 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=282"></script>
+  <script src="lexicon.js?v=283"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=282"></script>
+  <script src="archery.js?v=283"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=282"></script>
+  <script src="cauldron.js?v=283"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=282"></script>
+  <script src="fisherman.js?v=283"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=282"></script>
+  <script src="train.js?v=283"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=282"></script>
+  <script src="detective.js?v=283"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=282"></script>
+  <script src="aac_keyboard.js?v=283"></script>
+  <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
+  <script src="therapist_guide.js?v=283"></script>
+  <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
+  <script src="transformer.js?v=283"></script>
+  <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
+  <script src="slide.js?v=283"></script>
+  <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
+  <script src="mirror_lighthouse.js?v=283"></script>
+  <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
+  <script src="basket.js?v=283"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 
@@ -1506,6 +1516,71 @@
               </button>
             </div>
 
+            <!-- 🪄 7. LA MÁQUINA DE TRANSFORMAR PALABRAS -->
+            <div onclick="openTransformerScreen()" style="background: linear-gradient(135deg, #78350F 0%, #B45309 50%, #D97706 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #FDE68A; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🪄</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Máquina de Transformar</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Elisión Fonémica · Kilpatrick</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #B45309; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
+              </button>
+            </div>
+
+            <!-- 🚀 8. EL TOBOGÁN DE FUSIÓN SUAVE -->
+            <div onclick="openSlideScreen()" style="background: linear-gradient(135deg, #0369A1 0%, #0284C7 50%, #38BDF8 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #BAE6FD; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🚀</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Tobogán de Fusión</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Continuous Blending · Memoria</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #0284C7; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
+              </button>
+            </div>
+
+            <!-- 🪞 9. EL FARO DEL ESPEJO -->
+            <div onclick="openMirrorScreen()" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #CBD5E1; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🪞</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">El Faro del Espejo</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Inversión b/d/p/q · Dehaene</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #0F172A; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
+              </button>
+            </div>
+
+            <!-- 🧺 10. LA CANASTA DE LOS SECRETOS -->
+            <div onclick="openBasketScreen()" style="background: linear-gradient(135deg, #065F46 0%, #059669 50%, #10B981 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #A7F3D0; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🧺</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Canasta de Secretos</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Categorías Semánticas · Intruso</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #065F46; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
+              </button>
+            </div>
+
+          </div>
+
+          <!-- BOTÓN DIRECTO GUÍA DEL TERAPEUTA EN EL MAPA -->
+          <div onclick="openTherapistGuideModal('cauldron')" style="background: #F1F5F9; border: 2px dashed #94A3B8; border-radius: 14px; padding: 8px 12px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 18px;">ℹ️</span>
+              <span style="font-size: 12px; font-weight: 800; color: #334155;">Guía para el Terapeuta: Fundamento Científico y Objetivos de las 10 Actividades</span>
+            </div>
+            <span style="font-size: 11px; font-weight: 800; color: #0284C7;">Consultar ➔</span>
           </div>
 
           <!-- 💬 7. EL TECLADO DE PICTOGRAMAS SAAC -->
@@ -1770,6 +1845,25 @@
         </div>
         
         
+        <!-- 📖 APARTADO EXCLUSIVO PARA EL TERAPEUTA: GUÍA CLÍNICA Y FUNDAMENTOS -->
+        <div class="panel-card" onclick="openTherapistGuideModal('cauldron')" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%); color: white; border: 3px solid #818CF8; border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(49,46,129,0.3); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-size: 38px; background: rgba(255,255,255,0.2); border-radius: 16px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.25);">📖</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+                <span>Guía Clínica de Fundamentos y Objetivos Terapéuticos</span>
+                <span style="font-size: 10px; background: #10B981; color: white; padding: 2px 7px; border-radius: 8px; font-weight: 800;">DUA / SoR</span>
+              </div>
+              <p style="font-size: 11px; color: #E0E7FF; margin: 4px 0 0 0; line-height: 1.35;">
+                Consulta el marco neurocognitivo, objetivos clínicos y pautas de andamiaje para las 10 actividades psicopedagógicas de CRIN (Rimas, Sílabas, Cajas de Elkonin, Pares Mínimos, Elisión, Continuous Blending, Simetría b/d y Categorización).
+              </p>
+            </div>
+          </div>
+          <button style="background: white; color: #312E81; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); white-space: nowrap;">
+            Abrir Guía ➔
+          </button>
+        </div>
+
         <!-- 🧠 CONFIGURACIÓN PSICOPEDAGÓGICA Y NEURODESARROLLO (MONTESSORI & MÉTODO BOO) -->
         <div class="panel-card" style="background: linear-gradient(135deg, #F0FDF4 0%, #E0F2FE 100%); border: 3px solid #0284C7; border-radius: 20px; padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(2,132,199,0.18);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid #BAE6FD; padding-bottom: 10px;">
@@ -2492,6 +2586,9 @@
               <span id="detective-contrast-badge" style="font-size: 10px; font-weight: 800; background: #4338CA; color: white; padding: 2px 7px; border-radius: 8px;">Pares Mínimos</span>
             </div>
           </div>
+          <button onclick="openTherapistGuideModal('detective')" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #C7D2FE; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+            <span>ℹ️ Terapeuta</span>
+          </button>
           <button onclick="speakCurrentDetectiveClue()" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #FEF08A; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
             <span>🔊 Repetir Pista</span>
           </button>
@@ -2565,6 +2662,234 @@
         <!-- CUADRÍCULA DE PICTOGRAMAS -->
         <div id="aac-pictogram-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; flex: 1; overflow-y: auto; padding-bottom: 10px;">
           <!-- Pictogramas cargados dinámicamente -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 🪄 SCREEN 13: LA MÁQUINA DE TRANSFORMAR PALABRAS -->
+    <div id="screen-transformer" class="screen" style="background: #1E1B4B;">
+      <div class="game-screen-container" style="position: relative; overflow: hidden; background: #1E1B4B; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: #2E1065; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); gap: 6px; border: 1px solid #7E22CE;">
+          <button onclick="closeTransformerAndReturnToMap()" style="background: #3B0764; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #F1F5F9; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <span>⬅️ Salir</span>
+          </button>
+          <div style="text-align: center; flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 900; color: #FBBF24; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <span>🪄</span>
+              <span id="transformer-case-title">Máquina de Transformar</span>
+              <span id="transformer-prompt-badge" style="font-size: 10px; font-weight: 800; background: #D97706; color: white; padding: 2px 7px; border-radius: 8px;">Elisión Fonémica</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="openTherapistGuideModal('transformer')" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #E9D5FF; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+              <span>ℹ️ Terapeuta</span>
+            </button>
+            <button onclick="speakTransformerMission()" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #FEF08A; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+              <span>🔊 Pista</span>
+            </button>
+          </div>
+        </div>
+        <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #1E1B4B; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); border: 2px solid #7E22CE;">
+          <canvas id="transformer-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VICTORIA TRANSFORMER -->
+    <div id="transformer-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #D97706; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🪄⚙️⭐</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #B45309; margin-bottom: 6px;">¡Palabras Transformadas!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Quitaste y cambiaste sonidos mentales como un verdadero maestro alquimista!
+        </p>
+        <div style="background: #FEF3C7; border: 2px dashed #D97706; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #92400E;">🏆 Alquimista Fonémico Dorado</div>
+          <div style="font-size: 16px; font-weight: 800; color: #B45309; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="replayTransformerQuest()" style="background: linear-gradient(135deg, #D97706, #B45309); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(217,119,6,0.3);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeTransformerVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚀 SCREEN 14: EL TOBOGÁN DE FUSIÓN SUAVE -->
+    <div id="screen-slide" class="screen" style="background: #0F172A;">
+      <div class="game-screen-container" style="position: relative; overflow: hidden; background: #0F172A; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: #1E293B; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); gap: 6px; border: 1px solid #0284C7;">
+          <button onclick="closeSlideAndReturnToMap()" style="background: #0369A1; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #F1F5F9; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <span>⬅️ Salir</span>
+          </button>
+          <div style="text-align: center; flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 900; color: #38BDF8; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <span>🚀</span>
+              <span id="slide-case-title">Tobogán de Fusión</span>
+              <span style="font-size: 10px; font-weight: 800; background: #0284C7; color: white; padding: 2px 7px; border-radius: 8px;">Continuous Blending</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="openTherapistGuideModal('slide')" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #BAE6FD; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+              <span>ℹ️ Terapeuta</span>
+            </button>
+          </div>
+        </div>
+        <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #0F172A; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); border: 2px solid #0284C7;">
+          <canvas id="slide-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VICTORIA SLIDE -->
+    <div id="slide-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #0284C7; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🚀🌌⭐</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #0369A1; margin-bottom: 6px;">¡Misión Cósmica Cumplida!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Fundiste los sonidos fluidamente en el tobogán espacial!
+        </p>
+        <div style="background: #E0F2FE; border: 2px dashed #0284C7; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #0369A1;">🏆 Piloto de Fusión Estelar</div>
+          <div style="font-size: 16px; font-weight: 800; color: #0284C7; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="replaySlideQuest()" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.3);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeSlideVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🪞 SCREEN 15: EL FARO DEL ESPEJO -->
+    <div id="screen-mirror" class="screen" style="background: #020617;">
+      <div class="game-screen-container" style="position: relative; overflow: hidden; background: #020617; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: #0F172A; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); gap: 6px; border: 1px solid #334155;">
+          <button onclick="closeMirrorAndReturnToMap()" style="background: #1E293B; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #F1F5F9; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <span>⬅️ Salir</span>
+          </button>
+          <div style="text-align: center; flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 900; color: #FEF08A; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <span>🪞</span>
+              <span id="mirror-case-title">El Faro del Espejo</span>
+              <span id="mirror-tip-badge" style="font-size: 10px; font-weight: 800; background: #0369A1; color: white; padding: 2px 7px; border-radius: 8px;">Letras b/d/p/q</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="openTherapistGuideModal('mirror')" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #E2E8F0; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+              <span>ℹ️ Terapeuta</span>
+            </button>
+          </div>
+        </div>
+        <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #020617; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.5); border: 2px solid #334155;">
+          <canvas id="mirror-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VICTORIA MIRROR -->
+    <div id="mirror-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #0369A1; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🪞⚓⭐</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #0369A1; margin-bottom: 6px;">¡Farero de la Precisión!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Diferenciaste perfectamente las letras espejo con la luz del faro!
+        </p>
+        <div style="background: #E0F2FE; border: 2px dashed #0369A1; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #0369A1;">🏆 Guardián del Faro Marino</div>
+          <div style="font-size: 16px; font-weight: 800; color: #0284C7; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="replayMirrorQuest()" style="background: linear-gradient(135deg, #0369A1, #082F49); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(3,105,161,0.3);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeMirrorVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🧺 SCREEN 16: LA CANASTA DE LOS SECRETOS -->
+    <div id="screen-basket" class="screen" style="background: #E0F2FE;">
+      <div class="game-screen-container" style="position: relative; overflow: hidden; background: #E0F2FE; padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: white; padding: 6px 10px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); gap: 6px; border: 1px solid #A7F3D0;">
+          <button onclick="closeBasketAndReturnToMap()" style="background: #F1F5F9; border: none; padding: 6px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+            <span>⬅️ Salir</span>
+          </button>
+          <div style="text-align: center; flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 900; color: #047857; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+              <span>🧺</span>
+              <span id="basket-case-title">Canasta de Secretos</span>
+              <span id="basket-category-badge" style="font-size: 10px; font-weight: 800; background: #059669; color: white; padding: 2px 7px; border-radius: 8px;">Categorías</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="openTherapistGuideModal('basket')" style="background: #F0FDF4; border: 1px solid #A7F3D0; color: #047857; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+              <span>ℹ️ Terapeuta</span>
+            </button>
+          </div>
+        </div>
+        <div style="position: relative; flex: 1; width: 100%; min-height: 340px; background: #E0F2FE; border-radius: 18px; overflow: hidden; box-shadow: inset 0 2px 12px rgba(0,0,0,0.06); border: 2px solid #059669;">
+          <canvas id="basket-canvas" style="width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VICTORIA BASKET -->
+    <div id="basket-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #059669; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🧺🍎⭐</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #047857; margin-bottom: 6px;">¡Picnic Semántico Exitoso!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Detectaste todos los intrusos y ordenaste las canastas por categoría!
+        </p>
+        <div style="background: #ECFDF5; border: 2px dashed #059669; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #047857;">🏆 Maestro de Categorías Semánticas</div>
+          <div style="font-size: 16px; font-weight: 800; color: #059669; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="replayBasketQuest()" style="background: linear-gradient(135deg, #059669, #047857); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.3);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeBasketVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📖 MODAL INTERACTIVO: GUÍA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA) -->
+    <div id="therapist-guide-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 10001; align-items: center; justify-content: center; padding: 14px;">
+      <div style="background: white; border-radius: 24px; padding: 18px 20px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 48px rgba(0,0,0,0.35); border: 3px solid #0284C7; display: flex; flex-direction: column;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #F1F5F9; padding-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 24px;">🧠</span>
+            <div>
+              <h2 style="font-size: 17px; font-weight: 900; color: #0369A1; margin: 0;">Apartado para el Terapeuta y Familias</h2>
+              <div style="font-size: 10px; color: #64748B; font-weight: 700;">Fundamentos Científicos · Objetivos Clínicos · Pautas de Andamiaje</div>
+            </div>
+          </div>
+          <button onclick="closeTherapistGuideModal()" style="background: #F1F5F9; border: none; font-size: 18px; width: 34px; height: 34px; border-radius: 50%; font-weight: 900; color: #64748B; cursor: pointer;">
+            ✕
+          </button>
+        </div>
+
+        <div id="therapist-guide-content" style="flex: 1; overflow-y: auto;">
+          <!-- Cargado dinámicamente por therapist_guide.js -->
+        </div>
+
+        <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end;">
+          <button onclick="closeTherapistGuideModal()" style="background: #0284C7; color: white; border: none; padding: 8px 18px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer;">
+            Cerrar Guía
+          </button>
         </div>
       </div>
     </div>
@@ -4022,6 +4347,18 @@
       }
       if (screenName !== 'detective' && typeof window.stopDetectiveGame === 'function') {
         window.stopDetectiveGame();
+      }
+      if (screenName !== 'transformer' && typeof window.closeTransformerAndReturnToMap === 'function' && window.TransformerGame && TransformerGame.isRunning) {
+        TransformerGame.isRunning = false;
+      }
+      if (screenName !== 'slide' && typeof window.closeSlideAndReturnToMap === 'function' && window.SlideGame && SlideGame.isRunning) {
+        SlideGame.isRunning = false;
+      }
+      if (screenName !== 'mirror' && typeof window.closeMirrorAndReturnToMap === 'function' && window.MirrorGame && MirrorGame.isRunning) {
+        MirrorGame.isRunning = false;
+      }
+      if (screenName !== 'basket' && typeof window.closeBasketAndReturnToMap === 'function' && window.BasketGame && BasketGame.isRunning) {
+        BasketGame.isRunning = false;
       }
       stopAllAudio();
       forceUnlockStoryPuzzle();
