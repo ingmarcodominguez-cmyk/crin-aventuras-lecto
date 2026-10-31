@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v289';
+    const CURRENT_APP_VERSION = 'v290';
 
     function syncAppVersionLabels() {
       try {
@@ -124,7 +124,7 @@
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
   <script src="transformer.js?v=286"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="slide.js?v=289"></script>
+  <script src="slide.js?v=290"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
   <script src="mirror_lighthouse.js?v=286"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
@@ -1946,7 +1946,13 @@
           
           <!-- BUSCADOR, NUEVA PALABRA Y BOTÓN DE SUBIR FOTO -->
           <div style="background: #FAF5FF; border: 1.5px solid #E9D5FF; border-radius: 14px; padding: 12px; margin-bottom: 12px;">
-            <div style="font-size: 11px; font-weight: bold; color: #6D28D9; margin-bottom: 8px;">➕ Agregar o Buscar Palabra y Dibujo:</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <div style="font-size: 11px; font-weight: bold; color: #6D28D9;">➕ Agregar o Buscar Palabra y Dibujo:</div>
+              <button id="dict-filter-rocket-btn" onclick="toggleDictRocketFilter()" style="background: #0F172A; color: #38BDF8; border: 1.5px solid #0284C7; border-radius: 10px; padding: 5px 12px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(15,23,42,0.3);" title="Mostrar únicamente las palabras que participan en el Tobogán del Cohete (2 y 3 sílabas)">
+                <span id="dict-filter-rocket-icon">🚀</span>
+                <span id="dict-filter-rocket-label">Ver Palabras del Cohete (Tobogán)</span>
+              </button>
+            </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
               <input type="text" id="dict-search-input" onkeyup="renderDictionaryEditorTable()" placeholder="🔍 Buscar palabra (ej: LIMA, LUNA)..." style="flex: 1.5; min-width: 170px; padding: 8px 12px; border-radius: 10px; border: 1.5px solid #DDD6FE; font-size: 12px; font-weight: bold;" />
               <input type="text" id="dict-add-word-input" placeholder="Nueva Palabra" style="flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid #DDD6FE; font-size: 12px; font-weight: bold; text-transform: uppercase;" />
@@ -6444,6 +6450,11 @@
 
       const cleanQuery = typeof removeAccents === 'function' ? removeAccents(query) : query;
       const filtered = sortedWords.filter(w => {
+        if (window.dictFilterOnlyRocket) {
+          const c = (typeof getCanonicalWord === 'function') ? getCanonicalWord(w) : null;
+          const sCount = (c && c.silabas) ? c.silabas.length : 0;
+          if (sCount < 2 || sCount > 3) return false;
+        }
         if (!cleanQuery) return true;
         const cleanW = typeof removeAccents === 'function' ? removeAccents(w) : w;
         return cleanW.includes(cleanQuery) || w.includes(query);
@@ -6537,6 +6548,44 @@
                 <strong style="color: #0F172A; letter-spacing: 1px;">${currentLetters}</strong>
               </div>
 
+              <!-- CUALIDAD 4: SIMULADOR TOBOGÁN DE FUSIÓN (EL COHETE) -->
+              ${(() => {
+                const syls = (canon && canon.silabas) ? canon.silabas : [];
+                const isRocketCandidate = (syls.length >= 2 && syls.length <= 3);
+                return `
+                  <div style="background: #090D16; border-radius: 12px; padding: 10px 12px; border: 1.5px solid ${isRocketCandidate ? '#38BDF8' : '#334155'}; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px;">
+                      <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 13px;">🚀</span>
+                        <span style="font-size: 10px; font-weight: 900; color: #38BDF8; letter-spacing: 0.5px;">EN EL JUEGO DEL COHETE:</span>
+                      </div>
+                      ${isRocketCandidate ? `
+                        <button onclick="playRocketWordSequence('${w}')" id="btn-rocket-play-${normKey}" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; padding: 4px 9px; border-radius: 7px; font-size: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(245,158,11,0.4);" title="Escuchar la secuencia continua exacta que hace el cohete en el juego">
+                          <span>▶️ Probar Cohete</span>
+                        </button>
+                      ` : `
+                        <span style="font-size: 9px; color: #64748B; font-weight: 700;">(${syls.length} sílabas - tobogán usa 2 o 3)</span>
+                      `}
+                    </div>
+
+                    <!-- Estaciones del tobogán con botones interactivos individuales -->
+                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;" id="rocket-stations-${normKey}">
+                      ${syls.map((syl, sIdx) => `
+                        <button onclick="playSyllableAudioClip('${syl}', this)" id="rocket-syl-${normKey}-${sIdx}" style="background: #1E293B; color: #BAE6FD; border: 1.5px solid #0284C7; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;" title="Escuchar sonido sostenido de la sílaba ${syl}">
+                          <span>🚀 ${syl}</span>
+                          <span style="font-size: 9px; opacity: 0.85;">🔊</span>
+                        </button>
+                        ${sIdx < syls.length - 1 ? '<span style="color: #38BDF8; font-weight: bold; font-size: 11px;">➔</span>' : ''}
+                      `).join('')}
+                      <span style="color: #34D399; font-weight: bold; font-size: 11px;">➔</span>
+                      <button onclick="playRocketWordProclaim('${displayWord}', this)" id="rocket-meta-${normKey}" style="background: #064E3B; color: #6EE7B7; border: 1.5px solid #34D399; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;" title="Palabra proclamada al aterrizar el cohete">
+                        <span>🏁 ¡${displayWord}!</span>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              })()}
+
               <!-- BOTONES DE ACCIÓN DE LA TARJETA -->
               <div style="display: flex; gap: 6px; margin-top: 4px;">
                 <button onclick="saveWordQualitiesFromCard('${normKey}')" style="flex: 1; background: linear-gradient(135deg, #10B981, #059669); color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
@@ -6599,6 +6648,219 @@
       if (typeof speakText === 'function') {
         speakText(parts.join(', '));
       }
+    }
+
+
+    // --- SIMULADOR AUDITIVO DEL COHETE Y TOBOGÁN DE FUSIÓN DENTRO DEL DICCIONARIO ---
+    window.dictFilterOnlyRocket = false;
+    function toggleDictRocketFilter() {
+      window.dictFilterOnlyRocket = !window.dictFilterOnlyRocket;
+      const btn = document.getElementById('dict-filter-rocket-btn');
+      const icon = document.getElementById('dict-filter-rocket-icon');
+      const label = document.getElementById('dict-filter-rocket-label');
+      if (btn) {
+        if (window.dictFilterOnlyRocket) {
+          btn.style.background = 'linear-gradient(135deg, #0284C7, #0369A1)';
+          btn.style.color = '#FFFFFF';
+          btn.style.borderColor = '#38BDF8';
+          if (icon) icon.innerText = '✅';
+          if (label) label.innerText = 'Mostrando: Solo Palabras del Cohete (2-3 Sílabas)';
+        } else {
+          btn.style.background = '#0F172A';
+          btn.style.color = '#38BDF8';
+          btn.style.borderColor = '#0284C7';
+          if (icon) icon.innerText = '🚀';
+          if (label) label.innerText = 'Ver Palabras del Cohete (Tobogán)';
+        }
+      }
+      renderDictionaryEditorTable();
+    }
+
+    function sylToFileNameForDict(syl) {
+      let s = (syl || '').trim().toLowerCase();
+      s = s.replace(/á/g, 'a_tilde')
+           .replace(/é/g, 'e_tilde')
+           .replace(/í/g, 'i_tilde')
+           .replace(/ó/g, 'o_tilde')
+           .replace(/ú/g, 'u_tilde')
+           .replace(/ñ/g, 'enie');
+      s = s.replace(/[^a-z0-9_]/g, '');
+      return `assets/audio/silabas_estiradas/${s}.mp3`;
+    }
+
+    let activeRocketAudio = null;
+
+    function playSyllableAudioClip(syl, btnEl) {
+      if (activeRocketAudio) {
+        try { activeRocketAudio.pause(); } catch(e) {}
+      }
+      const audioPath = sylToFileNameForDict(syl);
+      const audio = new Audio(audioPath);
+      activeRocketAudio = audio;
+
+      if (btnEl) {
+        btnEl.style.transform = 'scale(1.12)';
+        btnEl.style.background = '#F59E0B';
+        btnEl.style.borderColor = '#FDE68A';
+        btnEl.style.color = '#000000';
+      }
+
+      const resetBtn = () => {
+        if (btnEl) {
+          btnEl.style.transform = 'scale(1.0)';
+          btnEl.style.background = '#1E293B';
+          btnEl.style.borderColor = '#0284C7';
+          btnEl.style.color = '#BAE6FD';
+        }
+      };
+
+      audio.onended = resetBtn;
+      audio.onerror = () => {
+        resetBtn();
+        if (btnEl) {
+          btnEl.style.borderColor = '#EF4444';
+          btnEl.style.color = '#FCA5A5';
+        }
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast(`⚠️ No se encontró audio para la sílaba "${syl}" (${audioPath})`);
+        }
+      };
+
+      audio.play().catch(() => { resetBtn(); });
+    }
+
+    function playRocketWordProclaim(word, btnEl) {
+      if (btnEl) {
+        btnEl.style.transform = 'scale(1.15)';
+        btnEl.style.background = '#10B981';
+        btnEl.style.borderColor = '#A7F3D0';
+        btnEl.style.color = '#FFFFFF';
+      }
+      if (typeof speakText === 'function') {
+        speakText(`¡${word}!`, () => {
+          if (btnEl) {
+            btnEl.style.transform = 'scale(1.0)';
+            btnEl.style.background = '#064E3B';
+            btnEl.style.borderColor = '#34D399';
+            btnEl.style.color = '#6EE7B7';
+          }
+        });
+      } else {
+        setTimeout(() => {
+          if (btnEl) {
+            btnEl.style.transform = 'scale(1.0)';
+            btnEl.style.background = '#064E3B';
+            btnEl.style.borderColor = '#34D399';
+            btnEl.style.color = '#6EE7B7';
+          }
+        }, 800);
+      }
+    }
+
+    function playRocketWordSequence(wordKey) {
+      const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(wordKey) : null;
+      if (!canon || !canon.silabas) return;
+
+      const normKey = (typeof removeAccents === 'function') ? removeAccents(wordKey).toUpperCase() : wordKey.toUpperCase();
+      const playBtn = document.getElementById(`btn-rocket-play-${normKey}`);
+      if (playBtn) {
+        playBtn.disabled = true;
+        playBtn.style.opacity = '0.5';
+      }
+
+      const syls = canon.silabas;
+      let stepIdx = 0;
+
+      function runNextStep() {
+        if (stepIdx < syls.length) {
+          const currentSyl = syls[stepIdx];
+          const btnEl = document.getElementById(`rocket-syl-${normKey}-${stepIdx}`);
+          stepIdx++;
+
+          // Reproducir sílaba con realce visual
+          if (btnEl) {
+            btnEl.style.transform = 'scale(1.15)';
+            btnEl.style.background = '#F59E0B';
+            btnEl.style.borderColor = '#FDE68A';
+            btnEl.style.color = '#000000';
+            btnEl.style.boxShadow = '0 0 12px #FBBF24';
+          }
+
+          const audioPath = sylToFileNameForDict(currentSyl);
+          const audio = new Audio(audioPath);
+          activeRocketAudio = audio;
+
+          let advanced = false;
+          const advance = () => {
+            if (!advanced) {
+              advanced = true;
+              if (btnEl) {
+                btnEl.style.transform = 'scale(1.0)';
+                btnEl.style.background = '#10B981';
+                btnEl.style.borderColor = '#34D399';
+                btnEl.style.color = '#FFFFFF';
+                btnEl.style.boxShadow = 'none';
+              }
+              setTimeout(runNextStep, 80);
+            }
+          };
+
+          audio.onended = advance;
+          audio.onerror = advance;
+          setTimeout(advance, 1600); // Watchdog
+          audio.play().catch(advance);
+
+        } else {
+          // Aterrizaje en la meta: proclamación
+          const metaBtn = document.getElementById(`rocket-meta-${normKey}`);
+          if (metaBtn) {
+            metaBtn.style.transform = 'scale(1.18)';
+            metaBtn.style.background = '#10B981';
+            metaBtn.style.borderColor = '#FFFFFF';
+            metaBtn.style.color = '#FFFFFF';
+            metaBtn.style.boxShadow = '0 0 16px #34D399';
+          }
+
+          if (typeof speakText === 'function') {
+            speakText(`¡${canon.escritura || wordKey}!`, () => {
+              finishSequence();
+            });
+          } else {
+            setTimeout(finishSequence, 900);
+          }
+        }
+      }
+
+      function finishSequence() {
+        // Restaurar estado visual
+        syls.forEach((_, idx) => {
+          const el = document.getElementById(`rocket-syl-${normKey}-${idx}`);
+          if (el) {
+            el.style.transform = 'scale(1.0)';
+            el.style.background = '#1E293B';
+            el.style.borderColor = '#0284C7';
+            el.style.color = '#BAE6FD';
+            el.style.boxShadow = 'none';
+          }
+        });
+        const metaBtn = document.getElementById(`rocket-meta-${normKey}`);
+        if (metaBtn) {
+          metaBtn.style.transform = 'scale(1.0)';
+          metaBtn.style.background = '#064E3B';
+          metaBtn.style.borderColor = '#34D399';
+          metaBtn.style.color = '#6EE7B7';
+          metaBtn.style.boxShadow = 'none';
+        }
+        if (playBtn) {
+          playBtn.disabled = false;
+          playBtn.style.opacity = '1.0';
+        }
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast(`✅ Secuencia del Cohete completada: ¡${canon.escritura || wordKey}!`);
+        }
+      }
+
+      runNextStep();
     }
 
     function testCardWordPronunciation(normKey) {

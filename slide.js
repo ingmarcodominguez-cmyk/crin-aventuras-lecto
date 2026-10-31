@@ -417,6 +417,26 @@
     const bannerText = document.getElementById('slide-instruction-text');
     const actionBtn = document.getElementById('slide-action-btn');
 
+    if (SlideGame.canvas) {
+      SlideGame.canvas.style.cursor = SlideGame.isSpeaking ? 'wait' : 'pointer';
+    }
+
+    if (SlideGame.isSpeaking) {
+      if (bannerText) {
+        bannerText.innerHTML = '<span>👂</span><span style="color: #FBBF24;"><strong>Crin está hablando:</strong> Escucha con atención...</span>';
+      }
+      if (actionBtn) {
+        actionBtn.style.opacity = '0.5';
+        actionBtn.style.pointerEvents = 'none';
+      }
+      return;
+    }
+
+    if (actionBtn) {
+      actionBtn.style.opacity = '1.0';
+      actionBtn.style.pointerEvents = 'auto';
+    }
+
     if (!SlideGame.hasLanded) {
       if (bannerText) {
         bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el cohete para deslizar y unir los sonidos!</span>';
@@ -440,14 +460,28 @@
 
   function speakSlideIntro() {
     if (!SlideGame.isRunning) return;
+    SlideGame.isSpeaking = true;
+    updateSlideHUD();
+
+    const isFirst = (SlideGame.currentCaseIndex === 0);
+    const msg = isFirst 
+      ? 'Toca el cohete para unir los sonidos.' 
+      : '¡Siguiente palabra! Toca el cohete.';
+
     if (typeof speakText === 'function') {
-      speakText('Toca el cohete para escuchar cómo se unen los sonidos.', () => {});
+      speakText(msg, () => {
+        SlideGame.isSpeaking = false;
+        updateSlideHUD();
+      });
+    } else {
+      SlideGame.isSpeaking = false;
+      updateSlideHUD();
     }
   }
 
   window.triggerSlideFromButton = function() {
     getSlideAudioCtx();
-    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
+    if (SlideGame.isSpeaking || SlideGame.isAdvancing || SlideGame.isSliding) return;
     if (SlideGame.hasLanded) {
       SlideGame.rocketProgress = 0;
       SlideGame.hasLanded = false;
@@ -459,7 +493,7 @@
 
   // --- FUSIÓN CONTINUA REAL: EL COHETE NO FRENA, SOSTIENE EL SONIDO HASTA LA SIGUIENTE SÍLABA ---
   function startContinuousBlendSequence() {
-    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
+    if (SlideGame.isSpeaking || SlideGame.isAdvancing || SlideGame.isSliding) return;
 
     const c = SlideGame.currentCase;
     if (!c) return;
@@ -478,9 +512,9 @@
     const numStations = syllables.length;
     const pitches = [261.6, 329.6, 392.0, 523.2];
 
-    // Duración fluida total: el cohete avanza de forma constante sin frenar
-    // Para 2 sílabas: ~3.4 segundos. Para 3 sílabas: ~4.6 segundos.
-    const totalDurationMs = (numStations <= 2) ? 3400 : 4600;
+    // Duración fluida total y pausada: el cohete avanza de forma constante sin frenar
+    // Para 2 sílabas: ~4.2 segundos. Para 3 sílabas: ~5.8 segundos.
+    const totalDurationMs = (numStations <= 2) ? 4200 : 5800;
     const startTime = performance.now();
 
     const stationTriggered = new Array(numStations).fill(false);
@@ -523,17 +557,23 @@
         const endCoords = getLandingCoords(numStations);
         spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
 
-        updateSlideHUD();
-
-        // Palabra completa proclamada con júbilo al aterrizar
+        // Bloqueo respetuoso mientras proclama la palabra completa y hace la pregunta
         if (typeof speakText === 'function') {
+          SlideGame.isSpeaking = true;
+          updateSlideHUD();
+
           speakText(`¡${c.word}!`, () => {
             setTimeout(() => {
               if (!SlideGame.isRunning) return;
               // Consigna directa y sin error de artículo ("¿Cuál de estas imágenes es LECHE?")
-              speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {});
-            }, 320);
+              speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {
+                SlideGame.isSpeaking = false;
+                updateSlideHUD();
+              });
+            }, 350);
           });
+        } else {
+          updateSlideHUD();
         }
       }
 
@@ -837,7 +877,32 @@
       ctx.restore();
     });
 
-    // 9. Partículas de estrellas y chispas
+    // 9. Indicador visual cuando el locutor está hablando (Respeto de turno)
+    if (SlideGame.isSpeaking) {
+      ctx.save();
+      const badgeW = Math.min(300, w * 0.75);
+      const badgeH = 34;
+      const bx = (w - badgeW) / 2;
+      const by = 16;
+      ctx.shadowColor = '#FBBF24';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
+      roundRect(ctx, bx, by, badgeW, badgeH, 17);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.font = '900 13px "Comic Neue", "Nunito", sans-serif';
+      ctx.fillStyle = '#0F172A';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('👂 Crin está hablando... Escucha', w / 2, by + badgeH / 2);
+      ctx.restore();
+    }
+
+    // 10. Partículas de estrellas y chispas
     updateAndDrawSparks(ctx);
     updateAndDrawSlideEffects(ctx);
   }
@@ -935,7 +1000,8 @@
 
     function onPointerDown(e) {
       getSlideAudioCtx();
-      if (SlideGame.isAdvancing) return;
+      // 🔒 REGLA UNIVERSAL: No se puede interactuar mientras el locutor esté hablando
+      if (SlideGame.isSpeaking || SlideGame.isAdvancing) return;
       const pos = getCoords(e);
 
       // Si hace clic en la parte superior (cohete o rampa)
