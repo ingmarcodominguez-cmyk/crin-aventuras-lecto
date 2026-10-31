@@ -1,6 +1,6 @@
 // =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - EL TOBOGÁN DE FUSIÓN SUAVE
-// Módulo de Fusión Continua Sincronizada Estación por Estación (Science of Reading)
+// Módulo de Fusión Continua Dinámico y Fluido (Sin Frenos, Sonido Sostenido)
 // =========================================================================
 
 (function() {
@@ -105,13 +105,13 @@
   function getFallbackSlideCases() {
     return [
       {
-        word: 'SOPA',
-        syllables: ['SO', 'PA'],
-        pron: 'sopa',
-        image: 'assets/sopa.png',
+        word: 'LECHE',
+        syllables: ['LE', 'CHE'],
+        pron: 'leche',
+        image: 'assets/leche.png',
         distractors: [
-          { word: 'COPA', image: 'assets/copa.png', pron: 'copa' },
-          { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' }
+          { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' },
+          { word: 'LATA', image: 'assets/lata.png', pron: 'lata' }
         ]
       },
       {
@@ -125,23 +125,13 @@
         ]
       },
       {
-        word: 'LUNA',
-        syllables: ['LU', 'NA'],
-        pron: 'luna',
-        image: 'assets/luna.png',
+        word: 'SOPA',
+        syllables: ['SO', 'PA'],
+        pron: 'sopa',
+        image: 'assets/sopa.png',
         distractors: [
-          { word: 'CUNA', image: 'assets/cuna.png', pron: 'cuna' },
-          { word: 'LANA', image: 'assets/lana.png', pron: 'lana' }
-        ]
-      },
-      {
-        word: 'PATO',
-        syllables: ['PA', 'TO'],
-        pron: 'pato',
-        image: 'assets/pato.png',
-        distractors: [
-          { word: 'GATO', image: 'assets/gato.png', pron: 'gato' },
-          { word: 'PLATO', image: 'assets/plato.png', pron: 'plato' }
+          { word: 'COPA', image: 'assets/copa.png', pron: 'copa' },
+          { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' }
         ]
       },
       {
@@ -167,29 +157,29 @@
     return img;
   }
 
-  // --- REPRODUCCIÓN DE AUDIO ASISTIDA ---
   function playAudioFile(src, onComplete) {
     try {
+      if (SlideGame.currentAudio) {
+        try { SlideGame.currentAudio.pause(); } catch(e) {}
+      }
       const audio = new Audio(src);
       SlideGame.currentAudio = audio;
       let done = false;
       const finish = () => {
         if (!done) {
           done = true;
-          SlideGame.currentAudio = null;
           if (onComplete) onComplete();
         }
       };
       audio.onended = finish;
       audio.onerror = finish;
-      setTimeout(finish, 1800); // Watchdog
+      setTimeout(finish, 2000);
       audio.play().catch(finish);
     } catch(e) {
       if (onComplete) onComplete();
     }
   }
 
-  // Audio system Web Audio para chimes y efectos
   let slideAudioCtx = null;
   function getSlideAudioCtx() {
     try {
@@ -313,7 +303,6 @@
     if (!SlideGame.canvas) return;
     SlideGame.ctx = SlideGame.canvas.getContext('2d');
 
-    // Estrellas de fondo
     SlideGame.stars = [];
     for (let i = 0; i < 45; i++) {
       SlideGame.stars.push({
@@ -430,7 +419,7 @@
 
     if (!SlideGame.hasLanded) {
       if (bannerText) {
-        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el cohete o el botón para deslizar los sonidos!</span>';
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el cohete para deslizar y unir los sonidos!</span>';
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
@@ -452,11 +441,10 @@
   function speakSlideIntro() {
     if (!SlideGame.isRunning) return;
     if (typeof speakText === 'function') {
-      speakText('Toca el cohete o el botón para escuchar cómo se unen los sonidos.', () => {});
+      speakText('Toca el cohete para escuchar cómo se unen los sonidos.', () => {});
     }
   }
 
-  // --- BOTÓN SUPERIOR ---
   window.triggerSlideFromButton = function() {
     getSlideAudioCtx();
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
@@ -469,8 +457,7 @@
     startContinuousBlendSequence();
   };
 
-  // --- SECUENCIA DE FUSIÓN 100% SINCRONIZADA ESTACIÓN POR ESTACIÓN ---
-  // El cohete llega a cada estación, se posa y en ese instante exacto suena la sílaba estirada.
+  // --- FUSIÓN CONTINUA REAL: EL COHETE NO FRENA, SOSTIENE EL SONIDO HASTA LA SIGUIENTE SÍLABA ---
   function startContinuousBlendSequence() {
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
 
@@ -491,47 +478,42 @@
     const numStations = syllables.length;
     const pitches = [261.6, 329.6, 392.0, 523.2];
 
-    function glideToStation(idx) {
+    // Duración fluida total: el cohete avanza de forma constante sin frenar
+    // Para 2 sílabas: ~3.4 segundos. Para 3 sílabas: ~4.6 segundos.
+    const totalDurationMs = (numStations <= 2) ? 3400 : 4600;
+    const startTime = performance.now();
+
+    const stationTriggered = new Array(numStations).fill(false);
+    let landingTriggered = false;
+
+    function step(now) {
       if (!SlideGame.isRunning) return;
+      const elapsed = now - startTime;
+      const p = Math.min(1.0, elapsed / totalDurationMs);
+      SlideGame.rocketProgress = p;
 
-      const stationT = getStationT(idx, numStations);
+      // Evaluar en tiempo real el paso del cohete por cada estación
+      for (let i = 0; i < numStations; i++) {
+        const stationT = getStationT(i, numStations);
+        if (p >= stationT && !stationTriggered[i]) {
+          stationTriggered[i] = true;
+          SlideGame.activeStation = i;
 
-      // Deslizar el cohete hasta la estación correspondiente (800ms)
-      animateRocketProgressTo(stationT, 800, () => {
-        if (!SlideGame.isRunning) return;
+          // Chispas festivas al tocar la estación
+          const coords = getStationCoords(i, numStations);
+          spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
+          playChimeNote(pitches[i % pitches.length]);
 
-        // ¡COHETE POSADO EN LA ESTACIÓN!
-        SlideGame.activeStation = idx;
-        const coords = getStationCoords(idx, numStations);
-        spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
-        playChimeNote(pitches[idx % pitches.length]);
+          // Reproducir la sílaba sostenida (ej. "LEEEEEE..." que sostiene mientras avanza hacia "CHE")
+          const syl = syllables[i];
+          const audioSrc = sylToAudioPath(syl);
+          playAudioFile(audioSrc);
+        }
+      }
 
-        // Reproducir el audio estirado de esa sílaba exacta
-        const syl = syllables[idx];
-        const audioSrc = sylToAudioPath(syl);
-
-        playAudioFile(audioSrc, () => {
-          // Breve pausa respiratoria antes de deslizarse a la siguiente estación
-          setTimeout(() => {
-            if (!SlideGame.isRunning) return;
-
-            if (idx + 1 < numStations) {
-              glideToStation(idx + 1);
-            } else {
-              glideToLanding();
-            }
-          }, 180);
-        });
-      });
-    }
-
-    function glideToLanding() {
-      if (!SlideGame.isRunning) return;
-
-      // Descenso final a toda velocidad hacia la plataforma de aterrizaje (650ms)
-      animateRocketProgressTo(1.0, 650, () => {
-        if (!SlideGame.isRunning) return;
-
+      // Aterrizaje en la meta al completar el recorrido (p >= 1.0)
+      if (p >= 1.0 && !landingTriggered) {
+        landingTriggered = true;
         SlideGame.rocketProgress = 1.0;
         SlideGame.hasLanded = true;
         SlideGame.isSliding = false;
@@ -543,38 +525,20 @@
 
         updateSlideHUD();
 
-        // Palabra completa proclamada con entusiasmo
+        // Palabra completa proclamada con júbilo al aterrizar
         if (typeof speakText === 'function') {
           speakText(`¡${c.word}!`, () => {
             setTimeout(() => {
               if (!SlideGame.isRunning) return;
-              // Consigna con concordancia gramatical perfecta (sin error de género "la lago")
+              // Consigna directa y sin error de artículo ("¿Cuál de estas imágenes es LECHE?")
               speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {});
-            }, 300);
+            }, 320);
           });
         }
-      });
-    }
+      }
 
-    glideToStation(0);
-  }
-
-  function animateRocketProgressTo(targetP, durationMs, onDone) {
-    const startP = SlideGame.rocketProgress;
-    const startTime = performance.now();
-
-    function step(now) {
-      if (!SlideGame.isRunning) return;
-      const elapsed = now - startTime;
-      const t = Math.min(1.0, elapsed / durationMs);
-      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      SlideGame.rocketProgress = startP + (targetP - startP) * ease;
-
-      if (t < 1.0) {
+      if (p < 1.0) {
         SlideGame.slideAnimId = requestAnimationFrame(step);
-      } else {
-        SlideGame.rocketProgress = targetP;
-        if (onDone) onDone();
       }
     }
 
@@ -588,7 +552,7 @@
     const count = numSyllables || 2;
 
     if (count <= 2) {
-      // Rampa espaciosa y pausada para 2 sílabas
+      // Rampa espaciosa para 2 sílabas (LE - CHE)
       return {
         startX: w * 0.14,
         startY: h * 0.16,
@@ -598,7 +562,7 @@
         endY: h * 0.46
       };
     } else {
-      // Rampa extendida más larga para 3 sílabas
+      // Rampa más extendida para 3 sílabas (PE - LO - TA)
       return {
         startX: w * 0.10,
         startY: h * 0.13,
@@ -613,9 +577,12 @@
   function getStationT(stationIdx, numSyllables) {
     const count = numSyllables || 2;
     if (count <= 2) {
-      return (stationIdx === 0) ? 0.36 : 0.74;
+      // Estación 0 al 22% (sostiene mientras viaja hasta el 62%)
+      // Estación 1 al 62% (sostiene mientras viaja hasta el aterrizaje al 100%)
+      return (stationIdx === 0) ? 0.22 : 0.62;
     } else {
-      return [0.25, 0.53, 0.79][stationIdx] || ((stationIdx + 0.5) / count);
+      // Para 3 sílabas
+      return [0.18, 0.48, 0.76][stationIdx] || ((stationIdx + 0.5) / count);
     }
   }
 
@@ -746,7 +713,7 @@
     ctx.stroke();
     ctx.restore();
 
-    // 5. Cohete deslizándose
+    // 5. Cohete deslizándose de forma fluida y continua
     const rx = getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, SlideGame.rocketProgress);
     const ry = getQuadraticBezierPoint(geom.startY, geom.ctrlY, geom.endY, SlideGame.rocketProgress);
 
@@ -822,7 +789,6 @@
       ctx.scale(card.scale, card.scale);
 
       if (!SlideGame.hasLanded) {
-        // Modo Misterio / Bloqueado
         ctx.shadowColor = 'rgba(0,0,0,0.4)';
         ctx.shadowBlur = 6;
         ctx.fillStyle = '#1E293B';
@@ -844,7 +810,6 @@
         ctx.fillText('para ver', 0, card.h / 2 - 14);
 
       } else {
-        // Tarjeta Desbloqueada
         ctx.shadowColor = (card === SlideGame.selectedCard) ? '#34D399' : 'rgba(0,0,0,0.4)';
         ctx.shadowBlur = (card === SlideGame.selectedCard) ? 16 : 8;
         ctx.fillStyle = '#FFFFFF';
