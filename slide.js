@@ -13,6 +13,7 @@
     height: 520,
     isRunning: false,
     animId: null,
+    slideAnimId: null,
     time: 0,
 
     cases: [],
@@ -23,9 +24,7 @@
     rocketProgress: 0, // 0.0 (arriba) a 1.0 (abajo/aterrizaje)
     isSliding: false,
     hasLanded: false,
-    isDraggingRocket: false,
-    dragStartX: 0,
-    lastStationPassed: -1,
+    activeStation: -1,
 
     // Opciones inferiores
     cards: [],
@@ -33,26 +32,22 @@
     isAdvancing: false,
     isSpeaking: false,
     voiceTimeout: null,
-    promptWatchdog: null,
 
     stars: [],
     floatingTexts: [],
     sparks: [],
-
-    // Flecha indicadora animada cuando está esperando deslizamiento
     pulseTimer: 0
   };
 
   window.SlideGame = SlideGame;
 
-  // BANCO CANÓNICO DE PALABRAS DE FUSIÓN CONTINUA (Science of Reading)
+  // BANCO DE PALABRAS DE FUSIÓN CONTINUA
   // Consonantes continuas iniciales (S, M, L, R, F, N, V) ideales para síntesis sin pausas
   const SLIDE_CASES = [
     {
       word: 'SOPA',
       phonemes: ['S', 'O', 'P', 'A'],
-      // Síntesis fónica continua acumulativa (Additive Continuous Blending)
-      sounds: ['ssss', 'soooo', 'sop', 'sopa'],
+      blendSpeech: ['Sssss', 'Soooo', 'Sop', '¡SOPA!'],
       pron: 'sopa',
       image: 'assets/sopa.png',
       distractors: [
@@ -63,7 +58,7 @@
     {
       word: 'MESA',
       phonemes: ['M', 'E', 'S', 'A'],
-      sounds: ['mmmm', 'meeee', 'mes', 'mesa'],
+      blendSpeech: ['Mmmmm', 'Meeee', 'Mes', '¡MESA!'],
       pron: 'mesa',
       image: 'assets/mesa.png',
       distractors: [
@@ -74,7 +69,7 @@
     {
       word: 'LUNA',
       phonemes: ['L', 'U', 'N', 'A'],
-      sounds: ['llll', 'luuuu', 'lun', 'luna'],
+      blendSpeech: ['Lllll', 'Luuuu', 'Lun', '¡LUNA!'],
       pron: 'luna',
       image: 'assets/luna.png',
       distractors: [
@@ -85,7 +80,7 @@
     {
       word: 'PATO',
       phonemes: ['P', 'A', 'T', 'O'],
-      sounds: ['p', 'paaaa', 'pat', 'pato'],
+      blendSpeech: ['P', 'Paaaa', 'Pat', '¡PATO!'],
       pron: 'pato',
       image: 'assets/pato.png',
       distractors: [
@@ -96,7 +91,7 @@
     {
       word: 'PINO',
       phonemes: ['P', 'I', 'N', 'O'],
-      sounds: ['p', 'piiii', 'pin', 'pino'],
+      blendSpeech: ['P', 'Piiii', 'Pin', '¡PINO!'],
       pron: 'pino',
       image: 'assets/pino.png',
       distractors: [
@@ -107,7 +102,7 @@
     {
       word: 'VELA',
       phonemes: ['V', 'E', 'L', 'A'],
-      sounds: ['vvvv', 'veeee', 'vel', 'vela'],
+      blendSpeech: ['Vvvvv', 'Veeee', 'Vel', '¡VELA!'],
       pron: 'vela',
       image: 'assets/vela.png',
       distractors: [
@@ -118,7 +113,7 @@
     {
       word: 'FOCA',
       phonemes: ['F', 'O', 'C', 'A'],
-      sounds: ['ffff', 'foooo', 'foc', 'foca'],
+      blendSpeech: ['Fffff', 'Foooo', 'Foc', '¡FOCA!'],
       pron: 'foca',
       image: 'assets/foca.png',
       distractors: [
@@ -129,7 +124,7 @@
     {
       word: 'MANO',
       phonemes: ['M', 'A', 'N', 'O'],
-      sounds: ['mmmm', 'maaaa', 'man', 'mano'],
+      blendSpeech: ['Mmmmm', 'Maaaa', 'Man', '¡MANO!'],
       pron: 'mano',
       image: 'assets/mano.png',
       distractors: [
@@ -149,8 +144,123 @@
     return img;
   }
 
+  // --- AUDIO SYSTEM RESILIENTE ---
+  let slideAudioCtx = null;
+  function getSlideAudioCtx() {
+    try {
+      if (!slideAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) slideAudioCtx = new AudioCtx();
+      }
+      if (slideAudioCtx && slideAudioCtx.state === 'suspended') {
+        slideAudioCtx.resume();
+      }
+    } catch(e) {}
+    return slideAudioCtx;
+  }
+
+  function playChimeNote(freq) {
+    try {
+      const ac = getSlideAudioCtx();
+      if (!ac) return;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq || 440, ac.currentTime);
+      gain.gain.setValueAtTime(0.35, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
+      osc.start();
+      osc.stop(ac.currentTime + 0.45);
+    } catch(e) {}
+  }
+
+  function playRocketWhoosh() {
+    try {
+      const ac = getSlideAudioCtx();
+      if (!ac) return;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.45);
+      gain.gain.setValueAtTime(0.4, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
+      osc.start();
+      osc.stop(ac.currentTime + 0.45);
+    } catch(e) {}
+  }
+
+  function playSuccessSound() {
+    try {
+      const ac = getSlideAudioCtx();
+      if (!ac) return;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(440, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ac.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.3, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
+      osc.start();
+      osc.stop(ac.currentTime + 0.35);
+    } catch(e) {}
+  }
+
+  function playErrorSound() {
+    try {
+      const ac = getSlideAudioCtx();
+      if (!ac) return;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, ac.currentTime);
+      gain.gain.setValueAtTime(0.2, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.25);
+      osc.start();
+      osc.stop(ac.currentTime + 0.25);
+    } catch(e) {}
+  }
+
+  // Locución paso a paso sin solapamiento ni cancelaciones bruscas
+  function speakStepAudio(text, callback) {
+    if (typeof window.speechSynthesis !== 'undefined') {
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'es-ES';
+        utter.rate = 0.85; // Velocidad pausada y nítida para discriminación fonémica
+        utter.pitch = 1.05;
+
+        let called = false;
+        const done = () => {
+          if (!called) {
+            called = true;
+            if (callback) callback();
+          }
+        };
+
+        utter.onend = done;
+        utter.onerror = done;
+        setTimeout(done, 1500); // Watchdog de seguridad
+
+        window.speechSynthesis.speak(utter);
+        return;
+      } catch(e) {}
+    }
+    if (callback) setTimeout(callback, 800);
+  }
+
   // --- CONTROL DE PANTALLA ---
   window.openSlideScreen = function() {
+    getSlideAudioCtx();
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('slide');
 
@@ -168,10 +278,11 @@
   window.closeSlideAndReturnToMap = function() {
     SlideGame.isRunning = false;
     if (SlideGame.animId) cancelAnimationFrame(SlideGame.animId);
+    if (SlideGame.slideAnimId) cancelAnimationFrame(SlideGame.slideAnimId);
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
-    if (SlideGame.promptWatchdog) clearTimeout(SlideGame.promptWatchdog);
     SlideGame.isSpeaking = false;
     SlideGame.isAdvancing = false;
+    SlideGame.isSliding = false;
     if (typeof stopAllAudio === 'function') stopAllAudio();
 
     if (typeof switchScreen === 'function') switchScreen('map');
@@ -183,7 +294,7 @@
     if (!SlideGame.canvas) return;
     SlideGame.ctx = SlideGame.canvas.getContext('2d');
 
-    // Inicializar estrellas cósmicas
+    // Estrellas de fondo
     SlideGame.stars = [];
     for (let i = 0; i < 45; i++) {
       SlideGame.stars.push({
@@ -235,11 +346,10 @@
     SlideGame.selectedCard = null;
     SlideGame.rocketProgress = 0;
     SlideGame.hasLanded = false;
-    SlideGame.lastStationPassed = -1;
+    SlideGame.activeStation = -1;
     SlideGame.floatingTexts = [];
     SlideGame.sparks = [];
 
-    // Opciones ilustradas para cuando el cohete aterrice
     const opts = [
       { word: c.word, image: c.image, pron: c.pron, isTarget: true },
       ...c.distractors.map(d => ({ ...d, isTarget: false }))
@@ -265,7 +375,7 @@
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
     SlideGame.voiceTimeout = setTimeout(() => {
       speakSlideIntro();
-    }, 350);
+    }, 400);
   }
 
   function repositionSlideCards() {
@@ -298,11 +408,11 @@
 
     if (!SlideGame.hasLanded) {
       if (bannerText) {
-        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Desliza o toca el cohete para unir los sonidos!</span>';
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir los sonidos!</span>';
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
-        actionBtn.innerHTML = '<span>🚀 ¡DESLIZAR!</span>';
+        actionBtn.innerHTML = '<span>🚀 ¡DESLIZAR COHETE!</span>';
         actionBtn.style.background = 'linear-gradient(135deg, #F59E0B, #D97706)';
       }
     } else {
@@ -319,25 +429,145 @@
 
   function speakSlideIntro() {
     if (!SlideGame.isRunning) return;
-    if (typeof speakText === 'function') {
-      speakText('Desliza el cohete por el tobogán para escuchar cómo se unen los sonidos.', () => {});
-    }
+    speakStepAudio('Toca el cohete o el botón para escuchar cómo se unen los sonidos.', () => {});
   }
 
-  // Función invocable desde el botón HTML superior "¡DESLIZAR!" o "Repetir"
+  // --- BOTÓN SUPERIOR ---
   window.triggerSlideFromButton = function() {
+    getSlideAudioCtx();
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
     if (SlideGame.hasLanded) {
-      // Re-deslizar para repasar la palabra
       SlideGame.rocketProgress = 0;
       SlideGame.hasLanded = false;
-      SlideGame.lastStationPassed = -1;
+      SlideGame.activeStation = -1;
       updateSlideHUD();
     }
-    startRocketSlide();
+    startContinuousBlendSequence();
   };
 
-  // --- DIBUJADO DE LA ESCENA ESPACIAL Y TOBOGÁN ---
+  // --- SECUENCIA DE DESLIZAMIENTO GUIADA PASO A PASO (CONTINUOUS BLENDING REAL) ---
+  function startContinuousBlendSequence() {
+    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
+
+    const c = SlideGame.currentCase;
+    if (!c) return;
+
+    SlideGame.isSliding = true;
+    SlideGame.hasLanded = false;
+    SlideGame.rocketProgress = 0;
+    SlideGame.activeStation = -1;
+
+    const bannerText = document.getElementById('slide-instruction-text');
+    if (bannerText) {
+      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
+    }
+
+    const numPhonemes = c.phonemes.length;
+    const pitches = [261.6, 329.6, 392.0, 523.2];
+
+    function glideToStation(idx) {
+      if (!SlideGame.isRunning) return;
+      const targetP = (idx + 0.5) / numPhonemes;
+
+      animateRocketTo(targetP, 900, () => {
+        if (!SlideGame.isRunning) return;
+        SlideGame.activeStation = idx;
+
+        // Estación alcanzada: partículas, nota musical y sonido prolongado
+        const coords = getStationCoords(idx);
+        spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
+        playChimeNote(pitches[idx % pitches.length]);
+
+        const soundText = (c.blendSpeech && c.blendSpeech[idx]) ? c.blendSpeech[idx] : c.phonemes[idx];
+
+        speakStepAudio(soundText, () => {
+          setTimeout(() => {
+            if (!SlideGame.isRunning) return;
+            if (idx + 1 < numPhonemes) {
+              glideToStation(idx + 1);
+            } else {
+              glideToLanding();
+            }
+          }, 350);
+        });
+      });
+    }
+
+    function glideToLanding() {
+      if (!SlideGame.isRunning) return;
+      animateRocketTo(1.0, 800, () => {
+        if (!SlideGame.isRunning) return;
+        SlideGame.rocketProgress = 1.0;
+        SlideGame.hasLanded = true;
+        SlideGame.isSliding = false;
+        SlideGame.activeStation = -1;
+
+        playRocketWhoosh();
+        const endCoords = getLandingCoords();
+        spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
+
+        // Palabra completa fusionada
+        speakStepAudio(`¡${c.word}! Ahora busca cuál de estas imágenes es la ${c.pron}.`, () => {});
+        updateSlideHUD();
+      });
+    }
+
+    glideToStation(0);
+  }
+
+  function animateRocketTo(targetProgress, duration, onComplete) {
+    const startProgress = SlideGame.rocketProgress;
+    const startTime = performance.now();
+
+    function step(now) {
+      if (!SlideGame.isRunning) return;
+      const elapsed = now - startTime;
+      const t = Math.min(1.0, elapsed / duration);
+      // Easing suave (easeInOutQuad)
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      SlideGame.rocketProgress = startProgress + (targetProgress - startProgress) * ease;
+
+      if (t < 1.0) {
+        SlideGame.slideAnimId = requestAnimationFrame(step);
+      } else {
+        SlideGame.rocketProgress = targetProgress;
+        if (onComplete) onComplete();
+      }
+    }
+
+    SlideGame.slideAnimId = requestAnimationFrame(step);
+  }
+
+  function getRampGeometry() {
+    const w = SlideGame.width;
+    const h = SlideGame.height;
+    return {
+      startX: w * 0.12,
+      startY: h * 0.16,
+      ctrlX: w * 0.45,
+      ctrlY: h * 0.18 + 50,
+      endX: w * 0.88,
+      endY: h * 0.46
+    };
+  }
+
+  function getStationCoords(stationIdx) {
+    const geom = getRampGeometry();
+    const c = SlideGame.currentCase;
+    const num = (c && c.phonemes) ? c.phonemes.length : 4;
+    const t = (stationIdx + 0.5) / num;
+    return {
+      x: getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, t),
+      y: getQuadraticBezierPoint(geom.startY, geom.ctrlY, geom.endY, t)
+    };
+  }
+
+  function getLandingCoords() {
+    const geom = getRampGeometry();
+    return { x: geom.endX, y: geom.endY };
+  }
+
+  // --- DIBUJADO DE LA ESCENA ---
   function slideLoop() {
     if (!SlideGame.isRunning) return;
     SlideGame.time += 0.02;
@@ -355,7 +585,7 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Cielo cósmico profundo
+    // 1. Fondo cósmico
     const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
     bgGrad.addColorStop(0, '#090D16');
     bgGrad.addColorStop(0.5, '#1E1B4B');
@@ -363,7 +593,7 @@
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Estrellas parpadeantes
+    // Estrellas titilantes
     ctx.fillStyle = '#FFFFFF';
     SlideGame.stars.forEach(st => {
       const alpha = 0.3 + 0.7 * Math.abs(Math.sin(SlideGame.time * 2 + st.twinkle));
@@ -374,15 +604,10 @@
 
     if (!c) return;
 
-    // 2. Coordenadas de la Rampa Cósmica (Curva suave de Bézier)
-    const startX = w * 0.12;
-    const startY = h * 0.16;
-    const ctrlX = w * 0.45;
-    const ctrlY = h * 0.18 + 50;
-    const endX = w * 0.88;
-    const endY = h * 0.46;
+    // 2. Geometría de la Rampa
+    const geom = getRampGeometry();
 
-    // Tubo base exterior de la rampa
+    // Tubo base exterior con brillo de neón
     ctx.save();
     ctx.shadowColor = '#38BDF8';
     ctx.shadowBlur = 14;
@@ -390,34 +615,30 @@
     ctx.lineWidth = 14;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+    ctx.moveTo(geom.startX, geom.startY);
+    ctx.quadraticCurveTo(geom.ctrlX, geom.ctrlY, geom.endX, geom.endY);
     ctx.stroke();
 
     // Riel luminoso interior
     ctx.strokeStyle = '#BAE6FD';
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+    ctx.moveTo(geom.startX, geom.startY);
+    ctx.quadraticCurveTo(geom.ctrlX, geom.ctrlY, geom.endX, geom.endY);
     ctx.stroke();
     ctx.restore();
 
-    // 3. Estaciones de letras fonémicas a lo largo de la rampa
+    // 3. Estaciones de letras fonémicas
     const phonemes = c.phonemes;
     phonemes.forEach((letter, i) => {
-      const t = (i + 0.5) / phonemes.length;
-      const lx = getQuadraticBezierPoint(startX, ctrlX, endX, t);
-      const ly = getQuadraticBezierPoint(startY, ctrlY, endY, t);
+      const coords = getStationCoords(i);
+      const isCurrent = (SlideGame.activeStation === i);
+      const isPassed = (SlideGame.rocketProgress >= (i + 0.5) / phonemes.length);
 
-      const isPassed = (SlideGame.rocketProgress >= t);
-      const isCurrent = (SlideGame.isSliding && Math.abs(SlideGame.rocketProgress - t) < 0.14);
-
-      // Círculo luminoso para cada letra
       ctx.save();
       if (isCurrent) {
         ctx.shadowColor = '#FBBF24';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 24;
         ctx.fillStyle = '#F59E0B';
       } else if (isPassed) {
         ctx.shadowColor = '#34D399';
@@ -427,41 +648,39 @@
         ctx.fillStyle = '#1E293B';
       }
 
-      const radius = isCurrent ? 26 : 22;
+      const radius = isCurrent ? 28 : 22;
       ctx.beginPath();
-      ctx.arc(lx, ly - 26, radius, 0, Math.PI * 2);
+      ctx.arc(coords.x, coords.y - 26, radius, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = isCurrent ? '#FDE68A' : (isPassed ? '#6EE7B7' : '#38BDF8');
       ctx.lineWidth = isCurrent ? 4 : 3;
       ctx.stroke();
 
-      // Letra impresa en negrita
-      ctx.font = `900 ${isCurrent ? 24 : 20}px "Comic Neue", "Nunito", sans-serif`;
+      ctx.font = `900 ${isCurrent ? 26 : 20}px "Comic Neue", "Nunito", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = (isCurrent || isPassed) ? '#FFFFFF' : '#BAE6FD';
-      ctx.fillText(letter, lx, ly - 25);
+      ctx.fillText(letter, coords.x, coords.y - 25);
       ctx.restore();
     });
 
-    // 4. Plataforma de aterrizaje al final de la rampa
+    // 4. Plataforma de aterrizaje
     ctx.save();
     ctx.fillStyle = SlideGame.hasLanded ? '#047857' : '#334155';
     ctx.strokeStyle = SlideGame.hasLanded ? '#34D399' : '#64748B';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.ellipse(endX, endY + 12, 34, 12, 0, 0, Math.PI * 2);
+    ctx.ellipse(geom.endX, geom.endY + 12, 34, 12, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
 
-    // 5. Cohete deslizándose por la curva de Bézier
-    const rx = getQuadraticBezierPoint(startX, ctrlX, endX, SlideGame.rocketProgress);
-    const ry = getQuadraticBezierPoint(startY, ctrlY, endY, SlideGame.rocketProgress);
+    // 5. Cohete
+    const rx = getQuadraticBezierPoint(geom.startX, geom.ctrlX, geom.endX, SlideGame.rocketProgress);
+    const ry = getQuadraticBezierPoint(geom.startY, geom.ctrlY, geom.endY, SlideGame.rocketProgress);
 
-    // Llamarada y estela del cohete durante el deslizamiento
-    if (SlideGame.rocketProgress > 0.03 && SlideGame.rocketProgress < 0.98) {
+    if (SlideGame.isSliding && SlideGame.rocketProgress > 0.03 && SlideGame.rocketProgress < 0.98) {
       ctx.save();
       ctx.translate(rx - 28, ry - 6);
       ctx.fillStyle = '#F59E0B';
@@ -475,20 +694,17 @@
       ctx.restore();
     }
 
-    // Dibujar el cohete
     ctx.save();
-    ctx.font = '42px sans-serif';
+    ctx.font = '44px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-
-    // Inclinación del cohete siguiendo la rampa
     const angle = (SlideGame.rocketProgress < 0.95) ? 0.35 : 0;
     ctx.translate(rx, ry - 14);
     ctx.rotate(angle);
     ctx.fillText('🚀', 0, 0);
     ctx.restore();
 
-    // 6. Flecha y pista visual si está esperando que el niño deslice el cohete
+    // 6. Flecha indicadora animada si está esperando
     if (!SlideGame.hasLanded && !SlideGame.isSliding) {
       const bounce = Math.sin(SlideGame.pulseTimer * 4) * 8;
       ctx.save();
@@ -497,7 +713,7 @@
       ctx.textAlign = 'center';
       ctx.shadowColor = 'rgba(0,0,0,0.8)';
       ctx.shadowBlur = 4;
-      ctx.fillText('¡Tócame o deslízame! 👇', rx, ry - 42 + bounce);
+      ctx.fillText('¡Tócame! 👇', rx, ry - 42 + bounce);
       ctx.font = '22px sans-serif';
       ctx.fillText('👇', rx, ry - 24 + bounce);
       ctx.restore();
@@ -535,8 +751,8 @@
       ctx.translate(card.x + card.w / 2 + (card.shake ? Math.sin(SlideGame.time * 30) * card.shake : 0), card.y + card.h / 2);
       ctx.scale(card.scale, card.scale);
 
-      // Si aún no aterrizó el cohete, las tarjetas se muestran bloqueadas (Modo Misterio)
       if (!SlideGame.hasLanded) {
+        // Modo Misterio / Bloqueado
         ctx.shadowColor = 'rgba(0,0,0,0.4)';
         ctx.shadowBlur = 6;
         ctx.fillStyle = '#1E293B';
@@ -547,7 +763,6 @@
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Ícono de candado / misterio
         ctx.font = '36px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -559,7 +774,7 @@
         ctx.fillText('para ver', 0, card.h / 2 - 14);
 
       } else {
-        // Tarjeta desbloqueada: Ilustración y palabra clara
+        // Tarjeta Desbloqueada
         ctx.shadowColor = (card === SlideGame.selectedCard) ? '#34D399' : 'rgba(0,0,0,0.4)';
         ctx.shadowBlur = (card === SlideGame.selectedCard) ? 16 : 8;
         ctx.fillStyle = '#FFFFFF';
@@ -587,7 +802,7 @@
       ctx.restore();
     });
 
-    // 9. Efectos de partículas de chispas y textos flotantes
+    // 9. Partículas de estrellas y chispas
     updateAndDrawSparks(ctx);
     updateAndDrawSlideEffects(ctx);
   }
@@ -610,18 +825,20 @@
     ctx.closePath();
   }
 
-  function spawnSparks(x, y, color) {
-    for (let i = 0; i < 12; i++) {
+  function spawnSparks(x, y, color, count) {
+    const n = count || 20;
+    for (let i = 0; i < n; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 1.5 + Math.random() * 3.5;
+      const speed = 2 + Math.random() * 4.5;
       SlideGame.sparks.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 2 + Math.random() * 3,
+        vy: Math.sin(angle) * speed - 1.2,
+        size: 3 + Math.random() * 4,
         color: color || '#FBBF24',
-        alpha: 1.0
+        alpha: 1.0,
+        char: Math.random() > 0.4 ? '⭐' : '✨'
       });
     }
   }
@@ -631,17 +848,18 @@
       const sp = SlideGame.sparks[i];
       sp.x += sp.vx;
       sp.y += sp.vy;
-      sp.alpha -= 0.03;
+      sp.vy += 0.08; // Gravedad suave
+      sp.alpha -= 0.025;
       if (sp.alpha <= 0) {
         SlideGame.sparks.splice(i, 1);
         continue;
       }
       ctx.save();
       ctx.globalAlpha = Math.max(0, sp.alpha);
-      ctx.fillStyle = sp.color;
-      ctx.beginPath();
-      ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.font = `${Math.round(sp.size * 3.5)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(sp.char, sp.x, sp.y);
       ctx.restore();
     }
   }
@@ -665,7 +883,7 @@
     }
   }
 
-  // --- CONTROLES Y EVENTOS DE INTERACCIÓN ---
+  // --- CONTROLES Y EVENTOS ---
   function setupSlideEventListeners() {
     const canvas = SlideGame.canvas;
     if (!canvas) return;
@@ -681,12 +899,21 @@
     }
 
     function onPointerDown(e) {
+      getSlideAudioCtx();
       if (SlideGame.isAdvancing) return;
       const pos = getCoords(e);
 
-      // Si hace clic en la zona superior (el cohete o la rampa)
+      // Si hace clic en la parte superior (cohete o rampa)
       if (pos.y < SlideGame.height * 0.55) {
-        startRocketSlide();
+        if (!SlideGame.isSliding) {
+          if (SlideGame.hasLanded) {
+            SlideGame.rocketProgress = 0;
+            SlideGame.hasLanded = false;
+            SlideGame.activeStation = -1;
+            updateSlideHUD();
+          }
+          startContinuousBlendSequence();
+        }
         return;
       }
 
@@ -706,88 +933,6 @@
     };
   }
 
-  // Deslizamiento suave y continuo con reproducción fonémica sincrónica
-  function startRocketSlide() {
-    if (SlideGame.isAdvancing || SlideGame.isSliding) return;
-
-    const c = SlideGame.currentCase;
-    if (!c) return;
-
-    SlideGame.isSliding = true;
-    SlideGame.rocketProgress = 0;
-    SlideGame.lastStationPassed = -1;
-
-    // Actualizar indicador superior
-    const bannerText = document.getElementById('slide-instruction-text');
-    if (bannerText) {
-      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
-    }
-
-    const startX = SlideGame.width * 0.12;
-    const ctrlX = SlideGame.width * 0.45;
-    const endX = SlideGame.width * 0.88;
-    const startY = SlideGame.height * 0.16;
-    const ctrlY = SlideGame.height * 0.18 + 50;
-    const endY = SlideGame.height * 0.46;
-
-    // Duración pedagógica adecuada para que el niño perciba cada fonema (3.2 segundos)
-    const duration = 3200;
-    const startTime = performance.now();
-    const numPhonemes = c.phonemes.length;
-
-    // Escala musical pentatónica para refuerzo auditivo
-    const pitches = [261.6, 329.6, 392.0, 523.2];
-
-    function animateSlide(now) {
-      if (!SlideGame.isRunning) return;
-      const elapsed = now - startTime;
-      const p = Math.min(1.0, elapsed / duration);
-      SlideGame.rocketProgress = p;
-
-      // Comprobar si pasa por una estación de letra
-      const stationIndex = Math.floor(p * numPhonemes);
-      if (stationIndex > SlideGame.lastStationPassed && stationIndex < numPhonemes) {
-        SlideGame.lastStationPassed = stationIndex;
-
-        const letter = c.phonemes[stationIndex];
-        const soundText = (c.sounds && c.sounds[stationIndex]) ? c.sounds[stationIndex] : letter;
-        const stationT = (stationIndex + 0.5) / numPhonemes;
-        const sx = getQuadraticBezierPoint(startX, ctrlX, endX, stationT);
-        const sy = getQuadraticBezierPoint(startY, ctrlY, endY, stationT);
-
-        spawnSparks(sx, sy - 26, '#FBBF24');
-        playStationChime(pitches[stationIndex % pitches.length] || 350);
-
-        // Locución fónica continua
-        if (typeof speakText === 'function') {
-          speakText(soundText, () => {});
-        }
-      }
-
-      if (p < 1.0) {
-        requestAnimationFrame(animateSlide);
-      } else {
-        // Cohete llega a la meta
-        SlideGame.rocketProgress = 1.0;
-        SlideGame.isSliding = false;
-        SlideGame.hasLanded = true;
-
-        playRocketWhoosh();
-        spawnSparks(endX, endY, '#34D399');
-
-        // Pronunciar la palabra completa fusionada y dar consigna clara
-        if (typeof speakText === 'function') {
-          speakText(`¡${c.word}! Ahora busca cuál es la imagen de ${c.pron}.`, () => {});
-        }
-
-        updateSlideHUD();
-      }
-    }
-
-    requestAnimationFrame(animateSlide);
-  }
-
-  // Manejo de clics en las tarjetas
   function handleSlideCardClick(card) {
     if (SlideGame.isAdvancing) return;
 
@@ -799,15 +944,13 @@
       SlideGame.floatingTexts.push({
         x: card.x + card.w / 2,
         y: card.y - 15,
-        text: '¡Desliza el cohete primero! 🚀',
+        text: '¡Toca el cohete primero! 🚀',
         color: '#F59E0B',
         alpha: 1.0,
         vy: -1.2
       });
 
-      if (typeof speakText === 'function') {
-        speakText('Primero desliza el cohete por las letras para descubrir la palabra.', () => {});
-      }
+      speakStepAudio('Primero toca el cohete para unir los sonidos de las estrellas.', () => {});
 
       setTimeout(() => { card.shake = 0; }, 400);
       return;
@@ -835,9 +978,7 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      if (typeof speakText === 'function') {
-        speakText(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
-      }
+      speakStepAudio(`¡Excelente! ¡Esa es la ${card.pron}!`, () => {});
 
       setTimeout(() => {
         if (!SlideGame.isRunning) return;
@@ -847,7 +988,7 @@
         } else {
           setupSlideCase(SlideGame.currentCaseIndex);
         }
-      }, 1600);
+      }, 1800);
 
     } else {
       card.shake = 8;
@@ -864,9 +1005,7 @@
 
       setTimeout(() => { card.shake = 0; }, 400);
 
-      if (typeof speakText === 'function') {
-        speakText(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
-      }
+      speakStepAudio(`Esa es ${card.pron}. Busca la palabra del cohete: ${SlideGame.currentCase.pron}.`);
     }
   }
 
@@ -886,72 +1025,5 @@
     if (modal) modal.style.display = 'none';
     window.closeSlideAndReturnToMap();
   };
-
-  // --- EFECTOS DE SONIDO WEB AUDIO ---
-  function playStationChime(freq) {
-    try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ac.createOscillator();
-      const gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq || 350, ac.currentTime);
-      gain.gain.setValueAtTime(0.2, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.25);
-      osc.start();
-      osc.stop(ac.currentTime + 0.25);
-    } catch(e) {}
-  }
-
-  function playRocketWhoosh() {
-    try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ac.createOscillator();
-      const gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(280, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, ac.currentTime + 0.35);
-      gain.gain.setValueAtTime(0.3, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.35);
-      osc.start();
-      osc.stop(ac.currentTime + 0.35);
-    } catch(e) {}
-  }
-
-  function playSuccessSound() {
-    try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ac.createOscillator();
-      const gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, ac.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(880, ac.currentTime + 0.28);
-      gain.gain.setValueAtTime(0.3, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.35);
-      osc.start();
-      osc.stop(ac.currentTime + 0.35);
-    } catch(e) {}
-  }
-
-  function playErrorSound() {
-    try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ac.createOscillator();
-      const gain = ac.createGain();
-      osc.connect(gain);
-      gain.connect(ac.destination);
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, ac.currentTime);
-      gain.gain.setValueAtTime(0.2, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ac.currentTime + 0.25);
-      osc.start();
-      osc.stop(ac.currentTime + 0.25);
-    } catch(e) {}
-  }
 
 })();
