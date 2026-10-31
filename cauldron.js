@@ -28,6 +28,7 @@
     // Arrastre táctil / mouse
     draggedBubble: null,
     pointer: { x: 0, y: 0, isDown: false },
+    listenersAttached: false,
 
     // Geometría del caldero
     cauldron: {
@@ -439,8 +440,9 @@
     // Relato inicial guiado y pausado (espera y entonación limpia)
     if (CauldronGame.voiceTimeout) clearTimeout(CauldronGame.voiceTimeout);
     CauldronGame.voiceTimeout = setTimeout(() => {
+      if (!CauldronGame.isRunning) return;
       speakCauldronMission();
-    }, 600);
+    }, 200);
   }
 
   function repositionBubbles() {
@@ -889,20 +891,17 @@
     if (bubble.isTarget) {
       // ✅ ACIERTO EN LA RIMA
       playCauldronSplashSound();
-      createMagicSplashParticles(c.x, c.liquidY, p.potionSecondary, 35);
+      createMagicSplashParticles(c.x, c.liquidY, p.potionSecondary, 20);
       createFloatingText(c.x, c.liquidY - 40, `¡RIMA! ${p.base.word} y ${bubble.word} ✨`, '#10B981');
 
-      // Animación de celebración del héroe
+      // Animación ágil de celebración del héroe (45 frames en vez de 90)
       CauldronGame.hero.isCelebrating = true;
-      CauldronGame.hero.celebrateTimer = 90;
-      CauldronGame.hero.jumpVy = -8.5;
+      CauldronGame.hero.celebrateTimer = 45;
+      CauldronGame.hero.jumpVy = -7.5;
 
       // Agregar ingrediente
       CauldronGame.collectedIngredients.push(bubble);
       bubble.alpha = 0; // Se disuelve en el caldero
-
-      // Desactivar temporalmente interacción durante el relato
-      CauldronGame.isAdvancing = true;
       updateCauldronHUD();
 
       // Premio de monedas
@@ -911,52 +910,23 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      // Locución pedagógica prosódica: ¡Súper! Bo-TÓN rima con Ra-TÓN
       const basePron = p.base.pron;
       const targetPron = bubble.pron;
 
-      let praiseHandled = false;
-      const onPraiseEnded = () => {
-        if (praiseHandled) return;
-        praiseHandled = true;
-
-        // Pausa pedagógica respetuosa (1.3s) para que el niño procese el elogio antes de que comience el siguiente relato
-        setTimeout(() => {
-          if (!CauldronGame.isRunning) return;
-          CauldronGame.isAdvancing = false;
-          CauldronGame.isSpeaking = false;
-          if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
-          if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
-
-          // ¿Completó los 2 ingredientes de la poción?
-          if (CauldronGame.collectedIngredients.length >= 2) {
-            handlePotionCompleted();
-          } else {
-            // Guía constructiva para el segundo ingrediente
-            if (typeof speakText === 'function') {
-              CauldronGame.isSpeaking = true;
-              speakText(`¡Genial! Ahora busca el otro ingrediente que también rime con ${basePron}. ¡La palabra a rimar es ${basePron}!`, () => {
-                CauldronGame.isSpeaking = false;
-              });
-              setTimeout(() => { CauldronGame.isSpeaking = false; }, 4500);
-            }
-          }
-        }, 1300);
-      };
-
-      if (typeof speakText === 'function') {
-        CauldronGame.isSpeaking = true;
-        speakText(`¡Súper! ¡${basePron} y ${targetPron}! ¡Suenan igual al final!`, () => {
-          CauldronGame.isSpeaking = false;
-          onPraiseEnded();
-        });
+      // ¿Completó los 2 ingredientes de la poción?
+      if (CauldronGame.collectedIngredients.length >= 2) {
+        handlePotionCompleted();
       } else {
-        onPraiseEnded();
+        // Ingrediente 1: locución corta sin congelar la pantalla
+        CauldronGame.isAdvancing = false;
+        if (typeof speakText === 'function') {
+          CauldronGame.isSpeaking = true;
+          speakText(`¡Muy bien, ${targetPron} rima con ${basePron}!`, () => {
+            CauldronGame.isSpeaking = false;
+          });
+          setTimeout(() => { CauldronGame.isSpeaking = false; }, 3000);
+        }
       }
-      setTimeout(() => {
-        if (!CauldronGame.isRunning) return;
-        onPraiseEnded();
-      }, 8500); // Respaldo de seguridad amplio (8.5s) para NUNCA cortar el relato
 
     } else {
       // ❌ DISTRACTOR (NO RIMA)
@@ -969,23 +939,28 @@
       setTimeout(() => {
         bubble.x = bubble.baseX;
         bubble.y = bubble.baseY;
-      }, 400);
+      }, 300);
 
       const basePron = p.base.pron;
       const distractorPron = bubble.pron;
 
       if (typeof speakText === 'function') {
-        speakText(`${basePron} y ${distractorPron} no suenan igual. ¡Busca una que rime con ${basePron}!`);
+        speakText(`${basePron} y ${distractorPron} no suenan igual.`);
       }
     }
   }
 
   function handlePotionCompleted() {
     const c = CauldronGame.cauldron;
+    CauldronGame.isAdvancing = true;
     playCauldronVictoryChime();
-    createRainbowExplosion(c.x, c.liquidY, 60);
+    createRainbowExplosion(c.x, c.liquidY, 30);
 
-    createFloatingText(c.x, c.liquidY - 60, '¡POCIÓN MÁGICA COMPLETA! 🌟', '#F59E0B');
+    createFloatingText(c.x, c.liquidY - 60, '¡POCIÓN COMPLETA! 🌟', '#F59E0B');
+
+    CauldronGame.hero.isCelebrating = true;
+    CauldronGame.hero.celebrateTimer = 55;
+    CauldronGame.hero.jumpVy = -8.0;
 
     if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
       activeChildProfile.coins = (activeChildProfile.coins || 0) + 10;
@@ -997,62 +972,72 @@
     const onVictoryEnded = () => {
       if (victoryHandled) return;
       victoryHandled = true;
-      CauldronGame.isAdvancing = false;
-      CauldronGame.isSpeaking = false;
-      if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
-      if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
 
       setTimeout(() => {
         if (!CauldronGame.isRunning) return;
-        // Avanzar a la siguiente poción mágica
+        CauldronGame.isAdvancing = false;
+        CauldronGame.isSpeaking = false;
+        if (typeof window.isAppSpeaking !== 'undefined') window.isAppSpeaking = false;
+        if (typeof window.updateNarrationLockUI === 'function') window.updateNarrationLockUI();
+
+        // Avanzar fluidamente a la siguiente poción mágica
         CauldronGame.currentPotionIndex++;
         setupPotion(CauldronGame.currentPotionIndex);
-      }, 400);
+      }, 350);
     };
 
     if (typeof speakText === 'function') {
       CauldronGame.isSpeaking = true;
-      speakText('¡Poción mágica completada! ¡Excelente trabajo con las rimas!', onVictoryEnded);
+      speakText('¡Súper, tarea lograda!', () => {
+        CauldronGame.isSpeaking = false;
+        onVictoryEnded();
+      });
+      setTimeout(() => {
+        CauldronGame.isSpeaking = false;
+        onVictoryEnded();
+      }, 3500);
     } else {
       onVictoryEnded();
     }
-    setTimeout(onVictoryEnded, 7500);
   }
 
-  // --- SISTEMA DE PARTÍCULAS Y TEXTOS FLOTANTES ---
+  // --- SISTEMA DE PARTÍCULAS Y TEXTOS FLOTANTES (ULTRA-LIVIANO) ---
   function createMagicSplashParticles(x, y, color, count) {
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 0.8) + Math.random() * (Math.PI * 1.4);
-      const speed = 3.5 + Math.random() * 6.0;
+      const speed = 2.5 + Math.random() * 5.0;
       CauldronGame.particles.push({
-        x: x + (Math.random() - 0.5) * 60,
+        x: x + (Math.random() - 0.5) * 50,
         y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        radius: 3 + Math.random() * 5,
+        radius: 3 + Math.random() * 4,
         alpha: 1.0,
-        decay: 0.022 + Math.random() * 0.015,
+        decay: 0.03 + Math.random() * 0.02,
         color: color,
-        isStar: Math.random() > 0.4
+        isConfetti: false
       });
     }
   }
 
   function createRainbowExplosion(x, y, count) {
-    const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6', '#FCD34D'];
+    const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6', '#FCD34D', '#EF4444', '#06B6D4'];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 7.5;
+      const speed = 2.0 + Math.random() * 5.5;
       CauldronGame.particles.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 2.5,
-        radius: 3 + Math.random() * 6,
+        vy: Math.sin(angle) * speed - 2.8,
+        w: 5 + Math.random() * 6,
+        h: 4 + Math.random() * 4,
+        rotation: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.25,
         alpha: 1.0,
-        decay: 0.018,
+        decay: 0.025 + Math.random() * 0.018,
         color: colors[i % colors.length],
-        isStar: true
+        isConfetti: true
       });
     }
   }
@@ -1069,7 +1054,7 @@
   }
 
   function updateAndDrawEffects(ctx) {
-    // Partículas
+    // Partículas ultra-livianas (confeti geométrico y gotas, 0% costo de render de fuentes)
     for (let i = CauldronGame.particles.length - 1; i >= 0; i--) {
       const p = CauldronGame.particles[i];
       p.x += p.vx;
@@ -1083,13 +1068,14 @@
       }
 
       ctx.save();
-      ctx.globalAlpha = p.alpha;
+      ctx.globalAlpha = Math.max(0, p.alpha);
       ctx.fillStyle = p.color;
-      if (p.isStar) {
-        ctx.font = `${Math.round(p.radius * 2.8)}px sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('✨', p.x, p.y);
+
+      if (p.isConfetti) {
+        p.rotation += p.vRot;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       } else {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -1102,7 +1088,7 @@
     for (let i = CauldronGame.floatingTexts.length - 1; i >= 0; i--) {
       const ft = CauldronGame.floatingTexts[i];
       ft.y += ft.vy;
-      ft.alpha -= 0.016;
+      ft.alpha -= 0.022;
 
       if (ft.alpha <= 0) {
         CauldronGame.floatingTexts.splice(i, 1);
@@ -1110,7 +1096,7 @@
       }
 
       ctx.save();
-      ctx.globalAlpha = ft.alpha;
+      ctx.globalAlpha = Math.max(0, ft.alpha);
       ctx.font = '900 16px "Comic Neue", "Nunito", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#0F172A';
@@ -1121,7 +1107,6 @@
     }
   }
 
-  // --- BUCLE PRINCIPAL DE ANIMACIÓN ---
   function cauldronGameLoop(timestamp) {
     if (!CauldronGame.isRunning) return;
 
@@ -1149,8 +1134,10 @@
 
   // --- CONTROLES TÁCTILES Y DE ARRASTRE (DRAG & DROP + TAP TO CAST) ---
   function setupCauldronEventListeners() {
+    if (CauldronGame.listenersAttached) return;
     const canvas = CauldronGame.canvas;
     if (!canvas) return;
+    CauldronGame.listenersAttached = true;
 
     function getCanvasPos(e) {
       const rect = canvas.getBoundingClientRect();
@@ -1175,7 +1162,7 @@
     }
 
     function onPointerDown(e) {
-      if (CauldronGame.isAdvancing || CauldronGame.isSpeaking) return;
+      if (CauldronGame.isAdvancing) return;
 
       const pos = getCanvasPos(e);
       CauldronGame.pointer.x = pos.x;
