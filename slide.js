@@ -1,6 +1,6 @@
 // =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - EL TOBOGÁN DE FUSIÓN SUAVE
-// Módulo de Fusión y Síntesis Fonológica con Audios Reales Pregrabados
+// Módulo de Fusión Continua Dinámico integrado con el Léxico Canónico (200+ palabras)
 // =========================================================================
 
 (function() {
@@ -26,6 +26,8 @@
     hasLanded: false,
     activeStation: -1,
 
+    currentAudio: null,
+
     // Opciones inferiores
     cards: [],
     selectedCard: null,
@@ -41,120 +43,116 @@
 
   window.SlideGame = SlideGame;
 
-  // BANCO CANÓNICO DE FUSIÓN SILÁBICA CON AUDIOS REALES HUMANOS
-  // En español la fusión fonológica se sustenta en el núcleo silábico
-  const SLIDE_CASES = [
-    {
-      word: 'SOPA',
-      syllables: ['SO', 'PA'],
-      audioFiles: ['assets/audio/silabas/so.mp3', 'assets/audio/silabas/pa.mp3'],
-      pron: 'sopa',
-      image: 'assets/sopa.png',
-      distractors: [
-        { word: 'COPA', image: 'assets/copa.png', pron: 'copa' },
-        { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' }
-      ]
-    },
-    {
-      word: 'MESA',
-      syllables: ['ME', 'SA'],
-      audioFiles: ['assets/audio/silabas/me.mp3', 'assets/audio/silabas/sa.mp3'],
-      pron: 'mesa',
-      image: 'assets/mesa.png',
-      distractors: [
-        { word: 'CASA', image: 'assets/casa.png', pron: 'casa' },
-        { word: 'PATO', image: 'assets/pato.png', pron: 'pato' }
-      ]
-    },
-    {
-      word: 'LUNA',
-      syllables: ['LU', 'NA'],
-      audioFiles: ['assets/audio/silabas/lu.mp3', 'assets/audio/silabas/na.mp3'],
-      pron: 'luna',
-      image: 'assets/luna.png',
-      distractors: [
-        { word: 'CUNA', image: 'assets/cuna.png', pron: 'cuna' },
-        { word: 'LANA', image: 'assets/lana.png', pron: 'lana' }
-      ]
-    },
-    {
-      word: 'PATO',
-      syllables: ['PA', 'TO'],
-      audioFiles: ['assets/audio/silabas/pa.mp3', 'assets/audio/silabas/to.mp3'],
-      pron: 'pato',
-      image: 'assets/pato.png',
-      distractors: [
-        { word: 'GATO', image: 'assets/gato.png', pron: 'gato' },
-        { word: 'PLATO', image: 'assets/plato.png', pron: 'plato' }
-      ]
-    },
-    {
-      word: 'PINO',
-      syllables: ['PI', 'NO'],
-      audioFiles: ['assets/audio/silabas/pi.mp3', 'assets/audio/silabas/no.mp3'],
-      pron: 'pino',
-      image: 'assets/pino.png',
-      distractors: [
-        { word: 'PILA', image: 'assets/pila.png', pron: 'pila' },
-        { word: 'MOLINO', image: 'assets/molino.png', pron: 'molino' }
-      ]
-    },
-    {
-      word: 'VELA',
-      syllables: ['VE', 'LA'],
-      audioFiles: ['assets/audio/silabas/ve.mp3', 'assets/audio/silabas/la.mp3'],
-      pron: 'vela',
-      image: 'assets/vela.png',
-      distractors: [
-        { word: 'TELA', image: 'assets/tela.png', pron: 'tela' },
-        { word: 'BOTA', image: 'assets/bota.png', pron: 'bota' }
-      ]
-    },
-    {
-      word: 'FOCA',
-      syllables: ['FO', 'CA'],
-      audioFiles: ['assets/audio/silabas/fo.mp3', 'assets/audio/silabas/ca.mp3'],
-      pron: 'foca',
-      image: 'assets/foca.png',
-      distractors: [
-        { word: 'BOCA', image: 'assets/boca.png', pron: 'boca' },
-        { word: 'ROSA', image: 'assets/rosa.png', pron: 'rosa' }
-      ]
-    },
-    {
-      word: 'MANO',
-      syllables: ['MA', 'NO'],
-      audioFiles: ['assets/audio/silabas/ma.mp3', 'assets/audio/silabas/no.mp3'],
-      pron: 'mano',
-      image: 'assets/mano.png',
-      distractors: [
-        { word: 'MONO', image: 'assets/mono.png', pron: 'mono' },
-        { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana' }
-      ]
-    },
-    {
-      word: 'PELOTA',
-      syllables: ['PE', 'LO', 'TA'],
-      audioFiles: ['assets/audio/silabas/pe.mp3', 'assets/audio/silabas/lo.mp3', 'assets/audio/silabas/ta.mp3'],
-      pron: 'pelota',
-      image: 'assets/pelota.png',
-      distractors: [
-        { word: 'PALETA', image: 'assets/pala.png', pron: 'pala' },
-        { word: 'BOTELLA', image: 'assets/botella.png', pron: 'botella' }
-      ]
-    },
-    {
-      word: 'TOMATE',
-      syllables: ['TO', 'MA', 'TE'],
-      audioFiles: ['assets/audio/silabas/to.mp3', 'assets/audio/silabas/ma.mp3', 'assets/audio/silabas/te.mp3'],
-      pron: 'tomate',
-      image: 'assets/tomate.png',
-      distractors: [
-        { word: 'ZAPATO', image: 'assets/zapato.png', pron: 'zapato' },
-        { word: 'PATATA', image: 'assets/pato.png', pron: 'pato' }
-      ]
+  function cleanWordKey(text) {
+    if (!text) return '';
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+  }
+
+  // --- GENERACIÓN DINÁMICA DE MISIONES DESDE EL LÉXICO CANÓNICO ---
+  function buildSlideCasesFromLexicon() {
+    if (typeof CANONICAL_WORD_LEXICON === 'undefined') {
+      return getFallbackSlideCases();
     }
-  ];
+
+    const allKeys = Object.keys(CANONICAL_WORD_LEXICON).filter(k => {
+      const item = CANONICAL_WORD_LEXICON[k];
+      if (!item || !item.silabas || !item.emoji) return false;
+      const silCount = item.silabas.length;
+      return (silCount >= 2 && silCount <= 3);
+    });
+
+    if (allKeys.length < 3) {
+      return getFallbackSlideCases();
+    }
+
+    const shuffled = allKeys.slice().sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 5);
+
+    return selected.map(key => {
+      const item = CANONICAL_WORD_LEXICON[key];
+      const cleanK = cleanWordKey(key);
+      const audioPath = `assets/audio/tobogan/${cleanK}_fusion.mp3`;
+
+      const otherKeys = allKeys.filter(k => k !== key).sort(() => Math.random() - 0.5);
+      const distractors = otherKeys.slice(0, 2).map(dk => {
+        const dItem = CANONICAL_WORD_LEXICON[dk];
+        return {
+          word: dItem.escritura || dk,
+          image: dItem.emoji,
+          pron: dItem.pronunciacion || dk
+        };
+      });
+
+      return {
+        word: item.escritura || key,
+        syllables: item.silabas,
+        fusionAudio: audioPath,
+        pron: item.pronunciacion || key,
+        image: item.emoji,
+        distractors: distractors
+      };
+    });
+  }
+
+  function getFallbackSlideCases() {
+    return [
+      {
+        word: 'SOPA',
+        syllables: ['SO', 'PA'],
+        fusionAudio: 'assets/audio/tobogan/sopa_fusion.mp3',
+        pron: 'sopa',
+        image: 'assets/sopa.png',
+        distractors: [
+          { word: 'COPA', image: 'assets/copa.png', pron: 'copa' },
+          { word: 'LUNA', image: 'assets/luna.png', pron: 'luna' }
+        ]
+      },
+      {
+        word: 'MESA',
+        syllables: ['ME', 'SA'],
+        fusionAudio: 'assets/audio/tobogan/mesa_fusion.mp3',
+        pron: 'mesa',
+        image: 'assets/mesa.png',
+        distractors: [
+          { word: 'CASA', image: 'assets/casa.png', pron: 'casa' },
+          { word: 'PATO', image: 'assets/pato.png', pron: 'pato' }
+        ]
+      },
+      {
+        word: 'LUNA',
+        syllables: ['LU', 'NA'],
+        fusionAudio: 'assets/audio/tobogan/luna_fusion.mp3',
+        pron: 'luna',
+        image: 'assets/luna.png',
+        distractors: [
+          { word: 'CUNA', image: 'assets/cuna.png', pron: 'cuna' },
+          { word: 'LANA', image: 'assets/lana.png', pron: 'lana' }
+        ]
+      },
+      {
+        word: 'PATO',
+        syllables: ['PA', 'TO'],
+        fusionAudio: 'assets/audio/tobogan/pato_fusion.mp3',
+        pron: 'pato',
+        image: 'assets/pato.png',
+        distractors: [
+          { word: 'GATO', image: 'assets/gato.png', pron: 'gato' },
+          { word: 'PLATO', image: 'assets/plato.png', pron: 'plato' }
+        ]
+      },
+      {
+        word: 'PINO',
+        syllables: ['PI', 'NO'],
+        fusionAudio: 'assets/audio/tobogan/pino_fusion.mp3',
+        pron: 'pino',
+        image: 'assets/pino.png',
+        distractors: [
+          { word: 'PILA', image: 'assets/pila.png', pron: 'pila' },
+          { word: 'MOLINO', image: 'assets/molino.png', pron: 'molino' }
+        ]
+      }
+    ];
+  }
 
   const imgCache = {};
   function getCachedImg(src) {
@@ -166,31 +164,7 @@
     return img;
   }
 
-  // --- REPRODUCCIÓN DE AUDIOS REALES CON FALLBACK SEGURO ---
-  function playAudioFile(src, onComplete) {
-    try {
-      if (typeof playNarratorAudio === 'function') {
-        playNarratorAudio(src, onComplete);
-        return;
-      }
-      const audio = new Audio(src);
-      let done = false;
-      const finish = () => {
-        if (!done) {
-          done = true;
-          if (onComplete) onComplete();
-        }
-      };
-      audio.onended = finish;
-      audio.onerror = finish;
-      setTimeout(finish, 1800);
-      audio.play().catch(finish);
-    } catch(e) {
-      if (onComplete) onComplete();
-    }
-  }
-
-  // Audio system Web Audio para chimes y efectos
+  // --- AUDIO WEB AUDIO AUXILIAR ---
   let slideAudioCtx = null;
   function getSlideAudioCtx() {
     try {
@@ -215,7 +189,7 @@
       gain.connect(ac.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(freq || 440, ac.currentTime);
-      gain.gain.setValueAtTime(0.35, ac.currentTime);
+      gain.gain.setValueAtTime(0.25, ac.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
       osc.start();
       osc.stop(ac.currentTime + 0.45);
@@ -233,7 +207,7 @@
       osc.type = 'sine';
       osc.frequency.setValueAtTime(320, ac.currentTime);
       osc.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.45);
-      gain.gain.setValueAtTime(0.4, ac.currentTime);
+      gain.gain.setValueAtTime(0.35, ac.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
       osc.start();
       osc.stop(ac.currentTime + 0.45);
@@ -294,6 +268,9 @@
 
   window.closeSlideAndReturnToMap = function() {
     SlideGame.isRunning = false;
+    if (SlideGame.currentAudio) {
+      try { SlideGame.currentAudio.pause(); SlideGame.currentAudio = null; } catch(e) {}
+    }
     if (SlideGame.animId) cancelAnimationFrame(SlideGame.animId);
     if (SlideGame.slideAnimId) cancelAnimationFrame(SlideGame.slideAnimId);
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
@@ -322,8 +299,7 @@
       });
     }
 
-    const shuffled = SLIDE_CASES.slice().sort(() => Math.random() - 0.5);
-    SlideGame.cases = shuffled.slice(0, 5);
+    SlideGame.cases = buildSlideCasesFromLexicon();
     SlideGame.currentCaseIndex = 0;
 
     setupSlideEventListeners();
@@ -366,6 +342,10 @@
     SlideGame.activeStation = -1;
     SlideGame.floatingTexts = [];
     SlideGame.sparks = [];
+
+    if (SlideGame.currentAudio) {
+      try { SlideGame.currentAudio.pause(); SlideGame.currentAudio = null; } catch(e) {}
+    }
 
     const opts = [
       { word: c.word, image: c.image, pron: c.pron, isTarget: true },
@@ -425,7 +405,7 @@
 
     if (!SlideGame.hasLanded) {
       if (bannerText) {
-        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir las sílabas!</span>';
+        bannerText.innerHTML = '<span>👆</span><span><strong>Paso 1:</strong> ¡Toca el botón o el cohete para unir los sonidos!</span>';
       }
       if (actionBtn) {
         actionBtn.style.display = 'flex';
@@ -464,7 +444,7 @@
     startContinuousBlendSequence();
   };
 
-  // --- SECUENCIA DE FUSIÓN CON AUDIOS HUMANOS REALES PREGRABADOS ---
+  // --- SECUENCIA DE FUSIÓN CONTINUA SINCRONIZADA CON AUDIO NEURONAL ---
   function startContinuousBlendSequence() {
     if (SlideGame.isAdvancing || SlideGame.isSliding) return;
 
@@ -478,84 +458,84 @@
 
     const bannerText = document.getElementById('slide-instruction-text');
     if (bannerText) {
-      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen las sílabas...</span>';
+      bannerText.innerHTML = '<span>👂</span><span>Escucha con atención cómo se unen los sonidos...</span>';
     }
 
-    const numStations = c.syllables.length;
-    const pitches = [261.6, 329.6, 392.0, 523.2];
+    const audio = new Audio(c.fusionAudio);
+    SlideGame.currentAudio = audio;
 
-    function glideToStation(idx) {
-      if (!SlideGame.isRunning) return;
-      const targetP = (idx + 0.5) / numStations;
+    const numStations = (c.syllables && c.syllables.length) ? c.syllables.length : 2;
 
-      animateRocketTo(targetP, 850, () => {
+    let executed = false;
+    function runGlide(durationMs) {
+      if (executed) return;
+      executed = true;
+
+      const startTime = performance.now();
+      audio.play().catch(() => {});
+
+      function step(now) {
         if (!SlideGame.isRunning) return;
-        SlideGame.activeStation = idx;
+        const elapsed = now - startTime;
+        const p = Math.min(1.0, elapsed / durationMs);
+        SlideGame.rocketProgress = p;
 
-        // Estación alcanzada: partículas, nota musical y audio real de la sílaba
-        const coords = getStationCoords(idx);
-        spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
-        playChimeNote(pitches[idx % pitches.length]);
+        // Estaciones intermedias según número de sílabas
+        for (let sIdx = 0; sIdx < numStations; sIdx++) {
+          const segStart = (sIdx + 0.2) / numStations;
+          const segEnd = (sIdx + 0.85) / numStations;
+          if (p >= segStart && p < segEnd) {
+            if (SlideGame.activeStation !== sIdx) {
+              SlideGame.activeStation = sIdx;
+              const coords = getStationCoords(sIdx);
+              spawnSparks(coords.x, coords.y - 24, '#FBBF24', 22);
+              const pitches = [261.6, 329.6, 392.0, 523.2];
+              playChimeNote(pitches[sIdx % pitches.length]);
+            }
+          }
+        }
 
-        const audioFile = c.audioFiles[idx];
-        playAudioFile(audioFile, () => {
+        if (p < 1.0) {
+          SlideGame.slideAnimId = requestAnimationFrame(step);
+        } else {
+          // Aterrizaje en plataforma
+          SlideGame.rocketProgress = 1.0;
+          SlideGame.hasLanded = true;
+          SlideGame.isSliding = false;
+          SlideGame.activeStation = -1;
+
+          playRocketWhoosh();
+          const endCoords = getLandingCoords();
+          spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
+
+          updateSlideHUD();
+
           setTimeout(() => {
             if (!SlideGame.isRunning) return;
-            if (idx + 1 < numStations) {
-              glideToStation(idx + 1);
-            } else {
-              glideToLanding();
+            if (typeof speakText === 'function') {
+              speakText(`¿Cuál de estas imágenes es la ${c.pron}?`, () => {});
             }
-          }, 280);
-        });
-      });
-    }
-
-    function glideToLanding() {
-      if (!SlideGame.isRunning) return;
-      animateRocketTo(1.0, 750, () => {
-        if (!SlideGame.isRunning) return;
-        SlideGame.rocketProgress = 1.0;
-        SlideGame.hasLanded = true;
-        SlideGame.isSliding = false;
-        SlideGame.activeStation = -1;
-
-        playRocketWhoosh();
-        const endCoords = getLandingCoords();
-        spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
-
-        // Palabra completa fusionada
-        if (typeof speakText === 'function') {
-          speakText(`¡${c.word}! Ahora busca cuál de estas imágenes es la ${c.pron}.`, () => {});
+          }, 350);
         }
-        updateSlideHUD();
-      });
-    }
-
-    glideToStation(0);
-  }
-
-  function animateRocketTo(targetProgress, duration, onComplete) {
-    const startProgress = SlideGame.rocketProgress;
-    const startTime = performance.now();
-
-    function step(now) {
-      if (!SlideGame.isRunning) return;
-      const elapsed = now - startTime;
-      const t = Math.min(1.0, elapsed / duration);
-      // Easing suave (easeInOutQuad)
-      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      SlideGame.rocketProgress = startProgress + (targetProgress - startProgress) * ease;
-
-      if (t < 1.0) {
-        SlideGame.slideAnimId = requestAnimationFrame(step);
-      } else {
-        SlideGame.rocketProgress = targetProgress;
-        if (onComplete) onComplete();
       }
+
+      SlideGame.slideAnimId = requestAnimationFrame(step);
     }
 
-    SlideGame.slideAnimId = requestAnimationFrame(step);
+    audio.onloadedmetadata = function() {
+      const dur = Math.max(2600, Math.floor(audio.duration * 1000) || 3500);
+      runGlide(dur);
+    };
+
+    audio.onerror = function() {
+      // Fallback robusto en caso de que un audio nuevo aún no se haya generado
+      runGlide(3500);
+    };
+
+    audio.load();
+    setTimeout(() => {
+      if (!executed) runGlide(3500);
+    }, 400);
   }
 
   function getRampGeometry() {
@@ -649,7 +629,9 @@
     ctx.restore();
 
     // 3. Estaciones de sílabas
-    const syllables = c.syllables;
+    const syllables = c.syllables || ['A', 'B'];
+    const radius = syllables.length > 2 ? 26 : 30;
+
     syllables.forEach((syllable, i) => {
       const coords = getStationCoords(i);
       const isCurrent = (SlideGame.activeStation === i);
@@ -668,16 +650,16 @@
         ctx.fillStyle = '#1E293B';
       }
 
-      const radius = isCurrent ? 32 : 26;
+      const rad = isCurrent ? radius + 5 : radius;
       ctx.beginPath();
-      ctx.arc(coords.x, coords.y - 26, radius, 0, Math.PI * 2);
+      ctx.arc(coords.x, coords.y - 26, rad, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = isCurrent ? '#FDE68A' : (isPassed ? '#6EE7B7' : '#38BDF8');
       ctx.lineWidth = isCurrent ? 4 : 3;
       ctx.stroke();
 
-      ctx.font = `900 ${isCurrent ? 24 : 19}px "Comic Neue", "Nunito", sans-serif`;
+      ctx.font = `900 ${isCurrent ? 22 : 18}px "Comic Neue", "Nunito", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = (isCurrent || isPassed) ? '#FFFFFF' : '#BAE6FD';
