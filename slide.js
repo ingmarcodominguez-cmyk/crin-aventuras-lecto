@@ -538,10 +538,18 @@
           spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
           playChimeNote(pitches[i % pitches.length]);
 
-          // Reproducir la sílaba sostenida (ej. "LEEEEEE..." que sostiene mientras avanza hacia "CHE")
+          // Reproducir la sílaba sostenida (con prioridad absoluta si tiene voz humana grabada)
           const syl = syllables[i];
-          const audioSrc = sylToAudioPath(syl);
-          playAudioFile(audioSrc);
+          const cleanSyl = syl.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+          const customKey = 'syl_' + cleanSyl;
+          const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(customKey) : null;
+
+          if (customAudio) {
+            playAudioFile(customAudio);
+          } else {
+            const audioSrc = sylToAudioPath(syl);
+            playAudioFile(audioSrc);
+          }
         }
       }
 
@@ -558,20 +566,28 @@
         spawnSparks(endCoords.x, endCoords.y, '#34D399', 35);
 
         // Bloqueo respetuoso mientras proclama la palabra completa y hace la pregunta
-        if (typeof speakText === 'function') {
+        const cleanWord = cleanWordKey(c.word);
+        const wordCustomKey = 'word_' + cleanWord;
+        const wordCustomAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(wordCustomKey) : null;
+
+        const proceedToQuestion = () => {
+          setTimeout(() => {
+            if (!SlideGame.isRunning) return;
+            speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {
+              SlideGame.isSpeaking = false;
+              updateSlideHUD();
+            });
+          }, 350);
+        };
+
+        if (wordCustomAudio) {
           SlideGame.isSpeaking = true;
           updateSlideHUD();
-
-          speakText(`¡${c.word}!`, () => {
-            setTimeout(() => {
-              if (!SlideGame.isRunning) return;
-              // Consigna directa y sin error de artículo ("¿Cuál de estas imágenes es LECHE?")
-              speakText(`¿Cuál de estas imágenes es ${c.pron}?`, () => {
-                SlideGame.isSpeaking = false;
-                updateSlideHUD();
-              });
-            }, 350);
-          });
+          playAudioFile(wordCustomAudio, proceedToQuestion);
+        } else if (typeof speakText === 'function') {
+          SlideGame.isSpeaking = true;
+          updateSlideHUD();
+          speakText(`¡${c.word}!`, proceedToQuestion);
         } else {
           updateSlideHUD();
         }

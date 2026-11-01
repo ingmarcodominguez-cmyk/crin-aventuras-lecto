@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v291';
+    const CURRENT_APP_VERSION = 'v292';
 
     function syncAppVersionLabels() {
       try {
@@ -124,7 +124,8 @@
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
   <script src="transformer.js?v=291?v=286"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="slide.js?v=291"></script>
+  <script src="audio_recorder.js?v=292"></script>
+  <script src="slide.js?v=292"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
   <script src="mirror_lighthouse.js?v=286"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
@@ -6548,16 +6549,21 @@
                 <strong style="color: #0F172A; letter-spacing: 1px;">${currentLetters}</strong>
               </div>
 
-              <!-- CUALIDAD 4: SIMULADOR TOBOGÁN DE FUSIÓN (EL COHETE) -->
+              <!-- CUALIDAD 4: SIMULADOR TOBOGÁN DE FUSIÓN (EL COHETE) CON GRABADOR DE VOZ HUMANA -->
               ${(() => {
                 const syls = (canon && canon.silabas) ? canon.silabas : [];
                 const isRocketCandidate = (syls.length >= 2 && syls.length <= 3);
+                const cleanWord = (typeof removeAccents === 'function') ? removeAccents(w).toLowerCase() : w.toLowerCase();
+                const wordCustomKey = 'word_' + cleanWord;
+                const hasWordCustom = (typeof window.hasCustomVoice === 'function') && window.hasCustomVoice(wordCustomKey);
+                const isWordRecording = (window.activeRecordingTarget === wordCustomKey);
+
                 return `
                   <div style="background: #090D16; border-radius: 12px; padding: 10px 12px; border: 1.5px solid ${isRocketCandidate ? '#38BDF8' : '#334155'}; box-shadow: 0 4px 14px rgba(0,0,0,0.25);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px;">
                       <div style="display: flex; align-items: center; gap: 5px;">
                         <span style="font-size: 13px;">🚀</span>
-                        <span style="font-size: 10px; font-weight: 900; color: #38BDF8; letter-spacing: 0.5px;">EN EL JUEGO DEL COHETE:</span>
+                        <span style="font-size: 10px; font-weight: 900; color: #38BDF8; letter-spacing: 0.5px;">EN EL COHETE (GRABAR O PROBAR):</span>
                       </div>
                       ${isRocketCandidate ? `
                         <button onclick="playRocketWordSequence('${w}')" id="btn-rocket-play-${normKey}" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white; border: none; padding: 4px 9px; border-radius: 7px; font-size: 10px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(245,158,11,0.4);" title="Escuchar la secuencia continua exacta que hace el cohete en el juego">
@@ -6568,19 +6574,71 @@
                       `}
                     </div>
 
-                    <!-- Estaciones del tobogán con botones interactivos individuales -->
-                    <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;" id="rocket-stations-${normKey}">
-                      ${syls.map((syl, sIdx) => `
-                        <button onclick="playSyllableAudioClip('${syl}', this)" id="rocket-syl-${normKey}-${sIdx}" style="background: #1E293B; color: #BAE6FD; border: 1.5px solid #0284C7; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;" title="Escuchar sonido sostenido de la sílaba ${syl}">
-                          <span>🚀 ${syl}</span>
-                          <span style="font-size: 9px; opacity: 0.85;">🔊</span>
-                        </button>
-                        ${sIdx < syls.length - 1 ? '<span style="color: #38BDF8; font-weight: bold; font-size: 11px;">➔</span>' : ''}
-                      `).join('')}
+                    <!-- Estaciones del tobogán con botones de escuchar y grabar voz humana individual -->
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;" id="rocket-stations-${normKey}">
+                      ${syls.map((syl, sIdx) => {
+                        const cleanSyl = (typeof removeAccents === 'function') ? removeAccents(syl).toLowerCase() : syl.toLowerCase();
+                        const sylKey = 'syl_' + cleanSyl;
+                        const hasCustom = (typeof window.hasCustomVoice === 'function') && window.hasCustomVoice(sylKey);
+                        const isThisRecording = (window.activeRecordingTarget === sylKey);
+
+                        return `
+                          <div style="display: flex; flex-direction: column; align-items: center; background: ${hasCustom ? '#064E3B' : '#1E293B'}; border: 1.5px solid ${hasCustom ? '#10B981' : '#0284C7'}; border-radius: 8px; padding: 4px 6px; gap: 3px;">
+                            <button onclick="playSyllableAudioClip('${syl}', this)" id="rocket-syl-${normKey}-${sIdx}" style="background: transparent; color: ${hasCustom ? '#6EE7B7' : '#BAE6FD'}; border: none; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 3px; padding: 0;" title="Escuchar">
+                              <span>🚀 ${syl}</span>
+                              <span style="font-size: 10px;">${hasCustom ? '🎙️' : '🔊'}</span>
+                            </button>
+                            <div style="display: flex; gap: 2px;">
+                              ${isThisRecording ? `
+                                <button onclick="handleStopVoiceRecording()" style="background: #EF4444; color: white; border: none; border-radius: 5px; padding: 2px 6px; font-size: 9px; font-weight: 900; cursor: pointer;">
+                                  ⏹️ Parar
+                                </button>
+                              ` : hasCustom ? `
+                                <button onclick="handleStartVoiceRecording('${sylKey}', '${syl}')" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border: 1px solid #10B981; border-radius: 5px; padding: 1px 5px; font-size: 9px; cursor: pointer;" title="Regrabar voz humana">
+                                  🎙️
+                                </button>
+                                <button onclick="handleDeleteVoiceRecording('${sylKey}', '${syl}')" style="background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid #EF4444; border-radius: 5px; padding: 1px 5px; font-size: 9px; cursor: pointer;" title="Borrar grabación">
+                                  🗑️
+                                </button>
+                              ` : `
+                                <button onclick="handleStartVoiceRecording('${sylKey}', '${syl}')" style="background: #3B82F6; color: white; border: none; border-radius: 5px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer;" title="Grabar tu voz">
+                                  🎙️ Grabar
+                                </button>
+                              `}
+                            </div>
+                          </div>
+                          ${sIdx < syls.length - 1 ? '<span style="color: #38BDF8; font-weight: bold; font-size: 11px;">➔</span>' : ''}
+                        `;
+                      }).join('')}
+
                       <span style="color: #34D399; font-weight: bold; font-size: 11px;">➔</span>
-                      <button onclick="playRocketWordProclaim('${displayWord}', this)" id="rocket-meta-${normKey}" style="background: #064E3B; color: #6EE7B7; border: 1.5px solid #34D399; border-radius: 8px; padding: 4px 8px; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s ease;" title="Palabra proclamada al aterrizar el cohete">
-                        <span>🏁 ¡${displayWord}!</span>
-                      </button>
+
+                      <!-- Estación Meta Final -->
+                      <div style="display: flex; flex-direction: column; align-items: center; background: ${hasWordCustom ? '#064E3B' : '#0F291E'}; border: 1.5px solid ${hasWordCustom ? '#10B981' : '#34D399'}; border-radius: 8px; padding: 4px 6px; gap: 3px;">
+                        <button onclick="playRocketWordProclaim('${displayWord}', this)" id="rocket-meta-${normKey}" style="background: transparent; color: #6EE7B7; border: none; font-size: 11px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 3px; padding: 0;" title="Palabra proclamada al aterrizar">
+                          <span>🏁 ¡${displayWord}!</span>
+                          <span style="font-size: 10px;">${hasWordCustom ? '🎙️' : '🔊'}</span>
+                        </button>
+                        <div style="display: flex; gap: 2px;">
+                          ${isWordRecording ? `
+                            <button onclick="handleStopVoiceRecording()" style="background: #EF4444; color: white; border: none; border-radius: 5px; padding: 2px 6px; font-size: 9px; font-weight: 900; cursor: pointer;">
+                              ⏹️ Parar
+                            </button>
+                          ` : hasWordCustom ? `
+                            <button onclick="handleStartVoiceRecording('${wordCustomKey}', '${displayWord}')" style="background: rgba(16,185,129,0.25); color: #6EE7B7; border: 1px solid #10B981; border-radius: 5px; padding: 1px 5px; font-size: 9px; cursor: pointer;" title="Regrabar voz humana de la palabra">
+                              🎙️
+                            </button>
+                            <button onclick="handleDeleteVoiceRecording('${wordCustomKey}', '${displayWord}')" style="background: rgba(239,68,68,0.2); color: #FCA5A5; border: 1px solid #EF4444; border-radius: 5px; padding: 1px 5px; font-size: 9px; cursor: pointer;" title="Borrar grabación">
+                              🗑️
+                            </button>
+                          ` : `
+                            <button onclick="handleStartVoiceRecording('${wordCustomKey}', '${displayWord}')" style="background: #059669; color: white; border: none; border-radius: 5px; padding: 1px 6px; font-size: 9px; font-weight: bold; cursor: pointer;" title="Grabar tu voz para la meta">
+                              🎙️ Grabar
+                            </button>
+                          `}
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 `;
@@ -6690,11 +6748,60 @@
 
     let activeRocketAudio = null;
 
+    window.activeRecordingTarget = null;
+
+    function handleStartVoiceRecording(targetKey, label) {
+      window.activeRecordingTarget = targetKey;
+      if (typeof renderDictionaryEditorTable === 'function') {
+        renderDictionaryEditorTable();
+      }
+      if (typeof window.startVoiceRecording === 'function') {
+        window.startVoiceRecording(targetKey, () => {
+          if (typeof showFloatingFeedbackToast === 'function') {
+            showFloatingFeedbackToast(`🔴 Grabando "${label}"... Habla claro y pulsa "Parar"`);
+          }
+        }, () => {
+          window.activeRecordingTarget = null;
+          renderDictionaryEditorTable();
+        });
+      }
+    }
+
+    function handleStopVoiceRecording() {
+      const currentTarget = window.activeRecordingTarget;
+      window.activeRecordingTarget = null;
+      if (typeof window.stopVoiceRecording === 'function') {
+        window.stopVoiceRecording(() => {
+          if (typeof showFloatingFeedbackToast === 'function') {
+            showFloatingFeedbackToast(`✅ ¡Grabación de voz guardada con éxito!`);
+          }
+          if (typeof renderDictionaryEditorTable === 'function') {
+            renderDictionaryEditorTable();
+          }
+        });
+      }
+    }
+
+    function handleDeleteVoiceRecording(targetKey, label) {
+      if (confirm(`¿Deseas eliminar la grabación de voz humana de "${label}" y volver a la voz estándar?`)) {
+        if (typeof window.deleteVoiceRecording === 'function') {
+          window.deleteVoiceRecording(targetKey, () => {
+            if (typeof showFloatingFeedbackToast === 'function') {
+              showFloatingFeedbackToast(`🗑️ Grabación eliminada.`);
+            }
+          });
+        }
+      }
+    }
+
     function playSyllableAudioClip(syl, btnEl) {
       if (activeRocketAudio) {
         try { activeRocketAudio.pause(); } catch(e) {}
       }
-      const audioPath = sylToFileNameForDict(syl);
+      const cleanSyl = (typeof removeAccents === 'function') ? removeAccents(syl).toLowerCase() : syl.toLowerCase();
+      const sylKey = 'syl_' + cleanSyl;
+      const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(sylKey) : null;
+      const audioPath = customAudio || sylToFileNameForDict(syl);
       const audio = new Audio(audioPath);
       activeRocketAudio = audio;
 
@@ -6736,24 +6843,28 @@
         btnEl.style.borderColor = '#A7F3D0';
         btnEl.style.color = '#FFFFFF';
       }
-      if (typeof speakText === 'function') {
-        speakText(`¡${word}!`, () => {
-          if (btnEl) {
-            btnEl.style.transform = 'scale(1.0)';
-            btnEl.style.background = '#064E3B';
-            btnEl.style.borderColor = '#34D399';
-            btnEl.style.color = '#6EE7B7';
-          }
-        });
+      const cleanWord = (typeof removeAccents === 'function') ? removeAccents(word).toLowerCase() : word.toLowerCase();
+      const wordCustomKey = 'word_' + cleanWord;
+      const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(wordCustomKey) : null;
+
+      const finishProclaim = () => {
+        if (btnEl) {
+          btnEl.style.transform = 'scale(1.0)';
+          btnEl.style.background = '#064E3B';
+          btnEl.style.borderColor = '#34D399';
+          btnEl.style.color = '#6EE7B7';
+        }
+      };
+
+      if (customAudio) {
+        const audio = new Audio(customAudio);
+        audio.onended = finishProclaim;
+        audio.onerror = finishProclaim;
+        audio.play().catch(finishProclaim);
+      } else if (typeof speakText === 'function') {
+        speakText(`¡${word}!`, finishProclaim);
       } else {
-        setTimeout(() => {
-          if (btnEl) {
-            btnEl.style.transform = 'scale(1.0)';
-            btnEl.style.background = '#064E3B';
-            btnEl.style.borderColor = '#34D399';
-            btnEl.style.color = '#6EE7B7';
-          }
-        }, 800);
+        setTimeout(finishProclaim, 800);
       }
     }
 
@@ -6786,7 +6897,10 @@
             btnEl.style.boxShadow = '0 0 12px #FBBF24';
           }
 
-          const audioPath = sylToFileNameForDict(currentSyl);
+          const cleanSyl = (typeof removeAccents === 'function') ? removeAccents(currentSyl).toLowerCase() : currentSyl.toLowerCase();
+          const sylKey = 'syl_' + cleanSyl;
+          const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(sylKey) : null;
+          const audioPath = customAudio || sylToFileNameForDict(currentSyl);
           const audio = new Audio(audioPath);
           activeRocketAudio = audio;
 
