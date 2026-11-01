@@ -538,11 +538,16 @@
           spawnSparks(coords.x, coords.y - 24, '#FBBF24', 24);
           playChimeNote(pitches[i % pitches.length]);
 
-          // Reproducir la sílaba sostenida (con prioridad absoluta si tiene voz humana grabada)
+          // Reproducir la sílaba sostenida (con prioridad a la cadencia específica de esta palabra y posición)
           const syl = syllables[i];
           const cleanSyl = syl.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-          const customKey = 'syl_' + cleanSyl;
-          const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') ? window.getCustomVoiceDataUrl(customKey) : null;
+          const cleanWord = cleanWordKey(c.word);
+          // Prioridad 1: Grabación exacta de ESTA palabra en ESTA posición (ej. 'mano_syl_0_ma' vs 'cama_syl_1_ma')
+          const specificKey = `${cleanWord}_syl_${i}_${cleanSyl}`;
+          const generalKey = 'syl_' + cleanSyl;
+          const customAudio = (typeof window.getCustomVoiceDataUrl === 'function') 
+            ? (window.getCustomVoiceDataUrl(specificKey) || window.getCustomVoiceDataUrl(generalKey))
+            : null;
 
           if (customAudio) {
             playAudioFile(customAudio);
