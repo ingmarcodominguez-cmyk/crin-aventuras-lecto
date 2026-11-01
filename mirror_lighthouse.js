@@ -523,19 +523,31 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      if (typeof speakText === 'function') {
-        speakText(`¡Súper, tarea lograda! ¡Es la letra ${boat.letter}!`, () => {});
-      }
-
-      setTimeout(() => {
+      let advanced = false;
+      const proceedToNextCase = () => {
+        if (advanced) return;
+        advanced = true;
         if (!MirrorGame.isRunning) return;
+        MirrorGame.isSpeaking = false;
+        MirrorGame.isAdvancing = false;
         MirrorGame.currentCaseIndex++;
         if (MirrorGame.currentCaseIndex >= MirrorGame.cases.length) {
           showMirrorVictoryModal();
         } else {
           setupMirrorCase(MirrorGame.currentCaseIndex);
         }
-      }, 1600);
+      };
+
+      // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
+      if (typeof speakText === 'function') {
+        MirrorGame.isSpeaking = true;
+        speakText(`¡Súper, tarea lograda! ¡Es la letra ${boat.letter}!`, () => {
+          setTimeout(proceedToNextCase, 500);
+        });
+        setTimeout(proceedToNextCase, 6500);
+      } else {
+        setTimeout(proceedToNextCase, 1400);
+      }
 
     } else {
       boat.shake = 8;

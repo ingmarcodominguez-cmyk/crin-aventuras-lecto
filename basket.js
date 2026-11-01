@@ -465,19 +465,31 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      if (typeof speakText === 'function') {
-        speakText(`¡Súper, tarea lograda! ¡${card.pron} es el intruso!`, () => {});
-      }
-
-      setTimeout(() => {
+      let advanced = false;
+      const proceedToNextCase = () => {
+        if (advanced) return;
+        advanced = true;
         if (!BasketGame.isRunning) return;
+        BasketGame.isSpeaking = false;
+        BasketGame.isAdvancing = false;
         BasketGame.currentCaseIndex++;
         if (BasketGame.currentCaseIndex >= BasketGame.cases.length) {
           showBasketVictoryModal();
         } else {
           setupBasketCase(BasketGame.currentCaseIndex);
         }
-      }, 1600);
+      };
+
+      // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
+      if (typeof speakText === 'function') {
+        BasketGame.isSpeaking = true;
+        speakText(`¡Súper, tarea lograda! ¡${card.pron} es el intruso!`, () => {
+          setTimeout(proceedToNextCase, 500);
+        });
+        setTimeout(proceedToNextCase, 6500);
+      } else {
+        setTimeout(proceedToNextCase, 1400);
+      }
 
     } else {
       // ❌ NO ES EL INTRUSO

@@ -510,7 +510,7 @@
     }
 
     function onPointerDown(e) {
-      if (TransformerGame.isAdvancing) return;
+      if (TransformerGame.isAdvancing || TransformerGame.isSpeaking) return;
       const pos = getCoords(e);
 
       TransformerGame.cards.forEach(card => {
@@ -529,7 +529,7 @@
   }
 
   function handleTransformerCardClick(card) {
-    if (TransformerGame.isAdvancing) return;
+    if (TransformerGame.isAdvancing || TransformerGame.isSpeaking) return;
 
     if (card.isTarget) {
       // ✅ ACIERTO EN LA TRANSFORMACIÓN
@@ -554,22 +554,31 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      if (typeof speakText === 'function') {
-        TransformerGame.isSpeaking = true;
-        speakText(`¡Súper, tarea lograda! ¡${card.pron}!`, () => {
-          TransformerGame.isSpeaking = false;
-        });
-      }
-
-      setTimeout(() => {
+      let advanced = false;
+      const proceedToNextCase = () => {
+        if (advanced) return;
+        advanced = true;
         if (!TransformerGame.isRunning) return;
+        TransformerGame.isSpeaking = false;
+        TransformerGame.isAdvancing = false;
         TransformerGame.currentCaseIndex++;
         if (TransformerGame.currentCaseIndex >= TransformerGame.cases.length) {
           showTransformerVictoryModal();
         } else {
           setupTransformerCase(TransformerGame.currentCaseIndex);
         }
-      }, 1600);
+      };
+
+      // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
+      if (typeof speakText === 'function') {
+        TransformerGame.isSpeaking = true;
+        speakText(`¡Súper, tarea lograda! ¡${card.pron}!`, () => {
+          setTimeout(proceedToNextCase, 500);
+        });
+        setTimeout(proceedToNextCase, 6500); // Watchdog de respaldo
+      } else {
+        setTimeout(proceedToNextCase, 1400);
+      }
 
     } else {
       // ❌ ERROR AMIGABLE

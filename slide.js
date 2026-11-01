@@ -1081,19 +1081,31 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      if (typeof speakText === 'function') {
-        speakText(`¡Excelente! ¡Esa es ${card.pron}!`, () => {});
-      }
-
-      setTimeout(() => {
+      let advanced = false;
+      const proceedToNextCase = () => {
+        if (advanced) return;
+        advanced = true;
         if (!SlideGame.isRunning) return;
+        SlideGame.isSpeaking = false;
+        SlideGame.isAdvancing = false;
         SlideGame.currentCaseIndex++;
         if (SlideGame.currentCaseIndex >= SlideGame.cases.length) {
           showSlideVictoryModal();
         } else {
           setupSlideCase(SlideGame.currentCaseIndex);
         }
-      }, 1800);
+      };
+
+      // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
+      if (typeof speakText === 'function') {
+        SlideGame.isSpeaking = true;
+        speakText(`¡Súper, tarea lograda! ¡Esa es ${card.pron}!`, () => {
+          setTimeout(proceedToNextCase, 500);
+        });
+        setTimeout(proceedToNextCase, 6500);
+      } else {
+        setTimeout(proceedToNextCase, 1400);
+      }
 
     } else {
       card.shake = 8;
