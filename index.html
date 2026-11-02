@@ -9,7 +9,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v293';
+    const CURRENT_APP_VERSION = 'v294';
 
     function syncAppVersionLabels() {
       try {
@@ -124,8 +124,8 @@
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
   <script src="transformer.js?v=291?v=286"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="audio_recorder.js?v=293"></script>
-  <script src="slide.js?v=293"></script>
+  <script src="audio_recorder.js?v=294"></script>
+  <script src="slide.js?v=294"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
   <script src="mirror_lighthouse.js?v=286"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
@@ -2739,7 +2739,10 @@
               <span style="font-size: 10px; font-weight: 800; background: #0284C7; color: white; padding: 2px 7px; border-radius: 8px;">Continuous Blending</span>
             </div>
           </div>
-          <div style="display: flex; gap: 6px;">
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button id="slide-mode-btn" onclick="toggleSlideGameMode()" style="background: linear-gradient(135deg, #059669, #047857); border: 1.5px solid #34D399; padding: 6px 12px; border-radius: 10px; font-weight: 900; font-size: 11px; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s ease;" title="Alternar entre palabras de la Tarea Semanal o Modo Aleatorio">
+              <span>🎯 Modo Tarea</span>
+            </button>
             <button onclick="openTherapistGuideModal('slide')" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #BAE6FD; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
               <span>ℹ️ Terapeuta</span>
             </button>
@@ -2774,11 +2777,14 @@
           <div style="font-size: 16px; font-weight: 800; color: #0284C7; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button onclick="replaySlideQuest()" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.3);">
-            🔄 Jugar de nuevo
+          <button onclick="replaySlideQuest()" style="background: linear-gradient(135deg, #0284C7, #0369A1); color: white; border: none; font-size: 14px; padding: 11px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.3); display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span>🚀 Repetir Misión</span>
           </button>
-          <button onclick="closeSlideVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
-            🗺️ Volver al Mapa
+          <button onclick="window.toggleSlideGameMode(); const m = document.getElementById('slide-victory-modal'); if(m) m.style.display='none';" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; border: none; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(139,92,246,0.3);">
+            <span>🔄 Cambiar de Modo (Tarea ⇄ Aleatorio)</span>
+          </button>
+          <button onclick="closeSlideVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 9px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            <span>🗺️ Volver al Mapa</span>
           </button>
         </div>
       </div>

@@ -20,6 +20,9 @@
     currentCaseIndex: 0,
     currentCase: null,
 
+    // Modo de juego: 'task' (palabras de la tarea semanal) o 'random' (banco amplio de 200+ palabras)
+    mode: 'task',
+
     // Estado del cohete y la rampa
     rocketProgress: 0, // 0.0 (arriba) a 1.0 (abajo/aterrizaje)
     isSliding: false,
@@ -60,7 +63,124 @@
     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
   }
 
-  // --- GENERACIÓN DINÁMICA DE MISIONES DESDE EL LÉXICO CANÓNICO ---
+  // --- OBTENCIÓN DE PALABRAS DE LA TAREA ACTIVA ---
+  function getActiveTaskWordStrings() {
+    let words = [];
+    if (typeof window.getActiveTaskWords === 'function') {
+      words = window.getActiveTaskWords();
+    } else {
+      if (typeof activeTaskPackId !== 'undefined' && typeof allTaskPacks !== 'undefined') {
+        const pack = allTaskPacks[activeTaskPackId];
+        if (pack && pack.words && pack.words.length > 0) {
+          words = [...pack.words];
+        }
+      }
+      if (typeof activeTaskPackId !== 'undefined' && activeTaskPackId === 'custom' && typeof customWordsList !== 'undefined' && customWordsList.length > 0) {
+        words = customWordsList.map(item => item.word);
+      }
+      if (words.length === 0 && typeof activeChildProfile !== 'undefined' && activeChildProfile && activeChildProfile.taskWords && activeChildProfile.taskWords.length > 0) {
+        words = [...activeChildProfile.taskWords];
+      }
+    }
+    return words;
+  }
+
+  // --- GENERACIÓN DE MISIONES PARA MODO TAREA (SELECCIÓN DEL TERAPEUTA / ALUMNO) ---
+  function buildSlideCasesForTask() {
+    const rawWords = getActiveTaskWordStrings();
+    if (!rawWords || rawWords.length === 0) return [];
+
+    const cases = [];
+    const allLexiconKeys = (typeof CANONICAL_WORD_LEXICON !== 'undefined') ? Object.keys(CANONICAL_WORD_LEXICON) : [];
+
+    rawWords.forEach(w => {
+      const cleanW = (typeof removeAccents === 'function') ? removeAccents(w).toUpperCase() : w.toUpperCase();
+      let canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(cleanW) : null;
+      if (!canon && typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+        canon = CANONICAL_WORD_LEXICON[cleanW];
+      }
+
+      let syllables = (canon && canon.silabas && canon.silabas.length >= 2 && canon.silabas.length <= 3) 
+        ? canon.silabas 
+        : null;
+
+      if (!syllables) {
+        if (canon && canon.silabas && canon.silabas.length > 0) {
+          syllables = canon.silabas.slice(0, 3);
+        } else {
+          if (cleanW.length === 4) {
+            syllables = [cleanW.slice(0, 2), cleanW.slice(2)];
+          } else if (cleanW.length === 5) {
+            syllables = [cleanW.slice(0, 2), cleanW.slice(2)];
+          } else if (cleanW.length === 6) {
+            syllables = [cleanW.slice(0, 2), cleanW.slice(2, 4), cleanW.slice(4)];
+          } else {
+            syllables = [cleanW.slice(0, Math.floor(cleanW.length / 2)), cleanW.slice(Math.floor(cleanW.length / 2))];
+          }
+        }
+      }
+
+      const displayWord = canon ? canon.escritura : cleanW;
+      const pronWord = canon ? canon.pronunciacion : cleanW.toLowerCase();
+      const imageWord = (typeof customEmojiOverrides !== 'undefined' && customEmojiOverrides[cleanW]) 
+        || (canon && canon.emoji) 
+        || (typeof emojiMap !== 'undefined' && emojiMap[cleanW]) 
+        || `assets/${cleanW.toLowerCase()}.png`;
+
+      // Distractores
+      const otherTaskWords = rawWords.filter(ow => ow.toUpperCase() !== cleanW);
+      let distractors = [];
+
+      otherTaskWords.forEach(ow => {
+        if (distractors.length < 2) {
+          const dClean = (typeof removeAccents === 'function') ? removeAccents(ow).toUpperCase() : ow.toUpperCase();
+          const dCanon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(dClean) : null;
+          distractors.push({
+            word: dCanon ? dCanon.escritura : dClean,
+            image: (dCanon && dCanon.emoji) || `assets/${dClean.toLowerCase()}.png`,
+            pron: dCanon ? dCanon.pronunciacion : dClean.toLowerCase()
+          });
+        }
+      });
+
+      if (distractors.length < 2 && allLexiconKeys.length > 0) {
+        const pool = allLexiconKeys.filter(k => k !== cleanW && !distractors.some(d => d.word.toUpperCase() === k));
+        pool.sort(() => Math.random() - 0.5);
+        for (let i = 0; i < pool.length && distractors.length < 2; i++) {
+          const dk = pool[i];
+          const dItem = CANONICAL_WORD_LEXICON[dk];
+          distractors.push({
+            word: dItem.escritura || dk,
+            image: dItem.emoji,
+            pron: dItem.pronunciacion || dk.toLowerCase()
+          });
+        }
+      }
+
+      cases.push({
+        word: displayWord,
+        syllables: syllables,
+        pron: pronWord,
+        image: imageWord,
+        distractors: distractors
+      });
+    });
+
+    return cases;
+  }
+
+  // --- GENERACIÓN DINÁMICA DE MISIONES SEGÚN MODO ACTIVO (TAREA O ALEATORIO) ---
+  function buildCurrentSlideCases() {
+    if (SlideGame.mode === 'task') {
+      const taskCases = buildSlideCasesForTask();
+      if (taskCases && taskCases.length > 0) {
+        return taskCases;
+      }
+    }
+    return buildSlideCasesFromLexicon();
+  }
+
+  // --- GENERACIÓN DINÁMICA DE MISIONES DESDE EL LÉXICO CANÓNICO (MODO ALEATORIO) ---
   function buildSlideCasesFromLexicon() {
     if (typeof CANONICAL_WORD_LEXICON === 'undefined') {
       return getFallbackSlideCases();
@@ -313,8 +433,14 @@
       });
     }
 
-    SlideGame.cases = buildSlideCasesFromLexicon();
+    try {
+      SlideGame.mode = localStorage.getItem('crin_slide_mode') || 'task';
+    } catch(e) {
+      SlideGame.mode = 'task';
+    }
+    SlideGame.cases = buildCurrentSlideCases();
     SlideGame.currentCaseIndex = 0;
+    updateSlideModeUI();
 
     setupSlideEventListeners();
     resizeSlideCanvas();
@@ -411,8 +537,10 @@
   function updateSlideHUD() {
     const titleEl = document.getElementById('slide-case-title');
     if (titleEl) {
-      titleEl.innerText = `Misión ${SlideGame.currentCaseIndex + 1} de ${SlideGame.cases.length}`;
+      const modeLabel = (SlideGame.mode === 'task') ? 'Tarea' : 'Aleatorio';
+      titleEl.innerText = `Misión ${SlideGame.currentCaseIndex + 1} de ${SlideGame.cases.length} (${modeLabel})`;
     }
+    updateSlideModeUI();
 
     const bannerText = document.getElementById('slide-instruction-text');
     const actionBtn = document.getElementById('slide-action-btn');
@@ -478,6 +606,53 @@
       updateSlideHUD();
     }
   }
+
+  // --- GESTIÓN VISUAL Y CONMUTADOR DE MODO (TAREA VS ALEATORIO) ---
+  function updateSlideModeUI() {
+    const btn = document.getElementById('slide-mode-btn');
+    if (!btn) return;
+    if (SlideGame.mode === 'task') {
+      btn.innerHTML = '<span>🎯 Modo Tarea</span>';
+      btn.style.background = 'linear-gradient(135deg, #059669, #047857)';
+      btn.style.border = '1.5px solid #34D399';
+      btn.style.color = '#FFFFFF';
+      btn.title = 'Jugando con las palabras de la Tarea Semanal. Haz clic para cambiar a Modo Aleatorio.';
+    } else {
+      btn.innerHTML = '<span>🎲 Modo Aleatorio</span>';
+      btn.style.background = 'linear-gradient(135deg, #8B5CF6, #6D28D9)';
+      btn.style.border = '1.5px solid #C084FC';
+      btn.style.color = '#FFFFFF';
+      btn.title = 'Jugando con más de 200 palabras al azar. Haz clic para cambiar a Modo Tarea.';
+    }
+  }
+
+  window.toggleSlideGameMode = function() {
+    SlideGame.mode = (SlideGame.mode === 'task') ? 'random' : 'task';
+    try {
+      localStorage.setItem('crin_slide_mode', SlideGame.mode);
+    } catch(e) {}
+    updateSlideModeUI();
+
+    SlideGame.cases = buildCurrentSlideCases();
+    SlideGame.currentCaseIndex = 0;
+    setupSlideCase(0);
+
+    const modeName = (SlideGame.mode === 'task') ? '🎯 Modo Tarea Semanal' : '🎲 Modo Aleatorio (Exploración Libre)';
+    if (typeof showFloatingFeedbackToast === 'function') {
+      showFloatingFeedbackToast(`Cambiado a ${modeName}`);
+    }
+  };
+
+  window.setSlideGameMode = function(targetMode) {
+    SlideGame.mode = (targetMode === 'random') ? 'random' : 'task';
+    try {
+      localStorage.setItem('crin_slide_mode', SlideGame.mode);
+    } catch(e) {}
+    updateSlideModeUI();
+    SlideGame.cases = buildCurrentSlideCases();
+    SlideGame.currentCaseIndex = 0;
+    setupSlideCase(0);
+  };
 
   window.triggerSlideFromButton = function() {
     getSlideAudioCtx();
