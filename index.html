@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v299';
+    const CURRENT_APP_VERSION = 'v300';
 
     function syncAppVersionLabels() {
       try {
@@ -83,30 +83,30 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=299"></script>
+  <script src="lexicon.js?v=300"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=299"></script>
+  <script src="archery.js?v=300"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=299"></script>
+  <script src="cauldron.js?v=300"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=299"></script>
+  <script src="fisherman.js?v=300"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=299"></script>
+  <script src="train.js?v=300"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=299"></script>
+  <script src="detective.js?v=300"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=299"></script>
+  <script src="aac_keyboard.js?v=300"></script>
   <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
-  <script src="therapist_guide.js?v=299"></script>
+  <script src="therapist_guide.js?v=300"></script>
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
-  <script src="transformer.js?v=299"></script>
+  <script src="transformer.js?v=300"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="audio_recorder.js?v=299"></script>
-  <script src="slide.js?v=299"></script>
+  <script src="audio_recorder.js?v=300"></script>
+  <script src="slide.js?v=300"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
-  <script src="mirror_lighthouse.js?v=299"></script>
+  <script src="mirror_lighthouse.js?v=300"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
-  <script src="basket.js?v=299"></script>
+  <script src="basket.js?v=300"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -4542,9 +4542,9 @@
         ds.forEach(item => {
           if (item && item.word) {
             const em = getEmojiForWord(item.word);
-            if (em && isImageSource(em)) {
+            if (em && isDrawingImageURL(em)) {
               const pImg = new Image();
-              pImg.src = em;
+              pImg.src = getAssetURLWithBust(em);
             }
             if (typeof window.preloadTtsAudio === 'function') {
               if (mode === 'story' && item.narration) {
@@ -5571,6 +5571,8 @@
       const s = String(str).trim();
       return s.startsWith('data:image') || s.startsWith('http://') || s.startsWith('https://') || s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.svg') || s.endsWith('.webp') || s.includes('assets/') || s.includes('/assets/');
     }
+    const isImageSource = isDrawingImageURL;
+    window.isImageSource = isDrawingImageURL;
 
     function renderDrawingHTML(emoji, style = 'width: 1.2em; height: 1.2em; vertical-align: middle; object-fit: contain;') {
       if (!emoji) return '⭐';
@@ -10030,17 +10032,27 @@
       }));
 
       // Pre-cargar las 10 imágenes del tablero y las frases de las tandas siguientes en memoria
-      rallyGameState.items.forEach(item => {
-        const em = getEmojiForWord(item.word) || item.emoji;
-        if (em && isImageSource(em)) {
-          const preImg = new Image();
-          preImg.src = em;
+      try {
+        rallyGameState.items.forEach(item => {
+          const em = getEmojiForWord(item.word) || item.emoji;
+          if (em && isDrawingImageURL(em)) {
+            const preImg = new Image();
+            preImg.src = getAssetURLWithBust(em);
+          }
+          if (typeof window.preloadTtsAudio === 'function') {
+            const pron = item.pronunciacion || (typeof getCanonicalWord === 'function' ? getCanonicalWord(item.word).pronunciacion : item.word);
+            if (item.hasTargetLetter) {
+              window.preloadTtsAudio(`¡Súper! ${pron} tiene la letra ${targetL}.`);
+            } else {
+              window.preloadTtsAudio(`${pron} no tiene la letra ${targetL}.`);
+            }
+          }
+        });
+        if (typeof window.preloadTtsAudio === 'function') {
+          window.preloadTtsAudio(`Tanda 2. Busca los dibujos que tengan la letra ${targetL}.`);
+          window.preloadTtsAudio(`Tanda 3. Busca los dibujos que tengan la letra ${targetL}.`);
         }
-      });
-      if (typeof window.preloadTtsAudio === 'function') {
-        window.preloadTtsAudio(`Tanda 2. Busca los dibujos que tengan la letra ${targetL}.`);
-        window.preloadTtsAudio(`Tanda 3. Busca los dibujos que tengan la letra ${targetL}.`);
-      }
+      } catch(e) {}
 
       rallyGameState.totalTargetCount = selectedTargets.length;
       rallyGameState.foundCount = 0;
@@ -10048,6 +10060,7 @@
       isRallyVictoryTriggered = false;
 
       renderRallyBoard();
+      try { updateTherapistRallyPreview(targetL); } catch(e) {}
       if (!skipInitialSpeech) {
         speakRallyConsigna();
       }
@@ -10186,6 +10199,7 @@
       rallyGameState.items.forEach((item, index) => {
         const card = document.getElementById(`rally-card-${index}`);
         if (!card) return;
+        card.onclick = () => handleRallyCardClick(index);
 
         if (!activeIndices.includes(index)) {
           card.style.display = 'none';
