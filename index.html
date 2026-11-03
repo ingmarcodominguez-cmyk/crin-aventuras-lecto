@@ -108,11 +108,11 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=283"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=283"></script>
+  <script src="archery.js?v=292"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=283"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=283"></script>
+  <script src="fisherman.js?v=292"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
   <script src="train.js?v=283"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
@@ -11605,8 +11605,11 @@
     }
 
     function gameLoop3D() {
-      update3DEngine();
-      draw3DScene();
+      const gameScreen = document.getElementById('screen-game');
+      if (gameScreen && gameScreen.classList.contains('active')) {
+        update3DEngine();
+        draw3DScene();
+      }
       requestAnimationFrame(gameLoop3D);
     }
 

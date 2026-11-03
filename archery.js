@@ -789,6 +789,7 @@
 
     ArcheryGame.canvas.width = w;
     ArcheryGame.canvas.height = h;
+    ArcheryGame.bgCacheValid = false;
 
     // Centrar al arquero en el camino en perspectiva 3D
     ArcheryGame.archer.baseX = w * 0.50;
@@ -1646,16 +1647,15 @@
       t.lastBadgeW = badgeW;
       t.lastBadgeH = badgeH;
 
-      // Sombra que da relieve y separación cuando una palabra pasa por delante de otra
-      ctx.fillStyle = '#FFFFFF';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetY = 3;
+      // Sombra ligera y rápida (sin shadowBlur que congela GPUs integradas)
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+      drawRoundedRect(ctx, -badgeW / 2 + 1, badgeY + 3, badgeW, badgeH, 10);
+      ctx.fill();
 
+      ctx.fillStyle = '#FFFFFF';
       drawRoundedRect(ctx, -badgeW / 2, badgeY, badgeW, badgeH, 10);
       ctx.fill();
 
-      ctx.shadowColor = 'transparent';
       ctx.lineWidth = 2.4;
       ctx.strokeStyle = '#64748B'; // Borde neutro idéntico en todas
       ctx.stroke();
@@ -1800,10 +1800,10 @@
       try {
         ctx.globalAlpha = Math.max(0, ft.alpha);
         ctx.font = '900 20px "Comic Sans MS", "Nunito", sans-serif';
-        ctx.fillStyle = ft.color;
         ctx.textAlign = 'center';
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 6;
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.fillText(ft.text, ft.x + 1, ft.y + 2);
+        ctx.fillStyle = ft.color;
         ctx.fillText(ft.text, ft.x, ft.y);
       } finally {
         ctx.restore();
@@ -2016,106 +2016,91 @@
     ctx.restore();
   }
 
-  // --- DIBUJADO DEL ESCENARIO 3D (DEL CUENTO DEL BOSQUE) ---
-  function drawArcheryEnvironment(ctx, w, h, time) {
+  // Pre-renderizado en caché del escenario estático 3D (cielo, sol, montañas, camino y los 20 árboles)
+  function buildArcheryBackgroundCache(w, h) {
+    if (!w || !h) return;
+    if (!ArcheryGame.bgCanvas) {
+      ArcheryGame.bgCanvas = document.createElement('canvas');
+    }
+    ArcheryGame.bgCanvas.width = w;
+    ArcheryGame.bgCanvas.height = h;
+    const bctx = ArcheryGame.bgCanvas.getContext('2d');
     const horizonY = h * 0.44;
     const vanishingX = w * 0.50;
 
-    // 1. CIELO ATMOSFÉRICO 3D (DEL CUENTO DEL BOSQUE)
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
+    // 1. Cielo
+    const skyGrad = bctx.createLinearGradient(0, 0, 0, horizonY);
     skyGrad.addColorStop(0, '#74B9FF');
     skyGrad.addColorStop(0.65, '#A8E6CF');
     skyGrad.addColorStop(1, '#55EFC4');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, horizonY);
+    bctx.fillStyle = skyGrad;
+    bctx.fillRect(0, 0, w, horizonY);
 
-    // Sol Dorado en el Horizonte con Resplandor Mágico
-    ctx.save();
-    const sunGlow = ctx.createRadialGradient(vanishingX, horizonY - 12, 6, vanishingX, horizonY - 12, 75);
+    // Sol Dorado
+    bctx.save();
+    const sunGlow = bctx.createRadialGradient(vanishingX, horizonY - 12, 6, vanishingX, horizonY - 12, 75);
     sunGlow.addColorStop(0, 'rgba(255, 234, 167, 0.95)');
     sunGlow.addColorStop(0.5, 'rgba(255, 200, 100, 0.4)');
     sunGlow.addColorStop(1, 'rgba(255, 234, 167, 0)');
-    ctx.fillStyle = sunGlow;
-    ctx.beginPath();
-    ctx.arc(vanishingX, horizonY - 12, 75, 0, Math.PI * 2);
-    ctx.fill();
+    bctx.fillStyle = sunGlow;
+    bctx.beginPath();
+    bctx.arc(vanishingX, horizonY - 12, 75, 0, Math.PI * 2);
+    bctx.fill();
 
-    ctx.beginPath();
-    ctx.arc(vanishingX, horizonY - 12, 28, 0, Math.PI * 2);
-    ctx.fillStyle = '#FEF08A';
-    ctx.fill();
-    ctx.restore();
+    bctx.beginPath();
+    bctx.arc(vanishingX, horizonY - 12, 28, 0, Math.PI * 2);
+    bctx.fillStyle = '#FEF08A';
+    bctx.fill();
+    bctx.restore();
 
-    // Nubes y Pájaros 3D del Bosque
-    ctx.save();
-    ArcheryGame.bgClouds.forEach(c => {
-      c.x += c.speed * 0.4;
-      if (c.x > w + 100) c.x = -120;
-      ctx.font = `${Math.round(26 * c.scale)}px "Segoe UI Emoji", serif`;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      ctx.fillText('☁️', c.x, c.y);
-    });
+    // Montañas lejanas
+    bctx.fillStyle = '#22C55E';
+    bctx.beginPath();
+    bctx.moveTo(0, horizonY);
+    bctx.quadraticCurveTo(w * 0.25, horizonY - 35, w * 0.48, horizonY);
+    bctx.quadraticCurveTo(w * 0.72, horizonY - 42, w, horizonY);
+    bctx.lineTo(w, horizonY);
+    bctx.lineTo(0, horizonY);
+    bctx.closePath();
+    bctx.fill();
 
-    if (ArcheryGame.archeryBirds3D) {
-      ArcheryGame.archeryBirds3D.forEach(b => {
-        b.x += b.speed;
-        if (b.x > w + 60) b.x = -60;
-        const flapY = Math.sin(time * 0.006 + b.flapOffset) * 5;
-        ctx.font = '20px "Segoe UI Emoji", serif';
-        ctx.fillText(b.icon, b.x, b.y + flapY);
-      });
-    }
-    ctx.restore();
-
-    // Montañas lejanas en el horizonte
-    ctx.fillStyle = '#22C55E';
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    ctx.quadraticCurveTo(w * 0.25, horizonY - 35, w * 0.48, horizonY);
-    ctx.quadraticCurveTo(w * 0.72, horizonY - 42, w, horizonY);
-    ctx.lineTo(w, horizonY);
-    ctx.lineTo(0, horizonY);
-    ctx.closePath();
-    ctx.fill();
-
-    // 2. TERRENO DE CÉSPED EN PERSPECTIVA (DEL CUENTO DEL BOSQUE)
-    const groundGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+    // 2. Terreno de césped
+    const groundGrad = bctx.createLinearGradient(0, horizonY, 0, h);
     groundGrad.addColorStop(0, '#26AF5F');
     groundGrad.addColorStop(1, '#1E8449');
-    ctx.fillStyle = groundGrad;
-    ctx.fillRect(0, horizonY, w, h - horizonY);
+    bctx.fillStyle = groundGrad;
+    bctx.fillRect(0, horizonY, w, h - horizonY);
 
-    // 3. CAMINO DE TIERRA EN PERSPECTIVA 3D (FIJO Y ESTÁTICO, SIN MOVIMIENTO)
+    // 3. Camino de tierra
     const roadTopWidth = Math.max(34, w * 0.07);
     const roadBottomWidth = Math.min(w * 0.74, 580);
 
-    ctx.save();
-    const roadGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+    bctx.save();
+    const roadGrad = bctx.createLinearGradient(0, horizonY, 0, h);
     roadGrad.addColorStop(0, '#FFEAA7');
     roadGrad.addColorStop(1, '#FDCB6E');
-    ctx.fillStyle = roadGrad;
+    bctx.fillStyle = roadGrad;
 
-    ctx.beginPath();
-    ctx.moveTo(vanishingX - roadTopWidth / 2, horizonY);
-    ctx.lineTo(vanishingX + roadTopWidth / 2, horizonY);
-    ctx.lineTo(vanishingX + roadBottomWidth / 2, h);
-    ctx.lineTo(vanishingX - roadBottomWidth / 2, h);
-    ctx.closePath();
-    ctx.fill();
+    bctx.beginPath();
+    bctx.moveTo(vanishingX - roadTopWidth / 2, horizonY);
+    bctx.lineTo(vanishingX + roadTopWidth / 2, horizonY);
+    bctx.lineTo(vanishingX + roadBottomWidth / 2, h);
+    bctx.lineTo(vanishingX - roadBottomWidth / 2, h);
+    bctx.closePath();
+    bctx.fill();
 
-    // Bordes cálidos del camino de tierra (fijo)
-    ctx.strokeStyle = '#D97706';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(vanishingX - roadTopWidth / 2, horizonY);
-    ctx.lineTo(vanishingX - roadBottomWidth / 2, h);
-    ctx.moveTo(vanishingX + roadTopWidth / 2, horizonY);
-    ctx.lineTo(vanishingX + roadBottomWidth / 2, h);
-    ctx.stroke();
-    ctx.restore();
+    bctx.strokeStyle = '#D97706';
+    bctx.lineWidth = 2.5;
+    bctx.beginPath();
+    bctx.moveTo(vanishingX - roadTopWidth / 2, horizonY);
+    bctx.lineTo(vanishingX - roadBottomWidth / 2, h);
+    bctx.moveTo(vanishingX + roadTopWidth / 2, horizonY);
+    bctx.lineTo(vanishingX + roadBottomWidth / 2, h);
+    bctx.stroke();
+    bctx.restore();
 
-    // 4. ÁRBOLES GRANDES Y DE DIFERENTES FORMAS A AMBOS LADOS DEL CAMINO
-    if (ArcheryGame.archeryTrees3D) {
+    // 4. Árboles estáticos a ambos lados del camino
+    if (ArcheryGame.archeryTrees3D && ArcheryGame.archeryTrees3D.length > 0) {
       const sortedTrees = [...ArcheryGame.archeryTrees3D].sort((a, b) => b.z - a.z);
       sortedTrees.forEach(t => {
         const treeY = horizonY + (1 - t.z) * (h - horizonY - 8);
@@ -2123,10 +2108,53 @@
         const roadWAtZ = roadTopWidth + (1 - t.z) * (roadBottomWidth - roadTopWidth);
         const marginOffset = (42 + (1 - t.z) * 36) * scale + (t.xOffset || 0);
         const treeX = vanishingX + t.side * (roadWAtZ / 2 + marginOffset);
-
-        drawIllustratedTree(ctx, treeX, treeY, scale, t);
+        drawIllustratedTree(bctx, treeX, treeY, scale, t);
       });
     }
+    ArcheryGame.bgCacheValid = true;
+  }
+
+  // --- DIBUJADO DEL ESCENARIO 3D (ULTRA RÁPIDO CON CACHÉ OFFSCREEN) ---
+  function drawArcheryEnvironment(ctx, w, h, time) {
+    if (!ArcheryGame.bgCacheValid || !ArcheryGame.bgCanvas || ArcheryGame.bgCanvas.width !== w || ArcheryGame.bgCanvas.height !== h) {
+      buildArcheryBackgroundCache(w, h);
+    }
+    if (ArcheryGame.bgCanvas) {
+      ctx.drawImage(ArcheryGame.bgCanvas, 0, 0, w, h);
+    }
+
+    // Nubes y Pájaros 3D animados livianos
+    ctx.save();
+    ArcheryGame.bgClouds.forEach(c => {
+      c.x += c.speed * 0.4;
+      if (c.x > w + 100) c.x = -120;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.78)';
+      const r = 14 * c.scale;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+      ctx.arc(c.x + r * 0.75, c.y - r * 0.15, r * 0.8, 0, Math.PI * 2);
+      ctx.arc(c.x + r * 1.4, c.y, r * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    if (ArcheryGame.archeryBirds3D) {
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ArcheryGame.archeryBirds3D.forEach(b => {
+        b.x += b.speed;
+        if (b.x > w + 60) b.x = -60;
+        const flapY = Math.sin(time * 0.006 + b.flapOffset) * 5;
+        const wingY = Math.sin(time * 0.015 + b.flapOffset) * 4;
+        const bx = b.x;
+        const by = b.y + flapY;
+        ctx.beginPath();
+        ctx.moveTo(bx - 7, by + wingY);
+        ctx.quadraticCurveTo(bx - 3, by - 4, bx, by);
+        ctx.quadraticCurveTo(bx + 3, by - 4, bx + 7, by + wingY);
+        ctx.stroke();
+      });
+    }
+    ctx.restore();
   }
 
   // --- BUCLE PRINCIPAL (CON RESETEO DE TRANSFORMACIÓN INCONDICIONAL) ---

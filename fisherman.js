@@ -436,10 +436,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    FishermanGame.canvas.width = w * dpr;
-    FishermanGame.canvas.height = h * dpr;
-    FishermanGame.ctx.scale(dpr, dpr);
+    FishermanGame.canvas.width = w;
+    FishermanGame.canvas.height = h;
+    FishermanGame.bgCacheValid = false;
 
     FishermanGame.width = w;
     FishermanGame.height = h;
@@ -768,45 +767,67 @@
     }
   }
 
-  // --- RENDERIZADO GRÁFICO (CANVAS) ---
+  // --- RENDERIZADO GRÁFICO (CANVAS CON CACHÉ DE FONDO ULTRA RÁPIDO) ---
+  function buildFishermanBackgroundCache(w, h) {
+    if (!w || !h) return;
+    if (!FishermanGame.bgCanvas) {
+      FishermanGame.bgCanvas = document.createElement('canvas');
+    }
+    FishermanGame.bgCanvas.width = w;
+    FishermanGame.bgCanvas.height = h;
+    const bctx = FishermanGame.bgCanvas.getContext('2d');
+
+    // 1. Cielo de ribera con degradado fresco
+    const skyGrad = bctx.createLinearGradient(0, 0, 0, h * 0.45);
+    skyGrad.addColorStop(0, '#7DD3FC');
+    skyGrad.addColorStop(1, '#BAE6FD');
+    bctx.fillStyle = skyGrad;
+    bctx.fillRect(0, 0, w, h * 0.45);
+
+    // Nubes suaves al fondo
+    drawCloud(bctx, w * 0.2, 50, 40);
+    drawCloud(bctx, w * 0.7, 70, 55);
+
+    // Colinas y árboles lejanos
+    drawDistantHills(bctx, w, h * 0.45);
+
+    // 2. Agua del río cristalino
+    const waterTop = h * 0.42;
+    const waterGrad = bctx.createLinearGradient(0, waterTop, 0, h);
+    waterGrad.addColorStop(0, '#38BDF8');
+    waterGrad.addColorStop(0.3, '#0284C7');
+    waterGrad.addColorStop(1, '#0369A1');
+    bctx.fillStyle = waterGrad;
+    bctx.fillRect(0, waterTop, w, h - waterTop);
+
+    // 3. Orilla de hierba y muelle de madera a la izquierda
+    drawShoreAndPier(bctx, w, h, waterTop);
+
+    FishermanGame.bgCacheValid = true;
+  }
+
   function renderGameGraphics() {
     const ctx = FishermanGame.ctx;
     const w = FishermanGame.width;
     const h = FishermanGame.height;
 
-    ctx.clearRect(0, 0, w, h);
+    if (!FishermanGame.bgCacheValid || !FishermanGame.bgCanvas || FishermanGame.bgCanvas.width !== w || FishermanGame.bgCanvas.height !== h) {
+      buildFishermanBackgroundCache(w, h);
+    }
 
-    // 1. Cielo de ribera con degradado fresco
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.45);
-    skyGrad.addColorStop(0, '#7DD3FC');
-    skyGrad.addColorStop(1, '#BAE6FD');
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h * 0.45);
+    if (FishermanGame.bgCanvas) {
+      ctx.drawImage(FishermanGame.bgCanvas, 0, 0, w, h);
+    } else {
+      ctx.clearRect(0, 0, w, h);
+    }
 
-    // Nubes suaves al fondo
-    drawCloud(ctx, w * 0.2, 50, 40);
-    drawCloud(ctx, w * 0.7, 70, 55);
-
-    // Colinas y árboles lejanos
-    drawDistantHills(ctx, w, h * 0.45);
-
-    // 2. Agua del río cristalino
     const waterTop = h * 0.42;
-    const waterGrad = ctx.createLinearGradient(0, waterTop, 0, h);
-    waterGrad.addColorStop(0, '#38BDF8');
-    waterGrad.addColorStop(0.3, '#0284C7');
-    waterGrad.addColorStop(1, '#0369A1');
-    ctx.fillStyle = waterGrad;
-    ctx.fillRect(0, waterTop, w, h - waterTop);
 
     // Ondas y destellos de agua
     drawWaterWaves(ctx, w, waterTop, h);
 
     // Nenúfares y lirios flotantes
     drawWaterLilies(ctx);
-
-    // 3. Orilla de hierba y muelle de madera a la izquierda
-    drawShoreAndPier(ctx, w, h, waterTop);
 
     // 4. Balde de sílabas del pescador sobre los tablones del muelle
     const pierLevel = FishermanGame.hero.pierLevel || Math.floor(h * 0.65);
@@ -1134,8 +1155,6 @@
     // 1. Sedal de nylon con brillo sutil
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.lineWidth = 1.8;
-    ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-    ctx.shadowBlur = 4;
     ctx.beginPath();
     ctx.moveTo(rod.tipX, rod.tipY);
 
@@ -1151,7 +1170,6 @@
       ctx.quadraticCurveTo(midX, midY, rod.hookX, rod.hookY);
     }
     ctx.stroke();
-    ctx.shadowBlur = 0;
 
     // 2. Onditas concéntricas de agua alrededor de la boya cuando flota
     if (!rod.isCasting) {
@@ -1306,9 +1324,9 @@
       ctx.globalAlpha = Math.max(0, ft.alpha);
       ctx.font = '900 22px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(0,0,0,0.38)';
+      ctx.fillText(ft.text, ft.x + 1, ft.y + 2);
       ctx.fillStyle = ft.color;
-      ctx.shadowColor = 'rgba(0,0,0,0.4)';
-      ctx.shadowBlur = 6;
       ctx.fillText(ft.text, ft.x, ft.y);
     });
     ctx.restore();
