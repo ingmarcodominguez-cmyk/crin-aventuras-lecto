@@ -218,17 +218,16 @@
     const def = FISHERMAN_AVATARS[petEmoji] || FISHERMAN_AVATARS['🦄'];
     const petName = def.name;
 
-    // CALIBRADO PEDAGÓGICO: Elogio de elección completo y arranque sin apuros
+    // CALIBRADO PEDAGÓGICO: Elogio de elección completo y arranque ágil
     if (!FishermanGame.hasStarted) {
       let started = false;
       const startAfterPraise = () => {
         if (started) return;
         started = true;
-        // Pausa respetuosa y natural (1.2s) para que el niño disfrute su elección antes de la palabra
         setTimeout(() => {
           if (!FishermanGame.isRunning) return;
           startFishermanRounds();
-        }, 1200);
+        }, 250);
       };
 
       if (typeof speakText === 'function') {
@@ -240,7 +239,7 @@
       } else {
         startAfterPraise();
       }
-      setTimeout(startAfterPraise, 8500); // 8.5s de respaldo para que NUNCA corte "Perrito Pescador"
+      setTimeout(startAfterPraise, 4200);
     } else {
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
@@ -514,12 +513,12 @@
 
     updateFishermanHUD();
 
-    // Locución de la misión con pausa clara
+    // Locución de la misión inmediata al aparecer las sílabas
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = setTimeout(() => {
       if (!FishermanGame.isRunning) return;
       speakCurrentFishermanMission();
-    }, 450);
+    }, 120);
   }
 
   function spawnFishesForWord(wObj) {

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -108,11 +109,11 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=283"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=292"></script>
+  <script src="archery.js?v=295"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=283"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=292"></script>
+  <script src="fisherman.js?v=295"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
   <script src="train.js?v=283"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
@@ -3748,6 +3749,8 @@
         if (!globalTtsPlayer) {
           globalTtsPlayer = new Audio();
           globalTtsPlayer.id = 'global-tts-player';
+          globalTtsPlayer.referrerPolicy = 'no-referrer';
+          globalTtsPlayer.setAttribute('referrerpolicy', 'no-referrer');
           document.body.appendChild(globalTtsPlayer);
         }
       }
@@ -4048,11 +4051,7 @@
       }
       if ('speechSynthesis' in window) {
         try {
-          window.speechSynthesis.pause();
           window.speechSynthesis.cancel();
-          setTimeout(() => {
-            try { window.speechSynthesis.cancel(); } catch(e) {}
-          }, 50);
         } catch(e) {}
       }
     }
