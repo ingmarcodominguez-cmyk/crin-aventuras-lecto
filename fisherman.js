@@ -1568,11 +1568,27 @@
   }
 
   // --- EFECTOS DE SONIDO WEB AUDIO SINTETIZADOS ---
-  function playSplashSound() {
+  let sharedFishermanAudioCtx = null;
+  function getFishermanAudioCtx() {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      if (!AudioCtx) return null;
+      if (!sharedFishermanAudioCtx || sharedFishermanAudioCtx.state === 'closed') {
+        sharedFishermanAudioCtx = new AudioCtx();
+      }
+      if (sharedFishermanAudioCtx.state === 'suspended') {
+        sharedFishermanAudioCtx.resume().catch(() => {});
+      }
+      return sharedFishermanAudioCtx;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function playSplashSound() {
+    try {
+      const actx = getFishermanAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1592,9 +1608,8 @@
 
   function playCastSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getFishermanAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1614,9 +1629,8 @@
 
   function playPlopSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getFishermanAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1636,9 +1650,8 @@
 
   function playSuccessChime() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getFishermanAudioCtx();
+      if (!actx) return;
       [587.33, 880].forEach((freq, idx) => {
         const osc = actx.createOscillator();
         const gain = actx.createGain();
@@ -1659,9 +1672,8 @@
 
   function playFullWordVictorySound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getFishermanAudioCtx();
+      if (!actx) return;
       const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, idx) => {
         const osc = actx.createOscillator();

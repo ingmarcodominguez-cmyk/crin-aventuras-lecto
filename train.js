@@ -123,10 +123,10 @@
       }
     } catch(e) {}
     const map = {
-      '🦄': 'assets/card_unicornio_arquero.png?v=252',
-      '🦊': 'assets/card_zorro_arquero.png?v=252',
-      '🐰': 'assets/card_conejo_arquero.png?v=252',
-      '🐶': 'assets/card_perro_arquero.png?v=252'
+      '🦄': 'assets/card_unicornio_arquero.png?v=296',
+      '🦊': 'assets/card_zorro_arquero.png?v=296',
+      '🐰': 'assets/card_conejo_arquero.png?v=296',
+      '🐶': 'assets/card_perro_arquero.png?v=296'
     };
     return map[pet] || map['🦄'];
   }
@@ -271,10 +271,8 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    TrainGame.canvas.width = w * dpr;
-    TrainGame.canvas.height = h * dpr;
-    TrainGame.ctx.scale(dpr, dpr);
+    TrainGame.canvas.width = w;
+    TrainGame.canvas.height = h;
 
     TrainGame.width = w;
     TrainGame.height = h;
@@ -380,7 +378,7 @@
     if (TrainGame.voiceTimeout) clearTimeout(TrainGame.voiceTimeout);
     TrainGame.voiceTimeout = setTimeout(() => {
       speakCurrentTrainMission();
-    }, 450);
+    }, 60);
   }
 
   function spawnLetterBalloons(wObj) {
@@ -463,7 +461,7 @@
           });
           TrainGame.speechWatchdog = setTimeout(() => {
             TrainGame.isSpeaking = false;
-          }, 5000);
+          }, 2600);
         } else {
           TrainGame.isSpeaking = false;
         }
@@ -544,7 +542,7 @@
       if (b.isPlaced) return;
 
       if (b.isFlyingToWagon) {
-        b.flyProgress += 0.055;
+        b.flyProgress += 0.085;
         if (b.flyProgress >= 1.0) {
           b.flyProgress = 1.0;
           b.isFlyingToWagon = false;
@@ -580,7 +578,7 @@
     const geom = getTrainConvoyGeometry();
 
     if (t.isDeparting) {
-      t.departSpeed += 0.25;
+      t.departSpeed += 0.11;
       t.departOffset += t.departSpeed;
       t.wheelAngle += t.departSpeed * 0.08;
 
@@ -1033,12 +1031,12 @@
     ctx.fill();
 
     // LETRA / FONEMA en alto contraste
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.font = '900 24px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = 4;
+    ctx.fillText(b.letter, 1, 2);
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillText(b.letter, 0, 1);
 
     ctx.restore();
@@ -1074,9 +1072,9 @@
       ctx.globalAlpha = Math.max(0, ft.alpha);
       ctx.font = '900 22px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillText(ft.text, ft.x + 1, ft.y + 2);
       ctx.fillStyle = ft.color;
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 5;
       ctx.fillText(ft.text, ft.x, ft.y);
     });
     ctx.restore();
@@ -1223,8 +1221,9 @@
     try {
       TrainGame.isAdvancing = true;
       const wObj = TrainGame.currentWordObj;
+      const isLastWord = (TrainGame.currentWordIndex + 1) >= TrainGame.wordList.length;
 
-      // Silbato alegre del tren
+      // Silbato alegre del tren en el mismo instante en que se completa el último vagón
       playTrainWhistleSound();
       const geom = getTrainConvoyGeometry();
       createSteamPuff(geom.loco.x + geom.loco.width * 0.7, geom.loco.y - geom.loco.height - 15, '#FFFFFF', 30);
@@ -1232,9 +1231,9 @@
       createFloatingText(TrainGame.width * 0.5, TrainGame.height * 0.35, `¡${wObj.word}! 🚂💨`, '#F59E0B');
       createSparklesExplosion(TrainGame.width * 0.5, TrainGame.height * 0.45, '#FBBF24', 50);
 
-      // Arrancar el tren
+      // Arrancar el tren suavemente en sincronía con el silbato y la voz de festejo
       TrainGame.train.isDeparting = true;
-      TrainGame.train.departSpeed = 2.0;
+      TrainGame.train.departSpeed = 0.9;
 
       // Recompensas en el perfil
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
@@ -1248,19 +1247,21 @@
         if (trainDoneFired) return;
         trainDoneFired = true;
         setTimeout(() => {
+          if (!TrainGame.isRunning) return;
           TrainGame.currentWordIndex++;
           if (TrainGame.currentWordIndex >= TrainGame.wordList.length) {
             showTrainVictoryModal();
           } else {
             setupTrainWord(TrainGame.currentWordIndex);
           }
-        }, 1000);
+        }, 200);
       };
 
       if (typeof speakText === 'function') {
         TrainGame.isSpeaking = true;
         if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-        speakText('¡Súper, tarea lograda!', () => {
+        const phrase = isLastWord ? '¡Súper, tarea lograda!' : '¡Súper!';
+        speakText(phrase, () => {
           if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
           TrainGame.isSpeaking = false;
           onTrainDone();
@@ -1268,7 +1269,7 @@
         TrainGame.speechWatchdog = setTimeout(() => {
           TrainGame.isSpeaking = false;
           onTrainDone();
-        }, 5000);
+        }, isLastWord ? 2400 : 1400);
       } else {
         onTrainDone();
       }
@@ -1346,12 +1347,27 @@
     });
   }
 
-  // --- SÍNTESIS DE SONIDOS (WEB AUDIO) ---
+  // --- SÍNTESIS DE SONIDOS (WEB AUDIO CON CONTEXTO COMPARTIDO DE LATENCIA CERO) ---
+  let sharedTrainAudioCtx = null;
+  function getTrainAudioCtx() {
+    try {
+      if (!sharedTrainAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) sharedTrainAudioCtx = new AudioCtx();
+      }
+      if (sharedTrainAudioCtx && sharedTrainAudioCtx.state === 'suspended') {
+        sharedTrainAudioCtx.resume().catch(() => {});
+      }
+      return sharedTrainAudioCtx;
+    } catch(e) {
+      return null;
+    }
+  }
+
   function playTrainWhistleSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getTrainAudioCtx();
+      if (!actx) return;
 
       // Dos silbatos afinados (acorde de tren de vapor: F5 y A5)
       [698.46, 880.00].forEach(freq => {
@@ -1363,9 +1379,9 @@
         osc.frequency.linearRampToValueAtTime(freq + 15, actx.currentTime + 0.15);
         osc.frequency.linearRampToValueAtTime(freq, actx.currentTime + 0.5);
 
-        gain.gain.setValueAtTime(0, actx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.22, actx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.22, actx.currentTime + 0.45);
+        gain.gain.setValueAtTime(0.01, actx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.24, actx.currentTime + 0.03);
+        gain.gain.setValueAtTime(0.24, actx.currentTime + 0.45);
         gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.7);
 
         osc.connect(gain);
@@ -1378,9 +1394,8 @@
 
   function playChimeNote() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getTrainAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1399,9 +1414,8 @@
 
   function playSuccessDing() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getTrainAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1421,9 +1435,8 @@
 
   function playBoingSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getTrainAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 

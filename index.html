@@ -10,7 +10,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v297';
+    const CURRENT_APP_VERSION = 'v298';
 
     function syncAppVersionLabels() {
       try {
@@ -109,13 +109,13 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=283"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=297"></script>
+  <script src="archery.js?v=298"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=283"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=297"></script>
+  <script src="fisherman.js?v=298"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=283"></script>
+  <script src="train.js?v=298"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
   <script src="detective.js?v=283"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
@@ -4309,24 +4309,7 @@
     function fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession) {
       if (thisSession !== currentSpeechSessionId) return;
 
-      // 2. Respaldo ResponsiveVoice
-      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.speak) {
-        try {
-          responsiveVoice.cancel();
-          responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
-            rate: 0.90,
-            pitch: 1.0,
-            onend: function() {
-              if (thisSession !== currentSpeechSessionId) return;
-              if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
-              safeCallback();
-            }
-          });
-          return;
-        } catch(e) {}
-      }
-
-      // 3. Voz local WebSpeech API (Latencia 0ms y monitor activo de finalización para evitar pérdida de onend en Chrome)
+      // 1. PRIORIDAD ABSOLUTA: Voz local WebSpeech API (Latencia 0ms, sin demora de red externa)
       if ('speechSynthesis' in window) {
         try {
           if (!cachedSpanishVoice) initVoices();
@@ -4336,7 +4319,7 @@
           window._activeSpeechUtterance = utterance; // Referencia global para evitar Garbage Collection prematuro en Chrome
           utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
           if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
-          utterance.rate = 0.88;
+          utterance.rate = 0.90;
           utterance.pitch = 1.05;
 
           let hasStartedSpeaking = false;
@@ -4380,12 +4363,28 @@
               finishSpeech();
             }
           }, 60);
-        } catch (e) {
-          safeCallback();
-        }
-      } else {
-        safeCallback();
+          return;
+        } catch (e) {}
       }
+
+      // 2. Respaldo ResponsiveVoice solo si el navegador no soporta WebSpeech
+      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.speak) {
+        try {
+          responsiveVoice.cancel();
+          responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
+            rate: 0.90,
+            pitch: 1.0,
+            onend: function() {
+              if (thisSession !== currentSpeechSessionId) return;
+              if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+              safeCallback();
+            }
+          });
+          return;
+        } catch(e) {}
+      }
+
+      safeCallback();
     }
 
     function toggleAppFullscreen() {
