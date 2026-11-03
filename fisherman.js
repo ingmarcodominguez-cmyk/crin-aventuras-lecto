@@ -518,7 +518,7 @@
     FishermanGame.voiceTimeout = setTimeout(() => {
       if (!FishermanGame.isRunning) return;
       speakCurrentFishermanMission();
-    }, 120);
+    }, 40);
   }
 
   function spawnFishesForWord(wObj) {
@@ -591,7 +591,7 @@
       setTimeout(() => {
         if (!FishermanGame.isRunning) return;
         FishermanGame.isSpeaking = false;
-      }, 5000);
+      }, 2600);
     } else {
       FishermanGame.isSpeaking = false;
     }
@@ -689,7 +689,7 @@
     // 2. Caña de pescar y animación de lance
     const rod = FishermanGame.rod;
     if (rod.isCasting && rod.targetFish) {
-      rod.castProgress += 0.08;
+      rod.castProgress += 0.11;
       if (rod.castProgress >= 1.0) {
         rod.castProgress = 1.0;
         rod.isCasting = false;
@@ -702,7 +702,7 @@
       rod.hookX = rod.tipX + (rod.targetFish.x - rod.tipX) * rod.castProgress;
       rod.hookY = rod.tipY + (rod.targetFish.y - rod.tipY) * rod.castProgress;
     } else if (rod.isRetracting && rod.targetFish) {
-      rod.castProgress -= 0.05;
+      rod.castProgress -= 0.07;
       const bucketX = (FishermanGame.hero.pierW || (w * 0.38)) - 38;
       const bucketY = (FishermanGame.hero.pierLevel || (h * 0.65)) - 10;
 
@@ -1462,6 +1462,7 @@
       if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
     }
 
+    const isLastWord = (FishermanGame.currentWordIndex + 1) >= FishermanGame.wordList.length;
     let victoryHandled = false;
     const onVictoryDone = () => {
       if (victoryHandled) return;
@@ -1477,19 +1478,20 @@
         } else {
           setupWord(FishermanGame.currentWordIndex);
         }
-      }, 700);
+      }, 150);
     };
 
     if (typeof speakText === 'function') {
       FishermanGame.isSpeaking = true;
-      speakText('¡Súper, tarea lograda!', () => {
+      const phrase = isLastWord ? '¡Súper, tarea lograda!' : '¡Súper!';
+      speakText(phrase, () => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
       });
       setTimeout(() => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
-      }, 4500);
+      }, isLastWord ? 2400 : 1400);
     } else {
       onVictoryDone();
     }

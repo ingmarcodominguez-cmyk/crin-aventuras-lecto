@@ -10,7 +10,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v294';
+    const CURRENT_APP_VERSION = 'v297';
 
     function syncAppVersionLabels() {
       try {
@@ -109,11 +109,11 @@
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
   <script src="lexicon.js?v=283"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=295"></script>
+  <script src="archery.js?v=297"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=283"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=296"></script>
+  <script src="fisherman.js?v=297"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
   <script src="train.js?v=283"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
@@ -3822,13 +3822,17 @@
       }
 
       if (spanishVoices.length > 0) {
-        const preferredVoice = spanishVoices.find(v => {
+        // Priorizar voces locales instaladas en el sistema (localService === true) para latencia 0ms y sin bloqueos de red
+        const localSpanishVoices = spanishVoices.filter(v => v.localService);
+        const pool = localSpanishVoices.length > 0 ? localSpanishVoices : spanishVoices;
+
+        const preferredVoice = pool.find(v => {
           const name = v.name.toLowerCase();
-          return name.includes('google') || name.includes('natural') || name.includes('online') || name.includes('neural') || name.includes('sabina') || name.includes('helena') || name.includes('paloma') || name.includes('dalia') || name.includes('sofia');
-        }) || spanishVoices.find(v => {
+          return name.includes('sabina') || name.includes('helena') || name.includes('paloma') || name.includes('dalia') || name.includes('sofia') || name.includes('laura') || name.includes('paulina') || name.includes('monica') || name.includes('natural');
+        }) || pool.find(v => {
           const name = v.name.toLowerCase();
           return !name.includes('pablo') && !name.includes('raul');
-        }) || spanishVoices[0];
+        }) || pool[0];
 
         cachedSpanishVoice = preferredVoice;
       }
@@ -4004,6 +4008,9 @@
     let currentHtmlAudio = null;
     let currentSpeechSessionId = 0;
     let activeFallbackTimer = null;
+    let activeSpeechWatchInterval = null;
+    window._activeSpeechUtterance = null;
+    window._googleTtsBlocked = false;
 
     // ESTADO GLOBAL DE NARRACIÓN: Bloqueo de acciones y disparos mientras el narrador habla
     // CONTROL LIMPIO DE AUDIO Y NARRACIÓN
@@ -4030,28 +4037,34 @@
         clearTimeout(activeFallbackTimer);
         activeFallbackTimer = null;
       }
+      if (activeSpeechWatchInterval) {
+        clearInterval(activeSpeechWatchInterval);
+        activeSpeechWatchInterval = null;
+      }
+      if (window._activeSpeechUtterance) {
+        try {
+          window._activeSpeechUtterance.onend = null;
+          window._activeSpeechUtterance.onerror = null;
+        } catch(e) {}
+        window._activeSpeechUtterance = null;
+      }
       if (currentHtmlAudio) {
         try {
           currentHtmlAudio.pause();
-          currentHtmlAudio.currentTime = 0;
           currentHtmlAudio.onended = null;
           currentHtmlAudio.onerror = null;
         } catch(e) {}
         currentHtmlAudio = null;
       }
-      document.querySelectorAll('audio').forEach(a => {
-        try {
-          a.pause();
-          a.currentTime = 0;
-        } catch(e) {}
-      });
       if (typeof responsiveVoice !== 'undefined') {
         try { if (responsiveVoice.cancel) responsiveVoice.cancel(); } catch(e) {}
         try { if (responsiveVoice.stop) responsiveVoice.stop(); } catch(e) {}
       }
       if ('speechSynthesis' in window) {
         try {
-          window.speechSynthesis.cancel();
+          if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+            window.speechSynthesis.cancel();
+          }
         } catch(e) {}
       }
     }
@@ -4222,15 +4235,24 @@
         setTimeout(() => pictoCard.classList.remove('speaking'), 600);
       }
 
-      const durationEst = Math.max(textToSpeak.length * 150 + 5000, 7500);
+      const durationEst = Math.min(Math.max(textToSpeak.length * 95 + 1200, 2000), 6500);
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         safeCallback();
       }, durationEst);
 
+      // Si el navegador tiene voces nativas en español instaladas (WebSpeech local), usarlas directamente con latencia 0ms
+      if ('speechSynthesis' in window) {
+        if (!cachedSpanishVoice) initVoices();
+        if (cachedSpanishVoice || window._googleTtsBlocked) {
+          fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+          return;
+        }
+      }
+
       let speechStarted = false;
 
-      // OPCIÓN 1: Audio nativo en español fluido de alta fidelidad (Google TTS CDN pre-desbloqueado)
+      // Respaldo Google TTS CDN si el dispositivo no reporta voces locales
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
         const audio = getGlobalTtsPlayer();
@@ -4247,6 +4269,7 @@
 
         audio.onerror = function() {
           if (thisSession !== currentSpeechSessionId) return;
+          window._googleTtsBlocked = true;
           if (!speechStarted) {
             speechStarted = true;
             currentHtmlAudio = null;
@@ -4264,6 +4287,7 @@
             speechStarted = true;
           }).catch(err => {
             if (thisSession !== currentSpeechSessionId) return;
+            window._googleTtsBlocked = true;
             if (!speechStarted) {
               speechStarted = true;
               currentHtmlAudio = null;
@@ -4274,6 +4298,7 @@
         return;
       } catch(e) {
         if (thisSession !== currentSpeechSessionId) return;
+        window._googleTtsBlocked = true;
         if (!speechStarted) {
           speechStarted = true;
           fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
@@ -4301,32 +4326,65 @@
         } catch(e) {}
       }
 
-      // 3. Respaldo local WebSpeech API (Velocidad pausada 0.82 y tono cálido 1.05)
+      // 3. Voz local WebSpeech API (Latencia 0ms y monitor activo de finalización para evitar pérdida de onend en Chrome)
       if ('speechSynthesis' in window) {
         try {
           if (!cachedSpanishVoice) initVoices();
-          window.speechSynthesis.cancel();
           if (window.speechSynthesis.paused) window.speechSynthesis.resume();
 
           const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          window._activeSpeechUtterance = utterance; // Referencia global para evitar Garbage Collection prematuro en Chrome
           utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
           if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
-          utterance.rate = 0.82;
+          utterance.rate = 0.88;
           utterance.pitch = 1.05;
 
-          utterance.onend = function() {
+          let hasStartedSpeaking = false;
+          const finishSpeech = () => {
             if (thisSession !== currentSpeechSessionId) return;
-            if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
-            safeCallback();
-          };
-          utterance.onerror = function() {
-            if (thisSession !== currentSpeechSessionId) return;
-            if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
+            if (activeSpeechWatchInterval) {
+              clearInterval(activeSpeechWatchInterval);
+              activeSpeechWatchInterval = null;
+            }
+            if (activeFallbackTimer) {
+              clearTimeout(activeFallbackTimer);
+              activeFallbackTimer = null;
+            }
+            window._activeSpeechUtterance = null;
             safeCallback();
           };
 
+          utterance.onstart = function() {
+            hasStartedSpeaking = true;
+          };
+          utterance.onend = finishSpeech;
+          utterance.onerror = finishSpeech;
+
           window.speechSynthesis.speak(utterance);
-        } catch (e) {}
+
+          // Monitor de estado cada 60ms por si el navegador omite el evento onend al terminar de hablar
+          const startWaitTime = Date.now();
+          const minDurationMs = Math.min(Math.max(textToSpeak.length * 55, 650), 2800);
+          if (activeSpeechWatchInterval) clearInterval(activeSpeechWatchInterval);
+          activeSpeechWatchInterval = setInterval(() => {
+            if (thisSession !== currentSpeechSessionId) {
+              clearInterval(activeSpeechWatchInterval);
+              activeSpeechWatchInterval = null;
+              return;
+            }
+            if (window.speechSynthesis.speaking) {
+              hasStartedSpeaking = true;
+            } else if (hasStartedSpeaking && !window.speechSynthesis.pending) {
+              finishSpeech();
+            } else if (!hasStartedSpeaking && (Date.now() - startWaitTime) > minDurationMs) {
+              finishSpeech();
+            }
+          }, 60);
+        } catch (e) {
+          safeCallback();
+        }
+      } else {
+        safeCallback();
       }
     }
 
