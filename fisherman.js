@@ -123,8 +123,8 @@
     '🦄': {
       id: 'unicornio',
       name: 'Unicornio Mágico',
-      src: 'assets/unicornio_pescador.png?v=280',
-      cardSrc: 'assets/card_unicornio_arquero.png?v=249',
+      src: 'assets/unicornio_pescador.png?v=296',
+      cardSrc: 'assets/card_unicornio_arquero.png?v=296',
       rodTipNormalizedX: 0.9603,
       rodTipNormalizedY: 0.0469, // Ojo metálico terminal de la caña donde nace la tanza dinámica
       chairFeetNormalizedY: 0.9688,
@@ -133,8 +133,8 @@
     '🐰': {
       id: 'conejo',
       name: 'Conejito Pescador',
-      src: 'assets/conejo_pescador.png?v=255',
-      cardSrc: 'assets/card_conejo_arquero.png?v=249',
+      src: 'assets/conejo_pescador.png?v=296',
+      cardSrc: 'assets/card_conejo_arquero.png?v=296',
       rodTipNormalizedX: 0.9450,
       rodTipNormalizedY: 0.0350, // Ojo metálico terminal de la caña donde el usuario retiró la tanza
       chairFeetNormalizedY: 0.9531,
@@ -143,8 +143,8 @@
     '🐶': {
       id: 'perro',
       name: 'Perrito Pescador',
-      src: 'assets/perro_pescador.png?v=255',
-      cardSrc: 'assets/card_perro_arquero.png?v=249',
+      src: 'assets/perro_pescador.png?v=296',
+      cardSrc: 'assets/card_perro_arquero.png?v=296',
       rodTipNormalizedX: 0.9476,
       rodTipNormalizedY: 0.0322, // Ojo metálico terminal de la caña del perrito
       chairFeetNormalizedY: 0.9482,
@@ -153,9 +153,9 @@
   };
 
   // Pre-carga inmediata de los pescadores oficiales en memoria
-  getCachedImage('assets/unicornio_pescador.png?v=280');
-  getCachedImage('assets/conejo_pescador.png?v=280');
-  getCachedImage('assets/perro_pescador.png?v=280');
+  getCachedImage('assets/unicornio_pescador.png?v=296');
+  getCachedImage('assets/conejo_pescador.png?v=296');
+  getCachedImage('assets/perro_pescador.png?v=296');
 
   function getActiveFishermanPet() {
     if (FishermanGame.activePet && FISHERMAN_AVATARS[FishermanGame.activePet]) {
