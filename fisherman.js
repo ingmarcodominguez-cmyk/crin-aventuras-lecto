@@ -1336,16 +1336,29 @@
       FishermanGame.pointer.y = pos.y;
       FishermanGame.pointer.isDown = true;
 
-      // Detectar si tocó un pez
+      // Detectar si tocó un pez (área amplia que cubre todo el cuerpo, cola y cartel de la sílaba)
+      const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
+      let candidates = [];
       for (let i = FishermanGame.fishes.length - 1; i >= 0; i--) {
         const fish = FishermanGame.fishes[i];
         if (fish.isCaught) continue;
         const dx = pos.x - fish.x;
         const dy = pos.y - fish.y;
-        if (Math.hypot(dx, dy) < 42) {
-          handleFishSelected(fish);
-          break;
+        // El pez mide ~90px de ancho total (cuerpo + cola) y ~48px de alto
+        if (Math.abs(dx) <= 62 && Math.abs(dy) <= 44) {
+          const dist = Math.hypot(dx, dy);
+          candidates.push({ fish, dist, isTarget: fish.syllable === targetSyl });
         }
+      }
+      if (candidates.length > 0) {
+        // Si dos peces se solapan bajo el clic, priorizar el que tiene la sílaba objetivo o el más cercano al centro
+        candidates.sort((a, b) => {
+          if (a.isTarget !== b.isTarget && Math.abs(a.dist - b.dist) < 28) {
+            return a.isTarget ? -1 : 1;
+          }
+          return a.dist - b.dist;
+        });
+        handleFishSelected(candidates[0].fish);
       }
     }
 
@@ -1361,13 +1374,13 @@
       FishermanGame.draggedFish = null;
     }
 
-    canvas.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
-    window.addEventListener('mouseup', onPointerUp);
+    canvas.onmousedown = onPointerDown;
+    window.onmousemove = onPointerMove;
+    window.onmouseup = onPointerUp;
 
-    canvas.addEventListener('touchstart', onPointerDown, { passive: true });
-    window.addEventListener('touchmove', onPointerMove, { passive: true });
-    window.addEventListener('touchend', onPointerUp, { passive: true });
+    canvas.ontouchstart = onPointerDown;
+    window.ontouchmove = onPointerMove;
+    window.ontouchend = onPointerUp;
   }
 
   // --- LÓGICA DE SELECCIÓN DE PEZ ---

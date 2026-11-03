@@ -1168,16 +1168,56 @@
 
     const angle = Math.atan2(dy, dx);
 
-    // Flecha balística con profundidad 3D
+    // Detectar en el instante del clic si el usuario apuntó a una diana, su dibujo superior o su cartel de palabra
+    let lockedTarget = null;
+    let lockedOffsetX = 0;
+    let lockedOffsetY = 0;
+    const clickCandidates = [];
+
+    for (let j = 0; j < ArcheryGame.targets.length; j++) {
+      const target = ArcheryGame.targets[j];
+      if (target.alpha < 0.25 || target.isFading) continue;
+
+      const tdx = targetX - target.x;
+      const tdy = targetY - target.y;
+      const dist = Math.sqrt(tdx * tdx + tdy * tdy);
+      const tScale = target.scale || 0.68;
+
+      // Cubrir diana circular, ícono superior y cartel blanco inferior con margen cómodo para niños
+      const hitRadius = (target.radius + 26) * tScale;
+      const halfBadgeW = ((target.lastBadgeW || 84) * 0.5 + 18) * tScale;
+      const topLimit = -(target.radius + 32) * tScale;
+      const bottomLimit = ((target.lastBadgeH || 28) + target.radius + 22) * tScale;
+      const inBox = Math.abs(tdx) <= halfBadgeW && tdy >= topLimit && tdy <= bottomLimit;
+
+      if (dist <= hitRadius || inBox) {
+        clickCandidates.push({ target, dist, z: target.z, isTarget: target.isTarget });
+      }
+    }
+
+    if (clickCandidates.length > 0) {
+      clickCandidates.sort((a, b) => {
+        if (a.z !== b.z) return a.z - b.z;
+        return a.dist - b.dist;
+      });
+      lockedTarget = clickCandidates[0].target;
+      lockedOffsetX = (targetX - lockedTarget.x) * 0.35;
+      lockedOffsetY = (targetY - lockedTarget.y) * 0.35;
+    }
+
+    // Flecha balística con profundidad 3D (sigue al objetivo si se hizo clic sobre él)
     ArcheryGame.arrows.push({
       startX: ax,
       startY: ay,
       targetX: targetX,
       targetY: targetY,
+      lockedTarget: lockedTarget,
+      lockedOffsetX: lockedOffsetX,
+      lockedOffsetY: lockedOffsetY,
       x: ax,
       y: ay,
       progress: 0,
-      speed: 0.055, // Llega al objetivo en ~18 frames (300ms)
+      speed: 0.065,
       angle: angle,
       scale: 1.0,
       life: 50
@@ -1283,6 +1323,12 @@
       arr.progress += arr.speed;
       const t = Math.min(1.0, arr.progress);
 
+      // Si la flecha fue disparada haciendo clic sobre un objetivo móvil, seguir su posición actual para que no falle por el desplazamiento
+      if (arr.lockedTarget && !arr.lockedTarget.isFading && ArcheryGame.targets.includes(arr.lockedTarget)) {
+        arr.targetX = arr.lockedTarget.x + (arr.lockedOffsetX || 0);
+        arr.targetY = arr.lockedTarget.y + (arr.lockedOffsetY || 0);
+      }
+
       // Trayectoria en perspectiva hacia el horizonte
       const curX = arr.startX + (arr.targetX - arr.startX) * t;
       const arcHeight = Math.sin(t * Math.PI) * 22;
@@ -1308,27 +1354,31 @@
         let hit = false;
         const candidates = [];
 
-        for (let j = 0; j < ArcheryGame.targets.length; j++) {
-          const target = ArcheryGame.targets[j];
-          if (target.alpha < 0.35 || target.isFading) continue;
+        if (arr.lockedTarget && !arr.lockedTarget.isFading && ArcheryGame.targets.includes(arr.lockedTarget)) {
+          candidates.push({ target: arr.lockedTarget, dist: 0, z: arr.lockedTarget.z });
+        } else {
+          for (let j = 0; j < ArcheryGame.targets.length; j++) {
+            const target = ArcheryGame.targets[j];
+            if (target.alpha < 0.35 || target.isFading) continue;
 
-          const tdx = arr.x - target.x;
-          const tdy = arr.y - target.y;
-          const dist = Math.sqrt(tdx * tdx + tdy * tdy);
-          const tScale = target.scale || 0.68;
+            const tdx = arr.x - target.x;
+            const tdy = arr.y - target.y;
+            const dist = Math.sqrt(tdx * tdx + tdy * tdy);
+            const tScale = target.scale || 0.68;
 
-          const hitRadius = (target.radius + 16) * tScale;
-          const halfBadgeW = ((target.lastBadgeW || 80) * 0.5 + 10) * tScale;
-          const badgeH = ((target.lastBadgeH || 28) + 14) * tScale;
-          const inBadge = Math.abs(tdx) < halfBadgeW && tdy > 0 && tdy < (badgeH + target.radius * tScale);
+            const hitRadius = (target.radius + 22) * tScale;
+            const halfBadgeW = ((target.lastBadgeW || 80) * 0.5 + 16) * tScale;
+            const topLimit = -(target.radius + 28) * tScale;
+            const bottomLimit = ((target.lastBadgeH || 28) + target.radius + 18) * tScale;
+            const inBadge = Math.abs(tdx) <= halfBadgeW && tdy >= topLimit && tdy <= bottomLimit;
 
-          if (dist < hitRadius || inBadge) {
-            candidates.push({ target, dist, z: target.z });
+            if (dist < hitRadius || inBadge) {
+              candidates.push({ target, dist, z: target.z });
+            }
           }
+          // Ordenar candidatos por profundidad (los más cercanos tienen prioridad física)
+          candidates.sort((a, b) => a.z - b.z);
         }
-
-        // Ordenar candidatos por profundidad (los más cercanos tienen prioridad física)
-        candidates.sort((a, b) => a.z - b.z);
 
         if (candidates.length > 0) {
           const chosen = candidates[0].target;
