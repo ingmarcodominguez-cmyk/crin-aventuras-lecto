@@ -540,9 +540,20 @@
     window.closeBasketAndReturnToMap();
   };
 
+  let sharedBasketAudioCtx = null;
+  function getBasketAudioCtx() {
+    if (typeof window.getSharedAudioCtx === 'function') return window.getSharedAudioCtx();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedBasketAudioCtx) sharedBasketAudioCtx = new AudioCtx();
+    if (sharedBasketAudioCtx.state === 'suspended') sharedBasketAudioCtx.resume().catch(() => {});
+    return sharedBasketAudioCtx;
+  }
+
   function playSuccessChime() {
     try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const ac = getBasketAudioCtx();
+      if (!ac) return;
       const osc = ac.createOscillator();
       const gain = ac.createGain();
       osc.connect(gain);
@@ -559,7 +570,8 @@
 
   function playErrorTone() {
     try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const ac = getBasketAudioCtx();
+      if (!ac) return;
       const osc = ac.createOscillator();
       const gain = ac.createGain();
       osc.connect(gain);

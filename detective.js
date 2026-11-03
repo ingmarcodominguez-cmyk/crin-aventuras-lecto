@@ -932,11 +932,20 @@
   }
 
   // --- SÍNTESIS DE SONIDOS (WEB AUDIO) ---
+  let sharedDetectiveAudioCtx = null;
+  function getDetectiveAudioCtx() {
+    if (typeof window.getSharedAudioCtx === 'function') return window.getSharedAudioCtx();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedDetectiveAudioCtx) sharedDetectiveAudioCtx = new AudioCtx();
+    if (sharedDetectiveAudioCtx.state === 'suspended') sharedDetectiveAudioCtx.resume().catch(() => {});
+    return sharedDetectiveAudioCtx;
+  }
+
   function playCameraFlashSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getDetectiveAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -956,9 +965,8 @@
 
   function playSoftBoing() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getDetectiveAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 

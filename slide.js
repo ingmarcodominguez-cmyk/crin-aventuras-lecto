@@ -282,7 +282,10 @@
       if (SlideGame.currentAudio) {
         try { SlideGame.currentAudio.pause(); } catch(e) {}
       }
-      const audio = new Audio(src);
+      if (!SlideGame.sharedAudio) {
+        SlideGame.sharedAudio = new Audio();
+      }
+      const audio = SlideGame.sharedAudio;
       SlideGame.currentAudio = audio;
       let done = false;
       const finish = () => {
@@ -293,6 +296,7 @@
       };
       audio.onended = finish;
       audio.onerror = finish;
+      audio.src = src;
       setTimeout(finish, 2000);
       audio.play().catch(finish);
     } catch(e) {
@@ -505,21 +509,9 @@
       shake: 0
     }));
 
-    // Pre-cargar inmediatamente las imágenes de las cartas y los sonidos de esta palabra y la siguiente
+    // Pre-cargar inmediatamente las imágenes de las cartas y de la siguiente misión
     try {
       SlideGame.cards.forEach(card => getCachedImg(card.image));
-      if (c.syllables) {
-        c.syllables.forEach(syl => {
-          const a = new Audio();
-          a.preload = 'auto';
-          a.src = sylToAudioPath(syl);
-        });
-      }
-      if (typeof window.preloadTtsAudio === 'function') {
-        window.preloadTtsAudio(`¡${c.word}!`);
-        window.preloadTtsAudio(`¿Cuál de estas imágenes es ${c.pron}?`);
-        window.preloadTtsAudio('¡Siguiente palabra! Toca el cohete.');
-      }
       const nextC = SlideGame.cases[(index + 1) % SlideGame.cases.length];
       if (nextC) {
         getCachedImg(nextC.image);

@@ -237,11 +237,20 @@
   };
 
   // --- SÍNTESIS DE SONIDOS (WEB AUDIO) ---
+  let sharedAacAudioCtx = null;
+  function getAacAudioCtx() {
+    if (typeof window.getSharedAudioCtx === 'function') return window.getSharedAudioCtx();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedAacAudioCtx) sharedAacAudioCtx = new AudioCtx();
+    if (sharedAacAudioCtx.state === 'suspended') sharedAacAudioCtx.resume().catch(() => {});
+    return sharedAacAudioCtx;
+  }
+
   function playPopSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAacAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -261,9 +270,8 @@
 
   function playCelebrationDing() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getAacAudioCtx();
+      if (!actx) return;
       [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
         const osc = actx.createOscillator();
         const gain = actx.createGain();

@@ -631,9 +631,20 @@
   };
 
   // Sonidos Web Audio
+  let sharedTransformerAudioCtx = null;
+  function getTransformerAudioCtx() {
+    if (typeof window.getSharedAudioCtx === 'function') return window.getSharedAudioCtx();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return null;
+    if (!sharedTransformerAudioCtx) sharedTransformerAudioCtx = new AudioCtx();
+    if (sharedTransformerAudioCtx.state === 'suspended') sharedTransformerAudioCtx.resume().catch(() => {});
+    return sharedTransformerAudioCtx;
+  }
+
   function playSuccessChime() {
     try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const ac = getTransformerAudioCtx();
+      if (!ac) return;
       const osc = ac.createOscillator();
       const gain = ac.createGain();
       osc.connect(gain);
@@ -650,7 +661,8 @@
 
   function playErrorTone() {
     try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const ac = getTransformerAudioCtx();
+      if (!ac) return;
       const osc = ac.createOscillator();
       const gain = ac.createGain();
       osc.connect(gain);

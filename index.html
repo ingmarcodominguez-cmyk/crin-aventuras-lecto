@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v300';
+    const CURRENT_APP_VERSION = 'v301';
 
     function syncAppVersionLabels() {
       try {
@@ -83,30 +83,30 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=300"></script>
+  <script src="lexicon.js?v=301"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=300"></script>
+  <script src="archery.js?v=301"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=300"></script>
+  <script src="cauldron.js?v=301"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=300"></script>
+  <script src="fisherman.js?v=301"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=300"></script>
+  <script src="train.js?v=301"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=300"></script>
+  <script src="detective.js?v=301"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=300"></script>
+  <script src="aac_keyboard.js?v=301"></script>
   <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
-  <script src="therapist_guide.js?v=300"></script>
+  <script src="therapist_guide.js?v=301"></script>
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
-  <script src="transformer.js?v=300"></script>
+  <script src="transformer.js?v=301"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="audio_recorder.js?v=300"></script>
-  <script src="slide.js?v=300"></script>
+  <script src="audio_recorder.js?v=301"></script>
+  <script src="slide.js?v=301"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
-  <script src="mirror_lighthouse.js?v=300"></script>
+  <script src="mirror_lighthouse.js?v=301"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
-  <script src="basket.js?v=300"></script>
+  <script src="basket.js?v=301"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -2987,6 +2987,7 @@
       }
       return appPhonemeAudioCtx;
     }
+    window.getSharedAudioCtx = getPhonemeAudioCtx;
 
     // Síntesis de sonido fricativo sibilante /s/, /f/, /j/ (ruido blanco filtrado con envolvente suave)
     function synthWebAudioNoisePhoneme(ctx, freq, q, duration, vol) {
@@ -3385,6 +3386,8 @@
       Object.keys(CANONICAL_SYLLABLE_LEXICON).forEach(k => PRE_RENDERED_SYLLABLES.add(k.toLowerCase()));
     }
 
+    let activeSyllableSeqTimer = null;
+
     function playNarratorAudio(src, onEndCallback) {
       stopAllAudio();
       unlockAudioSystem();
@@ -3401,37 +3404,52 @@
 
       const thisSession = currentSpeechSessionId;
       const audioSrc = src + (src.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(CURRENT_APP_VERSION);
-      const audio = new Audio(audioSrc);
+      const audio = getGlobalTtsPlayer();
       currentHtmlAudio = audio;
+      audio.src = audioSrc;
+      audio.playbackRate = 1.0;
 
       let callbackExecuted = false;
       const safeCallback = () => {
+        if (thisSession !== currentSpeechSessionId) return;
+        window.isAppSpeaking = false;
+        if (activeFallbackTimer) {
+          clearTimeout(activeFallbackTimer);
+          activeFallbackTimer = null;
+        }
         if (!callbackExecuted && onEndCallback) {
           callbackExecuted = true;
           onEndCallback();
         }
       };
 
-      const fallbackTimer = setTimeout(() => { if (currentHtmlAudio === audio) currentHtmlAudio = null; safeCallback(); }, 8000);
+      activeFallbackTimer = setTimeout(() => {
+        activeFallbackTimer = null;
+        if (currentHtmlAudio === audio) currentHtmlAudio = null;
+        safeCallback();
+      }, 3500);
 
       audio.onended = () => {
-        clearTimeout(fallbackTimer);
+        if (thisSession !== currentSpeechSessionId) return;
         if (currentHtmlAudio === audio) currentHtmlAudio = null;
         safeCallback();
       };
       audio.onerror = (e) => {
-        clearTimeout(fallbackTimer);
+        if (thisSession !== currentSpeechSessionId) return;
         console.warn('Narrator audio file error, falling back:', e, src);
         if (currentHtmlAudio === audio) currentHtmlAudio = null;
         safeCallback();
       };
 
-      audio.play().catch(e => {
-        clearTimeout(fallbackTimer);
-        console.warn('Narrator audio play exception:', e);
-        if (currentHtmlAudio === audio) currentHtmlAudio = null;
-        safeCallback();
-      });
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(e => {
+          if (thisSession !== currentSpeechSessionId) return;
+          console.warn('Narrator audio play exception:', e);
+          if (currentHtmlAudio === audio) currentHtmlAudio = null;
+          safeCallback();
+        });
+      }
     }
 
     
@@ -3451,7 +3469,7 @@
       if (!syl) { if (onEnd) onEnd(); return; }
       const canon = (typeof getCanonicalSyllable === 'function')
         ? getCanonicalSyllable(syl)
-        : { pron: syl.charAt(0).toUpperCase() + syl.slice(1).toLowerCase(), audio: null };
+        : { pron: syl.charAt(0).toUpperCase() + s.slice(1).toLowerCase(), audio: null };
 
       if (canon.audio) {
         playNarratorAudio(canon.audio, onEnd);
@@ -3471,20 +3489,25 @@
       }
       const firstSyl = sylList[0].toLowerCase().trim();
       const rest = sylList.slice(1);
-      const audioPath = PRE_RENDERED_SYLLABLES.has(firstSyl) ? ('assets/audio/silabas/' + firstSyl + '.mp3') : null;
 
       const canon = (typeof getCanonicalSyllable === 'function')
         ? getCanonicalSyllable(firstSyl)
         : { pron: firstSyl.charAt(0).toUpperCase() + firstSyl.slice(1).toLowerCase(), audio: null };
 
+      const scheduleNext = () => {
+        const expectedSession = currentSpeechSessionId;
+        if (activeSyllableSeqTimer) clearTimeout(activeSyllableSeqTimer);
+        activeSyllableSeqTimer = setTimeout(() => {
+          activeSyllableSeqTimer = null;
+          if (expectedSession !== currentSpeechSessionId) return;
+          playSyllableAudioSequence(rest, onComplete);
+        }, 160);
+      };
+
       if (canon.audio) {
-        playNarratorAudio(canon.audio, () => {
-          setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
-        });
+        playNarratorAudio(canon.audio, scheduleNext);
       } else {
-        speakText(canon.pron, () => {
-          setTimeout(() => playSyllableAudioSequence(rest, onComplete), 180);
-        });
+        speakText(canon.pron, scheduleNext);
       }
     }
 
@@ -4013,6 +4036,10 @@
         clearTimeout(activeFallbackTimer);
         activeFallbackTimer = null;
       }
+      if (activeSyllableSeqTimer) {
+        clearTimeout(activeSyllableSeqTimer);
+        activeSyllableSeqTimer = null;
+      }
       if (activeSpeechWatchInterval) {
         clearInterval(activeSpeechWatchInterval);
         activeSpeechWatchInterval = null;
@@ -4049,44 +4076,9 @@
       if (document.hidden) stopAllAudio();
     });
 
-    // --- PRE-BUFFER EN MEMORIA PARA VOZ NATURAL INSTANTÁNEA (0ms LATENCIA DE RED) ---
-    const ttsPreloadCache = new Map();
-    window.preloadTtsAudio = function(rawText) {
-      try {
-        if (!rawText) return;
-        const rawStr = rawText.toString().trim();
-        const cleanKey = rawStr.toLowerCase().replace(/[¡!¿?.,]/g, '').trim();
-        if (PRE_RENDERED_WORDS.has(cleanKey) || PRE_RENDERED_SYLLABLES.has(cleanKey)) {
-          const url = PRE_RENDERED_WORDS.has(cleanKey)
-            ? ('assets/audio/palabras/' + cleanKey + '.mp3')
-            : ('assets/audio/silabas/' + cleanKey + '.mp3');
-          if (!ttsPreloadCache.has(url)) {
-            const a = new Audio();
-            a.preload = 'auto';
-            a.src = url;
-            a.load();
-            ttsPreloadCache.set(url, a);
-          }
-          return;
-        }
-        const textToSpeak = cleanPhoneticText(rawText);
-        if (!textToSpeak || textToSpeak.length > 190) return;
-        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
-        if (!ttsPreloadCache.has(audioUrl)) {
-          if (ttsPreloadCache.size > 45) {
-            const firstKey = ttsPreloadCache.keys().next().value;
-            ttsPreloadCache.delete(firstKey);
-          }
-          const a = new Audio();
-          a.referrerPolicy = 'no-referrer';
-          a.setAttribute('referrerpolicy', 'no-referrer');
-          a.preload = 'auto';
-          a.src = audioUrl;
-          a.load();
-          ttsPreloadCache.set(audioUrl, a);
-        }
-      } catch(e) {}
-    };
+    // No-op seguro: evita crear múltiples instancias new Audio() que agotan el límite de WebMediaPlayer de Chromium
+    // o disparan bloqueo por ráfaga en translate.google.com después de varias actividades.
+    window.preloadTtsAudio = function() {};
 
     // --- REPRODUCTOR DE TEXTOS LARGOS EN FRAGMENTOS NATURALES (Previene límite HTTP 400 de Google TTS) ---
     function playLongTextInChunks(fullText, onComplete, sessionId) {
@@ -4163,18 +4155,8 @@
 
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=es&client=tw-ob`;
-        let audio = null;
-        if (ttsPreloadCache.has(audioUrl)) {
-          const cached = ttsPreloadCache.get(audioUrl);
-          ttsPreloadCache.delete(audioUrl);
-          if (cached && cached.readyState >= 2) {
-            audio = cached;
-          }
-        }
-        if (!audio) {
-          audio = getGlobalTtsPlayer();
-          audio.src = audioUrl;
-        }
+        const audio = getGlobalTtsPlayer();
+        audio.src = audioUrl;
         currentHtmlAudio = audio;
         audio.playbackRate = 0.96;
 
@@ -4273,21 +4255,11 @@
 
       let speechStarted = false;
 
-      // OPCIÓN 1: Voz original natural de alta fidelidad (Google TTS CDN con pre-buffer en memoria)
+      // OPCIÓN 1: Voz original natural de alta fidelidad (Google TTS CDN en reproductor único reutilizado)
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
-        let audio = null;
-        if (ttsPreloadCache.has(audioUrl)) {
-          const cached = ttsPreloadCache.get(audioUrl);
-          ttsPreloadCache.delete(audioUrl);
-          if (cached && cached.readyState >= 2) {
-            audio = cached;
-          }
-        }
-        if (!audio) {
-          audio = getGlobalTtsPlayer();
-          audio.src = audioUrl;
-        }
+        const audio = getGlobalTtsPlayer();
+        audio.src = audioUrl;
         currentHtmlAudio = audio;
         audio.playbackRate = 0.96;
 
@@ -4337,24 +4309,7 @@
     function fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession) {
       if (thisSession !== currentSpeechSessionId) return;
 
-      // 1. Respaldo ResponsiveVoice (Voz femenina latinoamericana cálida)
-      if (typeof responsiveVoice !== 'undefined' && responsiveVoice.speak) {
-        try {
-          responsiveVoice.cancel();
-          responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
-            rate: 0.92,
-            pitch: 1.0,
-            onend: function() {
-              if (thisSession !== currentSpeechSessionId) return;
-              if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
-              safeCallback();
-            }
-          });
-          return;
-        } catch(e) {}
-      }
-
-      // 2. Respaldo WebSpeech API solo si no hay conexión a Internet
+      // Respaldo inmediato WebSpeech API si Google TTS no está disponible temporalmente
       if ('speechSynthesis' in window) {
         try {
           if (!cachedSpanishVoice) initVoices();
@@ -4364,11 +4319,16 @@
           window._activeSpeechUtterance = utterance;
           utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
           if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
-          utterance.rate = 0.90;
+          utterance.rate = 0.92;
           utterance.pitch = 1.05;
 
+          let hasStartedSpeaking = false;
           const finishSpeech = () => {
             if (thisSession !== currentSpeechSessionId) return;
+            if (activeSpeechWatchInterval) {
+              clearInterval(activeSpeechWatchInterval);
+              activeSpeechWatchInterval = null;
+            }
             if (activeFallbackTimer) {
               clearTimeout(activeFallbackTimer);
               activeFallbackTimer = null;
@@ -4377,10 +4337,31 @@
             safeCallback();
           };
 
+          utterance.onstart = function() {
+            hasStartedSpeaking = true;
+          };
           utterance.onend = finishSpeech;
           utterance.onerror = finishSpeech;
 
           window.speechSynthesis.speak(utterance);
+
+          const startWaitTime = Date.now();
+          const minDurationMs = Math.min(Math.max(textToSpeak.length * 55, 700), 2800);
+          if (activeSpeechWatchInterval) clearInterval(activeSpeechWatchInterval);
+          activeSpeechWatchInterval = setInterval(() => {
+            if (thisSession !== currentSpeechSessionId) {
+              clearInterval(activeSpeechWatchInterval);
+              activeSpeechWatchInterval = null;
+              return;
+            }
+            if (window.speechSynthesis.speaking) {
+              hasStartedSpeaking = true;
+            } else if (hasStartedSpeaking && !window.speechSynthesis.pending) {
+              finishSpeech();
+            } else if (!hasStartedSpeaking && (Date.now() - startWaitTime) > minDurationMs) {
+              finishSpeech();
+            }
+          }, 80);
           return;
         } catch (e) {}
       }
@@ -4404,7 +4385,22 @@
       }
     }
 
+    let questWelcomeBackupTimer = null;
+    let questUnlockBackupTimer = null;
+
+    function clearQuestStartupTimers() {
+      if (questWelcomeBackupTimer) {
+        clearTimeout(questWelcomeBackupTimer);
+        questWelcomeBackupTimer = null;
+      }
+      if (questUnlockBackupTimer) {
+        clearTimeout(questUnlockBackupTimer);
+        questUnlockBackupTimer = null;
+      }
+    }
+
     function exitCurrentAdventure() {
+      clearQuestStartupTimers();
       stopAllAudio();
       forceUnlockStoryPuzzle();
       stage3D.isWalking = false;
@@ -4413,6 +4409,9 @@
     }
 
     function switchScreen(screenName) {
+      if (screenName !== 'game') {
+        clearQuestStartupTimers();
+      }
       if (screenName !== 'archery' && typeof window.stopArcheryGame === 'function') {
         window.stopArcheryGame();
       }
@@ -4428,17 +4427,32 @@
       if (screenName !== 'detective' && typeof window.stopDetectiveGame === 'function') {
         window.stopDetectiveGame();
       }
-      if (screenName !== 'transformer' && typeof window.closeTransformerAndReturnToMap === 'function' && window.TransformerGame && TransformerGame.isRunning) {
+      if (screenName !== 'transformer' && window.TransformerGame) {
         TransformerGame.isRunning = false;
+        TransformerGame.isSpeaking = false;
+        if (TransformerGame.voiceTimeout) clearTimeout(TransformerGame.voiceTimeout);
+        if (TransformerGame.animFrameId) cancelAnimationFrame(TransformerGame.animFrameId);
       }
-      if (screenName !== 'slide' && typeof window.closeSlideAndReturnToMap === 'function' && window.SlideGame && SlideGame.isRunning) {
+      if (screenName !== 'slide' && window.SlideGame) {
         SlideGame.isRunning = false;
+        SlideGame.isSpeaking = false;
+        if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
+        if (SlideGame.animFrameId) cancelAnimationFrame(SlideGame.animFrameId);
       }
-      if (screenName !== 'mirror' && typeof window.closeMirrorAndReturnToMap === 'function' && window.MirrorGame && MirrorGame.isRunning) {
+      if (screenName !== 'mirror' && window.MirrorGame) {
         MirrorGame.isRunning = false;
+        MirrorGame.isSpeaking = false;
+        if (MirrorGame.voiceTimeout) clearTimeout(MirrorGame.voiceTimeout);
+        if (MirrorGame.animFrameId) cancelAnimationFrame(MirrorGame.animFrameId);
       }
-      if (screenName !== 'basket' && typeof window.closeBasketAndReturnToMap === 'function' && window.BasketGame && BasketGame.isRunning) {
+      if (screenName !== 'basket' && window.BasketGame) {
         BasketGame.isRunning = false;
+        BasketGame.isSpeaking = false;
+        if (BasketGame.voiceTimeout) clearTimeout(BasketGame.voiceTimeout);
+        if (BasketGame.animFrameId) cancelAnimationFrame(BasketGame.animFrameId);
+      }
+      if (screenName !== 'pet-rally' && typeof resetPetToHome === 'function' && rallyGameState && rallyGameState.isAnimating) {
+        resetPetToHome();
       }
       stopAllAudio();
       forceUnlockStoryPuzzle();
@@ -4487,6 +4501,7 @@
     };
 
     function startQuest(mode) {
+      clearQuestStartupTimers();
       stopAllAudio();
       forceUnlockStoryPuzzle();
 
@@ -4498,10 +4513,6 @@
       const hero = document.getElementById('hero-game-sprite');
       const pet = document.getElementById('pet-game-sprite');
       const titleEl = document.getElementById('quest-mode-title');
-      const stage2dDisplay = document.getElementById('stage-2d-display');
-      const stage3dWrap = document.getElementById('stage-3d-wrap');
-      const storyBanner = document.getElementById('story-banner-card');
-      const storyText = document.getElementById('story-text-content');
       const slotsContainer = document.getElementById('word-slots');
       const poolContainer = document.getElementById('letters-pool');
 
@@ -4518,25 +4529,7 @@
 
       const welcomeText = adventureWelcomeMap[mode] || '¡Bienvenido a esta aventura! ¡Comencemos!';
 
-      // Estado inicial limpio de bienvenida: esperar a que termine el saludo para mostrar la imagen y palabra
-      if (slotsContainer) slotsContainer.innerHTML = '';
-      if (poolContainer) poolContainer.innerHTML = '';
-
-      if (mode === 'story') {
-        if (stage3dWrap) stage3dWrap.style.display = 'block';
-        if (stage2dDisplay) stage2dDisplay.style.display = 'none';
-        if (storyBanner) storyBanner.style.display = 'flex';
-        if (storyText) storyText.innerText = welcomeText;
-        stage3D.isWalking = false;
-      } else {
-        if (stage3dWrap) stage3dWrap.style.display = 'none';
-        if (stage2dDisplay) stage2dDisplay.style.display = 'flex';
-        const stage2dEmoji = document.getElementById('stage-2d-emoji');
-        if (stage2dEmoji) stage2dEmoji.innerText = '🌟';
-        if (storyBanner) storyBanner.style.display = 'none';
-      }
-
-      // Pre-cargar las imágenes y locuciones de las palabras de esta misión mientras suena el saludo
+      // Pre-cargar las imágenes de las palabras de esta misión en memoria
       try {
         const ds = gameDatasets[mode] || [];
         ds.forEach(item => {
@@ -4546,28 +4539,67 @@
               const pImg = new Image();
               pImg.src = getAssetURLWithBust(em);
             }
-            if (typeof window.preloadTtsAudio === 'function') {
-              if (mode === 'story' && item.narration) {
-                const currentName = getStudentFirstName();
-                const textToNarrate = formatTextWithStudentName(item.narration);
-                const questionPrompt = (item.word && !item.isCastleChapter) ? `¡${currentName} encontró ${item.word.toLowerCase()}! ¿Cómo se escribe?` : '';
-                window.preloadTtsAudio((textToNarrate + (questionPrompt ? `. ${questionPrompt}` : '')).trim());
-              } else if (mode === 'homework' && item.sentence) {
-                window.preloadTtsAudio(formatTextWithStudentName(item.sentence.replace('___', item.word || '')));
-              } else {
-                window.preloadTtsAudio(item.word);
-              }
-            }
           }
         });
       } catch(e) {}
 
-      // 1. Decir la bienvenida ("¡Bienvenido al Bosque de las Letras! ¡Comencemos!")
-      // 2. Y RECIÉN ALLÍ arrancar con la imagen y el relato de la palabra para que el niño escriba
-      speakText(welcomeText, () => {
-        if (gameState.currentMode !== mode) return; // Si el usuario salió durante el saludo
-        loadCurrentWord(false);
-      });
+      // 1. Construir e insertar de inmediato el dibujo, las casillas y las letras/sílabas en el DOM
+      //    para que SIEMPRE aparezcan en pantalla desde el primer instante sin depender del callback de audio
+      loadCurrentWord(true);
+
+      // 2. Mantener las letras bloqueadas mientras habla la bienvenida y la primera palabra/relato
+      isNarratingLock = true;
+      if (poolContainer) {
+        poolContainer.style.pointerEvents = 'none';
+        poolContainer.style.opacity = '0.55';
+      }
+      if (slotsContainer) {
+        slotsContainer.style.pointerEvents = 'none';
+      }
+
+      let wordNarrationStarted = false;
+      const runInitialQuestWordNarration = () => {
+        if (wordNarrationStarted) return;
+        wordNarrationStarted = true;
+        clearQuestStartupTimers();
+        if (gameState.currentMode !== mode) return;
+
+        if (!targetItem) {
+          forceUnlockStoryPuzzle();
+          return;
+        }
+
+        if (mode === 'story') {
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 9500);
+          playStoryChapterNarration(targetItem, () => {
+            clearQuestStartupTimers();
+            forceUnlockStoryPuzzle();
+          });
+        } else if (mode === 'homework') {
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 6500);
+          playHomeworkSentenceNarration(targetItem, () => {
+            clearQuestStartupTimers();
+            forceUnlockStoryPuzzle();
+          });
+        } else if (mode === 'syllable' && targetItem.syllables) {
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 3800);
+          speakText(targetItem.syllables.join(', '), () => {
+            clearQuestStartupTimers();
+            forceUnlockStoryPuzzle();
+          });
+        } else if (targetItem.word) {
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 2800);
+          speakText(targetItem.word, () => {
+            clearQuestStartupTimers();
+            forceUnlockStoryPuzzle();
+          });
+        } else {
+          forceUnlockStoryPuzzle();
+        }
+      };
+
+      questWelcomeBackupTimer = setTimeout(runInitialQuestWordNarration, 3800);
+      speakText(welcomeText, runInitialQuestWordNarration);
     }
 
 
@@ -5063,7 +5095,8 @@
     // --- FUNCIONES DE BORRADO Y EFECTOS DE SONIDO WEB AUDIO ---
     function playPopSound() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getPhonemeAudioCtx();
+        if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
@@ -5080,7 +5113,8 @@
 
     function playErrorSound() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getPhonemeAudioCtx();
+        if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
@@ -5097,7 +5131,8 @@
 
     function playWinSound() {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getPhonemeAudioCtx();
+        if (!ctx) return;
         const notes = [523.25, 659.25, 783.99, 1046.50];
         notes.forEach((freq, idx) => {
           const osc = ctx.createOscillator();
@@ -10131,9 +10166,20 @@
     }
 
     let rallySafetyTimer = null;
+    let rallyStep1Timer = null;
+    let rallyStep2Timer = null;
+    let rallyStep3Timer = null;
+    let rallyBounceInterval = null;
+    let rallyReturnBounceInterval = null;
     let isRallyVictoryTriggered = false;
 
     function resetPetToHome() {
+      if (rallySafetyTimer) { clearTimeout(rallySafetyTimer); rallySafetyTimer = null; }
+      if (rallyStep1Timer) { clearTimeout(rallyStep1Timer); rallyStep1Timer = null; }
+      if (rallyStep2Timer) { clearTimeout(rallyStep2Timer); rallyStep2Timer = null; }
+      if (rallyStep3Timer) { clearTimeout(rallyStep3Timer); rallyStep3Timer = null; }
+      if (rallyBounceInterval) { clearInterval(rallyBounceInterval); rallyBounceInterval = null; }
+      if (rallyReturnBounceInterval) { clearInterval(rallyReturnBounceInterval); rallyReturnBounceInterval = null; }
       const petSprite = document.getElementById('rally-pet-sprite');
       if (petSprite) {
         petSprite.style.transition = 'left 0.5s ease-out, top 0.5s ease-out';
@@ -10142,10 +10188,6 @@
         petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
       }
       rallyGameState.isAnimating = false;
-      if (rallySafetyTimer) {
-        clearTimeout(rallySafetyTimer);
-        rallySafetyTimer = null;
-      }
       renderRallyBoard();
     }
 
@@ -10342,15 +10384,17 @@
       petSprite.style.top = targetY + 'px';
 
       let bounceCount = 0;
-      const bounceInterval = setInterval(() => {
+      if (rallyBounceInterval) clearInterval(rallyBounceInterval);
+      rallyBounceInterval = setInterval(() => {
         bounceCount++;
         const offsetY = (bounceCount % 2 === 0) ? -8 : 0;
         petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.2)`;
       }, 110);
 
       // 2. Al llegar a la tarjeta (800ms)
-      setTimeout(() => {
-        clearInterval(bounceInterval);
+      if (rallyStep1Timer) clearTimeout(rallyStep1Timer);
+      rallyStep1Timer = setTimeout(() => {
+        if (rallyBounceInterval) { clearInterval(rallyBounceInterval); rallyBounceInterval = null; }
         petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
 
         try {
@@ -10397,21 +10441,24 @@
         }
 
         // 3. Regreso de la mascota a su casa abajo (1500ms después para dar tiempo a escuchar el audio)
-        setTimeout(() => {
+        if (rallyStep2Timer) clearTimeout(rallyStep2Timer);
+        rallyStep2Timer = setTimeout(() => {
           playGameAudioEffect('running');
           petSprite.style.transition = 'left 0.8s ease-in-out, top 0.8s ease-in-out';
           petSprite.style.left = '50%';
           petSprite.style.top = '90%';
 
           let returnBounceCount = 0;
-          const returnBounceInterval = setInterval(() => {
+          if (rallyReturnBounceInterval) clearInterval(rallyReturnBounceInterval);
+          rallyReturnBounceInterval = setInterval(() => {
             returnBounceCount++;
             const offsetY = (returnBounceCount % 2 === 0) ? -8 : 0;
             petSprite.style.transform = `translate(-50%, calc(-50% + ${offsetY}px)) scale(1.1)`;
           }, 110);
 
-          setTimeout(() => {
-            clearInterval(returnBounceInterval);
+          if (rallyStep3Timer) clearTimeout(rallyStep3Timer);
+          rallyStep3Timer = setTimeout(() => {
+            if (rallyReturnBounceInterval) { clearInterval(rallyReturnBounceInterval); rallyReturnBounceInterval = null; }
             petSprite.style.transform = 'translate(-50%, -50%) scale(1)';
             petSprite.style.left = '50%';
             petSprite.style.top = '90%';
