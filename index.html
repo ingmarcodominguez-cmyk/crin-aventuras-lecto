@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v302';
+    const CURRENT_APP_VERSION = 'v303';
 
     function syncAppVersionLabels() {
       try {
@@ -3475,17 +3475,14 @@
     }
     window.getCanonicalSyllablePronunciation = getCanonicalSyllablePronunciation;
 
-// --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (AUDIOS PRE-GRABADOS EN ESTUDIO) ---
+// --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (VOZ UNIFICADA NATURAL) ---
     window.playSyllableSound = function(syl, onEnd) {
       if (!syl) { if (onEnd) onEnd(); return; }
       const canon = (typeof getCanonicalSyllable === 'function')
         ? getCanonicalSyllable(syl)
-        : { pron: syl.charAt(0).toUpperCase() + s.slice(1).toLowerCase(), audio: null };
+        : { pron: syl.charAt(0).toUpperCase() + syl.slice(1).toLowerCase(), audio: null };
 
-      if (canon.audio) {
-        playNarratorAudio(canon.audio, onEnd, canon.pron || syl);
-        return;
-      }
+      // Siempre pronunciar con la voz unificada natural (Google TTS) para máxima coherencia de timbre y tono
       speakText(canon.pron || syl, onEnd);
     };
 
@@ -3515,11 +3512,8 @@
         }, 160);
       };
 
-      if (canon.audio) {
-        playNarratorAudio(canon.audio, scheduleNext, canon.pron || firstSyl);
-      } else {
-        speakText(canon.pron || firstSyl, scheduleNext);
-      }
+      // Emisión fonológica unificada y nítida con voz natural en español
+      speakText(canon.pron || firstSyl, scheduleNext);
     }
 
     function speakLetter(letter, onEndCallback) {
@@ -3529,11 +3523,6 @@
       }
       const clean = removeAccents(letter).toLowerCase().trim();
       const audioToPlay = traditionalLetterMap[clean.toUpperCase()] || clean;
-      if (PRE_RENDERED_LETTERS.has(clean)) {
-        const lFile = (clean === 'ñ') ? 'enie' : clean;
-        playNarratorAudio('assets/audio/letras/' + lFile + '.mp3', onEndCallback, audioToPlay);
-        return;
-      }
       speakText(audioToPlay, onEndCallback);
     }
 
@@ -4242,17 +4231,7 @@
         }
       }
 
-      // Palabras completas pre-grabadas con voz inmutable de la narradora
-      if (PRE_RENDERED_WORDS.has(cleanKey)) {
-        playNarratorAudio('assets/audio/palabras/' + cleanKey + '.mp3', safeCallback);
-        return;
-      }
-
-      // Sílabas individuales pre-grabadas con voz inmutable de la narradora
-      if (PRE_RENDERED_SYLLABLES.has(cleanKey)) {
-        playNarratorAudio('assets/audio/silabas/' + cleanKey + '.mp3', safeCallback);
-        return;
-      }
+      // Toda la locución fluye por el motor natural unificado (sin saltos a archivos pregrabados de voz grave)
       const textToSpeak = cleanPhoneticText(text);
 
       // Si el texto supera 190 caracteres, dividir en oraciones fluidas para evitar el límite de longitud de Google TTS
