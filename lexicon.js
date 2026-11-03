@@ -1755,7 +1755,27 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'ÑA': { pron: 'Ña', audio: 'assets/audio/silabas/nia.mp3' },
   'ÑO': { pron: 'Ño', audio: 'assets/audio/silabas/nio.mp3' },
   'ÑOR': { pron: 'Ñor', audio: 'assets/audio/silabas/nior.mp3' },
-  'ÓN': { pron: 'Ón', audio: 'assets/audio/silabas/on.mp3' }
+  'ÓN': { pron: 'Ón', audio: 'assets/audio/silabas/on.mp3' },
+  'BU': { pron: 'Bu', audio: 'assets/audio/silabas/bu.mp3' },
+  'CHU': { pron: 'Chu', audio: 'assets/audio/silabas/chu.mp3' },
+  'DI': { pron: 'Di', audio: 'assets/audio/silabas/di.mp3' },
+  'DU': { pron: 'Du', audio: 'assets/audio/silabas/du.mp3' },
+  'FU': { pron: 'Fu', audio: 'assets/audio/silabas/fu.mp3' },
+  'GU': { pron: 'Gu', audio: 'assets/audio/silabas/gu.mp3' },
+  'I': { pron: 'I', audio: 'assets/audio/silabas/i.mp3' },
+  'LLE': { pron: 'Lle', audio: 'assets/audio/silabas/lle.mp3' },
+  'LLU': { pron: 'Llu', audio: 'assets/audio/silabas/llu.mp3' },
+  'MU': { pron: 'Mu', audio: 'assets/audio/silabas/mu.mp3' },
+  'QUI': { pron: 'Qui', audio: 'assets/audio/silabas/qui.mp3' },
+  'RU': { pron: 'Ru', audio: 'assets/audio/silabas/ru.mp3' },
+  'SU': { pron: 'Su', audio: 'assets/audio/silabas/su.mp3' },
+  'U': { pron: 'U', audio: 'assets/audio/silabas/u.mp3' },
+  'VI': { pron: 'Vi', audio: 'assets/audio/silabas/vi.mp3' },
+  'VO': { pron: 'Vo', audio: 'assets/audio/silabas/vo.mp3' },
+  'VU': { pron: 'Vu', audio: 'assets/audio/silabas/vu.mp3' },
+  'ZE': { pron: 'Ze', audio: 'assets/audio/silabas/ze.mp3' },
+  'ZI': { pron: 'Zi', audio: 'assets/audio/silabas/zi.mp3' },
+  'ZU': { pron: 'Zu', audio: 'assets/audio/silabas/zu.mp3' }
 };
 if (typeof window !== 'undefined') {
   window.CANONICAL_SYLLABLE_LEXICON = CANONICAL_SYLLABLE_LEXICON;
@@ -1764,11 +1784,23 @@ if (typeof window !== 'undefined') {
 function getCanonicalSyllable(rawSyl) {
   if (!rawSyl) return { pron: '', audio: null };
   const key = rawSyl.toString().trim().toUpperCase().replace(/[^A-ZÁÉÍÓÚÜÑ]/g, '');
-  if (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined' && CANONICAL_SYLLABLE_LEXICON[key]) {
-    return CANONICAL_SYLLABLE_LEXICON[key];
+  if (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') {
+    if (CANONICAL_SYLLABLE_LEXICON[key]) {
+      return CANONICAL_SYLLABLE_LEXICON[key];
+    }
+    const noAccentKey = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (CANONICAL_SYLLABLE_LEXICON[noAccentKey]) {
+      return CANONICAL_SYLLABLE_LEXICON[noAccentKey];
+    }
+  }
+  const noAccent = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (noAccent.length === 1 || noAccent === 'CH' || noAccent === 'LL' || noAccent === 'RR') {
+    const lFile = (key === 'Ñ' || noAccent === 'N' && key.includes('Ñ')) ? 'enie' : noAccent.toLowerCase();
+    const letterPron = (typeof SPANISH_LETTER_NAMES !== 'undefined' && SPANISH_LETTER_NAMES[key]) ? SPANISH_LETTER_NAMES[key] : key;
+    return { pron: letterPron, audio: 'assets/audio/letras/' + lFile + '.mp3' };
   }
   const clean = key.charAt(0) + key.slice(1).toLowerCase();
-  return { pron: clean, audio: 'assets/audio/silabas/' + clean.toLowerCase() + '.mp3' };
+  return { pron: clean, audio: null };
 }
 if (typeof window !== 'undefined') {
   window.getCanonicalSyllable = getCanonicalSyllable;

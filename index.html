@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v301';
+    const CURRENT_APP_VERSION = 'v302';
 
     function syncAppVersionLabels() {
       try {
@@ -83,30 +83,30 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=301"></script>
+  <script src="lexicon.js?v=302"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=301"></script>
+  <script src="archery.js?v=302"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=301"></script>
+  <script src="cauldron.js?v=302"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=301"></script>
+  <script src="fisherman.js?v=302"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=301"></script>
+  <script src="train.js?v=302"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=301"></script>
+  <script src="detective.js?v=302"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=301"></script>
+  <script src="aac_keyboard.js?v=302"></script>
   <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
-  <script src="therapist_guide.js?v=301"></script>
+  <script src="therapist_guide.js?v=302"></script>
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
-  <script src="transformer.js?v=301"></script>
+  <script src="transformer.js?v=302"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="audio_recorder.js?v=301"></script>
-  <script src="slide.js?v=301"></script>
+  <script src="audio_recorder.js?v=302"></script>
+  <script src="slide.js?v=302"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
-  <script src="mirror_lighthouse.js?v=301"></script>
+  <script src="mirror_lighthouse.js?v=302"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
-  <script src="basket.js?v=301"></script>
+  <script src="basket.js?v=302"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -3388,7 +3388,7 @@
 
     let activeSyllableSeqTimer = null;
 
-    function playNarratorAudio(src, onEndCallback) {
+    function playNarratorAudio(src, onEndCallback, fallbackText) {
       stopAllAudio();
       unlockAudioSystem();
 
@@ -3403,11 +3403,8 @@
       }
 
       const thisSession = currentSpeechSessionId;
-      const audioSrc = src + (src.includes("?") ? "&" : "?") + "v=" + encodeURIComponent(CURRENT_APP_VERSION);
-      const audio = getGlobalTtsPlayer();
+      const audio = getNarratorClipPlayer();
       currentHtmlAudio = audio;
-      audio.src = audioSrc;
-      audio.playbackRate = 1.0;
 
       let callbackExecuted = false;
       const safeCallback = () => {
@@ -3423,31 +3420,45 @@
         }
       };
 
+      let fallbackTriggered = false;
+      const triggerTtsFallbackOrEnd = () => {
+        if (thisSession !== currentSpeechSessionId) return;
+        if (fallbackTriggered) return;
+        fallbackTriggered = true;
+        if (activeFallbackTimer) {
+          clearTimeout(activeFallbackTimer);
+          activeFallbackTimer = null;
+        }
+        if (currentHtmlAudio === audio) currentHtmlAudio = null;
+        if (fallbackText) {
+          speakText(fallbackText, onEndCallback);
+        } else {
+          safeCallback();
+        }
+      };
+
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         if (currentHtmlAudio === audio) currentHtmlAudio = null;
         safeCallback();
-      }, 3500);
+      }, 2800);
 
       audio.onended = () => {
         if (thisSession !== currentSpeechSessionId) return;
         if (currentHtmlAudio === audio) currentHtmlAudio = null;
         safeCallback();
       };
-      audio.onerror = (e) => {
-        if (thisSession !== currentSpeechSessionId) return;
-        console.warn('Narrator audio file error, falling back:', e, src);
-        if (currentHtmlAudio === audio) currentHtmlAudio = null;
-        safeCallback();
+      audio.onerror = () => {
+        triggerTtsFallbackOrEnd();
       };
+
+      audio.src = src;
+      audio.playbackRate = 1.0;
 
       const playPromise = audio.play();
       if (playPromise !== undefined) {
-        playPromise.catch(e => {
-          if (thisSession !== currentSpeechSessionId) return;
-          console.warn('Narrator audio play exception:', e);
-          if (currentHtmlAudio === audio) currentHtmlAudio = null;
-          safeCallback();
+        playPromise.catch(() => {
+          triggerTtsFallbackOrEnd();
         });
       }
     }
@@ -3472,10 +3483,10 @@
         : { pron: syl.charAt(0).toUpperCase() + s.slice(1).toLowerCase(), audio: null };
 
       if (canon.audio) {
-        playNarratorAudio(canon.audio, onEnd);
+        playNarratorAudio(canon.audio, onEnd, canon.pron || syl);
         return;
       }
-      speakText(canon.pron, onEnd);
+      speakText(canon.pron || syl, onEnd);
     };
 
     window.playSyllablesSequence = function(sylList, onComplete) {
@@ -3505,9 +3516,9 @@
       };
 
       if (canon.audio) {
-        playNarratorAudio(canon.audio, scheduleNext);
+        playNarratorAudio(canon.audio, scheduleNext, canon.pron || firstSyl);
       } else {
-        speakText(canon.pron, scheduleNext);
+        speakText(canon.pron || firstSyl, scheduleNext);
       }
     }
 
@@ -3517,12 +3528,12 @@
         return;
       }
       const clean = removeAccents(letter).toLowerCase().trim();
+      const audioToPlay = traditionalLetterMap[clean.toUpperCase()] || clean;
       if (PRE_RENDERED_LETTERS.has(clean)) {
         const lFile = (clean === 'ñ') ? 'enie' : clean;
-        playNarratorAudio('assets/audio/letras/' + lFile + '.mp3', onEndCallback);
+        playNarratorAudio('assets/audio/letras/' + lFile + '.mp3', onEndCallback, audioToPlay);
         return;
       }
-      const audioToPlay = traditionalLetterMap[clean.toUpperCase()] || clean;
       speakText(audioToPlay, onEndCallback);
     }
 
@@ -3741,6 +3752,7 @@
     }
     let audioUnlocked = false;
     let globalTtsPlayer = null;
+    let narratorClipPlayer = null;
 
     function getGlobalTtsPlayer() {
       if (!globalTtsPlayer) {
@@ -3756,6 +3768,18 @@
       return globalTtsPlayer;
     }
 
+    function getNarratorClipPlayer() {
+      if (!narratorClipPlayer) {
+        narratorClipPlayer = document.getElementById('narrator-clip-player');
+        if (!narratorClipPlayer) {
+          narratorClipPlayer = new Audio();
+          narratorClipPlayer.id = 'narrator-clip-player';
+          document.body.appendChild(narratorClipPlayer);
+        }
+      }
+      return narratorClipPlayer;
+    }
+
     // Desbloquear audio en el primer clic o toque del usuario (Requisito de Seguridad de Chrome/Windows)
     function unlockAudioSystem() {
       try { const pctx = getPhonemeAudioCtx(); if (pctx && pctx.state === 'suspended') pctx.resume().catch(()=>{}); } catch(e) {}
@@ -3763,16 +3787,17 @@
       if (audioUnlocked) return;
       audioUnlocked = true;
 
-      const player = getGlobalTtsPlayer();
-      if (player) {
-        try {
-          player.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
-          const p = player.play();
-          if (p !== undefined) {
-            p.then(() => { player.pause(); }).catch(e => {});
-          }
-        } catch(e) {}
-      }
+      [getGlobalTtsPlayer(), getNarratorClipPlayer()].forEach(player => {
+        if (player) {
+          try {
+            player.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
+            const p = player.play();
+            if (p !== undefined) {
+              p.then(() => { player.pause(); }).catch(e => {});
+            }
+          } catch(e) {}
+        }
+      });
 
       if ('speechSynthesis' in window) {
         try {
@@ -4570,25 +4595,25 @@
         }
 
         if (mode === 'story') {
-          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 9500);
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 16000);
           playStoryChapterNarration(targetItem, () => {
             clearQuestStartupTimers();
-            forceUnlockStoryPuzzle();
+            unlockStoryPuzzle();
           });
         } else if (mode === 'homework') {
-          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 6500);
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 8000);
           playHomeworkSentenceNarration(targetItem, () => {
             clearQuestStartupTimers();
             forceUnlockStoryPuzzle();
           });
         } else if (mode === 'syllable' && targetItem.syllables) {
-          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 3800);
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 4500);
           speakText(targetItem.syllables.join(', '), () => {
             clearQuestStartupTimers();
             forceUnlockStoryPuzzle();
           });
         } else if (targetItem.word) {
-          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 2800);
+          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 3500);
           speakText(targetItem.word, () => {
             clearQuestStartupTimers();
             forceUnlockStoryPuzzle();
@@ -4598,7 +4623,7 @@
         }
       };
 
-      questWelcomeBackupTimer = setTimeout(runInitialQuestWordNarration, 3800);
+      questWelcomeBackupTimer = setTimeout(runInitialQuestWordNarration, 5500);
       speakText(welcomeText, runInitialQuestWordNarration);
     }
 
@@ -5165,18 +5190,20 @@
         const isComplete = !currentSlots.includes('');
         if (isComplete) {
           let checked = false;
+          let backupTimer = null;
           const doCheck = () => {
             if (!checked) {
               checked = true;
-              checkSyllables();
+              if (backupTimer) clearTimeout(backupTimer);
+              setTimeout(() => checkSyllables(), 250);
             }
           };
+          backupTimer = setTimeout(doCheck, 2400);
           if (typeof window.playSyllableSound === 'function') {
             window.playSyllableSound(syllable, doCheck);
           } else {
             speakText(syllable, doCheck);
           }
-          setTimeout(doCheck, 700);
         } else {
           if (typeof window.playSyllableSound === 'function') {
             window.playSyllableSound(syllable);
@@ -5223,14 +5250,16 @@
         const isComplete = !currentSlots.includes('');
         if (isComplete) {
           let checked = false;
+          let backupTimer = null;
           const doCheck = () => {
             if (!checked) {
               checked = true;
-              checkWord();
+              if (backupTimer) clearTimeout(backupTimer);
+              setTimeout(() => checkWord(), 250);
             }
           };
+          backupTimer = setTimeout(doCheck, 2400);
           speakLetter(letter, doCheck);
-          setTimeout(doCheck, 700);
         } else {
           speakLetter(letter);
         }
@@ -11517,7 +11546,9 @@
           if (stage3D.objectZ <= stage3D.targetZ + 0.01) {
             stage3D.objectZ = stage3D.targetZ;
             stage3D.isWalking = false;
-            unlockStoryPuzzle();
+            if (!window.isAppSpeaking && !isNarratingLock) {
+              unlockStoryPuzzle();
+            }
           }
         }
 
