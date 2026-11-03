@@ -513,6 +513,24 @@
 
     updateFishermanHUD();
 
+    // Pre-cargar inmediatamente las imágenes y locuciones de esta palabra y la siguiente
+    try {
+      if (wObj.image) getCachedImage(wObj.image);
+      if (typeof window.preloadTtsAudio === 'function') {
+        window.preloadTtsAudio(wObj.pron || wObj.word);
+        if (wObj.silabas) wObj.silabas.forEach(s => window.preloadTtsAudio(s));
+        window.preloadTtsAudio('¡Súper, tarea lograda!');
+      }
+      const nextW = FishermanGame.wordList[(index + 1) % FishermanGame.wordList.length];
+      if (nextW) {
+        if (nextW.image) getCachedImage(nextW.image);
+        if (typeof window.preloadTtsAudio === 'function') {
+          window.preloadTtsAudio(`¡Muy bien! Ahora vamos a formar la palabra: ${nextW.pron || nextW.word}`);
+          window.preloadTtsAudio(nextW.pron || nextW.word);
+        }
+      }
+    } catch(e) {}
+
     // Locución de la misión inmediata al aparecer las sílabas
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = setTimeout(() => {

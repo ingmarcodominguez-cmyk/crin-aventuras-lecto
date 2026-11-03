@@ -155,6 +155,16 @@
     BasketGame.cases = shuffled.slice(0, 5);
     BasketGame.currentCaseIndex = 0;
 
+    // Pre-cargar inmediatamente las imágenes y locuciones de las 5 canastas
+    try {
+      BasketGame.cases.forEach(bc => {
+        if (bc.items) bc.items.forEach(it => getCachedImg(it.image));
+        if (typeof window.preloadTtsAudio === 'function' && bc.promptText) {
+          window.preloadTtsAudio(bc.promptText);
+        }
+      });
+    } catch(e) {}
+
     setupBasketEventListeners();
     resizeBasketCanvas();
     setupBasketCase(0);
@@ -172,10 +182,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    BasketGame.canvas.width = w * dpr;
-    BasketGame.canvas.height = h * dpr;
-    BasketGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    BasketGame.canvas.width = w;
+    BasketGame.canvas.height = h;
+    BasketGame.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     BasketGame.width = w;
     BasketGame.height = h;
@@ -214,7 +223,7 @@
     if (BasketGame.voiceTimeout) clearTimeout(BasketGame.voiceTimeout);
     BasketGame.voiceTimeout = setTimeout(() => {
       speakBasketPrompt();
-    }, 350);
+    }, 50);
   }
 
   function repositionBasketCards() {

@@ -4,13 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
+  <link rel="preconnect" href="https://translate.google.com" crossorigin />
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v298';
+    const CURRENT_APP_VERSION = 'v299';
 
     function syncAppVersionLabels() {
       try {
@@ -38,30 +36,11 @@
           });
         }
         sessionStorage.clear();
+        localStorage.setItem('crin_loaded_app_ver', targetVer || CURRENT_APP_VERSION);
       } catch(e) {}
       const cleanVer = (targetVer || CURRENT_APP_VERSION).replace('v', '');
       window.location.href = window.location.pathname + '?v=' + cleanVer + '&_nocache=' + Date.now();
       return;
-    }
-    function _unusedOldForceUpdate() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) { registration.unregister(); }
-        });
-      }
-      try {
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            for (let name of names) caches.delete(name);
-          });
-        }
-        localStorage.removeItem('crin_custom_emoji_map');
-        localStorage.removeItem('crin_custom_rally_drawings');
-      } catch(e) {}
-      const u = new URL(window.location.href);
-      u.searchParams.set('v', CURRENT_APP_VERSION.replace('v', ''));
-      u.searchParams.set('_b', Date.now());
-      window.location.replace(u.toString());
     }
 
     if ('serviceWorker' in navigator) {
@@ -69,13 +48,6 @@
         for(let registration of registrations) { registration.unregister(); }
       });
     }
-    try {
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) caches.delete(name);
-        });
-      }
-    } catch(e) {}
 
     // Detección automática en segundo plano de nueva versión en el servidor para forzar actualización
     (function checkRemoteVersion() {
@@ -95,44 +67,48 @@
     try {
       const urlParams = new URLSearchParams(window.location.search);
       const urlVer = urlParams.get('v');
-      const hasBust = urlParams.has('_b');
+      const hasNoCache = urlParams.has('_nocache') || urlParams.has('_b');
       const currentCleanVer = CURRENT_APP_VERSION.replace('v', '');
-      if ((!urlVer || (urlVer !== currentCleanVer && urlVer !== CURRENT_APP_VERSION)) && !hasBust) {
-        forceAppUpdate();
-      } else if (hasBust || urlVer) {
-        try {
-          window.history.replaceState({}, document.title, window.location.pathname);
-        } catch(err) {}
+      const lastLoadedVer = localStorage.getItem('crin_loaded_app_ver');
+      if (lastLoadedVer !== CURRENT_APP_VERSION && (!urlVer || (urlVer !== currentCleanVer && urlVer !== CURRENT_APP_VERSION)) && !hasNoCache) {
+        forceAppUpdate(CURRENT_APP_VERSION);
+      } else {
+        localStorage.setItem('crin_loaded_app_ver', CURRENT_APP_VERSION);
+        if (hasNoCache || urlVer) {
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch(err) {}
+        }
       }
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=283"></script>
+  <script src="lexicon.js?v=299"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=298"></script>
+  <script src="archery.js?v=299"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=283"></script>
+  <script src="cauldron.js?v=299"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=298"></script>
+  <script src="fisherman.js?v=299"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=298"></script>
+  <script src="train.js?v=299"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=283"></script>
+  <script src="detective.js?v=299"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
-  <script src="aac_keyboard.js?v=283"></script>
+  <script src="aac_keyboard.js?v=299"></script>
   <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
-  <script src="therapist_guide.js?v=286"></script>
+  <script src="therapist_guide.js?v=299"></script>
   <!-- 🪄 MÓDULO PSICOPEDAGÓGICO 6: LA MÁQUINA DE TRANSFORMAR PALABRAS (Elisión y Manipulación Fonémica) -->
-  <script src="transformer.js?v=291?v=286"></script>
+  <script src="transformer.js?v=299"></script>
   <!-- 🚀 MÓDULO PSICOPEDAGÓGICO 7: EL TOBOGÁN DE FUSIÓN SUAVE (Continuous Blending) -->
-  <script src="audio_recorder.js?v=294"></script>
-  <script src="slide.js?v=294"></script>
+  <script src="audio_recorder.js?v=299"></script>
+  <script src="slide.js?v=299"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 8: EL FARO DEL ESPEJO (Inhibición de Simetría b/d/p/q) -->
-  <script src="mirror_lighthouse.js?v=286"></script>
+  <script src="mirror_lighthouse.js?v=299"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
-  <script src="basket.js?v=286"></script>
+  <script src="basket.js?v=299"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
-  <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+  <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
   <style>
     :root {
@@ -3822,17 +3798,17 @@
       }
 
       if (spanishVoices.length > 0) {
-        // Priorizar voces locales instaladas en el sistema (localService === true) para latencia 0ms y sin bloqueos de red
-        const localSpanishVoices = spanishVoices.filter(v => v.localService);
-        const pool = localSpanishVoices.length > 0 ? localSpanishVoices : spanishVoices;
-
-        const preferredVoice = pool.find(v => {
+        // Priorizar voces femeninas naturales (Google español / Natural / Paulina / Dalia)
+        const preferredVoice = spanishVoices.find(v => {
           const name = v.name.toLowerCase();
-          return name.includes('sabina') || name.includes('helena') || name.includes('paloma') || name.includes('dalia') || name.includes('sofia') || name.includes('laura') || name.includes('paulina') || name.includes('monica') || name.includes('natural');
-        }) || pool.find(v => {
+          return name.includes('google español de estados unidos') || name.includes('google español') || name.includes('natural') || name.includes('dalia') || name.includes('paloma') || name.includes('paulina');
+        }) || spanishVoices.find(v => {
+          const name = v.name.toLowerCase();
+          return name.includes('sofia') || name.includes('laura') || name.includes('monica') || name.includes('sabina') || name.includes('helena');
+        }) || spanishVoices.find(v => {
           const name = v.name.toLowerCase();
           return !name.includes('pablo') && !name.includes('raul');
-        }) || pool[0];
+        }) || spanishVoices[0];
 
         cachedSpanishVoice = preferredVoice;
       }
@@ -4073,25 +4049,64 @@
       if (document.hidden) stopAllAudio();
     });
 
+    // --- PRE-BUFFER EN MEMORIA PARA VOZ NATURAL INSTANTÁNEA (0ms LATENCIA DE RED) ---
+    const ttsPreloadCache = new Map();
+    window.preloadTtsAudio = function(rawText) {
+      try {
+        if (!rawText) return;
+        const rawStr = rawText.toString().trim();
+        const cleanKey = rawStr.toLowerCase().replace(/[¡!¿?.,]/g, '').trim();
+        if (PRE_RENDERED_WORDS.has(cleanKey) || PRE_RENDERED_SYLLABLES.has(cleanKey)) {
+          const url = PRE_RENDERED_WORDS.has(cleanKey)
+            ? ('assets/audio/palabras/' + cleanKey + '.mp3')
+            : ('assets/audio/silabas/' + cleanKey + '.mp3');
+          if (!ttsPreloadCache.has(url)) {
+            const a = new Audio();
+            a.preload = 'auto';
+            a.src = url;
+            a.load();
+            ttsPreloadCache.set(url, a);
+          }
+          return;
+        }
+        const textToSpeak = cleanPhoneticText(rawText);
+        if (!textToSpeak || textToSpeak.length > 190) return;
+        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
+        if (!ttsPreloadCache.has(audioUrl)) {
+          if (ttsPreloadCache.size > 45) {
+            const firstKey = ttsPreloadCache.keys().next().value;
+            ttsPreloadCache.delete(firstKey);
+          }
+          const a = new Audio();
+          a.referrerPolicy = 'no-referrer';
+          a.setAttribute('referrerpolicy', 'no-referrer');
+          a.preload = 'auto';
+          a.src = audioUrl;
+          a.load();
+          ttsPreloadCache.set(audioUrl, a);
+        }
+      } catch(e) {}
+    };
+
     // --- REPRODUCTOR DE TEXTOS LARGOS EN FRAGMENTOS NATURALES (Previene límite HTTP 400 de Google TTS) ---
     function playLongTextInChunks(fullText, onComplete, sessionId) {
-      const parts = fullText.split(/([.!?:;,]+)/);
+      const parts = fullText.split(/([.!?]+)/);
       const chunks = [];
       let current = '';
 
       for (let part of parts) {
         if (!part) continue;
-        if ((current + part).length <= 75) {
+        if ((current + part).length <= 175) {
           current += part;
         } else {
           if (current.trim()) chunks.push(current.trim());
-          if (part.length <= 75) {
+          if (part.length <= 175) {
             current = part.trim();
           } else {
             const words = part.split(' ');
             let sub = '';
             for (let w of words) {
-              if ((sub + ' ' + w).trim().length <= 75) {
+              if ((sub + ' ' + w).trim().length <= 175) {
                 sub = (sub + ' ' + w).trim();
               } else {
                 if (sub.trim()) chunks.push(sub.trim());
@@ -4109,6 +4124,11 @@
         return;
       }
 
+      // Pre-cargar todos los fragmentos en paralelo para transición instantánea
+      chunks.forEach(c => {
+        try { window.preloadTtsAudio(c); } catch(e) {}
+      });
+
       let chunkIdx = 0;
       function playNextChunk() {
         if (sessionId !== currentSpeechSessionId) return;
@@ -4122,7 +4142,7 @@
 
         playSingleChunkTts(chunkText, () => {
           if (sessionId !== currentSpeechSessionId) return;
-          setTimeout(playNextChunk, 100);
+          setTimeout(playNextChunk, 40);
         }, sessionId);
       }
 
@@ -4138,15 +4158,25 @@
         if (sessionId === currentSpeechSessionId && chunkDoneCallback) chunkDoneCallback();
       };
 
-      const durationEst = Math.max(chunkText.length * 150 + 4000, 6000);
+      const durationEst = Math.max(chunkText.length * 110 + 3000, 4500);
       const timer = setTimeout(done, durationEst);
 
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=es&client=tw-ob`;
-        const audio = getGlobalTtsPlayer();
+        let audio = null;
+        if (ttsPreloadCache.has(audioUrl)) {
+          const cached = ttsPreloadCache.get(audioUrl);
+          ttsPreloadCache.delete(audioUrl);
+          if (cached && cached.readyState >= 2) {
+            audio = cached;
+          }
+        }
+        if (!audio) {
+          audio = getGlobalTtsPlayer();
+          audio.src = audioUrl;
+        }
         currentHtmlAudio = audio;
-        audio.src = audioUrl;
-        audio.playbackRate = 0.95;
+        audio.playbackRate = 0.96;
 
         audio.onended = function() {
           clearTimeout(timer);
@@ -4218,9 +4248,9 @@
       }
       const textToSpeak = cleanPhoneticText(text);
 
-      // Si el texto supera 80 caracteres, dividir en oraciones fluidas para evitar el límite HTTP 400 de Google TTS
-      if (textToSpeak.length > 80) {
-        const durationEst = Math.max(textToSpeak.length * 200 + 8000, 15000);
+      // Si el texto supera 190 caracteres, dividir en oraciones fluidas para evitar el límite de longitud de Google TTS
+      if (textToSpeak.length > 190) {
+        const durationEst = Math.max(textToSpeak.length * 130 + 6000, 12000);
         activeFallbackTimer = setTimeout(() => {
           activeFallbackTimer = null;
           safeCallback();
@@ -4235,30 +4265,31 @@
         setTimeout(() => pictoCard.classList.remove('speaking'), 600);
       }
 
-      const durationEst = Math.min(Math.max(textToSpeak.length * 95 + 1200, 2000), 6500);
+      const durationEst = Math.min(Math.max(textToSpeak.length * 95 + 1800, 2600), 8500);
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         safeCallback();
       }, durationEst);
 
-      // Si el navegador tiene voces nativas en español instaladas (WebSpeech local), usarlas directamente con latencia 0ms
-      if ('speechSynthesis' in window) {
-        if (!cachedSpanishVoice) initVoices();
-        if (cachedSpanishVoice || window._googleTtsBlocked) {
-          fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
-          return;
-        }
-      }
-
       let speechStarted = false;
 
-      // Respaldo Google TTS CDN si el dispositivo no reporta voces locales
+      // OPCIÓN 1: Voz original natural de alta fidelidad (Google TTS CDN con pre-buffer en memoria)
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
-        const audio = getGlobalTtsPlayer();
+        let audio = null;
+        if (ttsPreloadCache.has(audioUrl)) {
+          const cached = ttsPreloadCache.get(audioUrl);
+          ttsPreloadCache.delete(audioUrl);
+          if (cached && cached.readyState >= 2) {
+            audio = cached;
+          }
+        }
+        if (!audio) {
+          audio = getGlobalTtsPlayer();
+          audio.src = audioUrl;
+        }
         currentHtmlAudio = audio;
-        audio.src = audioUrl;
-        audio.playbackRate = 0.95;
+        audio.playbackRate = 0.96;
 
         audio.onended = function() {
           if (thisSession !== currentSpeechSessionId) return;
@@ -4269,7 +4300,6 @@
 
         audio.onerror = function() {
           if (thisSession !== currentSpeechSessionId) return;
-          window._googleTtsBlocked = true;
           if (!speechStarted) {
             speechStarted = true;
             currentHtmlAudio = null;
@@ -4287,7 +4317,6 @@
             speechStarted = true;
           }).catch(err => {
             if (thisSession !== currentSpeechSessionId) return;
-            window._googleTtsBlocked = true;
             if (!speechStarted) {
               speechStarted = true;
               currentHtmlAudio = null;
@@ -4298,7 +4327,6 @@
         return;
       } catch(e) {
         if (thisSession !== currentSpeechSessionId) return;
-        window._googleTtsBlocked = true;
         if (!speechStarted) {
           speechStarted = true;
           fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
@@ -4309,70 +4337,12 @@
     function fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession) {
       if (thisSession !== currentSpeechSessionId) return;
 
-      // 1. PRIORIDAD ABSOLUTA: Voz local WebSpeech API (Latencia 0ms, sin demora de red externa)
-      if ('speechSynthesis' in window) {
-        try {
-          if (!cachedSpanishVoice) initVoices();
-          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-
-          const utterance = new SpeechSynthesisUtterance(textToSpeak);
-          window._activeSpeechUtterance = utterance; // Referencia global para evitar Garbage Collection prematuro en Chrome
-          utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
-          if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
-          utterance.rate = 0.90;
-          utterance.pitch = 1.05;
-
-          let hasStartedSpeaking = false;
-          const finishSpeech = () => {
-            if (thisSession !== currentSpeechSessionId) return;
-            if (activeSpeechWatchInterval) {
-              clearInterval(activeSpeechWatchInterval);
-              activeSpeechWatchInterval = null;
-            }
-            if (activeFallbackTimer) {
-              clearTimeout(activeFallbackTimer);
-              activeFallbackTimer = null;
-            }
-            window._activeSpeechUtterance = null;
-            safeCallback();
-          };
-
-          utterance.onstart = function() {
-            hasStartedSpeaking = true;
-          };
-          utterance.onend = finishSpeech;
-          utterance.onerror = finishSpeech;
-
-          window.speechSynthesis.speak(utterance);
-
-          // Monitor de estado cada 60ms por si el navegador omite el evento onend al terminar de hablar
-          const startWaitTime = Date.now();
-          const minDurationMs = Math.min(Math.max(textToSpeak.length * 55, 650), 2800);
-          if (activeSpeechWatchInterval) clearInterval(activeSpeechWatchInterval);
-          activeSpeechWatchInterval = setInterval(() => {
-            if (thisSession !== currentSpeechSessionId) {
-              clearInterval(activeSpeechWatchInterval);
-              activeSpeechWatchInterval = null;
-              return;
-            }
-            if (window.speechSynthesis.speaking) {
-              hasStartedSpeaking = true;
-            } else if (hasStartedSpeaking && !window.speechSynthesis.pending) {
-              finishSpeech();
-            } else if (!hasStartedSpeaking && (Date.now() - startWaitTime) > minDurationMs) {
-              finishSpeech();
-            }
-          }, 60);
-          return;
-        } catch (e) {}
-      }
-
-      // 2. Respaldo ResponsiveVoice solo si el navegador no soporta WebSpeech
+      // 1. Respaldo ResponsiveVoice (Voz femenina latinoamericana cálida)
       if (typeof responsiveVoice !== 'undefined' && responsiveVoice.speak) {
         try {
           responsiveVoice.cancel();
           responsiveVoice.speak(textToSpeak, "Spanish Latin American Female", {
-            rate: 0.90,
+            rate: 0.92,
             pitch: 1.0,
             onend: function() {
               if (thisSession !== currentSpeechSessionId) return;
@@ -4382,6 +4352,37 @@
           });
           return;
         } catch(e) {}
+      }
+
+      // 2. Respaldo WebSpeech API solo si no hay conexión a Internet
+      if ('speechSynthesis' in window) {
+        try {
+          if (!cachedSpanishVoice) initVoices();
+          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+          const utterance = new SpeechSynthesisUtterance(textToSpeak);
+          window._activeSpeechUtterance = utterance;
+          utterance.lang = (cachedSpanishVoice && cachedSpanishVoice.lang) ? cachedSpanishVoice.lang : 'es-AR';
+          if (cachedSpanishVoice) utterance.voice = cachedSpanishVoice;
+          utterance.rate = 0.90;
+          utterance.pitch = 1.05;
+
+          const finishSpeech = () => {
+            if (thisSession !== currentSpeechSessionId) return;
+            if (activeFallbackTimer) {
+              clearTimeout(activeFallbackTimer);
+              activeFallbackTimer = null;
+            }
+            window._activeSpeechUtterance = null;
+            safeCallback();
+          };
+
+          utterance.onend = finishSpeech;
+          utterance.onerror = finishSpeech;
+
+          window.speechSynthesis.speak(utterance);
+          return;
+        } catch (e) {}
       }
 
       safeCallback();
@@ -4534,6 +4535,32 @@
         if (stage2dEmoji) stage2dEmoji.innerText = '🌟';
         if (storyBanner) storyBanner.style.display = 'none';
       }
+
+      // Pre-cargar las imágenes y locuciones de las palabras de esta misión mientras suena el saludo
+      try {
+        const ds = gameDatasets[mode] || [];
+        ds.forEach(item => {
+          if (item && item.word) {
+            const em = getEmojiForWord(item.word);
+            if (em && isImageSource(em)) {
+              const pImg = new Image();
+              pImg.src = em;
+            }
+            if (typeof window.preloadTtsAudio === 'function') {
+              if (mode === 'story' && item.narration) {
+                const currentName = getStudentFirstName();
+                const textToNarrate = formatTextWithStudentName(item.narration);
+                const questionPrompt = (item.word && !item.isCastleChapter) ? `¡${currentName} encontró ${item.word.toLowerCase()}! ¿Cómo se escribe?` : '';
+                window.preloadTtsAudio((textToNarrate + (questionPrompt ? `. ${questionPrompt}` : '')).trim());
+              } else if (mode === 'homework' && item.sentence) {
+                window.preloadTtsAudio(formatTextWithStudentName(item.sentence.replace('___', item.word || '')));
+              } else {
+                window.preloadTtsAudio(item.word);
+              }
+            }
+          }
+        });
+      } catch(e) {}
 
       // 1. Decir la bienvenida ("¡Bienvenido al Bosque de las Letras! ¡Comencemos!")
       // 2. Y RECIÉN ALLÍ arrancar con la imagen y el relato de la palabra para que el niño escriba
@@ -9867,10 +9894,9 @@
       loadCustomRallyDrawings();
       if (letter) rallyGameState.targetLetter = letter.toUpperCase();
       switchScreen('pet-rally');
-      setupRallyGameBoard();
-      speakText("¡Bienvenido a la Carrera de la Mascota! ¡Comencemos!", () => {
-        speakRallyConsigna();
-      });
+      setupRallyGameBoard(true);
+      const childName = getStudentFirstName();
+      speakText(`¡Bienvenido a la Carrera de la Mascota! Atención ${childName}, mueve a tu mascota hasta los dibujos que tengan la letra ${rallyGameState.targetLetter}.`);
     }
 
     function launchRallyFromTherapist() {
@@ -9881,7 +9907,7 @@
 
     function changeRallyTargetLetter(letter) {
       rallyGameState.targetLetter = letter.toUpperCase();
-      setupRallyGameBoard();
+      setupRallyGameBoard(false);
     }
 
     function speakRallyConsigna() {
@@ -9947,7 +9973,7 @@
       alert(`✅ ¡Dibujo agregado con éxito!\n\nPalabra: ${wordVal}\nDibujo: ${emojiVal}`);
     }
 
-    function setupRallyGameBoard() {
+    function setupRallyGameBoard(skipInitialSpeech) {
       loadCustomRallyDrawings();
       rallyGameState.currentBatch = 0;
       const targetL = rallyGameState.targetLetter;
@@ -10003,14 +10029,28 @@
         found: false
       }));
 
+      // Pre-cargar las 10 imágenes del tablero y las frases de las tandas siguientes en memoria
+      rallyGameState.items.forEach(item => {
+        const em = getEmojiForWord(item.word) || item.emoji;
+        if (em && isImageSource(em)) {
+          const preImg = new Image();
+          preImg.src = em;
+        }
+      });
+      if (typeof window.preloadTtsAudio === 'function') {
+        window.preloadTtsAudio(`Tanda 2. Busca los dibujos que tengan la letra ${targetL}.`);
+        window.preloadTtsAudio(`Tanda 3. Busca los dibujos que tengan la letra ${targetL}.`);
+      }
+
       rallyGameState.totalTargetCount = selectedTargets.length;
       rallyGameState.foundCount = 0;
       rallyGameState.isAnimating = false;
       isRallyVictoryTriggered = false;
 
       renderRallyBoard();
-      speakRallyConsigna();
-      updateTherapistRallyPreview(targetL);
+      if (!skipInitialSpeech) {
+        speakRallyConsigna();
+      }
     }
 
     function hasLetter(word, letter) {
@@ -10022,9 +10062,9 @@
 
     function playGameAudioEffect(type) {
       try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
+        const ctx = getPhonemeAudioCtx();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
         
         if (type === 'running') {
           const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 523.25, 659.25, 783.99];

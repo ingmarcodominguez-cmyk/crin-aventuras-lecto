@@ -459,10 +459,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    SlideGame.canvas.width = w * dpr;
-    SlideGame.canvas.height = h * dpr;
-    SlideGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    SlideGame.canvas.width = w;
+    SlideGame.canvas.height = h;
+    SlideGame.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     SlideGame.width = w;
     SlideGame.height = h;
@@ -506,13 +505,35 @@
       shake: 0
     }));
 
+    // Pre-cargar inmediatamente las imágenes de las cartas y los sonidos de esta palabra y la siguiente
+    try {
+      SlideGame.cards.forEach(card => getCachedImg(card.image));
+      if (c.syllables) {
+        c.syllables.forEach(syl => {
+          const a = new Audio();
+          a.preload = 'auto';
+          a.src = sylToAudioPath(syl);
+        });
+      }
+      if (typeof window.preloadTtsAudio === 'function') {
+        window.preloadTtsAudio(`¡${c.word}!`);
+        window.preloadTtsAudio(`¿Cuál de estas imágenes es ${c.pron}?`);
+        window.preloadTtsAudio('¡Siguiente palabra! Toca el cohete.');
+      }
+      const nextC = SlideGame.cases[(index + 1) % SlideGame.cases.length];
+      if (nextC) {
+        getCachedImg(nextC.image);
+        if (nextC.distractors) nextC.distractors.forEach(d => getCachedImg(d.image));
+      }
+    } catch(e) {}
+
     repositionSlideCards();
     updateSlideHUD();
 
     if (SlideGame.voiceTimeout) clearTimeout(SlideGame.voiceTimeout);
     SlideGame.voiceTimeout = setTimeout(() => {
       speakSlideIntro();
-    }, 400);
+    }, 50);
   }
 
   function repositionSlideCards() {

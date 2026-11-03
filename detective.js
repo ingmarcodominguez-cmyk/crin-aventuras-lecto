@@ -280,10 +280,10 @@
       }
     } catch(e) {}
     const map = {
-      '🦄': 'assets/card_unicornio_arquero.png?v=250',
-      '🦊': 'assets/card_zorro_arquero.png?v=250',
-      '🐰': 'assets/card_conejo_arquero.png?v=250',
-      '🐶': 'assets/card_perro_arquero.png?v=250'
+      '🦄': 'assets/card_unicornio_arquero.png?v=296',
+      '🦊': 'assets/card_zorro_arquero.png?v=296',
+      '🐰': 'assets/card_conejo_arquero.png?v=296',
+      '🐶': 'assets/card_perro_arquero.png?v=296'
     };
     return map[pet] || map['🦄'];
   }
@@ -345,6 +345,18 @@
       target: Math.random() < 0.5 ? 'A' : 'B'
     }));
 
+    // Pre-cargar inmediatamente todas las imágenes y locuciones de los 6 casos
+    try {
+      DetectiveGame.cases.forEach(dc => {
+        if (dc.optionA) getCachedImage(dc.optionA.image);
+        if (dc.optionB) getCachedImage(dc.optionB.image);
+        const tObj = (dc.target === 'A') ? dc.optionA : dc.optionB;
+        if (typeof window.preloadTtsAudio === 'function' && tObj) {
+          window.preloadTtsAudio(`Encuentra la palabra ${tObj.pron}.`);
+        }
+      });
+    } catch(e) {}
+
     setupDetectiveEventListeners();
     resizeDetectiveCanvas();
 
@@ -364,10 +376,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    DetectiveGame.canvas.width = w * dpr;
-    DetectiveGame.canvas.height = h * dpr;
-    DetectiveGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    DetectiveGame.canvas.width = w;
+    DetectiveGame.canvas.height = h;
+    DetectiveGame.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     DetectiveGame.width = w;
     DetectiveGame.height = h;
@@ -423,7 +434,7 @@
     if (DetectiveGame.voiceTimeout) clearTimeout(DetectiveGame.voiceTimeout);
     DetectiveGame.voiceTimeout = setTimeout(() => {
       speakCurrentDetectiveClue();
-    }, 450);
+    }, 50);
   }
 
   function repositionDetectiveCards() {

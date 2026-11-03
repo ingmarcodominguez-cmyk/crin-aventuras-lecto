@@ -208,6 +208,18 @@
     TransformerGame.cases = shuffled.slice(0, 5);
     TransformerGame.currentCaseIndex = 0;
 
+    // Pre-cargar inmediatamente todas las imágenes y locuciones de las 5 misiones
+    try {
+      TransformerGame.cases.forEach(tc => {
+        if (tc.base) getCachedImg(tc.base.image);
+        if (tc.target) getCachedImg(tc.target.image);
+        if (tc.distractors) tc.distractors.forEach(d => getCachedImg(d.image));
+        if (typeof window.preloadTtsAudio === 'function' && tc.promptText) {
+          window.preloadTtsAudio(tc.promptText);
+        }
+      });
+    } catch(e) {}
+
     setupTransformerEventListeners();
     resizeTransformerCanvas();
     setupTransformerCase(0);
@@ -225,10 +237,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    TransformerGame.canvas.width = w * dpr;
-    TransformerGame.canvas.height = h * dpr;
-    TransformerGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    TransformerGame.canvas.width = w;
+    TransformerGame.canvas.height = h;
+    TransformerGame.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     TransformerGame.width = w;
     TransformerGame.height = h;
@@ -271,7 +282,7 @@
     if (TransformerGame.voiceTimeout) clearTimeout(TransformerGame.voiceTimeout);
     TransformerGame.voiceTimeout = setTimeout(() => {
       speakTransformerMission();
-    }, 350);
+    }, 50);
   }
 
   function repositionTransformerCards() {

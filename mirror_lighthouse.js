@@ -138,6 +138,16 @@
     MirrorGame.cases = shuffled.slice(0, 5);
     MirrorGame.currentCaseIndex = 0;
 
+    // Pre-cargar inmediatamente todas las imágenes y locuciones de la sesión
+    try {
+      MirrorGame.cases.forEach(mc => {
+        getCachedImg(mc.targetImage);
+        if (typeof window.preloadTtsAudio === 'function' && mc.promptText) {
+          window.preloadTtsAudio(mc.promptText);
+        }
+      });
+    } catch(e) {}
+
     setupMirrorEventListeners();
     resizeMirrorCanvas();
     setupMirrorCase(0);
@@ -155,10 +165,9 @@
     const w = Math.max(320, Math.floor(rect.width) || window.innerWidth || 800);
     const h = Math.max(360, Math.floor(rect.height) || (window.innerHeight - 170) || 520);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    MirrorGame.canvas.width = w * dpr;
-    MirrorGame.canvas.height = h * dpr;
-    MirrorGame.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    MirrorGame.canvas.width = w;
+    MirrorGame.canvas.height = h;
+    MirrorGame.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     MirrorGame.width = w;
     MirrorGame.height = h;
@@ -199,7 +208,7 @@
     if (MirrorGame.voiceTimeout) clearTimeout(MirrorGame.voiceTimeout);
     MirrorGame.voiceTimeout = setTimeout(() => {
       speakMirrorPrompt();
-    }, 350);
+    }, 50);
   }
 
   function repositionMirrorBoats() {

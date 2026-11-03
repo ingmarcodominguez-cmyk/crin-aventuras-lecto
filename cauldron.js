@@ -303,10 +303,10 @@
   function getCauldronHeroCardImg() {
     const pet = getCauldronHeroPet();
     const map = {
-      '🦄': 'assets/card_unicornio_arquero.png?v=248',
-      '🦊': 'assets/card_zorro_arquero.png?v=248',
-      '🐰': 'assets/card_conejo_arquero.png?v=248',
-      '🐶': 'assets/card_perro_arquero.png?v=248'
+      '🦄': 'assets/card_unicornio_arquero.png?v=296',
+      '🦊': 'assets/card_zorro_arquero.png?v=296',
+      '🐰': 'assets/card_conejo_arquero.png?v=296',
+      '🐶': 'assets/card_perro_arquero.png?v=296'
     };
     return map[pet] || map['🦄'];
   }
@@ -452,12 +452,28 @@
     repositionBubbles();
     updateCauldronHUD();
 
-    // Relato inicial guiado y pausado (espera y entonación limpia)
+    // Pre-cargar inmediatamente las imágenes y locuciones de esta poción y la siguiente
+    try {
+      getCachedImg(p.base.image);
+      CauldronGame.bubbles.forEach(b => getCachedImg(b.image));
+      const nextP = CauldronGame.potionDeck[(index + 1) % CauldronGame.potionDeck.length];
+      if (nextP) {
+        getCachedImg(nextP.base.image);
+        nextP.targets.forEach(t => getCachedImg(t.image));
+        nextP.distractors.forEach(d => getCachedImg(d.image));
+        if (typeof window.preloadTtsAudio === 'function') {
+          window.preloadTtsAudio(`¡Nueva poción! Busca las palabras que riman con: ${nextP.base.pron}. ¡La palabra a rimar es ${nextP.base.pron}!`);
+          window.preloadTtsAudio('¡Súper, tarea lograda!');
+        }
+      }
+    } catch(e) {}
+
+    // Relato inicial guiado e inmediato
     if (CauldronGame.voiceTimeout) clearTimeout(CauldronGame.voiceTimeout);
     CauldronGame.voiceTimeout = setTimeout(() => {
       if (!CauldronGame.isRunning) return;
       speakCauldronMission();
-    }, 200);
+    }, 50);
   }
 
   function repositionBubbles() {
@@ -1278,11 +1294,27 @@
   }
 
   // --- EFECTOS DE SONIDO WEB AUDIO SINTETIZADOS (SIN DEPENDENCIAS EXTERNAS) ---
-  function playCauldronSplashSound() {
+  let sharedCauldronAudioCtx = null;
+  function getCauldronAudioCtx() {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      if (!AudioCtx) return null;
+      if (!sharedCauldronAudioCtx || sharedCauldronAudioCtx.state === 'closed') {
+        sharedCauldronAudioCtx = new AudioCtx();
+      }
+      if (sharedCauldronAudioCtx.state === 'suspended') {
+        sharedCauldronAudioCtx.resume().catch(() => {});
+      }
+      return sharedCauldronAudioCtx;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function playCauldronSplashSound() {
+    try {
+      const actx = getCauldronAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1302,9 +1334,8 @@
 
   function playCauldronBoingSound() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getCauldronAudioCtx();
+      if (!actx) return;
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
@@ -1325,9 +1356,8 @@
 
   function playCauldronVictoryChime() {
     try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const actx = new AudioCtx();
+      const actx = getCauldronAudioCtx();
+      if (!actx) return;
       const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
       notes.forEach((freq, idx) => {
         const osc = actx.createOscillator();

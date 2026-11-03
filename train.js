@@ -375,10 +375,28 @@
     spawnLetterBalloons(wObj);
     updateTrainHUD();
 
+    // Pre-cargar inmediatamente las imágenes y locuciones de este tren y el siguiente (0ms latencia en celebración)
+    try {
+      if (wObj.image) getCachedImage(wObj.image);
+      if (typeof window.preloadTtsAudio === 'function') {
+        window.preloadTtsAudio(wObj.pron || wObj.word);
+        window.preloadTtsAudio('¡Súper!');
+        window.preloadTtsAudio('¡Súper, tarea lograda!');
+      }
+      const nextW = TrainGame.wordList[(index + 1) % TrainGame.wordList.length];
+      if (nextW) {
+        if (nextW.image) getCachedImage(nextW.image);
+        if (typeof window.preloadTtsAudio === 'function') {
+          window.preloadTtsAudio(`¡Armemos en los vagones la palabra ${nextW.pron || nextW.word}!`);
+          window.preloadTtsAudio(nextW.pron || nextW.word);
+        }
+      }
+    } catch(e) {}
+
     if (TrainGame.voiceTimeout) clearTimeout(TrainGame.voiceTimeout);
     TrainGame.voiceTimeout = setTimeout(() => {
       speakCurrentTrainMission();
-    }, 60);
+    }, 50);
   }
 
   function spawnLetterBalloons(wObj) {
