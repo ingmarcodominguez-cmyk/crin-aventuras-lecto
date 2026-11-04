@@ -134,6 +134,7 @@
   // --- CONTROL DE PANTALLA ---
   window.openTrainQuestScreen = function(mode) {
     TrainGame.mode = mode || 'task';
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('train');
 
@@ -141,9 +142,18 @@
     if (screen) screen.classList.add('active');
 
     TrainGame.isRunning = true;
-    TrainGame.hasStarted = false;
+    TrainGame.hasStarted = true;
     TrainGame.isSpeaking = false;
     TrainGame.isAdvancing = false;
+    if (TrainGame.voiceTimeout) {
+      clearTimeout(TrainGame.voiceTimeout);
+      TrainGame.voiceTimeout = null;
+    }
+    if (TrainGame.speechWatchdog) {
+      clearTimeout(TrainGame.speechWatchdog);
+      TrainGame.speechWatchdog = null;
+    }
+
     initTrainGame();
 
     setTimeout(resizeTrainCanvas, 50);
@@ -395,8 +405,9 @@
 
     if (TrainGame.voiceTimeout) clearTimeout(TrainGame.voiceTimeout);
     TrainGame.voiceTimeout = setTimeout(() => {
+      if (!TrainGame.isRunning) return;
       speakCurrentTrainMission();
-    }, 50);
+    }, 150);
   }
 
   function spawnLetterBalloons(wObj) {
@@ -469,17 +480,25 @@
       if (!TrainGame.isRunning || !TrainGame.currentWordObj) return;
 
       if (TrainGame.currentLetterIndex === 0) {
-        const textToSpeak = `Completa los vagones hasta formar la palabra ${TrainGame.currentWordObj.pron}.`;
+        const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(TrainGame.currentWordObj.word) : null;
+        const pronWord = canon ? (canon.pronunciacion || canon.escritura) : (TrainGame.currentWordObj.pron || TrainGame.currentWordObj.word);
+        const textToSpeak = `Completa los vagones hasta formar la palabra: ... ${pronWord}.`;
+
         if (typeof speakText === 'function') {
           TrainGame.isSpeaking = true;
           if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-          speakText(textToSpeak, () => {
-            if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-            TrainGame.isSpeaking = false;
-          });
           TrainGame.speechWatchdog = setTimeout(() => {
             TrainGame.isSpeaking = false;
-          }, 2600);
+            TrainGame.speechWatchdog = null;
+          }, 3500);
+
+          speakText(textToSpeak, () => {
+            TrainGame.isSpeaking = false;
+            if (TrainGame.speechWatchdog) {
+              clearTimeout(TrainGame.speechWatchdog);
+              TrainGame.speechWatchdog = null;
+            }
+          });
         } else {
           TrainGame.isSpeaking = false;
         }
@@ -1114,8 +1133,7 @@
     }
 
     function onPointerDown(e) {
-      // Respetar que termine el relato antes de permitir accionar
-      if (TrainGame.isAdvancing || TrainGame.train.isDeparting || TrainGame.isSpeaking) return;
+      if (TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
       const pos = getCoords(e);
       TrainGame.pointer.x = pos.x;
       TrainGame.pointer.y = pos.y;
@@ -1135,7 +1153,7 @@
     }
 
     function onPointerMove(e) {
-      if (TrainGame.isSpeaking || TrainGame.isAdvancing || TrainGame.train.isDeparting) {
+      if (TrainGame.isAdvancing || TrainGame.train.isDeparting) {
         canvas.style.cursor = 'default';
         return;
       }
@@ -1172,7 +1190,7 @@
   // --- LÓGICA DE ACIERTO O ERROR ---
   function handleBalloonSelected(b) {
     try {
-      if (b.isPlaced || b.isFlyingToWagon || TrainGame.isAdvancing || TrainGame.isSpeaking) return;
+      if (b.isPlaced || b.isFlyingToWagon || TrainGame.isAdvancing || TrainGame.train.isDeparting) return;
 
       const targetLetter = TrainGame.currentLetters[TrainGame.currentLetterIndex];
       const isCorrect = (b.letter === targetLetter);
@@ -1181,9 +1199,6 @@
       createSparklesExplosion(b.x, b.y, b.palette.main, 10);
 
       if (isCorrect) {
-        // Bloquear toques mientras el globo viaja hacia el vagón
-        TrainGame.isSpeaking = true;
-
         const slotIdx = TrainGame.currentLetterIndex;
         const geom = getTrainConvoyGeometry();
         const targetWagon = (geom.wagons && geom.wagons[slotIdx]) ? geom.wagons[slotIdx] : null;
@@ -1202,7 +1217,6 @@
         b.vx = -b.vx * 1.25;
         playBoingSound();
         createFloatingText(b.x, b.y - 30, `¡Esa es la letra ${b.letter}!`, '#F43F5E');
-        TrainGame.isSpeaking = false;
       }
     } catch (err) {
       console.error('Error in handleBalloonSelected:', err);
@@ -1226,8 +1240,6 @@
       // ¿Completó todos los vagones?
       if (TrainGame.currentLetterIndex >= TrainGame.currentLetters.length) {
         handleTrainCompleted();
-      } else {
-        TrainGame.isSpeaking = false;
       }
     } catch (err) {
       console.error('Error in finishPlacingLetter:', err);
@@ -1237,6 +1249,7 @@
   // --- PALABRA COMPLETA: MARCHA TRIUNFAL DEL TREN ---
   function handleTrainCompleted() {
     try {
+      if (TrainGame.isAdvancing) return;
       TrainGame.isAdvancing = true;
       const wObj = TrainGame.currentWordObj;
       const isLastWord = (TrainGame.currentWordIndex + 1) >= TrainGame.wordList.length;
@@ -1249,9 +1262,9 @@
       createFloatingText(TrainGame.width * 0.5, TrainGame.height * 0.35, `¡${wObj.word}! 🚂💨`, '#F59E0B');
       createSparklesExplosion(TrainGame.width * 0.5, TrainGame.height * 0.45, '#FBBF24', 50);
 
-      // Arrancar el tren suavemente en sincronía con el silbato y la voz de festejo
+      // Arrancar el tren suavemente en marcha triunfal
       TrainGame.train.isDeparting = true;
-      TrainGame.train.departSpeed = 0.9;
+      TrainGame.train.departSpeed = 1.0;
 
       // Recompensas en el perfil
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
@@ -1260,39 +1273,48 @@
         if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       }
 
-      let trainDoneFired = false;
-      const onTrainDone = () => {
-        if (trainDoneFired) return;
-        trainDoneFired = true;
+      if (isLastWord) {
+        let victoryHandled = false;
+        const onFinalVictory = () => {
+          if (victoryHandled) return;
+          victoryHandled = true;
+          if (!TrainGame.isRunning) return;
+          TrainGame.isAdvancing = false;
+          TrainGame.isSpeaking = false;
+          showTrainVictoryModal();
+        };
+
+        if (typeof speakText === 'function') {
+          TrainGame.isSpeaking = true;
+          speakText('¡Súper, tarea lograda!', () => {
+            onFinalVictory();
+          });
+          setTimeout(onFinalVictory, 2400);
+        } else {
+          setTimeout(onFinalVictory, 1200);
+        }
+      } else {
+        // COORDINACIÓN EN 3 MOMENTOS (Preservando la marcha del tren sin pausas inertes):
+        // Momento 1: Silbato, vapor y salida triunfal del tren ejecutada arriba.
+        // Momento 2: Elogio fonológico conciso de la palabra completada.
+        if (typeof speakText === 'function') {
+          TrainGame.isSpeaking = true;
+          speakText(`¡Muy bien: ${wObj.pron || wObj.word}!`, () => {
+            TrainGame.isSpeaking = false;
+          });
+        }
+
+        // Momento 3: Carga del siguiente tren a los 950ms, justo cuando el anterior termina de cruzar
         setTimeout(() => {
           if (!TrainGame.isRunning) return;
+          TrainGame.isAdvancing = false;
           TrainGame.currentWordIndex++;
-          if (TrainGame.currentWordIndex >= TrainGame.wordList.length) {
-            showTrainVictoryModal();
-          } else {
-            setupTrainWord(TrainGame.currentWordIndex);
-          }
-        }, 200);
-      };
-
-      if (typeof speakText === 'function') {
-        TrainGame.isSpeaking = true;
-        if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-        const phrase = isLastWord ? '¡Súper, tarea lograda!' : '¡Súper!';
-        speakText(phrase, () => {
-          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-          TrainGame.isSpeaking = false;
-          onTrainDone();
-        });
-        TrainGame.speechWatchdog = setTimeout(() => {
-          TrainGame.isSpeaking = false;
-          onTrainDone();
-        }, isLastWord ? 2400 : 1400);
-      } else {
-        onTrainDone();
+          setupTrainWord(TrainGame.currentWordIndex);
+        }, 950);
       }
     } catch (err) {
       console.error('Error in handleTrainCompleted:', err);
+      TrainGame.isAdvancing = false;
       TrainGame.currentWordIndex++;
       if (TrainGame.currentWordIndex >= TrainGame.wordList.length) {
         showTrainVictoryModal();
