@@ -246,21 +246,7 @@
     const name = names[petEmoji] || 'Héroe Arquero';
 
     if (!ArcheryGame.hasStarted) {
-      let started = false;
-      const startAfterPraise = () => {
-        if (started) return;
-        started = true;
-        setTimeout(() => {
-          startArcheryMatch();
-        }, 200);
-      };
-
-      if (typeof speakText === 'function') {
-        speakText('¡Excelente elección! ¡Tu arquero es el ' + name + '!', startAfterPraise);
-      } else {
-        startAfterPraise();
-      }
-      setTimeout(startAfterPraise, 2200);
+      startArcheryMatch(name);
     } else {
       if (typeof speakText === 'function') {
         speakText('¡Genial! Tu arquero ahora es el ' + name + '!');
@@ -661,6 +647,7 @@
   };
 
   window.openArcheryQuestScreen = function(mode) {
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('archery');
 
@@ -724,7 +711,7 @@
     updateArcheryHUD();
   };
 
-  function startArcheryMatch() {
+  function startArcheryMatch(introPetName) {
     ArcheryGame.canvas = document.getElementById('archery-game-canvas');
     if (!ArcheryGame.canvas) return;
     ArcheryGame.ctx = ArcheryGame.canvas.getContext('2d');
@@ -735,12 +722,20 @@
     ArcheryGame.isRunning = true;
     ArcheryGame.isSpeaking = false;
     ArcheryGame.isAdvancing = false;
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
+    if (typeof stopAllAudio === 'function') stopAllAudio();
     if (ArcheryGame._speakingWatchdog) {
       clearTimeout(ArcheryGame._speakingWatchdog);
       ArcheryGame._speakingWatchdog = null;
     }
-    if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
-    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
+    if (ArcheryGame.advanceTimeout) {
+      clearTimeout(ArcheryGame.advanceTimeout);
+      ArcheryGame.advanceTimeout = null;
+    }
+    if (ArcheryGame.missionVoiceTimeout) {
+      clearTimeout(ArcheryGame.missionVoiceTimeout);
+      ArcheryGame.missionVoiceTimeout = null;
+    }
     ArcheryGame.taskWords = getArcheryTaskWords();
     ArcheryGame.randomWords = getArcheryRandomWords();
     ArcheryGame.score = 0;
@@ -785,10 +780,10 @@
 
     if (ArcheryGame.mode === 'random') {
       ArcheryGame.randomHits = 0;
-      setupNextRandomWord();
+      setupNextRandomWord({ introPetName: introPetName });
     } else {
       ArcheryGame.targetWordIndex = 0;
-      setupTargetWord(0);
+      setupTargetWord(0, { introPetName: introPetName });
     }
 
     if (ArcheryGame.animId) cancelAnimationFrame(ArcheryGame.animId);
@@ -824,7 +819,7 @@
     ArcheryGame.archer.y = ArcheryGame.archer.baseY;
   }
 
-  function setupTargetWord(index) {
+  function setupTargetWord(index, options = {}) {
     if (ArcheryGame.taskWords.length === 0) {
       ArcheryGame.taskWords = ['ZAPATO', 'MARIPOSA', 'PELOTA', 'MAMA'];
     }
@@ -842,15 +837,18 @@
     spawnInitialTargets();
     updateArcheryHUD();
 
-    // 🔊 DECIR CADA PALABRA OBJETIVO AL COMENZAR
+    if (options && options.silent) return;
+
+    // 🔊 DECIR CADA PALABRA OBJETIVO AL COMENZAR CON TIEMPO ÁGIL (150ms)
     if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
     ArcheryGame.missionVoiceTimeout = setTimeout(() => {
-      speakCurrentArcheryMission();
-    }, 600);
+      if (!ArcheryGame.isRunning) return;
+      speakCurrentArcheryMission(options ? options.introPetName : undefined);
+    }, 150);
   }
 
   // --- SELECCIÓN Y PROPUESTA DE NUEVA PALABRA EN MODO ALEATORIO ---
-  function setupNextRandomWord() {
+  function setupNextRandomWord(options = {}) {
     ArcheryGame.isAdvancing = false;
     if (!ArcheryGame.randomWords || ArcheryGame.randomWords.length < 5) {
       ArcheryGame.randomWords = getArcheryRandomWords();
@@ -868,11 +866,14 @@
     spawnInitialTargets();
     updateArcheryHUD();
 
-    // 🔊 DECIR LA NUEVA PALABRA OBJETIVO AL PROPONERLA
+    if (options && options.silent) return;
+
+    // 🔊 DECIR LA NUEVA PALABRA OBJETIVO AL PROPONERLA CON TIEMPO ÁGIL (150ms)
     if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
     ArcheryGame.missionVoiceTimeout = setTimeout(() => {
-      speakCurrentArcheryMission();
-    }, 300);
+      if (!ArcheryGame.isRunning) return;
+      speakCurrentArcheryMission(options ? options.introPetName : undefined);
+    }, 150);
   }
 
   function updateArcheryHUD() {
@@ -946,18 +947,26 @@
     }
   }
 
-  window.speakCurrentArcheryMission = function() {
+  window.speakCurrentArcheryMission = function(introPetName) {
     if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
     if (typeof speakText === 'function') {
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
-      const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
+      const pronWord = canon ? (canon.pronunciacion || canon.escritura) : ArcheryGame.targetWord;
       ArcheryGame.isSpeaking = true;
       if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
       ArcheryGame._speakingWatchdog = setTimeout(() => {
         ArcheryGame.isSpeaking = false;
         ArcheryGame._speakingWatchdog = null;
-      }, 2500);
-      speakText(`Apunta a: ... ${pronWord}`, () => {
+      }, 4000);
+
+      let phrase = '';
+      if (introPetName) {
+        phrase = `¡Tu arquero es el ${introPetName}! ... Apunta a: ... ${pronWord}`;
+      } else {
+        phrase = `Apunta a: ... ${pronWord}`;
+      }
+
+      speakText(phrase, () => {
         ArcheryGame.isSpeaking = false;
         if (ArcheryGame._speakingWatchdog) {
           clearTimeout(ArcheryGame._speakingWatchdog);
@@ -1480,37 +1489,27 @@
         ArcheryGame.isAdvancing = true;
         if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
 
-        // FUNCIÓN SEGURA PARA AVANZAR A LA SIGUIENTE PALABRA
-        let hasAdvanced = false;
-        const proceedToNextWord = () => {
-          if (hasAdvanced) return;
-          hasAdvanced = true;
-          if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
-
-          // Pausa suave de 350ms tras terminar completamente de decir ¡Súper! antes de proponer la siguiente
-          ArcheryGame.advanceTimeout = setTimeout(() => {
-            if (ArcheryGame.mode === 'random') {
-              ArcheryGame.randomHits = (ArcheryGame.randomHits || 0) + 1;
-              setupNextRandomWord();
-            } else {
-              setupTargetWord(ArcheryGame.targetWordIndex + 1);
-            }
-          }, 350);
-        };
-
-        // DECIR ¡SÚPER! Y ESPERAR A QUE TERMINE COMPLETAMENTE LA FRASE ANTES DE AVANZAR
+        // COORDINACIÓN EN 3 MOMENTOS (Fluida y rápida):
+        // Momento 1: Impacto y celebración (partículas, animación de salto, chime y puntos ejecutados arriba).
+        // Momento 2: Elogio fonológico conciso de la palabra completada.
         if (typeof speakText === 'function') {
           ArcheryGame.isSpeaking = true;
-          speakText('¡Súper!', () => {
+          speakText('¡Muy bien!', () => {
             ArcheryGame.isSpeaking = false;
-            proceedToNextWord();
           });
-        } else {
-          proceedToNextWord();
         }
 
-        // Temporizador de respaldo por si el audio está silenciado en el navegador
-        ArcheryGame.advanceTimeout = setTimeout(proceedToNextWord, 2800);
+        // Momento 3: Transición ágil a la siguiente palabra y nueva consigna sin demoras inertes
+        ArcheryGame.advanceTimeout = setTimeout(() => {
+          if (!ArcheryGame.isRunning) return;
+          ArcheryGame.isAdvancing = false;
+          if (ArcheryGame.mode === 'random') {
+            ArcheryGame.randomHits = (ArcheryGame.randomHits || 0) + 1;
+            setupNextRandomWord();
+          } else {
+            setupTargetWord(ArcheryGame.targetWordIndex + 1);
+          }
+        }, 550);
       }
 
     } else {
