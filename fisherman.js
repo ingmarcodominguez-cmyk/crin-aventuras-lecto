@@ -65,7 +65,8 @@
 
     isSpeaking: false,
     isAdvancing: false,
-    voiceTimeout: null
+    voiceTimeout: null,
+    _speakingWatchdog: null
   };
 
   // BANCO CANÓNICO DE PALABRAS DE RESPALDO (graduadas bisílabas y trisílabas con imágenes reales)
@@ -189,11 +190,13 @@
 
   // --- MODAL DE SELECCIÓN DE PESCADOR ---
   window.openFishermanPetModal = function() {
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     const modal = document.getElementById('fisherman-pet-modal');
     if (modal) modal.style.display = 'flex';
   };
 
   window.closeFishermanPetModal = function() {
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     const modal = document.getElementById('fisherman-pet-modal');
     if (modal) modal.style.display = 'none';
     if (!FishermanGame.hasStarted) {
@@ -202,6 +205,7 @@
   };
 
   window.setFishermanPet = function(petEmoji) {
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     FishermanGame.activePet = petEmoji;
     try {
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
@@ -227,19 +231,30 @@
         setTimeout(() => {
           if (!FishermanGame.isRunning) return;
           startFishermanRounds();
-        }, 250);
+        }, 200);
       };
 
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
+        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+        FishermanGame._speakingWatchdog = setTimeout(() => {
+          FishermanGame.isSpeaking = false;
+          FishermanGame._speakingWatchdog = null;
+          startAfterPraise();
+        }, 2800);
+
         speakText(`¡Excelente elección! ¡Tu pescador es el ${petName}!`, () => {
           FishermanGame.isSpeaking = false;
+          if (FishermanGame._speakingWatchdog) {
+            clearTimeout(FishermanGame._speakingWatchdog);
+            FishermanGame._speakingWatchdog = null;
+          }
           startAfterPraise();
         });
       } else {
         startAfterPraise();
       }
-      setTimeout(startAfterPraise, 4200);
+      setTimeout(startAfterPraise, 3000);
     } else {
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
@@ -252,15 +267,30 @@
 
   // --- CONTROL DE NAVEGACIÓN Y PANTALLA ---
   window.openFishermanQuestScreen = function(mode) {
-    FishermanGame.mode = mode || 'task';
-    FishermanGame.hasStarted = false;
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('fisherman');
 
     const screen = document.getElementById('screen-fisherman');
     if (screen) screen.classList.add('active');
 
+    FishermanGame.mode = mode || 'task';
+    FishermanGame.hasStarted = false;
     FishermanGame.isRunning = true;
+    FishermanGame.isAdvancing = false;
+    FishermanGame.isSpeaking = false;
+    if (FishermanGame._speakingWatchdog) {
+      clearTimeout(FishermanGame._speakingWatchdog);
+      FishermanGame._speakingWatchdog = null;
+    }
+    if (FishermanGame.voiceTimeout) {
+      clearTimeout(FishermanGame.voiceTimeout);
+      FishermanGame.voiceTimeout = null;
+    }
+    FishermanGame.splashParticles = [];
+    FishermanGame.floatingTexts = [];
+    FishermanGame.fishes = [];
+
     initFishermanGame();
 
     setTimeout(resizeFishermanCanvas, 50);
@@ -270,7 +300,23 @@
     // CALIBRADO CRUCIAL: Mostrar inmediatamente la selección de pescador al ingresar
     setTimeout(() => {
       openFishermanPetModal();
-    }, 180);
+    }, 100);
+  };
+
+  window.toggleFishermanGameMode = function() {
+    const nextMode = FishermanGame.mode === 'task' ? 'random' : 'task';
+    window.setFishermanGameMode(nextMode);
+  };
+
+  window.setFishermanGameMode = function(newMode) {
+    FishermanGame.mode = newMode;
+    if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
+    FishermanGame.isAdvancing = false;
+    FishermanGame.isSpeaking = false;
+    FishermanGame.currentWordIndex = 0;
+    buildWordQueue();
+    setupWord(0);
+    updateFishermanHUD();
   };
 
   window.closeFishermanAndReturnToMap = function() {
@@ -281,7 +327,14 @@
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = null;
+    if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+    FishermanGame._speakingWatchdog = null;
     if (typeof stopAllAudio === 'function') stopAllAudio();
+
+    const vicModal = document.getElementById('fisherman-victory-modal');
+    if (vicModal) vicModal.style.display = 'none';
+    const petModal = document.getElementById('fisherman-pet-modal');
+    if (petModal) petModal.style.display = 'none';
 
     if (typeof switchScreen === 'function') {
       switchScreen('map');
@@ -296,6 +349,8 @@
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = null;
+    if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+    FishermanGame._speakingWatchdog = null;
     if (typeof stopAllAudio === 'function') stopAllAudio();
   };
 
@@ -319,7 +374,15 @@
   function startFishermanRounds() {
     if (FishermanGame.hasStarted) return;
     FishermanGame.hasStarted = true;
-    setupWord(FishermanGame.currentWordIndex);
+    FishermanGame.isRunning = true;
+    FishermanGame.isAdvancing = false;
+    FishermanGame.isSpeaking = false;
+    if (FishermanGame._speakingWatchdog) {
+      clearTimeout(FishermanGame._speakingWatchdog);
+      FishermanGame._speakingWatchdog = null;
+    }
+    FishermanGame.currentWordIndex = 0;
+    setupWord(0);
   }
 
   // Obtiene las palabras de la tarea activa seleccionada en la app
@@ -353,22 +416,28 @@
         const taskWords = getActiveTaskWordStrings();
         if (taskWords && taskWords.length > 0) {
           taskWords.forEach(wText => {
-            const clean = (typeof removeAccents === 'function') ? removeAccents(wText) : wText.toUpperCase();
-            if (isWordPermitted(clean)) {
-              if (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[clean]) {
-                const item = CANONICAL_WORD_LEXICON[clean];
+            const raw = wText.toString().trim().toUpperCase();
+            if (isWordPermitted(raw)) {
+              let item = null;
+              if (typeof getCanonicalWord === 'function') {
+                item = getCanonicalWord(raw);
+              }
+              if (!item && typeof CANONICAL_WORD_LEXICON !== 'undefined') {
+                item = CANONICAL_WORD_LEXICON[raw];
+              }
+              if (item) {
                 list.push({
                   word: item.escritura,
-                  silabas: item.silabas || [clean],
+                  silabas: item.silabas || approximateSyllables(item.escritura),
                   emoji: item.emoji,
                   pron: item.pronunciacion || item.escritura
                 });
               } else {
                 list.push({
-                  word: clean,
-                  silabas: approximateSyllables(clean),
-                  emoji: 'assets/' + clean.toLowerCase() + '.png',
-                  pron: clean.toLowerCase()
+                  word: raw,
+                  silabas: approximateSyllables(raw),
+                  emoji: 'assets/' + raw.toLowerCase() + '.png',
+                  pron: raw.toLowerCase()
                 });
               }
             }
@@ -385,7 +454,7 @@
         keys.sort(() => Math.random() - 0.5);
         for (let i = 0; i < Math.min(10, keys.length); i++) {
           const item = CANONICAL_WORD_LEXICON[keys[i]];
-          if (item.silabas && item.silabas.length >= 2) {
+          if (item && item.silabas && item.silabas.length >= 2) {
             list.push({
               word: item.escritura,
               silabas: item.silabas,
@@ -507,6 +576,7 @@
     FishermanGame.draggedFish = null;
     FishermanGame.rod.targetFish = null;
     FishermanGame.rod.isCasting = false;
+    FishermanGame.rod.isRetracting = false;
 
     // Generar banco de peces (sílabas objetivo + distractores)
     spawnFishesForWord(wObj);
@@ -531,17 +601,17 @@
       }
     } catch(e) {}
 
-    // Locución de la misión inmediata al aparecer las sílabas
+    // Locución de la misión pedagógica al aparecer las sílabas
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = setTimeout(() => {
       if (!FishermanGame.isRunning) return;
       speakCurrentFishermanMission();
-    }, 40);
+    }, 450);
   }
 
   function spawnFishesForWord(wObj) {
     FishermanGame.fishes = [];
-    const syllables = wObj.silabas;
+    const syllables = wObj.silabas || [wObj.word];
     const w = FishermanGame.width;
     const h = FishermanGame.height;
     const waterTop = h * 0.45;
@@ -554,7 +624,7 @@
     });
 
     // 2. Crear 2 a 3 peces distractores con sílabas variadas
-    const distractorSyllables = ['MA', 'SO', 'TO', 'LU', 'RA', 'PA', 'TI', 'NO', 'CA', 'LE']
+    const distractorSyllables = ['MA', 'SO', 'TO', 'LU', 'RA', 'PA', 'TI', 'NO', 'CA', 'LE', 'ME', 'TA', 'PI', 'LA']
       .filter(s => !syllables.includes(s));
     distractorSyllables.sort(() => Math.random() - 0.5);
 
@@ -565,10 +635,13 @@
       FishermanGame.fishes.push(createFishObject(syl, false, -1, palette, waterTop, waterBottom));
     }
 
-    // Distribuir peces uniformemente en la zona del río
+    // 3. Mezclar aleatoriamente el orden para que los objetivos NO queden siempre a la izquierda
+    FishermanGame.fishes.sort(() => Math.random() - 0.5);
+
+    // 4. Distribuir peces uniformemente en la zona del río
     const totalFishes = FishermanGame.fishes.length;
     FishermanGame.fishes.forEach((fish, idx) => {
-      fish.x = (w * 0.35) + ((w * 0.58) / totalFishes) * idx + (Math.random() - 0.5) * 30;
+      fish.x = (w * 0.36) + ((w * 0.56) / Math.max(1, totalFishes)) * (idx + 0.5) + (Math.random() - 0.5) * 20;
       fish.y = waterTop + 30 + Math.random() * (waterBottom - waterTop - 60);
       fish.initialY = fish.y;
     });
@@ -599,17 +672,31 @@
   window.speakCurrentFishermanMission = function() {
     if (!FishermanGame.isRunning || !FishermanGame.currentWordObj) return;
     const wObj = FishermanGame.currentWordObj;
+    const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
+    if (!targetSyl) return;
 
+    FishermanGame.isSpeaking = true;
+    if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+    FishermanGame._speakingWatchdog = setTimeout(() => {
+      FishermanGame.isSpeaking = false;
+      FishermanGame._speakingWatchdog = null;
+    }, 3500);
+
+    let phrase = '';
     if (FishermanGame.currentSyllableTargetIndex === 0) {
-      FishermanGame.isSpeaking = true;
-      speakText(`Vamos a pescar hasta formar la palabra ${wObj.pron}.`, () => {
-        if (!FishermanGame.isRunning) return;
+      phrase = `Vamos a formar la palabra: ... ${wObj.pron || wObj.word}. ... Pesca la sílaba: ... ${targetSyl}.`;
+    } else {
+      phrase = `Pesca la sílaba: ... ${targetSyl}.`;
+    }
+
+    if (typeof speakText === 'function') {
+      speakText(phrase, () => {
         FishermanGame.isSpeaking = false;
+        if (FishermanGame._speakingWatchdog) {
+          clearTimeout(FishermanGame._speakingWatchdog);
+          FishermanGame._speakingWatchdog = null;
+        }
       });
-      setTimeout(() => {
-        if (!FishermanGame.isRunning) return;
-        FishermanGame.isSpeaking = false;
-      }, 2600);
     } else {
       FishermanGame.isSpeaking = false;
     }
@@ -621,13 +708,56 @@
     if (!wObj) return;
 
     const titleEl = document.getElementById('fisherman-word-title');
-    if (titleEl) titleEl.innerText = `Palabra ${FishermanGame.currentWordIndex + 1} de ${FishermanGame.wordList.length}`;
+    if (titleEl) {
+      const modeLabel = FishermanGame.mode === 'random' ? 'Aleatorio' : 'Tarea';
+      titleEl.innerText = `El Pescador (${modeLabel})`;
+    }
+
+    const badgeEl = document.getElementById('fisherman-progress-badge');
+    if (badgeEl) {
+      badgeEl.innerText = `Palabra ${FishermanGame.currentWordIndex + 1} de ${FishermanGame.wordList.length}`;
+    }
+
+    const modeBtn = document.getElementById('fisherman-mode-btn');
+    if (modeBtn) {
+      if (FishermanGame.mode === 'random') {
+        modeBtn.innerHTML = '<span>📋 Modo Tarea</span>';
+        modeBtn.style.background = 'linear-gradient(135deg, #0284C7, #0369A1)';
+      } else {
+        modeBtn.innerHTML = '<span>🎲 Modo Aleatorio</span>';
+        modeBtn.style.background = 'linear-gradient(135deg, #0D9488, #0F766E)';
+      }
+    }
 
     const targetWordEl = document.getElementById('fisherman-target-word');
     if (targetWordEl) targetWordEl.innerText = wObj.word;
 
     const imgEl = document.getElementById('fisherman-target-img');
-    if (imgEl) imgEl.src = wObj.emoji;
+    const emojiStr = wObj.emoji || '⭐';
+    const isImgPath = typeof emojiStr === 'string' && (emojiStr.startsWith('assets/') || emojiStr.includes('.png') || emojiStr.includes('.jpg') || emojiStr.startsWith('data:image'));
+
+    if (imgEl) {
+      if (isImgPath) {
+        imgEl.style.display = 'block';
+        imgEl.src = emojiStr;
+        const fallbackSpan = document.getElementById('fisherman-target-emoji-span');
+        if (fallbackSpan) fallbackSpan.style.display = 'none';
+      } else {
+        imgEl.style.display = 'none';
+        let fallbackSpan = document.getElementById('fisherman-target-emoji-span');
+        if (!fallbackSpan && imgEl.parentElement) {
+          fallbackSpan = document.createElement('span');
+          fallbackSpan.id = 'fisherman-target-emoji-span';
+          fallbackSpan.style.fontSize = '26px';
+          fallbackSpan.style.lineHeight = '1';
+          imgEl.parentElement.appendChild(fallbackSpan);
+        }
+        if (fallbackSpan) {
+          fallbackSpan.innerText = emojiStr;
+          fallbackSpan.style.display = 'inline-block';
+        }
+      }
+    }
 
     // Render de casillas de sílabas
     const slotsEl = document.getElementById('fisherman-syllables-slots');
@@ -1365,13 +1495,14 @@
     }
 
     function onPointerDown(e) {
-      if (FishermanGame.isSpeaking || FishermanGame.isAdvancing || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
+      if (FishermanGame.isAdvancing || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
+      if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
       const pos = getCoords(e);
       FishermanGame.pointer.x = pos.x;
       FishermanGame.pointer.y = pos.y;
       FishermanGame.pointer.isDown = true;
 
-      // Detectar si tocó un pez (área amplia que cubre todo el cuerpo, cola y cartel de la sílaba)
+      // Detectar si tocó un pez (área amplia y reactiva)
       const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
       let candidates = [];
       for (let i = FishermanGame.fishes.length - 1; i >= 0; i--) {
@@ -1379,16 +1510,15 @@
         if (fish.isCaught) continue;
         const dx = pos.x - fish.x;
         const dy = pos.y - fish.y;
-        // El pez mide ~90px de ancho total (cuerpo + cola) y ~48px de alto
-        if (Math.abs(dx) <= 62 && Math.abs(dy) <= 44) {
+        if (Math.abs(dx) <= 65 && Math.abs(dy) <= 48) {
           const dist = Math.hypot(dx, dy);
           candidates.push({ fish, dist, isTarget: fish.syllable === targetSyl });
         }
       }
       if (candidates.length > 0) {
-        // Si dos peces se solapan bajo el clic, priorizar el que tiene la sílaba objetivo o el más cercano al centro
+        // Priorizar el objetivo si hay solapamiento cercano
         candidates.sort((a, b) => {
-          if (a.isTarget !== b.isTarget && Math.abs(a.dist - b.dist) < 28) {
+          if (a.isTarget !== b.isTarget && Math.abs(a.dist - b.dist) < 32) {
             return a.isTarget ? -1 : 1;
           }
           return a.dist - b.dist;
@@ -1420,7 +1550,7 @@
 
   // --- LÓGICA DE SELECCIÓN DE PEZ ---
   function handleFishSelected(fish) {
-    if (fish.isCaught || fish.isHooked || FishermanGame.isSpeaking || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
+    if (fish.isCaught || fish.isHooked || FishermanGame.isAdvancing || FishermanGame.rod.isCasting || FishermanGame.rod.isRetracting) return;
 
     const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
     const isCorrect = (fish.syllable === targetSyl);
@@ -1434,12 +1564,28 @@
       FishermanGame.rod.castProgress = 0;
       playCastSound();
     } else {
-      // ERROR AMIGABLE: El pez se sumerge un instante y sonido de error, SIN relato
+      // ERROR PEDAGÓGICO AMIGABLE CON RETROALIMENTACIÓN FONOLÓGICA
       fish.diveTimer = 1.0;
       playPlopSound();
-      createWaterSplash(fish.x, fish.y, 6);
+      createWaterSplash(fish.x, fish.y, 8);
       createFloatingText(fish.x, fish.y - 30, `¡Esa es ${fish.syllable}!`, '#F43F5E');
-      FishermanGame.isSpeaking = false;
+
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+        FishermanGame._speakingWatchdog = setTimeout(() => {
+          FishermanGame.isSpeaking = false;
+          FishermanGame._speakingWatchdog = null;
+        }, 2600);
+
+        speakText(`Casi. ... Esa es ${fish.syllable}. ... Busca ${targetSyl}.`, () => {
+          FishermanGame.isSpeaking = false;
+          if (FishermanGame._speakingWatchdog) {
+            clearTimeout(FishermanGame._speakingWatchdog);
+            FishermanGame._speakingWatchdog = null;
+          }
+        });
+      }
     }
   }
 
@@ -1460,12 +1606,29 @@
     if (FishermanGame.currentSyllableTargetIndex >= FishermanGame.currentSyllables.length) {
       handleWordCompleted();
     } else {
-      FishermanGame.isSpeaking = false;
+      const nextSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+        FishermanGame._speakingWatchdog = setTimeout(() => {
+          FishermanGame.isSpeaking = false;
+          FishermanGame._speakingWatchdog = null;
+        }, 2800);
+
+        speakText(`¡Bien: ${fish.syllable}! ... Ahora pesca: ... ${nextSyl}.`, () => {
+          FishermanGame.isSpeaking = false;
+          if (FishermanGame._speakingWatchdog) {
+            clearTimeout(FishermanGame._speakingWatchdog);
+            FishermanGame._speakingWatchdog = null;
+          }
+        });
+      }
     }
   }
 
   // --- PALABRA COMPLETA (SÍNTESIS FONOLÓGICA) ---
   function handleWordCompleted() {
+    if (FishermanGame.isAdvancing) return;
     FishermanGame.isAdvancing = true;
     const wObj = FishermanGame.currentWordObj;
     playFullWordVictorySound();
@@ -1496,12 +1659,12 @@
         } else {
           setupWord(FishermanGame.currentWordIndex);
         }
-      }, 150);
+      }, 350);
     };
 
     if (typeof speakText === 'function') {
       FishermanGame.isSpeaking = true;
-      const phrase = isLastWord ? '¡Súper, tarea lograda!' : '¡Súper!';
+      const phrase = isLastWord ? `¡Excelente! ¡Pescaste ${wObj.pron || wObj.word}! ¡Tarea lograda!` : `¡Excelente! ¡${wObj.pron || wObj.word}!`;
       speakText(phrase, () => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
@@ -1509,7 +1672,7 @@
       setTimeout(() => {
         FishermanGame.isSpeaking = false;
         onVictoryDone();
-      }, isLastWord ? 2400 : 1400);
+      }, isLastWord ? 2800 : 2000);
     } else {
       onVictoryDone();
     }
@@ -1536,6 +1699,11 @@
   window.replayFishermanQuest = function() {
     const modal = document.getElementById('fisherman-victory-modal');
     if (modal) modal.style.display = 'none';
+    FishermanGame.hasStarted = true;
+    FishermanGame.isRunning = true;
+    FishermanGame.isAdvancing = false;
+    FishermanGame.isSpeaking = false;
+    buildWordQueue();
     FishermanGame.currentWordIndex = 0;
     setupWord(0);
   };

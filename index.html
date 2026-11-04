@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v304';
+    const CURRENT_APP_VERSION = 'v305';
 
     function syncAppVersionLabels() {
       try {
@@ -89,7 +89,7 @@
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
   <script src="cauldron.js?v=304"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=304"></script>
+  <script src="fisherman.js?v=305"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
   <script src="train.js?v=304"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
@@ -2383,10 +2383,14 @@
             <div style="font-size: 13px; font-weight: 900; color: #0284C7; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
               <span>🎣</span>
               <span id="fisherman-word-title">El Pescador de Sílabas</span>
+              <span id="fisherman-progress-badge" style="font-size: 10px; font-weight: 800; background: #0284C7; color: white; padding: 2px 7px; border-radius: 8px;">Palabra 1 de 4</span>
             </div>
           </div>
           <button id="btn-fisherman-avatar" onclick="openFishermanPetModal()" style="background: #FEF3C7; border: 1.5px solid #F59E0B; color: #92400E; padding: 6px 10px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;" title="Cambiar avatar del pescador">
             <span>🎣 Pescador</span>
+          </button>
+          <button id="fisherman-mode-btn" onclick="toggleFishermanGameMode()" style="background: linear-gradient(135deg, #0D9488, #0F766E); color: white; border: none; padding: 6px 9px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap; box-shadow: 0 2px 6px rgba(13,148,136,0.25);" title="Cambiar modo de juego">
+            <span>🎲 Aleatorio</span>
           </button>
           <button onclick="speakCurrentFishermanMission()" style="background: #E0F2FE; border: 1px solid #7DD3FC; color: #0369A1; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
             <span>🔊 Oír</span>
@@ -2396,7 +2400,7 @@
         <!-- BANNER HUD: PALABRA OBJETIVO Y CASILLAS DE SÍLABAS -->
         <div style="background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: white; padding: 8px 14px; border-radius: 16px; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; border: 1.5px solid #38BDF8;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="background: rgba(255,255,255,0.2); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.3);">
+            <div id="fisherman-target-img-container" style="background: rgba(255,255,255,0.2); border-radius: 14px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid rgba(255,255,255,0.3);">
               <img id="fisherman-target-img" src="assets/pato.png" alt="Objetivo" style="width: 36px; height: 36px; object-fit: contain;">
             </div>
             <div>
