@@ -222,39 +222,8 @@
     const def = FISHERMAN_AVATARS[petEmoji] || FISHERMAN_AVATARS['🦄'];
     const petName = def.name;
 
-    // CALIBRADO PEDAGÓGICO: Elogio de elección completo y arranque ágil
     if (!FishermanGame.hasStarted) {
-      let started = false;
-      const startAfterPraise = () => {
-        if (started) return;
-        started = true;
-        setTimeout(() => {
-          if (!FishermanGame.isRunning) return;
-          startFishermanRounds();
-        }, 200);
-      };
-
-      if (typeof speakText === 'function') {
-        FishermanGame.isSpeaking = true;
-        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
-        FishermanGame._speakingWatchdog = setTimeout(() => {
-          FishermanGame.isSpeaking = false;
-          FishermanGame._speakingWatchdog = null;
-          startAfterPraise();
-        }, 2800);
-
-        speakText(`¡Excelente elección! ¡Tu pescador es el ${petName}!`, () => {
-          FishermanGame.isSpeaking = false;
-          if (FishermanGame._speakingWatchdog) {
-            clearTimeout(FishermanGame._speakingWatchdog);
-            FishermanGame._speakingWatchdog = null;
-          }
-          startAfterPraise();
-        });
-      } else {
-        startAfterPraise();
-      }
-      setTimeout(startAfterPraise, 3000);
+      startFishermanRounds(petName);
     } else {
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
@@ -365,24 +334,31 @@
     resizeFishermanCanvas();
 
     FishermanGame.currentWordIndex = 0;
+    setupWord(0, { silent: true });
 
     if (FishermanGame.animId) cancelAnimationFrame(FishermanGame.animId);
     FishermanGame.animId = requestAnimationFrame(fishermanGameLoop);
   }
 
   // Inicia la ronda de pesca tras elegir avatar
-  function startFishermanRounds() {
+  function startFishermanRounds(introPetName) {
     if (FishermanGame.hasStarted) return;
     FishermanGame.hasStarted = true;
     FishermanGame.isRunning = true;
     FishermanGame.isAdvancing = false;
     FishermanGame.isSpeaking = false;
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
+    if (typeof stopAllAudio === 'function') stopAllAudio();
     if (FishermanGame._speakingWatchdog) {
       clearTimeout(FishermanGame._speakingWatchdog);
       FishermanGame._speakingWatchdog = null;
     }
+    if (FishermanGame.voiceTimeout) {
+      clearTimeout(FishermanGame.voiceTimeout);
+      FishermanGame.voiceTimeout = null;
+    }
     FishermanGame.currentWordIndex = 0;
-    setupWord(0);
+    setupWord(0, { introPetName: introPetName });
   }
 
   // Obtiene las palabras de la tarea activa seleccionada en la app
@@ -564,7 +540,7 @@
   }
 
   // --- CONFIGURACIÓN DE UNA PALABRA ---
-  function setupWord(index) {
+  function setupWord(index, options = {}) {
     if (!FishermanGame.isRunning || FishermanGame.wordList.length === 0) return;
     const wObj = FishermanGame.wordList[index % FishermanGame.wordList.length];
     FishermanGame.currentWordObj = wObj;
@@ -582,6 +558,10 @@
     spawnFishesForWord(wObj);
 
     updateFishermanHUD();
+
+    if (options.silent) {
+      return;
+    }
 
     // Pre-cargar inmediatamente las imágenes y locuciones de esta palabra y la siguiente
     try {
@@ -605,8 +585,8 @@
     if (FishermanGame.voiceTimeout) clearTimeout(FishermanGame.voiceTimeout);
     FishermanGame.voiceTimeout = setTimeout(() => {
       if (!FishermanGame.isRunning) return;
-      speakCurrentFishermanMission();
-    }, 450);
+      speakCurrentFishermanMission(options.introPetName);
+    }, 150);
   }
 
   function spawnFishesForWord(wObj) {
@@ -669,7 +649,7 @@
   }
 
   // --- LOCUCIÓN PROSÓDICA PEDAGÓGICA ---
-  window.speakCurrentFishermanMission = function() {
+  window.speakCurrentFishermanMission = function(introPetName) {
     if (!FishermanGame.isRunning || !FishermanGame.currentWordObj) return;
     const wObj = FishermanGame.currentWordObj;
     const targetSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
@@ -680,10 +660,12 @@
     FishermanGame._speakingWatchdog = setTimeout(() => {
       FishermanGame.isSpeaking = false;
       FishermanGame._speakingWatchdog = null;
-    }, 3500);
+    }, 4500);
 
     let phrase = '';
-    if (FishermanGame.currentSyllableTargetIndex === 0) {
+    if (introPetName) {
+      phrase = `¡Tu pescador es el ${introPetName}! ... Vamos a formar la palabra: ... ${wObj.pron || wObj.word}. ... Pesca la sílaba: ... ${targetSyl}.`;
+    } else if (FishermanGame.currentSyllableTargetIndex === 0) {
       phrase = `Vamos a formar la palabra: ... ${wObj.pron || wObj.word}. ... Pesca la sílaba: ... ${targetSyl}.`;
     } else {
       phrase = `Pesca la sílaba: ... ${targetSyl}.`;
@@ -1644,37 +1626,45 @@
     }
 
     const isLastWord = (FishermanGame.currentWordIndex + 1) >= FishermanGame.wordList.length;
-    let victoryHandled = false;
-    const onVictoryDone = () => {
-      if (victoryHandled) return;
-      victoryHandled = true;
 
+    if (isLastWord) {
+      let victoryHandled = false;
+      const onFinalVictory = () => {
+        if (victoryHandled) return;
+        victoryHandled = true;
+        if (!FishermanGame.isRunning) return;
+        FishermanGame.isAdvancing = false;
+        FishermanGame.isSpeaking = false;
+        showFishermanVictoryModal();
+      };
+
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        speakText(`¡Excelente! ¡Pescaste ${wObj.pron || wObj.word}! ¡Tarea lograda!`, () => {
+          onFinalVictory();
+        });
+        setTimeout(onFinalVictory, 2800);
+      } else {
+        setTimeout(onFinalVictory, 1200);
+      }
+    } else {
+      // COORDINACIÓN EN 3 MOMENTOS (Fluida y rápida):
+      // Momento 1: Finalización de captura (efectos visuales y sonido ya ejecutados arriba).
+      // Momento 2: Elogio fonológico conciso de la palabra completada.
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        speakText(`¡Muy bien: ${wObj.pron || wObj.word}!`, () => {
+          FishermanGame.isSpeaking = false;
+        });
+      }
+
+      // Momento 3: Transición ágil a la siguiente palabra y nueva consigna sin demoras
       setTimeout(() => {
         if (!FishermanGame.isRunning) return;
         FishermanGame.isAdvancing = false;
         FishermanGame.currentWordIndex++;
-        if (FishermanGame.currentWordIndex >= FishermanGame.wordList.length) {
-          // Completó todas las palabras de la ronda
-          showFishermanVictoryModal();
-        } else {
-          setupWord(FishermanGame.currentWordIndex);
-        }
-      }, 350);
-    };
-
-    if (typeof speakText === 'function') {
-      FishermanGame.isSpeaking = true;
-      const phrase = isLastWord ? `¡Excelente! ¡Pescaste ${wObj.pron || wObj.word}! ¡Tarea lograda!` : `¡Excelente! ¡${wObj.pron || wObj.word}!`;
-      speakText(phrase, () => {
-        FishermanGame.isSpeaking = false;
-        onVictoryDone();
-      });
-      setTimeout(() => {
-        FishermanGame.isSpeaking = false;
-        onVictoryDone();
-      }, isLastWord ? 2800 : 2000);
-    } else {
-      onVictoryDone();
+        setupWord(FishermanGame.currentWordIndex);
+      }, 550);
     }
   }
 
