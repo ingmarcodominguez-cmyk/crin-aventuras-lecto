@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v303';
+    const CURRENT_APP_VERSION = 'v304';
 
     function syncAppVersionLabels() {
       try {
@@ -83,17 +83,17 @@
     } catch(e) {}
   </script>
   <!-- BASE DE DATOS LÉXICA CANÓNICA (Cualidades: escritura, pronunciacion, letras, silabas, emoji) -->
-  <script src="lexicon.js?v=302"></script>
+  <script src="lexicon.js?v=304"></script>
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
-  <script src="archery.js?v=302"></script>
+  <script src="archery.js?v=304"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=302"></script>
+  <script src="cauldron.js?v=304"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
-  <script src="fisherman.js?v=302"></script>
+  <script src="fisherman.js?v=304"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
-  <script src="train.js?v=302"></script>
+  <script src="train.js?v=304"></script>
   <!-- 🔍 MÓDULO PSICOPEDAGÓGICO 4: EL DETECTIVE DE SONIDOS GEMELOS -->
-  <script src="detective.js?v=302"></script>
+  <script src="detective.js?v=304"></script>
   <!-- 💬 MÓDULO PSICOPEDAGÓGICO 5: EL TECLADO DE PICTOGRAMAS SAAC -->
   <script src="aac_keyboard.js?v=302"></script>
   <!-- 📖 GUÍA CLÍNICA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA / Orton-Gillingham) -->
@@ -4068,6 +4068,7 @@
       if (currentHtmlAudio) {
         try {
           currentHtmlAudio.pause();
+          currentHtmlAudio.onplaying = null;
           currentHtmlAudio.onended = null;
           currentHtmlAudio.onerror = null;
         } catch(e) {}
@@ -4164,8 +4165,19 @@
         if (sessionId === currentSpeechSessionId && chunkDoneCallback) chunkDoneCallback();
       };
 
-      const durationEst = Math.max(chunkText.length * 110 + 3000, 4500);
+      if (window._googleTtsBlocked) {
+        fallbackToSpeechSynthesis(chunkText, done, sessionId);
+        return;
+      }
+
+      const durationEst = Math.max(chunkText.length * 90 + 2000, 3500);
       const timer = setTimeout(done, durationEst);
+      let chunkWatchdog = setTimeout(() => {
+        window._googleTtsBlocked = true;
+        clearTimeout(timer);
+        if (sessionId !== currentSpeechSessionId) return;
+        fallbackToSpeechSynthesis(chunkText, done, sessionId);
+      }, 1200);
 
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(chunkText)}&tl=es&client=tw-ob`;
@@ -4174,26 +4186,38 @@
         currentHtmlAudio = audio;
         audio.playbackRate = 0.96;
 
+        audio.onplaying = function() {
+          if (chunkWatchdog) { clearTimeout(chunkWatchdog); chunkWatchdog = null; }
+          window._googleTtsBlocked = false;
+        };
+
         audio.onended = function() {
+          if (chunkWatchdog) { clearTimeout(chunkWatchdog); chunkWatchdog = null; }
           clearTimeout(timer);
           done();
         };
         audio.onerror = function() {
+          if (chunkWatchdog) { clearTimeout(chunkWatchdog); chunkWatchdog = null; }
           clearTimeout(timer);
           if (sessionId !== currentSpeechSessionId) return;
+          window._googleTtsBlocked = true;
           fallbackToSpeechSynthesis(chunkText, done, sessionId);
         };
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(() => {
+            if (chunkWatchdog) { clearTimeout(chunkWatchdog); chunkWatchdog = null; }
             clearTimeout(timer);
             if (sessionId !== currentSpeechSessionId) return;
+            window._googleTtsBlocked = true;
             fallbackToSpeechSynthesis(chunkText, done, sessionId);
           });
         }
       } catch (e) {
+        if (chunkWatchdog) { clearTimeout(chunkWatchdog); chunkWatchdog = null; }
         clearTimeout(timer);
         if (sessionId !== currentSpeechSessionId) return;
+        window._googleTtsBlocked = true;
         fallbackToSpeechSynthesis(chunkText, done, sessionId);
       }
     }
@@ -4251,15 +4275,42 @@
         setTimeout(() => pictoCard.classList.remove('speaking'), 600);
       }
 
-      const durationEst = Math.min(Math.max(textToSpeak.length * 95 + 1800, 2600), 8500);
+      // Respaldo de seguridad ágil (máx 5.5s para no congelar turnos si no hay respuesta de red)
+      const durationEst = Math.min(Math.max(textToSpeak.length * 75 + 1200, 2000), 5500);
       activeFallbackTimer = setTimeout(() => {
         activeFallbackTimer = null;
         safeCallback();
       }, durationEst);
 
-      let speechStarted = false;
+      // Si Google TTS está marcado como bloqueado (403/429/sin red), usar directamente SpeechSynthesis
+      if (window._googleTtsBlocked) {
+        fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+        return;
+      }
 
-      // OPCIÓN 1: Voz original natural de alta fidelidad (Google TTS CDN en reproductor único reutilizado)
+      let ttsWatchdog = null;
+      let hasAudiblyStarted = false;
+
+      const triggerFallback = () => {
+        if (ttsWatchdog) { clearTimeout(ttsWatchdog); ttsWatchdog = null; }
+        if (thisSession !== currentSpeechSessionId) return;
+        if (!hasAudiblyStarted) {
+          hasAudiblyStarted = true;
+          window._googleTtsBlocked = true;
+          // Reintentar Google TTS tras 60s
+          setTimeout(() => { window._googleTtsBlocked = false; }, 60000);
+          if (currentHtmlAudio) {
+            try { currentHtmlAudio.pause(); currentHtmlAudio.src = ''; } catch(e) {}
+            currentHtmlAudio = null;
+          }
+          fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
+        }
+      };
+
+      // Si en 1100ms no comienza a reproducir audio real, pasar a síntesis de voz nativa al instante
+      ttsWatchdog = setTimeout(triggerFallback, 1100);
+
+      // OPCIÓN 1: Voz natural de alta fidelidad (Google TTS CDN en reproductor único)
       try {
         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(textToSpeak)}&tl=es&client=tw-ob`;
         const audio = getGlobalTtsPlayer();
@@ -4267,47 +4318,36 @@
         currentHtmlAudio = audio;
         audio.playbackRate = 0.96;
 
+        audio.onplaying = function() {
+          if (thisSession !== currentSpeechSessionId) return;
+          hasAudiblyStarted = true;
+          if (ttsWatchdog) { clearTimeout(ttsWatchdog); ttsWatchdog = null; }
+          window._googleTtsBlocked = false;
+        };
+
         audio.onended = function() {
           if (thisSession !== currentSpeechSessionId) return;
+          if (ttsWatchdog) { clearTimeout(ttsWatchdog); ttsWatchdog = null; }
           if (activeFallbackTimer) { clearTimeout(activeFallbackTimer); activeFallbackTimer = null; }
           currentHtmlAudio = null;
           safeCallback();
         };
 
         audio.onerror = function() {
-          if (thisSession !== currentSpeechSessionId) return;
-          if (!speechStarted) {
-            speechStarted = true;
-            currentHtmlAudio = null;
-            fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
-          }
+          triggerFallback();
         };
 
         const playPromise = audio.play();
         if (playPromise !== undefined) {
-          playPromise.then(() => {
-            if (thisSession !== currentSpeechSessionId) {
-              try { audio.pause(); } catch(e) {}
-              return;
-            }
-            speechStarted = true;
-          }).catch(err => {
-            if (thisSession !== currentSpeechSessionId) return;
-            if (!speechStarted) {
-              speechStarted = true;
-              currentHtmlAudio = null;
-              fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
-            }
+          playPromise.catch(err => {
+            triggerFallback();
           });
         }
         return;
       } catch(e) {
-        if (thisSession !== currentSpeechSessionId) return;
-        if (!speechStarted) {
-          speechStarted = true;
-          fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession);
-        }
+        triggerFallback();
       }
+    }
     }
 
     function fallbackToSpeechSynthesis(textToSpeak, safeCallback, thisSession) {
@@ -5755,7 +5795,7 @@
       'ALGODON': 'assets/algodon.png', 
       'LUNA': 'assets/luna.png', 'NOCHE': 'assets/noche.png', 'SOL': 'assets/sol.png', 'ESTRELLA': 'assets/estrella.png', 'BLANCO': 'assets/blanco.png', 'NEGRO': 'assets/negro.png',
       'LECHE': 'assets/leche.png', 'AGUA': 'assets/agua.png', 'SOPA': 'assets/sopa.png', 'CENA': 'assets/cena.png', 'PLATO': 'assets/plato.png', 'PAN': 'assets/pan.png',
-      'MANZANA': 'assets/manzana.png', 'PERA': 'assets/pera.png', 'BANANA': 'assets/banana.png', 'BANANO': 'assets/banana.png', 'PLATANO': 'assets/banana.png', 'ANANÁ': 'assets/anana.png', 'ANANA': 'assets/anana.png', 'SANDÍA': 'assets/sandia.png', 'SANDIA': 'assets/sandia.png', 'LIMÓN': 'assets/limon.png', 'LIMON': 'assets/limon.png', 'LIMA': '🍏', 'POMELO': 'assets/pomelo.png', 'PIÑA': 'assets/pina.png', 'PINA': 'assets/pina.png', 'COCO': 'assets/coco.png',
+      'MANZANA': 'assets/manzana.png', 'PERA': 'assets/pera.png', 'BANANA': 'assets/banana.png', 'BANANO': 'assets/banana.png', 'PLATANO': 'assets/banana.png', 'ANANÁ': 'assets/anana.png', 'ANANA': 'assets/anana.png', 'SANDÍA': 'assets/sandia.png', 'SANDIA': 'assets/sandia.png', 'LIMÓN': 'assets/limon.png', 'LIMON': 'assets/limon.png', 'LIMA': 'assets/lima.png', 'POMELO': 'assets/pomelo.png', 'PIÑA': 'assets/pina.png', 'PINA': 'assets/pina.png', 'COCO': 'assets/coco.png',
       'CARAMELO': 'assets/caramelo.png', 'CONFITE': '🍭', 'CAFÉ': 'assets/cafe.png', 'CAFE': 'assets/cafe.png', 'TAZA': 'assets/taza.png', 'MATE': 'assets/mate.png', 'FIDEOS': 'assets/fideo.png', 'FIDEO': 'assets/fideo.png',
       'GATO': 'assets/gato.png', 'FELINO': '🐅', 'PERRO': 'assets/perro.png', 'OSO': 'assets/oso.png', 'PUMA': 'assets/puma.png', 'LEÓN': 'assets/leon.png', 'LEON': 'assets/leon.png', 'RATÓN': 'assets/raton.png', 'RATON': 'assets/raton.png', 'MONO': 'assets/mono.png', 'MONITO': 'assets/mono.png', 'JIRAFA': 'assets/jirafa.png', 'CABALLO': 'assets/caballo.png', 'CABRA': 'assets/cabra.png', 'CEBRA': 'assets/cebra.png', 'ZORRO': 'assets/zorro.png',
       'PATO': 'assets/pato.png', 'RANA': '🐸', 'SAPO': 'assets/sapo.png', 'SPO': 'assets/sapo.png', 'PÁJARO': 'assets/pajaro.png', 'PAJARO': 'assets/pajaro.png', 'PEZ': 'assets/pez.png', 'FOCA': 'assets/foca.png', 'SERPIENTE': 'assets/serpiente.png', 'SIRENA': 'assets/sirena.png', 'MARIPOSA': 'assets/mariposa.png', 'TOPO': 'assets/topo.png', 'COLA': 'assets/cola.png',

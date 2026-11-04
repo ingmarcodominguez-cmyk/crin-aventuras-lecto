@@ -93,7 +93,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Lima',
     letras: ['L', 'I', 'M', 'A'],
     silabas: ['LI', 'MA'],
-    emoji: '🍏'
+    emoji: 'assets/lima.png'
   },
   'LIBRO': {
     escritura: 'LIBRO',

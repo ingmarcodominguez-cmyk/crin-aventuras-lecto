@@ -230,6 +230,13 @@
     const modal = document.getElementById('archery-pet-modal');
     if (modal) modal.style.display = 'none';
 
+    // Desbloquear contexto Web Audio y síntesis en el gesto directo de elección
+    try {
+      const actx = getSharedAudioContext();
+      if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+    } catch(e) {}
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
+
     const names = {
       '🦄': 'Unicornio Mágico',
       '🦊': 'Zorro Héroe',
@@ -238,8 +245,6 @@
     };
     const name = names[petEmoji] || 'Héroe Arquero';
 
-    // CALIBRADO CRUCIAL: El juego NO comienza hasta que el niño elija su avatar.
-    // El relato termina de decir el héroe y recién arranca el juego con calma.
     if (!ArcheryGame.hasStarted) {
       let started = false;
       const startAfterPraise = () => {
@@ -247,7 +252,7 @@
         started = true;
         setTimeout(() => {
           startArcheryMatch();
-        }, 500);
+        }, 200);
       };
 
       if (typeof speakText === 'function') {
@@ -255,7 +260,7 @@
       } else {
         startAfterPraise();
       }
-      setTimeout(startAfterPraise, 3200);
+      setTimeout(startAfterPraise, 2200);
     } else {
       if (typeof speakText === 'function') {
         speakText('¡Genial! Tu arquero ahora es el ' + name + '!');
@@ -267,10 +272,14 @@
     const modal = document.getElementById('archery-pet-modal');
     if (modal) modal.style.display = 'none';
 
+    try {
+      const actx = getSharedAudioContext();
+      if (actx && actx.state === 'suspended') actx.resume().catch(() => {});
+    } catch(e) {}
+    if (typeof unlockAudioSystem === 'function') unlockAudioSystem();
+
     if (!ArcheryGame.hasStarted) {
-      setTimeout(() => {
-        startArcheryMatch();
-      }, 400);
+      startArcheryMatch();
     }
   };
 
@@ -613,6 +622,12 @@
   // --- CONTROL DE APERTURA Y CIERRE DE LA PANTALLA ---
   window.stopArcheryGame = function() {
     ArcheryGame.isRunning = false;
+    ArcheryGame.isSpeaking = false;
+    ArcheryGame.isAdvancing = false;
+    if (ArcheryGame._speakingWatchdog) {
+      clearTimeout(ArcheryGame._speakingWatchdog);
+      ArcheryGame._speakingWatchdog = null;
+    }
     if (ArcheryGame.animId) {
       cancelAnimationFrame(ArcheryGame.animId);
       ArcheryGame.animId = null;
@@ -625,7 +640,6 @@
       clearTimeout(ArcheryGame.missionVoiceTimeout);
       ArcheryGame.missionVoiceTimeout = null;
     }
-    ArcheryGame.isAdvancing = false;
     ArcheryGame.arrows = [];
     ArcheryGame.targets = [];
     ArcheryGame.particles = [];
@@ -657,6 +671,11 @@
     ArcheryGame.hasStarted = false;
     ArcheryGame.isRunning = false;
     ArcheryGame.isAdvancing = false;
+    ArcheryGame.isSpeaking = false;
+    if (ArcheryGame._speakingWatchdog) {
+      clearTimeout(ArcheryGame._speakingWatchdog);
+      ArcheryGame._speakingWatchdog = null;
+    }
     ArcheryGame.targets = [];
     ArcheryGame.arrows = [];
     if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
@@ -714,11 +733,18 @@
 
     ArcheryGame.hasStarted = true;
     ArcheryGame.isRunning = true;
+    ArcheryGame.isSpeaking = false;
+    ArcheryGame.isAdvancing = false;
+    if (ArcheryGame._speakingWatchdog) {
+      clearTimeout(ArcheryGame._speakingWatchdog);
+      ArcheryGame._speakingWatchdog = null;
+    }
+    if (ArcheryGame.advanceTimeout) clearTimeout(ArcheryGame.advanceTimeout);
+    if (ArcheryGame.missionVoiceTimeout) clearTimeout(ArcheryGame.missionVoiceTimeout);
     ArcheryGame.taskWords = getArcheryTaskWords();
     ArcheryGame.randomWords = getArcheryRandomWords();
     ArcheryGame.score = 0;
     ArcheryGame.streak = 0;
-    ArcheryGame.isAdvancing = false;
     ArcheryGame.arrows = [];
     ArcheryGame.particles = [];
     ArcheryGame.floatingTexts = [];
@@ -926,8 +952,17 @@
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? canon.pronunciacion : ArcheryGame.targetWord;
       ArcheryGame.isSpeaking = true;
+      if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
+      ArcheryGame._speakingWatchdog = setTimeout(() => {
+        ArcheryGame.isSpeaking = false;
+        ArcheryGame._speakingWatchdog = null;
+      }, 2500);
       speakText(`Apunta a: ... ${pronWord}`, () => {
         ArcheryGame.isSpeaking = false;
+        if (ArcheryGame._speakingWatchdog) {
+          clearTimeout(ArcheryGame._speakingWatchdog);
+          ArcheryGame._speakingWatchdog = null;
+        }
       });
     }
   };
@@ -1133,7 +1168,7 @@
   // --- DISPARO INSTANTÁNEO Y BALÍSTICA DE FLECHAS ---
   function shootArrowAt(targetX, targetY) {
     if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
-    if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing) return;
+    if (ArcheryGame.isAdvancing) return;
     const a = ArcheryGame.archer;
     const petType = getActivePet();
     const isFox = petType.includes('🦊') || petType.includes('fox');
@@ -1297,8 +1332,17 @@
       if (!ArcheryGame.lastBounceVoice || (Date.now() - ArcheryGame.lastBounceVoice > 5000)) {
         ArcheryGame.lastBounceVoice = Date.now();
         ArcheryGame.isSpeaking = true;
+        if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
+        ArcheryGame._speakingWatchdog = setTimeout(() => {
+          ArcheryGame.isSpeaking = false;
+          ArcheryGame._speakingWatchdog = null;
+        }, 3000);
         speakText('¡Rebotó! ... Espera que pase la otra palabra para disparar.', () => {
           ArcheryGame.isSpeaking = false;
+          if (ArcheryGame._speakingWatchdog) {
+            clearTimeout(ArcheryGame._speakingWatchdog);
+            ArcheryGame._speakingWatchdog = null;
+          }
         });
       }
     }
@@ -1482,8 +1526,17 @@
 
       if (typeof speakText === 'function') {
         ArcheryGame.isSpeaking = true;
+        if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
+        ArcheryGame._speakingWatchdog = setTimeout(() => {
+          ArcheryGame.isSpeaking = false;
+          ArcheryGame._speakingWatchdog = null;
+        }, 3000);
         speakText(`Casi. ... Esa es ${pronHit}. ... Busca ${pronTarget}.`, () => {
           ArcheryGame.isSpeaking = false;
+          if (ArcheryGame._speakingWatchdog) {
+            clearTimeout(ArcheryGame._speakingWatchdog);
+            ArcheryGame._speakingWatchdog = null;
+          }
         });
       }
     }
@@ -2243,7 +2296,7 @@
 
     function onPointerDown(e) {
       if (!ArcheryGame.isRunning || !ArcheryGame.hasStarted) return;
-      if (ArcheryGame.isSpeaking || ArcheryGame.isAdvancing) return;
+      if (ArcheryGame.isAdvancing) return;
       const pos = getCanvasPos(e);
       ArcheryGame.pointer.isDown = true;
       ArcheryGame.pointer.x = pos.x;
