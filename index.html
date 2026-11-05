@@ -9,6 +9,10 @@
   
   <script>
     const CURRENT_APP_VERSION = 'v312';
+    // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
+    // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
+    window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
+
 
     // Auto-sanitización universal: limpiar cualquier truco fonético (THO, BHE) de las sílabas visuales de TODAS las palabras
     try {
@@ -3490,6 +3494,10 @@
 // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (VOZ UNIFICADA NATURAL) ---
     window.playSyllableSound = function(syl, onEnd, wordContext, slotIdx) {
       if (!syl) { if (onEnd) onEnd(); return; }
+      if (window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS) {
+        if (onEnd) onEnd();
+        return;
+      }
 
       // 0. Prioridad Soberana: Fonética específica de ESTA palabra (Word-Centric)
       const activeWord = wordContext || (typeof targetItem !== 'undefined' ? targetItem : null);
@@ -3570,7 +3578,7 @@
     }
 
     function speakLetter(letter, onEndCallback) {
-      if (!letter) {
+      if (!letter || window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS) {
         if (onEndCallback) onEndCallback();
         return;
       }
@@ -5781,11 +5789,8 @@
             forceUnlockStoryPuzzle();
           });
         } else if (mode === 'syllable' && targetItem.syllables) {
-          questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 25000);
-          speakText(targetItem.syllables.join(', '), () => {
-            clearQuestStartupTimers();
-            forceUnlockStoryPuzzle();
-          });
+          clearQuestStartupTimers();
+          forceUnlockStoryPuzzle();
         } else if (targetItem.word) {
           questUnlockBackupTimer = setTimeout(() => forceUnlockStoryPuzzle(), 25000);
           speakText(targetItem.word, () => {
@@ -6116,8 +6121,6 @@
             playStoryChapterNarration(targetItem);
           } else if (gameState.currentMode === 'homework') {
             playHomeworkSentenceNarration(targetItem);
-          } else if (gameState.currentMode === 'syllable' && targetItem.syllables) {
-            const _toSpeak = (targetItem.silabasPron && targetItem.silabasPron.length > 0) ? targetItem.silabasPron.join(', ') : targetItem.syllables.join(', '); speakText(_toSpeak);
           } else if (targetItem.word) {
             speakText(targetItem.word);
           }
@@ -6128,9 +6131,7 @@
     }
 
     function speakCurrentTarget() {
-      if ((gameState.currentMode === 'syllable' || gameState.currentMode === 'story') && targetItem.syllables) {
-        const _toSpeak = (targetItem.silabasPron && targetItem.silabasPron.length > 0) ? targetItem.silabasPron.join(', ') : targetItem.syllables.join(', '); speakText(_toSpeak);
-      } else {
+      if (targetItem && targetItem.word) {
         speakText(targetItem.word);
       }
     }
@@ -6920,27 +6921,7 @@
 
         const isComplete = !currentSlots.includes('');
         if (isComplete) {
-          let checked = false;
-          let backupTimer = null;
-          const doCheck = () => {
-            if (!checked) {
-              checked = true;
-              if (backupTimer) clearTimeout(backupTimer);
-              setTimeout(() => checkSyllables(), 250);
-            }
-          };
-          backupTimer = setTimeout(doCheck, 2400);
-          if (typeof window.playSyllableSound === 'function') {
-            window.playSyllableSound(syllable, doCheck);
-          } else {
-            speakText(syllable, doCheck);
-          }
-        } else {
-          if (typeof window.playSyllableSound === 'function') {
-            window.playSyllableSound(syllable);
-          } else {
-            speakText(syllable);
-          }
+          setTimeout(() => checkSyllables(), 250);
         }
       }
     }
@@ -6982,19 +6963,7 @@
 
         const isComplete = !currentSlots.includes('');
         if (isComplete) {
-          let checked = false;
-          let backupTimer = null;
-          const doCheck = () => {
-            if (!checked) {
-              checked = true;
-              if (backupTimer) clearTimeout(backupTimer);
-              setTimeout(() => checkWord(), 250);
-            }
-          };
-          backupTimer = setTimeout(doCheck, 2400);
-          speakLetter(letter, doCheck);
-        } else {
-          speakLetter(letter);
+          setTimeout(() => checkWord(), 250);
         }
       }
     }

@@ -1554,14 +1554,8 @@
       createWaterSplash(fish.x, fish.y, 8);
       createFloatingText(fish.x, fish.y - 30, `¡Esa es ${fish.syllable}!`, '#F43F5E');
 
-      if (typeof speakText === 'function') {
-        FishermanGame.isSpeaking = true;
-        speakText(`Casi. ... Esa es ${fish.syllable}. ... Busca ${targetSyl}.`, {
-          onComplete: () => {
-            FishermanGame.isSpeaking = false;
-          }
-        });
-      }
+      // Silencio de sílabas por decisión pedagógica
+      FishermanGame.isSpeaking = false;
     }
   }
 
@@ -1583,14 +1577,8 @@
       handleWordCompleted();
     } else {
       const nextSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
-      if (typeof speakText === 'function') {
-        FishermanGame.isSpeaking = true;
-        speakText(`¡Bien: ${fish.syllable}! ... Ahora pesca: ... ${nextSyl}.`, {
-          onComplete: () => {
-            FishermanGame.isSpeaking = false;
-          }
-        });
-      }
+      // Silencio de sílabas intermedias por decisión pedagógica
+      FishermanGame.isSpeaking = false;
     }
   }
 
