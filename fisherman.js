@@ -666,13 +666,15 @@
       FishermanGame._speakingWatchdog = null;
     }, 25000);
 
+    // Decisión pedagógica: Solo presentar la palabra ('Vamos a formar la palabra: X').
+    // Sin seguimiento de sílabas individuales durante el juego.
+    if (FishermanGame.currentSyllableTargetIndex > 0) return;
+
     let phrase = '';
     if (introPetName) {
-      phrase = `¡Tu pescador es el ${introPetName}! ... Vamos a formar la palabra: ... ${wObj.pron || wObj.word}. ... Pesca la sílaba: ... ${targetSyl}.`;
-    } else if (FishermanGame.currentSyllableTargetIndex === 0) {
-      phrase = `Vamos a formar la palabra: ... ${wObj.pron || wObj.word}. ... Pesca la sílaba: ... ${targetSyl}.`;
+      phrase = `¡Tu pescador es el ${introPetName}! Vamos a formar la palabra: ${wObj.pron || wObj.word}.`;
     } else {
-      phrase = `Pesca la sílaba: ... ${targetSyl}.`;
+      phrase = `Vamos a formar la palabra: ${wObj.pron || wObj.word}.`;
     }
 
     if (typeof speakText === 'function') {
