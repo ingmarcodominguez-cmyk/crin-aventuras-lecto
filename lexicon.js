@@ -216,7 +216,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Mamá',
     letras: ['M', 'A', 'M', 'A'],
     silabas: ['MA', 'MÁ'],
-    emoji: '👩'
+    emoji: 'assets/mama.png'
   },
   'MANZANA': {
     escritura: 'MANZANA',
@@ -372,7 +372,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Papá',
     letras: ['P', 'A', 'P', 'A'],
     silabas: ['PA', 'PÁ'],
-    emoji: '👨'
+    emoji: 'assets/papa.png'
   },
   'PALA': {
     escritura: 'PALA',
@@ -1330,7 +1330,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Rana',
     letras: ['R', 'A', 'N', 'A'],
     silabas: ['RA', 'NA'],
-    emoji: '🐸'
+    emoji: 'assets/rana.png'
   },
   'RATON': {
     escritura: 'RATÓN',
