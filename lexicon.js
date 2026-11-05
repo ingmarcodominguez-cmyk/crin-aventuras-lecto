@@ -1,4 +1,4 @@
-﻿// =========================================================================
+// =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - BASE DE DATOS LÉXICA CANÓNICA
 // Cada palabra cuenta con sus 5 cualidades esenciales:
 // 1. escritura: Ortografía canónica con acentuación gráfica correcta (LÁMPARA, MELÓN)
@@ -1668,7 +1668,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'CHI': { pron: 'Chi', audio: 'assets/audio/silabas/chi.mp3' },
   'CHO': { pron: 'Cho', audio: 'assets/audio/silabas/cho.mp3' },
   'CI': { pron: 'Ci', audio: 'assets/audio/silabas/ci.mp3' },
-  'CIA': { pron: 'Cia', audio: 'assets/audio/silabas/cia.mp3' },
+  'CIA': { pron: 'ciá', audio: 'assets/audio/silabas/cia.mp3' },
   'CLE': { pron: 'Cle', audio: 'assets/audio/silabas/cle.mp3' },
   'CO': { pron: 'Co', audio: 'assets/audio/silabas/co.mp3' },
   'CU': { pron: 'Cu', audio: 'assets/audio/silabas/cu.mp3' },

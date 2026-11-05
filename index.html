@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -6432,6 +6432,7 @@
       'TI': ['ti.', 'ti', 'thi', 'tí'],
       'TU': ['tu.', 'tu', 'thu', 'tú'],
       'PUEN': ['puen', 'puen.', 'pwén', 'puén', 'pu-en'],
+      'CIA': ['ciá', 'siá', 'sia.', 'cia.', 'sia', 'cyá'],
       'OS': ['hos', 'os.', 'ohs', 'os'],
       'AL': ['al.', 'ál', 'al'],
       'EL': ['el.', 'él', 'el'],
@@ -8855,7 +8856,7 @@
 
       const newPron = pronInput.value.trim();
       const rawSyls = sylInput ? sylInput.value.trim() : '';
-      const sylArray = rawSyls ? rawSyls.split(/[-–—/,s]+/).map(s => s.trim().toUpperCase()).filter(Boolean) : null;
+      const sylArray = rawSyls ? rawSyls.split(/[-–—/,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean) : null;
 
       const updates = {
         pronunciacion: newPron
