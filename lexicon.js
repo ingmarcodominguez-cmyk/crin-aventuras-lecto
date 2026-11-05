@@ -16,6 +16,22 @@ const CANONICAL_WORD_LEXICON = {
     silabas: ['A', 'BA', 'NI', 'CO'],
     emoji: 'assets/abanico.png'
   },
+  'ALCANCÍA': {
+    escritura: 'ALCANCÍA',
+    pronunciacion: 'Alcancía',
+    letras: ['A', 'L', 'C', 'A', 'N', 'C', 'Í', 'A'],
+    silabas: ['AL', 'CAN', 'CÍ', 'A'],
+    silabasPron: ['Al', 'Can', 'cí', 'a'],
+    emoji: '🐖'
+  },
+  'ALCANCIA': {
+    escritura: 'ALCANCÍA',
+    pronunciacion: 'Alcancía',
+    letras: ['A', 'L', 'C', 'A', 'N', 'C', 'Í', 'A'],
+    silabas: ['AL', 'CAN', 'CÍ', 'A'],
+    silabasPron: ['Al', 'Can', 'cí', 'a'],
+    emoji: '🐖'
+  },
   'BABERO': {
     escritura: 'BABERO',
     pronunciacion: 'Babero',
@@ -1175,6 +1191,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Farmacia',
     letras: ['F', 'A', 'R', 'M', 'A', 'C', 'I', 'A'],
     silabas: ['FAR', 'MA', 'CIA'],
+    silabasPron: ['Far', 'Ma', 'ciá'],
     emoji: 'assets/farmacia.png'
   },
   'FELINO': {
@@ -1584,6 +1601,7 @@ function _getCanonicalWordRaw(wordOrId) {
       pronunciacion: merged.pronunciacion || merged.escritura || cleanRaw,
       letras: merged.letras ? [...merged.letras] : (typeof getWordLetterTokens === 'function' ? getWordLetterTokens(merged.escritura || cleanRaw) : (merged.escritura || cleanRaw).split('')),
       silabas: merged.silabas ? [...merged.silabas] : (typeof splitSpanishSyllables === 'function' ? splitSpanishSyllables(merged.escritura || cleanRaw) : [merged.escritura || cleanRaw]),
+      silabasPron: (merged.silabasPron && Array.isArray(merged.silabasPron)) ? [...merged.silabasPron] : null,
       emoji: currentEmoji,
       isCustomOverride: !!overrideItem
     };
@@ -1632,6 +1650,7 @@ function buildCanonicalWordEntry(rawWord) {
     pronunciacion: pron,
     letras: tokens,
     silabas: syllables,
+    silabasPron: null,
     emoji: emojiVal
   };
 }
@@ -1902,4 +1921,22 @@ if (typeof window !== 'undefined') {
 
 if (typeof window !== 'undefined') {
   window.CANONICAL_WORD_LEXICON = CANONICAL_WORD_LEXICON;
+}
+
+
+// OBTENER SECUENCIA FONÉTICA EXACTA DE SÍLABAS DE UNA PALABRA ESPECÍFICA
+function getWordSyllablePronunciations(wordOrId) {
+  const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(wordOrId) : null;
+  if (!canon) return [];
+  if (canon.silabasPron && Array.isArray(canon.silabasPron) && canon.silabasPron.length > 0) {
+    return canon.silabasPron;
+  }
+  if (!canon.silabas || !Array.isArray(canon.silabas)) return [];
+  return canon.silabas.map(s => {
+    const cs = (typeof getCanonicalSyllable === 'function') ? getCanonicalSyllable(s) : null;
+    return (cs && cs.pron) ? cs.pron : s;
+  });
+}
+if (typeof window !== 'undefined') {
+  window.getWordSyllablePronunciations = getWordSyllablePronunciations;
 }

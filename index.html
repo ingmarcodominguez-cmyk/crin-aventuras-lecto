@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v311';
+    const CURRENT_APP_VERSION = 'v312';
 
     function syncAppVersionLabels() {
       try {
@@ -3454,8 +3454,26 @@
     window.getCanonicalSyllablePronunciation = getCanonicalSyllablePronunciation;
 
 // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (VOZ UNIFICADA NATURAL) ---
-    window.playSyllableSound = function(syl, onEnd) {
+    window.playSyllableSound = function(syl, onEnd, wordContext, slotIdx) {
       if (!syl) { if (onEnd) onEnd(); return; }
+
+      // 0. Prioridad Soberana: Fonética específica de ESTA palabra (Word-Centric)
+      const activeWord = wordContext || (typeof targetItem !== 'undefined' ? targetItem : null);
+      if (activeWord && activeWord.word) {
+        const canonWord = (typeof getCanonicalWord === 'function') ? getCanonicalWord(activeWord.word) : null;
+        if (canonWord && canonWord.silabasPron && Array.isArray(canonWord.silabasPron) && canonWord.silabas) {
+          const rawUpper = String(syl).toUpperCase().trim();
+          let sIdx = (typeof slotIdx === 'number' && slotIdx >= 0) ? slotIdx : canonWord.silabas.indexOf(rawUpper);
+          if (sIdx === -1) {
+            sIdx = canonWord.silabas.findIndex(s => (window.stripAcutes || (t => t))(s) === (window.stripAcutes || (t => t))(rawUpper));
+          }
+          if (sIdx !== -1 && canonWord.silabasPron[sIdx]) {
+            speakText(canonWord.silabasPron[sIdx], onEnd);
+            return;
+          }
+        }
+      }
+
       const cleanSyl = (window.stripAcutes || (t => t))(String(syl)).toUpperCase().replace(/[^A-ZÑÜ]/g, '');
       const sylKey = 'syl_' + cleanSyl.toLowerCase();
 
@@ -6065,7 +6083,7 @@
           } else if (gameState.currentMode === 'homework') {
             playHomeworkSentenceNarration(targetItem);
           } else if (gameState.currentMode === 'syllable' && targetItem.syllables) {
-            speakText(targetItem.syllables.join(', '));
+            const _toSpeak = (targetItem.silabasPron && targetItem.silabasPron.length > 0) ? targetItem.silabasPron.join(', ') : targetItem.syllables.join(', '); speakText(_toSpeak);
           } else if (targetItem.word) {
             speakText(targetItem.word);
           }
@@ -6077,7 +6095,7 @@
 
     function speakCurrentTarget() {
       if ((gameState.currentMode === 'syllable' || gameState.currentMode === 'story') && targetItem.syllables) {
-        speakText(targetItem.syllables.join(', '));
+        const _toSpeak = (targetItem.silabasPron && targetItem.silabasPron.length > 0) ? targetItem.silabasPron.join(', ') : targetItem.syllables.join(', '); speakText(_toSpeak);
       } else {
         speakText(targetItem.word);
       }
@@ -8311,6 +8329,7 @@
         const displayWord = canon ? canon.escritura : w;
         const currentPron = canon ? canon.pronunciacion : w;
         const currentSyls = (canon && canon.silabas) ? canon.silabas.join(' - ') : '';
+        const currentSylsPron = (canon && canon.silabasPron && Array.isArray(canon.silabasPron)) ? canon.silabasPron.join(' - ') : '';
         const currentLetters = (canon && canon.letras) ? canon.letras.join(' · ') : w.split('').join(' · ');
         const isCustom = canon && canon.isCustomOverride;
         const currentEmoji = customEmojiOverrides[w] || (canon && canon.emoji) || emojiMap[w] || '⭐';
@@ -8374,6 +8393,22 @@
                   <button onclick="testCardSyllablesAudio('${normKey}')" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; border: none; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(124,58,237,0.25); white-space: nowrap;" title="Escuchar el silabeo exacto de esta palabra">
                     <span>✂️ Probar Silabeo</span>
                   </button>
+                </div>
+              </div>
+
+              <!-- CUALIDAD 2B: FONÉTICA DEL SILABEO PROPIA DE ESTA PALABRA -->
+              <div style="background: #FAF5FF; border: 1.5px solid #DDD6FE; border-radius: 10px; padding: 7px 10px; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                  <label style="font-size: 10px; font-weight: 800; color: #6D28D9;">
+                    🗣️ Fonética del silabeo de ESTA palabra:
+                  </label>
+                  <span style="font-size: 8px; color: #7C3AED; font-weight: 700;">(ej: Far - Ma - ciá)</span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <input type="text" id="dict-sylpron-${normKey}" value="${currentSylsPron}" style="flex: 1; border: 1.5px solid #C4B5FD; background: #FFFFFF; border-radius: 7px; padding: 4px 8px; font-size: 11px; font-weight: 700; color: #5B21B6;" placeholder="Opcional: cómo suena en esta palabra (ej: Far - Ma - ciá)" />
+                </div>
+                <div style="font-size: 8px; color: #6D28D9; margin-top: 3px; line-height: 1.2;">
+                  💡 <em>Si lo dejas vacío usa las sílabas estándar. Si alguna sílaba de esta palabra suena mal (ej: CIA ➔ ciá), escríbelo aquí y SOLO afectará a esta palabra.</em>
                 </div>
               </div>
 
@@ -8542,14 +8577,17 @@
     }
 
     function testCardSyllablesAudio(normKey) {
+      const sylPronInput = document.getElementById('dict-sylpron-' + normKey);
       const sylInput = document.getElementById('dict-syl-' + normKey);
-      const rawVal = sylInput ? sylInput.value.trim() : '';
+      const pronVal = sylPronInput ? sylPronInput.value.trim() : '';
+      const rawVal = pronVal || (sylInput ? sylInput.value.trim() : '');
       if (!rawVal) return;
-      const parts = rawVal.split(/[-–—/,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
+      const parts = rawVal.split(/[-–—/,\s]+/).map(s => s.trim()).filter(Boolean);
       if (parts.length === 0) return;
       if (typeof speakText === 'function') {
         speakText(parts.join(', '));
       }
+    }
     }
 
 
@@ -8863,6 +8901,14 @@
       };
       if (sylArray && sylArray.length > 0) {
         updates.silabas = sylArray;
+      }
+      const sylPronInput = document.getElementById('dict-sylpron-' + normKey);
+      const rawSylsPron = sylPronInput ? sylPronInput.value.trim() : '';
+      const sylPronArray = rawSylsPron ? rawSylsPron.split(/[-–—/,\s]+/).map(s => s.trim()).filter(Boolean) : null;
+      if (sylPronArray && sylPronArray.length > 0) {
+        updates.silabasPron = sylPronArray;
+      } else {
+        updates.silabasPron = null;
       }
 
       if (typeof saveCanonicalWordOverride === 'function') {
@@ -10332,7 +10378,7 @@
         const sentence = (customItem && customItem.sentence) ? customItem.sentence : getSentenceForWord(cleanWord, idx);
 
         gameDatasets.global.push({ word: cleanWord, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
-        gameDatasets.syllable.push({ word: cleanWord, syllables: syllables, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
+        gameDatasets.syllable.push({ word: cleanWord, syllables: syllables, silabasPron: (canonical && canonical.silabasPron) ? canonical.silabasPron : null, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
         gameDatasets.homework.push({ sentence: sentence, word: cleanWord, emoji: emoji, obstacle: '📦', pronunciacion: canonical ? canonical.pronunciacion : cleanWord });
 
         // Excluir MAMÁ de las historias del Cuento Mágico
