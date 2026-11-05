@@ -3493,7 +3493,7 @@
       'PA': 'Pa', 'PE': 'Pe', 'PI': 'Pi', 'PO': 'Po', 'PU': 'Pu',
       'RA': 'Ra', 'RE': 'Re', 'RI': 'Ri', 'RO': 'Ro', 'RU': 'Ru',
       'RRO': 'Rro',
-      'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'SO': 'So', 'SU': 'Su',
+      'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'OS': 'hos', 'SO': 'So', 'SU': 'Su',
       'TA': 'Ta', 'TE': 'Te', 'TI': 'Ti', 'TO': 'tho', 'TU': 'Tu',
       'ZA': 'Za', 'ZE': 'Ze', 'ZI': 'Zi', 'ZO': 'Zo', 'ZU': 'Zu',
       'JA': 'Ja', 'JE': 'je', 'JI': 'Ji', 'JO': 'jo', 'JU': 'Jú',
@@ -3936,6 +3936,8 @@
       // Evita la expansión de símbolos químicos/abreviaturas en sintetizadores de voz (NA -> Sodio, TO -> To)
       text = text.replace(/\bNA\b/gi, 'Náh');
       text = text.replace(/\bTO\b/gi, 'tho');
+      text = text.replace(/\bOS\b/g, 'hos');
+      text = text.replace(/\bOs\b/g, 'hos');
       // Evita que la letra 'B' / 'Be' se lea en inglés como el verbo 'be' (/biː/ -> "bi")
       text = text.replace(/\bBe\b/g, 'beh');
       text = text.replace(/\bbe\b/g, 'beh');

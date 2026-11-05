@@ -1757,7 +1757,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'NO': { pron: 'No', audio: 'assets/audio/silabas/no.mp3' },
   'NU': { pron: 'Nu', audio: 'assets/audio/silabas/nu.mp3' },
   'O': { pron: 'O', audio: 'assets/audio/silabas/o.mp3' },
-  'OS': { pron: 'Os', audio: 'assets/audio/silabas/os.mp3' },
+  'OS': { pron: 'hos', audio: 'assets/audio/silabas/os.mp3' },
   'PA': { pron: 'Pa', audio: 'assets/audio/silabas/pa.mp3' },
   'PAN': { pron: 'Pan', audio: 'assets/audio/silabas/pan.mp3' },
   'PE': { pron: 'Pe', audio: 'assets/audio/silabas/pe.mp3' },
