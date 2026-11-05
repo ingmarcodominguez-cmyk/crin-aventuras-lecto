@@ -3490,7 +3490,7 @@
       'LA': 'La', 'LE': 'Le', 'LI': 'Li', 'LO': 'Lo', 'LU': 'Lu',
       'MA': 'Ma', 'ME': 'Me', 'MI': 'Mi', 'MO': 'Mo', 'MU': 'Mu',
       'NA': 'Náh', 'NE': 'Ne', 'NI': 'Ni', 'NO': 'No', 'NU': 'Nu',
-      'PA': 'Pa', 'PE': 'Pe', 'PI': 'Pi', 'PO': 'Po', 'PU': 'Pu',
+      'PA': 'Pa', 'PE': 'Pe', 'PI': 'Pi', 'PO': 'Po', 'PU': 'Pu', 'PUEN': 'puen',
       'RA': 'Ra', 'RE': 'Re', 'RI': 'Ri', 'RO': 'Ro', 'RU': 'Ru',
       'RRO': 'Rro',
       'SA': 'Sa', 'SE': 'Se', 'SI': 'Si', 'OS': 'hos', 'SO': 'So', 'SU': 'Su',
@@ -3938,6 +3938,7 @@
       text = text.replace(/\bTO\b/gi, 'tho');
       text = text.replace(/\bOS\b/g, 'hos');
       text = text.replace(/\bOs\b/g, 'hos');
+      text = text.replace(/\bPUEN\b/gi, 'puen');
       // Evita que la letra 'B' / 'Be' se lea en inglés como el verbo 'be' (/biː/ -> "bi")
       text = text.replace(/\bBe\b/g, 'beh');
       text = text.replace(/\bbe\b/g, 'beh');

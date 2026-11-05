@@ -1772,7 +1772,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'PLU': { pron: 'Plu', audio: 'assets/audio/silabas/plu.mp3' },
   'PO': { pron: 'Po', audio: 'assets/audio/silabas/po.mp3' },
   'PU': { pron: 'Pu', audio: 'assets/audio/silabas/pu.mp3' },
-  'PUEN': { pron: 'Puen', audio: 'assets/audio/silabas/puen.mp3' },
+  'PUEN': { pron: 'puen', audio: 'assets/audio/silabas/puen.mp3' },
   'PUER': { pron: 'Puer', audio: 'assets/audio/silabas/puer.mp3' },
   'PÁ': { pron: 'Pá', audio: 'assets/audio/silabas/pa.mp3' },
   'QUE': { pron: 'Que', audio: 'assets/audio/silabas/que.mp3' },
