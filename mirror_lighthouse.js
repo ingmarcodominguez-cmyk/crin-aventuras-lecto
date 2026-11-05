@@ -140,7 +140,14 @@
 
     // Pre-cargar inmediatamente todas las imágenes y locuciones de la sesión
     try {
-      MirrorGame.cases.forEach(mc => {
+      // Pre-cargar imágenes de alta resolución del faro y barquitos
+    getCachedImg('assets/faro.png');
+    getCachedImg('assets/faro_luz_barco1.png');
+    getCachedImg('assets/faro_luz_barco2.png');
+    getCachedImg('assets/barco.png');
+    getCachedImg('assets/barco_oscuro.png');
+
+    MirrorGame.cases.forEach(mc => {
         getCachedImg(mc.targetImage);
         if (typeof window.preloadTtsAudio === 'function' && mc.promptText) {
           window.preloadTtsAudio(mc.promptText);
@@ -216,19 +223,22 @@
     const h = MirrorGame.height;
     if (MirrorGame.boats.length < 2) return;
 
-    const bw = Math.min(140, Math.floor(w * 0.28));
-    const bh = bw;
-    const waterY = h * 0.62;
+    // Dimensiones calibradas de los barquitos
+    const bw = Math.min(220, Math.floor(w * 0.28));
+    const bh = Math.floor(bw * (935 / 1024));
+    const waterY = h * 0.58;
 
+    // Barquito 0 (primer barquito, donde apunta faro_luz_barco1)
     MirrorGame.boats[0].w = bw;
     MirrorGame.boats[0].h = bh;
-    MirrorGame.boats[0].x = w * 0.35 - bw / 2;
+    MirrorGame.boats[0].x = w * 0.40 - bw / 2;
     MirrorGame.boats[0].y = waterY;
 
+    // Barquito 1 (segundo barquito, donde apunta faro_luz_barco2)
     MirrorGame.boats[1].w = bw;
     MirrorGame.boats[1].h = bh;
-    MirrorGame.boats[1].x = w * 0.70 - bw / 2;
-    MirrorGame.boats[1].y = waterY;
+    MirrorGame.boats[1].x = w * 0.72 - bw / 2;
+    MirrorGame.boats[1].y = waterY - 10;
   }
 
   function updateMirrorHUD() {
@@ -304,52 +314,25 @@
       ctx.stroke();
     }
 
-    // 3. El Faro en la costa izquierda
-    const fX = w * 0.12;
-    const fBaseY = h * 0.65;
-    const fTopY = h * 0.18;
+    // 3. El Faro en la costa izquierda (según estado de iluminación)
+    let faroSrc = 'assets/faro.png';
+    if (MirrorGame.selectedBoat) {
+      if (MirrorGame.selectedBoat === MirrorGame.boats[0]) {
+        faroSrc = 'assets/faro_luz_barco1.png';
+      } else if (MirrorGame.selectedBoat === MirrorGame.boats[1]) {
+        faroSrc = 'assets/faro_luz_barco2.png';
+      }
+    }
 
-    // Torre del faro a rayas rojas y blancas
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(fX - 28, fBaseY);
-    ctx.lineTo(fX + 28, fBaseY);
-    ctx.lineTo(fX + 16, fTopY);
-    ctx.lineTo(fX - 16, fTopY);
-    ctx.closePath();
-    ctx.fillStyle = '#E2E8F0';
-    ctx.fill();
+    const faroImg = getCachedImg(faroSrc);
+    const faroH = Math.min(h * 0.90, Math.max(320, w * 0.52));
+    const faroW = faroH * (1024 / 935);
+    const faroX = -faroW * 0.08;
+    const faroY = h - faroH + 20;
 
-    // Rayas rojas
-    ctx.fillStyle = '#EF4444';
-    ctx.fillRect(fX - 25, fBaseY - 45, 50, 22);
-    ctx.fillRect(fX - 20, fBaseY - 95, 40, 20);
-
-    // Linterna de luz en la cima
-    ctx.fillStyle = '#F59E0B';
-    ctx.fillRect(fX - 18, fTopY - 18, 36, 18);
-    ctx.fillStyle = '#FEF08A';
-    ctx.beginPath();
-    ctx.arc(fX, fTopY - 9, 12, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Haz de luz del faro barriendo hacia el mar
-    const targetBoat = MirrorGame.selectedBoat || MirrorGame.boats[0];
-    const beamTargetX = targetBoat ? targetBoat.x + targetBoat.w / 2 : w * 0.5;
-    const beamTargetY = targetBoat ? targetBoat.y + targetBoat.h / 2 : h * 0.7;
-
-    const beamGrad = ctx.createRadialGradient(fX, fTopY - 9, 10, beamTargetX, beamTargetY, 350);
-    beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.65)');
-    beamGrad.addColorStop(1, 'rgba(254, 240, 138, 0.0)');
-
-    ctx.fillStyle = beamGrad;
-    ctx.beginPath();
-    ctx.moveTo(fX, fTopY - 9);
-    ctx.lineTo(beamTargetX - 70, beamTargetY);
-    ctx.lineTo(beamTargetX + 70, beamTargetY);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+    if (faroImg && faroImg.complete && faroImg.naturalWidth > 0) {
+      ctx.drawImage(faroImg, faroX, faroY, faroW, faroH);
+    }
 
     // 4. Palabra ancla ilustrada en la parte superior (ej. BOTA con su imagen)
     if (c) {
@@ -389,50 +372,40 @@
     // 5. Barquitos navegando con su letra en la vela
     MirrorGame.boats.forEach(boat => {
       const bobY = boat.y + Math.sin(MirrorGame.time * 2.5 + boat.waveOffset) * 6;
+      const isLit = (boat === MirrorGame.selectedBoat);
+      const boatImgSrc = isLit ? 'assets/barco.png' : 'assets/barco_oscuro.png';
+      const boatImg = getCachedImg(boatImgSrc);
 
       ctx.save();
-      ctx.translate(boat.x + boat.w / 2 + (boat.shake ? Math.sin(MirrorGame.time * 30) * boat.shake : 0), bobY);
+      ctx.translate(boat.x + boat.w / 2 + (boat.shake ? Math.sin(MirrorGame.time * 30) * boat.shake : 0), bobY + boat.h / 2);
       ctx.scale(boat.scale, boat.scale);
 
-      // Casco del barco (madera)
-      ctx.fillStyle = '#78350F';
-      ctx.beginPath();
-      ctx.moveTo(-boat.w * 0.45, 20);
-      ctx.lineTo(boat.w * 0.45, 20);
-      ctx.lineTo(boat.w * 0.32, 42);
-      ctx.lineTo(-boat.w * 0.32, 42);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#451A03';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // Si está iluminado por el faro, halo de luz dorada
+      if (isLit) {
+        ctx.shadowColor = '#FBBF24';
+        ctx.shadowBlur = 24;
+      }
 
-      // Mástil
-      ctx.strokeStyle = '#D97706';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(0, 20);
-      ctx.lineTo(0, -boat.h * 0.45);
-      ctx.stroke();
+      if (boatImg && boatImg.complete && boatImg.naturalWidth > 0) {
+        ctx.drawImage(boatImg, -boat.w / 2, -boat.h / 2, boat.w, boat.h);
+      }
 
-      // Vela blanca luminosa con la letra
-      ctx.fillStyle = (boat === MirrorGame.selectedBoat) ? '#FEF08A' : '#FFFFFF';
-      ctx.beginPath();
-      ctx.moveTo(0, -boat.h * 0.45);
-      ctx.lineTo(boat.w * 0.38, 8);
-      ctx.lineTo(0, 16);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = '#CBD5E1';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // Letra clave sobre la vela (centro de la vela: X ~ 51%, Y ~ 41%)
+      const sailX = -boat.w / 2 + boat.w * 0.51;
+      const sailY = -boat.h / 2 + boat.h * 0.41;
 
-      // Letra clave de gran tamaño y tipografía clara sin ambigüedad
-      ctx.font = '900 38px "Comic Neue", "Nunito", sans-serif';
+      ctx.font = '900 ' + Math.round(boat.h * 0.22) + 'px "Comic Neue", "Nunito", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#0F172A';
-      ctx.fillText(boat.letter, 12, -10);
+      if (isLit) {
+        ctx.shadowColor = '#FEF08A';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#0F172A';
+      } else {
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#0F172A';
+      }
+      ctx.fillText(boat.letter, sailX, sailY);
 
       ctx.restore();
     });
