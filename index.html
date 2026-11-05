@@ -3456,19 +3456,41 @@
 // --- REPRODUCTOR FONOLÓGICO CANÓNICO DE SÍLABAS (VOZ UNIFICADA NATURAL) ---
     window.playSyllableSound = function(syl, onEnd) {
       if (!syl) { if (onEnd) onEnd(); return; }
+      const cleanSyl = (window.stripAcutes || (t => t))(String(syl)).toUpperCase().replace(/[^A-ZÑÜ]/g, '');
+      const sylKey = 'syl_' + cleanSyl.toLowerCase();
+
+      // 1. ¿El usuario grabó su propia voz con micrófono en la app para esta sílaba?
+      if (typeof window.getCustomVoiceDataUrl === 'function') {
+        const customVoice = window.getCustomVoiceDataUrl(sylKey);
+        if (customVoice) {
+          const audio = new Audio(customVoice);
+          audio.onended = () => { if (onEnd) onEnd(); };
+          audio.onerror = () => { if (onEnd) onEnd(); };
+          audio.play().catch(() => { if (onEnd) onEnd(); });
+          return;
+        }
+      }
+
+      // 2. ¿El usuario eligió usar MP3 o hay un archivo MP3 en la app?
+      const pref = localStorage.getItem('crin_syl_source_' + cleanSyl);
       const canon = (typeof getCanonicalSyllable === 'function')
         ? getCanonicalSyllable(syl)
         : { pron: syl.charAt(0).toUpperCase() + syl.slice(1).toLowerCase(), audio: null };
+      const mp3Src = (canon && canon.audio) ? canon.audio : ('assets/audio/silabas/' + cleanSyl.toLowerCase() + '.mp3');
 
-      // Si existe la grabación de la sílaba, se usa esa (pronunciación correcta, sin depender de Google)
-      if (typeof window.getLocalSyllableAudioSrc === 'function' && window.getLocalSyllableAudioSrc(syl)) {
-        let called = false;
-        const done = () => { if (!called) { called = true; if (onEnd) onEnd(); } };
-        speakText([syl], { onSuccess: done, onError: done, onCancel: () => {} }, true);
+      if (pref === 'mp3' || (!pref && canon && canon.audio)) {
+        const audio = new Audio(mp3Src);
+        audio.onended = () => { if (onEnd) onEnd(); };
+        audio.onerror = () => {
+          speakText(canon.pron || syl, onEnd);
+        };
+        audio.play().catch(() => {
+          speakText(canon.pron || syl, onEnd);
+        });
         return;
       }
 
-      // Sin grabación: voz de respaldo (Google TTS)
+      // 3. Voz sintetizada de respaldo
       speakText(canon.pron || syl, onEnd);
     };
 
@@ -6258,43 +6280,64 @@
           ? '<span style="color: #64748B; font-size: 10px; display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + entry.words.join(', ') + '">En ' + entry.words.length + ' palabras: ' + entry.words.slice(0, 4).join(', ') + (entry.words.length > 4 ? '...' : '') + '</span>'
           : '<span style="color: #475569; font-size: 10px; display: block;">(sílaba canónica)</span>';
 
+        const sylKey = 'syl_' + s.toLowerCase().replace(/[^a-zñáéíóúü]/g, '');
+        const hasMicVoice = (typeof window.hasCustomVoice === 'function' && window.hasCustomVoice(sylKey));
+        const isRecordingThis = (window.activeRecordingTarget === sylKey);
+        const activeSourcePref = localStorage.getItem('crin_syl_source_' + s) || (hasMicVoice ? 'mic' : 'mp3');
+
         tr.innerHTML = `
           <td style="padding: 8px 10px; border-radius: 10px 0 0 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 15px; font-weight: 900; color: ${isBad ? '#FCA5A5' : (hasCustom ? '#FDE68A' : '#38BDF8')}; font-family: monospace;">${s}</span>
-              ${hasCustom ? '<span style="background: #F59E0B; color: #78350F; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">CALIBRADA</span>' : ''}
-              ${isBad ? '<span style="background: #EF4444; color: #FFFFFF; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">ERROR</span>' : ''}
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span style="font-size: 16px; font-weight: 900; color: ${isBad ? '#FCA5A5' : (hasMicVoice ? '#6EE7B7' : '#38BDF8')}; font-family: monospace;">${s}</span>
+              ${hasMicVoice ? '<span style="background: #10B981; color: white; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">🎙️ MI VOZ</span>' : ''}
+              ${activeSourcePref === 'mp3' ? '<span style="background: #0284C7; color: white; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">🎵 MP3 FIJADO</span>' : ''}
+              ${isBad ? '<span style="background: #EF4444; color: white; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">⚠️ MAL</span>' : ''}
             </div>
             ${wordsSnippet}
           </td>
           <td style="padding: 8px 10px;">
-            <input type="text" id="auditor-input-${s}" value="${currentPron}" placeholder="Fonética..." style="width: 130px; padding: 5px 8px; border-radius: 6px; border: 1.5px solid ${hasCustom ? '#F59E0B' : '#475569'}; background: #0B1329; color: #FFFFFF; font-weight: bold; font-size: 12px;" />
+            <!-- GRABACIÓN DIRECTA CON MICRÓFONO O ELECCIÓN DIRECTA -->
+            <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+              ${isRecordingThis ? `
+                <button onclick="auditorStopVoiceRecording('${s}')" style="background: #EF4444; color: white; border: 1.5px solid #FCA5A5; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 900; cursor: pointer; animation: pulse 1s infinite; display: flex; align-items: center; gap: 5px;">
+                  <span>⏹️ PARAR Y GUARDAR</span>
+                </button>
+              ` : `
+                <button onclick="auditorStartVoiceRecording('${s}')" style="background: #10B981; color: white; border: none; border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);" title="Toca para grabar esta sílaba con tu micrófono directamente">
+                  <span>🎙️ ${hasMicVoice ? 'Regrabar Voz' : 'Grabar con Micrófono'}</span>
+                </button>
+              `}
+              ${hasMicVoice ? `
+                <button onclick="playAuditorCustomVoice('${sylKey}')" style="background: #064E3B; color: #6EE7B7; border: 1px solid #10B981; border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Escuchar tu propia voz grabada">
+                  ▶️ Oír
+                </button>
+                <button onclick="auditorDeleteVoiceRecording('${s}')" style="background: transparent; color: #FCA5A5; border: 1px solid #EF4444; border-radius: 8px; padding: 6px 8px; font-size: 11px; cursor: pointer;" title="Eliminar tu grabación y volver al audio predeterminado">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
           </td>
           <td style="padding: 8px 10px;">
             <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-              <button onclick="playAuditorGoogle('${s}')" style="background: #0284C7; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con Google TTS">
-                <span>🌐 Google</span>
+              <button onclick="setAuditorSourcePref('${s}', 'mp3')" style="background: ${activeSourcePref === 'mp3' ? '#0284C7' : '#1E293B'}; color: ${activeSourcePref === 'mp3' ? '#FFFFFF' : '#94A3B8'}; border: 1px solid ${activeSourcePref === 'mp3' ? '#38BDF8' : '#475569'}; border-radius: 6px; padding: 4px 8px; font-size: 10px; font-weight: bold; cursor: pointer;" title="Fijar este audio MP3 para todos los juegos de la app">
+                🎵 Usar MP3 Estudio
               </button>
-              <button onclick="playAuditorNative('${s}', 'male')" style="background: #059669; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con voz nativa masculina">
-                <span>👨 Masc</span>
+              <button onclick="playAuditorLocal('${localAudio}')" style="background: #334155; color: #E2E8F0; border: 1px solid #64748B; border-radius: 6px; padding: 4px 6px; font-size: 10px; cursor: pointer;" title="Probar audio MP3">
+                ▶️ Oír
               </button>
-              <button onclick="playAuditorNative('${s}', 'female')" style="background: #7C3AED; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con voz nativa femenina">
-                <span>👩 Fem</span>
+              <button onclick="playAuditorGoogle('${s}')" style="background: #1E293B; color: #7DD3FC; border: 1px solid #0284C7; border-radius: 6px; padding: 4px 7px; font-size: 10px; cursor: pointer;" title="Oír cómo lo dice Google">
+                🌐 Google
               </button>
-              <button onclick="playAuditorLocal('${localAudio}')" style="background: #334155; color: #E2E8F0; border: 1px solid #64748B; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Escuchar archivo de audio MP3 local">
-                <span>🎵 MP3</span>
+              <button onclick="playAuditorNative('${s}', 'male')" style="background: #1E293B; color: #A7F3D0; border: 1px solid #059669; border-radius: 6px; padding: 4px 7px; font-size: 10px; cursor: pointer;" title="Oír cómo lo dice la voz masculina de Windows">
+                👨 Masc
               </button>
             </div>
           </td>
           <td style="padding: 8px 10px; text-align: right; border-radius: 0 10px 10px 0;">
             <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
-              <button onclick="saveAuditorSyllablePron('${s}')" style="background: #10B981; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Guardar este ajuste para que se aplique en vivo a toda la app">
-                💾 Guardar
+              <button onclick="toggleAuditorBadSyllable('${s}')" style="background: ${isBad ? '#DC2626' : '#1E293B'}; color: ${isBad ? '#FFFFFF' : '#FCA5A5'}; border: 1px solid #EF4444; border-radius: 6px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Marcar como dicción defectuosa">
+                ${isBad ? '⚠️ Marcada Mal' : '⚠️ Marcar Mal'}
               </button>
-              <button onclick="toggleAuditorBadSyllable('${s}')" style="background: ${isBad ? '#DC2626' : '#1E293B'}; color: ${isBad ? '#FFFFFF' : '#FCA5A5'}; border: 1px solid #EF4444; border-radius: 6px; padding: 4px 7px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Marcar como incorrecta o corregida">
-                ${isBad ? '⚠️ Marcada' : '⚠️ Mal'}
-              </button>
-              ${hasCustom ? `<button onclick="resetAuditorSyllablePron('${s}')" style="background: transparent; color: #94A3B8; border: 1px solid #475569; border-radius: 6px; padding: 4px 6px; font-size: 10px; cursor: pointer;" title="Restablecer original">↺</button>` : ''}
             </div>
           </td>
         `;
@@ -6305,6 +6348,69 @@
       if (badBadge) badBadge.innerText = badCount;
       const customBadge = document.getElementById('auditor-cnt-custom');
       if (customBadge) customBadge.innerText = customCount;
+    }
+
+    
+    function auditorStartVoiceRecording(syl) {
+      const sylKey = 'syl_' + syl.toLowerCase().replace(/[^a-zñáéíóúü]/g, '');
+      window.activeRecordingTarget = sylKey;
+      renderAuditorRows();
+      if (typeof window.startVoiceRecording === 'function') {
+        window.startVoiceRecording(sylKey, () => {
+          if (typeof showFloatingFeedbackToast === 'function') {
+            showFloatingFeedbackToast('🎙️ Grabando sílaba "' + syl + '"... Habla claro al micrófono y pulsa "PARAR"');
+          }
+        }, (err) => {
+          window.activeRecordingTarget = null;
+          renderAuditorRows();
+        });
+      } else {
+        alert('El grabador de audio no está disponible en este navegador.');
+      }
+    }
+
+    function auditorStopVoiceRecording(syl) {
+      if (typeof window.stopVoiceRecording === 'function') {
+        window.stopVoiceRecording((targetKey, dataUrl) => {
+          window.activeRecordingTarget = null;
+          localStorage.setItem('crin_syl_source_' + syl, 'mic');
+          if (typeof showFloatingFeedbackToast === 'function') {
+            showFloatingFeedbackToast('✅ ¡Grabación de voz guardada para ' + syl + '! Ya se escucha en toda la app.');
+          }
+          renderAuditorRows();
+        });
+      }
+    }
+
+    function auditorDeleteVoiceRecording(syl) {
+      const sylKey = 'syl_' + syl.toLowerCase().replace(/[^a-zñáéíóúü]/g, '');
+      if (typeof window.deleteVoiceRecording === 'function') {
+        window.deleteVoiceRecording(sylKey, () => {
+          localStorage.removeItem('crin_syl_source_' + syl);
+          if (typeof showFloatingFeedbackToast === 'function') {
+            showFloatingFeedbackToast('🗑️ Grabación eliminada para ' + syl);
+          }
+          renderAuditorRows();
+        });
+      }
+    }
+
+    function playAuditorCustomVoice(sylKey) {
+      if (typeof window.getCustomVoiceDataUrl === 'function') {
+        const url = window.getCustomVoiceDataUrl(sylKey);
+        if (url) {
+          const a = new Audio(url);
+          a.play().catch(e => console.error(e));
+        }
+      }
+    }
+
+    function setAuditorSourcePref(syl, source) {
+      localStorage.setItem('crin_syl_source_' + syl, source);
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('✅ Sílaba ' + syl + ' ahora usará: ' + (source === 'mp3' ? '🎵 Grabación MP3 de Estudio' : '🤖 Sintetizador'));
+      }
+      renderAuditorRows();
     }
 
     function playAuditorGoogle(syl) {
