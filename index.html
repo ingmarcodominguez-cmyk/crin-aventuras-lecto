@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v309';
+    const CURRENT_APP_VERSION = 'v311';
 
     function syncAppVersionLabels() {
       try {
@@ -1333,6 +1333,9 @@
                 <button onclick="openAlphabetTesterModal()" style="background: #10B981; border: none; color: white; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(16,185,129,0.3);" title="Abre el probador con todas las letras A-Z para escuchar su pronunciación exacta">
                   <span>🔤 Probar Alfabeto Completo (A-Z)</span>
                 </button>
+                <button onclick="openSyllableAuditorModal()" style="background: #0284C7; border: none; color: white; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 6px rgba(2,132,199,0.3);" title="Audita y calibra la dicción de todas las sílabas del proyecto (Google TTS vs Nativo Masculino)">
+                  <span>🔬 Auditar Sílabas (Google vs Masculino)</span>
+                </button>
                 <button onclick="switchScreen('therapist')" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 10px; font-weight: bold; cursor: pointer;">
                   ⚙️ Ver Ajustes
                 </button>
@@ -1509,16 +1512,19 @@
             </div>
 
             <!-- 🚀 8. EL TOBOGÁN DE FUSIÓN SUAVE -->
-            <div onclick="openSlideScreen()" style="background: linear-gradient(135deg, #0369A1 0%, #0284C7 50%, #38BDF8 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #BAE6FD; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div onclick="if(typeof showFloatingFeedbackToast==='function'){showFloatingFeedbackToast('🔧 El Tobogán de Fusión está en calibración fonética temporalmente.');}else{alert('🔧 El Tobogán de Fusión está en calibración fonética temporalmente.');}" style="background: linear-gradient(135deg, #1E293B 0%, #334155 50%, #475569 100%); color: #CBD5E1; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: not-allowed; display: flex; align-items: center; justify-content: space-between; border: 2.5px dashed #F59E0B; opacity: 0.85; transition: transform 0.18s;" title="Juego en calibración de dicción y fonética">
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🚀</div>
+                <div style="background: rgba(245,158,11,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🔒</div>
                 <div>
-                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">Tobogán de Fusión</div>
-                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Continuous Blending · Memoria</div>
+                  <div style="font-size: 13px; font-weight: 900; color: #F1F5F9; display: flex; align-items: center; gap: 6px;">
+                    <span>Tobogán de Fusión</span>
+                    <span style="font-size: 9px; background: #F59E0B; color: #78350F; padding: 1px 6px; border-radius: 6px; font-weight: 900;">CALIBRANDO</span>
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.9; font-weight: 600; color: #94A3B8;">En calibración de dicción · Pausado</div>
                 </div>
               </div>
-              <button style="background: #FFFFFF; color: #0284C7; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
-                ▶️ JUGAR
+              <button style="background: rgba(245,158,11,0.15); color: #FDE68A; border: 1.5px solid #F59E0B; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: not-allowed;">
+                🔒 EN CALIBRACIÓN
               </button>
             </div>
 
@@ -1894,6 +1900,25 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- 🔬 AUDITOR Y LABORATORIO FONÉTICO DE SÍLABAS (GOOGLE TTS VS NATIVO MASCULINO) -->
+        <div class="panel-card" onclick="openSyllableAuditorModal()" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%); color: white; border: 3px solid #38BDF8; border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(2,132,199,0.25); cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)'" onmouseout="this.style.transform='scale(1)'">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-size: 36px; background: rgba(56,189,248,0.2); border-radius: 16px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1.5px solid #38BDF8;">🔬</div>
+            <div>
+              <div style="font-size: 16px; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+                <span>Auditor y Laboratorio Fonético de Sílabas</span>
+                <span style="font-size: 10px; background: #0284C7; color: white; padding: 2px 8px; border-radius: 8px; font-weight: 800;">GOOGLE vs NATIVO MASCULINO</span>
+              </div>
+              <p style="font-size: 11px; color: #BAE6FD; margin: 4px 0 0 0; line-height: 1.35;">
+                Audita las 200 sílabas de todas las palabras del proyecto. Compara en paralelo la dicción de <strong>Google TTS</strong> frente a la voz <strong>Nativa Masculina (Microsoft Raúl/Pablo)</strong> y la <strong>Grabación MP3</strong>. Puedes ajustar la fonética, probarla en el acto y guardarla para toda la app.
+              </p>
+            </div>
+          </div>
+          <button style="background: #38BDF8; color: #0F172A; border: none; padding: 8px 16px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); white-space: nowrap;">
+            Abrir Auditor ➔
+          </button>
         </div>
 
         <!-- 📌 PASO 1: GESTOR Y EDITOR DEL DICCIONARIO DE DIBUJOS Y PALABRAS -->
@@ -6034,6 +6059,436 @@
       } else {
         speakText(targetItem.word);
       }
+    }
+
+    
+    // --- AUDITOR Y LABORATORIO FONÉTICO DE SÍLABAS EN LA APP (GOOGLE TTS VS NATIVO MASCULINO) ---
+    let auditorCurrentTab = 'all';
+    let auditorBadSet = new Set();
+    let auditorSyllableList = [];
+    let auditorAudioPlayer = null;
+
+    function getAuditorPlayer() {
+      if (!auditorAudioPlayer) {
+        auditorAudioPlayer = new Audio();
+        auditorAudioPlayer.referrerPolicy = 'no-referrer';
+      }
+      return auditorAudioPlayer;
+    }
+
+    function initAuditorStorage() {
+      try {
+        const savedBad = localStorage.getItem('crin_bad_syllables');
+        if (savedBad) {
+          auditorBadSet = new Set(JSON.parse(savedBad));
+        }
+      } catch(e) {
+        auditorBadSet = new Set();
+      }
+      try {
+        const savedCustom = localStorage.getItem('crin_custom_syllable_pronunciations');
+        window._crinSyllableOverrides = savedCustom ? JSON.parse(savedCustom) : {};
+      } catch(e) {
+        window._crinSyllableOverrides = {};
+      }
+    }
+    initAuditorStorage();
+
+    function populateAuditorNativeVoices() {
+      const select = document.getElementById('auditor-native-male-voice');
+      if (!select || !('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices() || [];
+      const spanishVoices = voices.filter(v => 
+        (v.lang && (v.lang.toLowerCase().includes('es-') || v.lang.toLowerCase().includes('es_') || v.lang.toLowerCase() === 'es')) ||
+        (v.name && v.name.toLowerCase().includes('spanish'))
+      );
+      const targetVoices = spanishVoices.length > 0 ? spanishVoices : voices;
+      select.innerHTML = '';
+      targetVoices.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = v.name + (v.lang ? ' (' + v.lang + ')' : '');
+        select.appendChild(opt);
+      });
+      // Priorizar voz masculina española
+      const maleVoice = targetVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return n.includes('pablo') || n.includes('raul') || n.includes('david') || n.includes('male') || n.includes('hombre');
+      }) || targetVoices.find(v => {
+        const n = v.name.toLowerCase();
+        return !n.includes('laura') && !n.includes('helena') && !n.includes('sabina') && !n.includes('dalia') && !n.includes('paulina');
+      }) || targetVoices[0];
+      if (maleVoice) {
+        select.value = maleVoice.name;
+      }
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        populateAuditorNativeVoices();
+      };
+    }
+
+    function onAuditorVoiceChanged() {
+      const select = document.getElementById('auditor-native-male-voice');
+      if (select && select.value && typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('Voz masculina seleccionada: ' + select.value);
+      }
+    }
+
+    function openSyllableAuditorModal() {
+      initAuditorStorage();
+      populateAuditorNativeVoices();
+      const modal = document.getElementById('syllable-auditor-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        buildAuditorSyllableDataset();
+        renderAuditorRows();
+      }
+    }
+
+    function closeSyllableAuditorModal() {
+      if (auditorAudioPlayer) {
+        try { auditorAudioPlayer.pause(); } catch(e) {}
+      }
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch(e) {}
+      }
+      const modal = document.getElementById('syllable-auditor-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function buildAuditorSyllableDataset() {
+      const sylMap = new Map();
+      // 1. Obtener todas las sílabas del léxico de palabras
+      const wordLex = (typeof CANONICAL_WORD_LEXICON !== 'undefined') ? CANONICAL_WORD_LEXICON : (window.CANONICAL_WORD_LEXICON || {});
+      Object.keys(wordLex).forEach(wKey => {
+        const item = wordLex[wKey];
+        if (item && Array.isArray(item.silabas)) {
+          item.silabas.forEach(s => {
+            if (!s) return;
+            const norm = s.toString().trim().toUpperCase();
+            if (!sylMap.has(norm)) {
+              sylMap.set(norm, { syl: norm, words: [] });
+            }
+            const rec = sylMap.get(norm);
+            if (!rec.words.includes(wKey)) rec.words.push(wKey);
+          });
+        }
+      });
+
+      // 2. Obtener todas las sílabas de CANONICAL_SYLLABLE_LEXICON
+      const sylLex = (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') ? CANONICAL_SYLLABLE_LEXICON : (window.CANONICAL_SYLLABLE_LEXICON || {});
+      Object.keys(sylLex).forEach(sKey => {
+        const norm = sKey.toString().trim().toUpperCase();
+        if (!sylMap.has(norm)) {
+          sylMap.set(norm, { syl: norm, words: [] });
+        }
+      });
+
+      // Ordenar alfabéticamente
+      auditorSyllableList = Array.from(sylMap.values()).sort((a, b) => a.syl.localeCompare(b.syl, 'es'));
+      const countEl = document.getElementById('auditor-syl-count-badge');
+      if (countEl) countEl.innerText = auditorSyllableList.length + ' Sílabas';
+      const allEl = document.getElementById('auditor-cnt-all');
+      if (allEl) allEl.innerText = auditorSyllableList.length;
+    }
+
+    function setAuditorTab(tab) {
+      auditorCurrentTab = tab;
+      ['all', 'bad', 'custom'].forEach(t => {
+        const btn = document.getElementById('auditor-filter-' + t);
+        if (btn) {
+          if (t === tab) {
+            btn.style.background = '#38BDF8';
+            btn.style.color = '#0F172A';
+          } else {
+            btn.style.background = '#1E293B';
+            btn.style.color = (t === 'bad' ? '#FCA5A5' : (t === 'custom' ? '#FDE68A' : '#94A3B8'));
+          }
+        }
+      });
+      renderAuditorRows();
+    }
+
+    function filterAuditorRows() {
+      renderAuditorRows();
+    }
+
+    function renderAuditorRows() {
+      const tbody = document.getElementById('auditor-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const searchVal = (document.getElementById('auditor-search-input')?.value || '').trim().toUpperCase();
+      let badCount = 0;
+      let customCount = 0;
+
+      const sylLex = (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') ? CANONICAL_SYLLABLE_LEXICON : (window.CANONICAL_SYLLABLE_LEXICON || {});
+
+      auditorSyllableList.forEach(entry => {
+        const s = entry.syl;
+        const isBad = auditorBadSet.has(s);
+        if (isBad) badCount++;
+
+        const canonObj = sylLex[s] || {};
+        const canonPron = canonObj.pron || (s.charAt(0) + s.slice(1).toLowerCase());
+        const hasCustom = window._crinSyllableOverrides && Boolean(window._crinSyllableOverrides[s]);
+        if (hasCustom) customCount++;
+
+        const currentPron = hasCustom ? window._crinSyllableOverrides[s] : canonPron;
+        const localAudio = canonObj.audio || ('assets/audio/silabas/' + s.toLowerCase() + '.mp3');
+
+        // Filtro por tab
+        if (auditorCurrentTab === 'bad' && !isBad) return;
+        if (auditorCurrentTab === 'custom' && !hasCustom) return;
+
+        // Filtro por búsqueda
+        if (searchVal) {
+          const matchSyl = s.includes(searchVal);
+          const matchPron = currentPron.toUpperCase().includes(searchVal);
+          const matchWords = entry.words.some(w => w.toUpperCase().includes(searchVal));
+          if (!matchSyl && !matchPron && !matchWords) return;
+        }
+
+        const tr = document.createElement('tr');
+        tr.id = 'auditor-row-' + s;
+        tr.style.cssText = 'background: ' + (isBad ? 'rgba(239, 68, 68, 0.12)' : (hasCustom ? 'rgba(245, 158, 11, 0.12)' : '#111C38')) + '; border: 1px solid ' + (isBad ? '#EF4444' : (hasCustom ? '#F59E0B' : '#1E293B')) + '; border-radius: 10px; transition: all 0.2s;';
+
+        const wordsSnippet = entry.words.length > 0 
+          ? '<span style="color: #64748B; font-size: 10px; display: block; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="' + entry.words.join(', ') + '">En ' + entry.words.length + ' palabras: ' + entry.words.slice(0, 4).join(', ') + (entry.words.length > 4 ? '...' : '') + '</span>'
+          : '<span style="color: #475569; font-size: 10px; display: block;">(sílaba canónica)</span>';
+
+        tr.innerHTML = `
+          <td style="padding: 8px 10px; border-radius: 10px 0 0 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 15px; font-weight: 900; color: ${isBad ? '#FCA5A5' : (hasCustom ? '#FDE68A' : '#38BDF8')}; font-family: monospace;">${s}</span>
+              ${hasCustom ? '<span style="background: #F59E0B; color: #78350F; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">CALIBRADA</span>' : ''}
+              ${isBad ? '<span style="background: #EF4444; color: #FFFFFF; font-size: 9px; font-weight: 900; padding: 1px 5px; border-radius: 4px;">ERROR</span>' : ''}
+            </div>
+            ${wordsSnippet}
+          </td>
+          <td style="padding: 8px 10px;">
+            <input type="text" id="auditor-input-${s}" value="${currentPron}" placeholder="Fonética..." style="width: 130px; padding: 5px 8px; border-radius: 6px; border: 1.5px solid ${hasCustom ? '#F59E0B' : '#475569'}; background: #0B1329; color: #FFFFFF; font-weight: bold; font-size: 12px;" />
+          </td>
+          <td style="padding: 8px 10px;">
+            <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+              <button onclick="playAuditorGoogle('${s}')" style="background: #0284C7; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con Google TTS">
+                <span>🌐 Google</span>
+              </button>
+              <button onclick="playAuditorNative('${s}', 'male')" style="background: #059669; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con voz nativa masculina">
+                <span>👨 Masc</span>
+              </button>
+              <button onclick="playAuditorNative('${s}', 'female')" style="background: #7C3AED; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Escuchar con voz nativa femenina">
+                <span>👩 Fem</span>
+              </button>
+              <button onclick="playAuditorLocal('${localAudio}')" style="background: #334155; color: #E2E8F0; border: 1px solid #64748B; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Escuchar archivo de audio MP3 local">
+                <span>🎵 MP3</span>
+              </button>
+            </div>
+          </td>
+          <td style="padding: 8px 10px; text-align: right; border-radius: 0 10px 10px 0;">
+            <div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">
+              <button onclick="saveAuditorSyllablePron('${s}')" style="background: #10B981; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Guardar este ajuste para que se aplique en vivo a toda la app">
+                💾 Guardar
+              </button>
+              <button onclick="toggleAuditorBadSyllable('${s}')" style="background: ${isBad ? '#DC2626' : '#1E293B'}; color: ${isBad ? '#FFFFFF' : '#FCA5A5'}; border: 1px solid #EF4444; border-radius: 6px; padding: 4px 7px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Marcar como incorrecta o corregida">
+                ${isBad ? '⚠️ Marcada' : '⚠️ Mal'}
+              </button>
+              ${hasCustom ? `<button onclick="resetAuditorSyllablePron('${s}')" style="background: transparent; color: #94A3B8; border: 1px solid #475569; border-radius: 6px; padding: 4px 6px; font-size: 10px; cursor: pointer;" title="Restablecer original">↺</button>` : ''}
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const badBadge = document.getElementById('auditor-cnt-bad');
+      if (badBadge) badBadge.innerText = badCount;
+      const customBadge = document.getElementById('auditor-cnt-custom');
+      if (customBadge) customBadge.innerText = customCount;
+    }
+
+    function playAuditorGoogle(syl) {
+      const input = document.getElementById('auditor-input-' + syl);
+      const textToPlay = (input && input.value.trim()) ? input.value.trim() : syl;
+      playGoogleTtsDirect(textToPlay);
+    }
+
+    function playAuditorNative(syl, gender = 'male') {
+      const input = document.getElementById('auditor-input-' + syl);
+      const textToPlay = (input && input.value.trim()) ? input.value.trim() : syl;
+      playNativeVoiceDirect(textToPlay, gender);
+    }
+
+    function playAuditorLocal(audioSrc) {
+      if (!audioSrc) return;
+      const player = getAuditorPlayer();
+      player.pause();
+      player.onerror = () => {
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast('⚠️ No se encontró la grabación: ' + audioSrc);
+        }
+      };
+      player.src = audioSrc;
+      player.play().catch(e => {
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast('⚠️ No se pudo reproducir: ' + audioSrc);
+        }
+      });
+    }
+
+    function playAuditorFreeText(mode) {
+      const input = document.getElementById('auditor-free-input');
+      const text = input ? input.value.trim() : '';
+      if (!text) {
+        if (typeof showFloatingFeedbackToast === 'function') showFloatingFeedbackToast('Escribe algo en el campo libre.');
+        return;
+      }
+      if (mode === 'google') playGoogleTtsDirect(text);
+      else if (mode === 'male') playNativeVoiceDirect(text, 'male');
+      else if (mode === 'female') playNativeVoiceDirect(text, 'female');
+    }
+
+    function playGoogleTtsDirect(text) {
+      const player = getAuditorPlayer();
+      player.pause();
+      const url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=' + encodeURIComponent(text);
+      player.onerror = () => {
+        if (typeof showFloatingFeedbackToast === 'function') showFloatingFeedbackToast('⚠️ Error conectando con Google TTS.');
+      };
+      player.src = url;
+      player.play().catch(e => {
+        if (typeof showFloatingFeedbackToast === 'function') showFloatingFeedbackToast('⚠️ Error al reproducir audio de Google.');
+      });
+      const st = document.getElementById('auditor-footer-status');
+      if (st) st.innerHTML = '<span>🔊 Escuchando con <strong>Google TTS</strong>: <em>"' + text + '"</em></span>';
+    }
+
+    function playNativeVoiceDirect(text, gender = 'male') {
+      if (!('speechSynthesis' in window)) {
+        if (typeof showFloatingFeedbackToast === 'function') showFloatingFeedbackToast('⚠️ Tu navegador no soporta síntesis de voz nativa.');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.95;
+      utter.pitch = (gender === 'male' ? 0.95 : 1.05);
+
+      const voices = window.speechSynthesis.getVoices() || [];
+      const spanishVoices = voices.filter(v => 
+        (v.lang && (v.lang.toLowerCase().includes('es-') || v.lang.toLowerCase().includes('es_') || v.lang.toLowerCase() === 'es')) ||
+        (v.name && v.name.toLowerCase().includes('spanish'))
+      );
+      const targetVoices = spanishVoices.length > 0 ? spanishVoices : voices;
+
+      let chosenVoice = null;
+      if (gender === 'male') {
+        const select = document.getElementById('auditor-native-male-voice');
+        if (select && select.value) {
+          chosenVoice = voices.find(v => v.name === select.value);
+        }
+        if (!chosenVoice) {
+          chosenVoice = targetVoices.find(v => {
+            const n = v.name.toLowerCase();
+            return n.includes('pablo') || n.includes('raul') || n.includes('david') || n.includes('male') || n.includes('hombre');
+          }) || targetVoices.find(v => {
+            const n = v.name.toLowerCase();
+            return !n.includes('laura') && !n.includes('helena') && !n.includes('sabina') && !n.includes('dalia');
+          }) || targetVoices[0];
+        }
+      } else {
+        chosenVoice = targetVoices.find(v => {
+          const n = v.name.toLowerCase();
+          return n.includes('laura') || n.includes('helena') || n.includes('sabina') || n.includes('dalia') || n.includes('paulina') || n.includes('female');
+        }) || targetVoices[0];
+      }
+
+      if (chosenVoice) {
+        utter.voice = chosenVoice;
+        utter.lang = chosenVoice.lang || 'es-ES';
+      }
+
+      window.speechSynthesis.speak(utter);
+      const st = document.getElementById('auditor-footer-status');
+      if (st) st.innerHTML = '<span>🔊 Escuchando con voz nativa (' + (chosenVoice ? chosenVoice.name : 'Predeterminada') + '): <em>"' + text + '"</em></span>';
+    }
+
+    function saveAuditorSyllablePron(syl) {
+      const input = document.getElementById('auditor-input-' + syl);
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      window._crinSyllableOverrides = window._crinSyllableOverrides || {};
+      window._crinSyllableOverrides[syl] = val;
+      localStorage.setItem('crin_custom_syllable_pronunciations', JSON.stringify(window._crinSyllableOverrides));
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('✅ Calibración guardada en vivo para ' + syl + ' -> "' + val + '"');
+      }
+      renderAuditorRows();
+    }
+
+    function resetAuditorSyllablePron(syl) {
+      if (window._crinSyllableOverrides && window._crinSyllableOverrides[syl]) {
+        delete window._crinSyllableOverrides[syl];
+        localStorage.setItem('crin_custom_syllable_pronunciations', JSON.stringify(window._crinSyllableOverrides));
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast('🔄 Valores restablecidos para ' + syl);
+        }
+        renderAuditorRows();
+      }
+    }
+
+    function toggleAuditorBadSyllable(syl) {
+      if (auditorBadSet.has(syl)) {
+        auditorBadSet.delete(syl);
+      } else {
+        auditorBadSet.add(syl);
+      }
+      localStorage.setItem('crin_bad_syllables', JSON.stringify(Array.from(auditorBadSet)));
+      renderAuditorRows();
+    }
+
+    function copyBadSyllablesList() {
+      const list = Array.from(auditorBadSet);
+      const text = list.length > 0 
+        ? 'Sílabas con error marcadas (' + list.length + '): ' + list.join(', ')
+        : 'No hay ninguna sílaba marcada con error actualmente.';
+      navigator.clipboard.writeText(text).then(() => {
+        if (typeof showFloatingFeedbackToast === 'function') {
+          showFloatingFeedbackToast('📋 Lista copiada al portapapeles (' + list.length + ' sílabas)');
+        }
+      }).catch(() => {
+        alert(text);
+      });
+    }
+
+    function exportSyllableAuditorJSON() {
+      const data = {
+        exportedAt: new Date().toISOString(),
+        version: CURRENT_APP_VERSION,
+        customPronunciations: window._crinSyllableOverrides || {},
+        badSyllables: Array.from(auditorBadSet)
+      };
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'crin_calibracion_silabas_' + Date.now() + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('📤 Calibraciones exportadas con éxito.');
+      }
+    }
+
+    function resetAllSyllableOverrides() {
+      if (!confirm('¿Deseas restablecer TODAS las calibraciones fonéticas personalizadas de las sílabas?')) return;
+      window._crinSyllableOverrides = {};
+      localStorage.removeItem('crin_custom_syllable_pronunciations');
+      if (typeof showFloatingFeedbackToast === 'function') {
+        showFloatingFeedbackToast('🔄 Se han restablecido todas las sílabas a los valores canónicos.');
+      }
+      renderAuditorRows();
     }
 
     
@@ -13082,6 +13537,112 @@
     </div>
   </div>
 
+
+  <!-- 🔬 MODAL: AUDITOR Y LABORATORIO FONÉTICO DE SÍLABAS -->
+  <div id="syllable-auditor-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.85); z-index: 99999; justify-content: center; align-items: center; padding: 12px; backdrop-filter: blur(6px);">
+    <div style="background: #0B1329; color: #F8FAFC; border-radius: 24px; max-width: 960px; width: 100%; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.5); border: 3px solid #38BDF8; animation: modalPop 0.25s ease-out;">
+      
+      <!-- HEADER -->
+      <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-bottom: 2px solid #38BDF8; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <div style="font-weight: 900; font-size: 17px; display: flex; align-items: center; gap: 8px; color: #38BDF8;">
+            <span>🔬 Auditor Fonético de Sílabas (Dicción y Comparativa)</span>
+            <span id="auditor-syl-count-badge" style="font-size: 11px; background: #0284C7; color: white; border-radius: 8px; padding: 2px 8px; font-weight: 800;">200 Sílabas</span>
+          </div>
+          <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;">
+            Compara Google TTS vs Voz Nativa Masculina vs Audio MP3. Calibra la fonética de las que suenen mal y guárdala en vivo.
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px; background: #1E293B; padding: 4px 8px; border-radius: 8px; border: 1px solid #475569;">
+            <span style="font-size: 11px; font-weight: bold; color: #38BDF8;">👨 Nativo Masculino:</span>
+            <select id="auditor-native-male-voice" onchange="onAuditorVoiceChanged()" style="background: #0B1329; color: #F8FAFC; border: 1px solid #64748B; border-radius: 6px; padding: 4px 6px; font-size: 11px; max-width: 170px; cursor: pointer;">
+              <option value="">Cargando voces...</option>
+            </select>
+          </div>
+          <button onclick="closeSyllableAuditorModal()" style="background: rgba(239,68,68,0.2); border: 1.5px solid #EF4444; color: #FCA5A5; border-radius: 10px; padding: 6px 12px; font-size: 12px; font-weight: bold; cursor: pointer;">
+            ✖️ Cerrar
+          </button>
+        </div>
+      </div>
+
+      <!-- BANNER DE PRUEBA RÁPIDA / TEXTO LIBRE -->
+      <div style="background: #111C38; border-bottom: 1.5px solid #1E293B; padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 260px;">
+          <span style="font-size: 12px; font-weight: 800; color: #FDE68A;">⚡ Probar Texto Libre:</span>
+          <input type="text" id="auditor-free-input" placeholder="Escribe cualquier sílaba (ej: to., tho, puen, fideos)..." style="flex: 1; padding: 6px 10px; border-radius: 8px; border: 1px solid #38BDF8; background: #0B1329; color: #FFFFFF; font-size: 12px; font-weight: bold;" onkeydown="if(event.key==='Enter')playAuditorFreeText('google')" />
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="playAuditorFreeText('google')" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 800; cursor: pointer;" title="Reproducir texto con Google TTS">
+            🌐 Google TTS
+          </button>
+          <button onclick="playAuditorFreeText('male')" style="background: #10B981; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 800; cursor: pointer;" title="Reproducir texto con voz nativa masculina del sistema">
+            👨 Nativo Masc
+          </button>
+          <button onclick="playAuditorFreeText('female')" style="background: #8B5CF6; color: white; border: none; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: 800; cursor: pointer;" title="Reproducir texto con voz nativa femenina del sistema">
+            👩 Nativo Fem
+          </button>
+        </div>
+      </div>
+
+      <!-- BARRA DE FILTROS Y BÚSQUEDA -->
+      <div style="background: #0F172A; border-bottom: 1.5px solid #334155; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 8px; align-items: center; flex: 1; min-width: 250px;">
+          <input type="text" id="auditor-search-input" onkeyup="filterAuditorRows()" placeholder="🔍 Buscar por sílaba o palabra (ej: TO, PO, PUEN, ZAPATO, FIDEOS)..." style="width: 100%; max-width: 320px; padding: 6px 12px; border-radius: 8px; border: 1.5px solid #475569; background: #1E293B; color: #FFFFFF; font-size: 12px; font-weight: bold;" />
+          <div style="display: flex; gap: 4px;">
+            <button id="auditor-filter-all" onclick="setAuditorTab('all')" style="background: #38BDF8; color: #0F172A; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer;">
+              Todas (<span id="auditor-cnt-all">200</span>)
+            </button>
+            <button id="auditor-filter-bad" onclick="setAuditorTab('bad')" style="background: #1E293B; color: #FCA5A5; border: 1px solid #EF4444; padding: 5px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer;">
+              ⚠️ Con Error (<span id="auditor-cnt-bad">0</span>)
+            </button>
+            <button id="auditor-filter-custom" onclick="setAuditorTab('custom')" style="background: #1E293B; color: #FDE68A; border: 1px solid #F59E0B; padding: 5px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer;">
+              ✏️ Calibradas (<span id="auditor-cnt-custom">0</span>)
+            </button>
+          </div>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="copyBadSyllablesList()" style="background: #334155; color: #F8FAFC; border: 1px solid #64748B; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Copiar al portapapeles la lista de sílabas marcadas con error">
+            📋 Copiar Lista Errores
+          </button>
+          <button onclick="exportSyllableAuditorJSON()" style="background: #0284C7; color: white; border: none; border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Descargar archivo JSON con todas las calibraciones guardadas">
+            📤 Exportar Ajustes
+          </button>
+          <button onclick="resetAllSyllableOverrides()" style="background: #475569; color: #E2E8F0; border: none; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer;" title="Restablecer todas las sílabas a los valores canónicos originales">
+            🔄 Restablecer
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DE LA TABLA DE SÍLABAS -->
+      <div id="auditor-table-container" style="flex: 1; overflow-y: auto; padding: 12px 18px; background: #070D1E;">
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 12px;">
+          <thead>
+            <tr style="color: #94A3B8; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+              <th style="padding: 6px 10px;">Sílaba y Palabras</th>
+              <th style="padding: 6px 10px; width: 150px;">Texto Fonético</th>
+              <th style="padding: 6px 10px;">Audición Motores</th>
+              <th style="padding: 6px 10px; text-align: right;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="auditor-tbody">
+            <!-- Renderizado dinámico -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div style="background: #0B1329; border-top: 1.5px solid #1E293B; padding: 8px 18px; font-size: 11px; color: #94A3B8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div id="auditor-footer-status">
+          💡 <em>Las calibraciones guardadas se aplican al instante en todos los juegos de la app sin reiniciar.</em>
+        </div>
+        <button onclick="closeSyllableAuditorModal()" style="background: #38BDF8; color: #0F172A; border: none; border-radius: 8px; padding: 6px 16px; font-size: 11px; font-weight: 900; cursor: pointer;">
+          Listo / Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
 
   <!-- MODAL: PROBADOR DEL ABECEDARIO COMPLETO (A-Z) -->
   <div id="alphabet-tester-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.75); z-index: 99999; justify-content: center; align-items: center; padding: 15px; backdrop-filter: blur(5px);">

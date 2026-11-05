@@ -1850,6 +1850,11 @@ if (typeof window !== 'undefined') {
 function getCanonicalSyllable(rawSyl) {
   if (!rawSyl) return { pron: '', audio: null };
   const key = rawSyl.toString().trim().toUpperCase().replace(/[^A-ZÁÉÍÓÚÜÑ]/g, '');
+  if (typeof window !== 'undefined' && window._crinSyllableOverrides && window._crinSyllableOverrides[key]) {
+    const overridePron = window._crinSyllableOverrides[key];
+    const baseAudio = (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined' && CANONICAL_SYLLABLE_LEXICON[key]) ? CANONICAL_SYLLABLE_LEXICON[key].audio : null;
+    return { pron: overridePron, audio: baseAudio };
+  }
   if (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') {
     if (CANONICAL_SYLLABLE_LEXICON[key]) {
       return CANONICAL_SYLLABLE_LEXICON[key];
@@ -1893,4 +1898,8 @@ const SPANISH_LETTER_NAMES = {
 };
 if (typeof window !== 'undefined') {
   window.SPANISH_LETTER_NAMES = SPANISH_LETTER_NAMES;
+}
+
+if (typeof window !== 'undefined') {
+  window.CANONICAL_WORD_LEXICON = CANONICAL_WORD_LEXICON;
 }

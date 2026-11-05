@@ -390,6 +390,13 @@
 
   // --- CONTROL DE PANTALLA ---
   window.openSlideScreen = function() {
+    // ACCESO PAUSADO TEMPORALMENTE HASTA FINALIZAR CALIBRACIÓN DE DICCIÓN
+    if (typeof showFloatingFeedbackToast === 'function') {
+      showFloatingFeedbackToast('🔧 El Tobogán de Fusión está en calibración fonética temporalmente.');
+    } else {
+      alert('🔧 El Tobogán de Fusión está en calibración fonética temporalmente.');
+    }
+    return;
     getSlideAudioCtx();
     if (typeof stopAllAudio === 'function') stopAllAudio();
     if (typeof switchScreen === 'function') switchScreen('slide');
