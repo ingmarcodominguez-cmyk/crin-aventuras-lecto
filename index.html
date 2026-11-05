@@ -10,6 +10,20 @@
   <script>
     const CURRENT_APP_VERSION = 'v312';
 
+    // Auto-sanitización: asegurar que la ortografía visual de ZAPATO sea ZA-PA-TO y no THO
+    try {
+      const _ovs = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}');
+      if (_ovs['ZAPATO']) {
+        if (_ovs['ZAPATO'].silabas && _ovs['ZAPATO'].silabas.some(s => s.toUpperCase() === 'THO')) {
+          _ovs['ZAPATO'].silabas = ['ZA', 'PA', 'TO'];
+          if (!_ovs['ZAPATO'].silabasPron) {
+            _ovs['ZAPATO'].silabasPron = ['Za', 'Pa', 'to.'];
+          }
+          localStorage.setItem('crin_lexicon_overrides', JSON.stringify(_ovs));
+        }
+      }
+    } catch(e) {}
+
     function syncAppVersionLabels() {
       try {
         document.querySelectorAll('.app-version-label').forEach(el => {
@@ -6022,7 +6036,7 @@
         pool.forEach((syllable) => {
           const btn = document.createElement('div');
           btn.className = 'letter-btn syllable-btn';
-          btn.innerText = syllable;
+          btn.innerText = (typeof stripAcutes === 'function' ? stripAcutes(syllable) : syllable).toUpperCase();
           btn.onclick = () => selectSyllable(syllable, btn);
           poolContainer.appendChild(btn);
         });
@@ -6879,7 +6893,7 @@
         currentSlotBtns[emptyIdx] = btnElement;
         const slot = document.getElementById(`slot-${emptyIdx}`);
         if (slot) {
-          slot.innerText = syllable;
+          slot.innerText = (typeof stripAcutes === 'function' ? stripAcutes(syllable) : syllable).toUpperCase();
           slot.classList.add('filled');
         }
         btnElement.style.visibility = 'hidden';
@@ -10370,7 +10384,9 @@
         const canonical = (typeof getCanonicalWord === 'function') ? getCanonicalWord(word) : null;
         const cleanWord = canonical ? canonical.escritura : word.toUpperCase().trim();
         if (typeof isWordDeleted === 'function' && isWordDeleted(cleanWord)) return;
-        const syllables = (canonical && canonical.silabas) ? canonical.silabas : splitSpanishSyllables(cleanWord);
+        const rawSyllables = (canonical && canonical.silabas) ? canonical.silabas : splitSpanishSyllables(cleanWord);
+        const stripFn = (typeof stripAcutes === 'function') ? stripAcutes : (s => (typeof removeAccents === 'function' ? removeAccents(s) : s));
+        const syllables = rawSyllables.map(s => stripFn(s).toUpperCase());
         const emoji = (canonical && canonical.emoji) ? canonical.emoji : getEmojiForWord(cleanWord);
         
         const customItem = customWordsList.find(c => c.word === cleanWord || (c.word && removeAccents(c.word) === removeAccents(cleanWord)));

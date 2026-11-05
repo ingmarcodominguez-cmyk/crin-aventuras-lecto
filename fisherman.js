@@ -591,7 +591,10 @@
 
   function spawnFishesForWord(wObj) {
     FishermanGame.fishes = [];
-    const syllables = wObj.silabas || [wObj.word];
+    const rawSyllables = wObj.silabas || [wObj.word];
+    const strip = (typeof stripAcutes === 'function') ? stripAcutes : (s => (typeof removeAccents === 'function' ? removeAccents(s) : s));
+    const syllables = rawSyllables.map(s => strip(s).toUpperCase());
+    FishermanGame.currentSyllables = syllables;
     const w = FishermanGame.width;
     const h = FishermanGame.height;
     const waterTop = h * 0.45;

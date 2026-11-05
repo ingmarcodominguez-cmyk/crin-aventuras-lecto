@@ -1380,6 +1380,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Zapato',
     letras: ['Z', 'A', 'P', 'A', 'T', 'O'],
     silabas: ['ZA', 'PA', 'TO'],
+    silabasPron: ['Za', 'Pa', 'to.'],
     emoji: 'assets/zapato.png'
   },
   'ZAPATILLA': {
@@ -1520,8 +1521,19 @@ function applyDisplayWithoutAccents(entry) {
     entry.escrituraConTilde = entry.escritura;
     entry.escritura = stripAcutes(entry.escritura);
   }
-  if (Array.isArray(entry.silabas) && entry.silabasConTilde === undefined) {
-    entry.silabasConTilde = entry.silabas.slice();
+  if (Array.isArray(entry.silabas)) {
+    if (entry.silabasConTilde === undefined) {
+      entry.silabasConTilde = entry.silabas.slice();
+    }
+    // Si contenía tildes y no tenía fonética explícita, guardar la pronunciación con acento prosódico
+    const hasAccents = entry.silabas.some(s => /[ÁÉÍÓÚáéíóú]/.test(s));
+    if (hasAccents && (!entry.silabasPron || !Array.isArray(entry.silabasPron))) {
+      entry.silabasPron = entry.silabas.map(s => {
+        const cs = (typeof getCanonicalSyllable === 'function') ? getCanonicalSyllable(s) : null;
+        return (cs && cs.pron) ? cs.pron : (s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
+      });
+    }
+    // Para el niño: SIEMPRE se muestra 100% SIN tildes
     entry.silabas = entry.silabas.map(stripAcutes);
   }
   if (Array.isArray(entry.letras)) {
