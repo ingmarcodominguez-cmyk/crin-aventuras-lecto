@@ -79,7 +79,7 @@
     { word: 'ZAPATO', silabas: ['ZA', 'PA', 'TO'], emoji: 'assets/zapato.png', pron: 'zapato' },
     { word: 'TOMATE', silabas: ['TO', 'MA', 'TE'], emoji: 'assets/tomate.png', pron: 'tomate' },
     { word: 'BANANA', silabas: ['BA', 'NA', 'NA'], emoji: 'assets/banana.png', pron: 'banana' },
-    { word: 'LÁMPARA', silabas: ['LÁM', 'PA', 'RA'], emoji: 'assets/lampara.png', pron: 'lámpara' },
+    { word: 'LAMPARA', silabas: ['LAM', 'PA', 'RA'], emoji: 'assets/lampara.png', pron: 'lámpara' },
     { word: 'CAMISA', silabas: ['CA', 'MI', 'SA'], emoji: 'assets/camisa.png', pron: 'camisa' }
   ];
 
@@ -657,10 +657,11 @@
 
     FishermanGame.isSpeaking = true;
     if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
+    // Watchdog de seguridad ampliado a 25s (solo actúa si el callback de audio se congela)
     FishermanGame._speakingWatchdog = setTimeout(() => {
       FishermanGame.isSpeaking = false;
       FishermanGame._speakingWatchdog = null;
-    }, 4500);
+    }, 25000);
 
     let phrase = '';
     if (introPetName) {
@@ -672,11 +673,9 @@
     }
 
     if (typeof speakText === 'function') {
-      speakText(phrase, () => {
-        FishermanGame.isSpeaking = false;
-        if (FishermanGame._speakingWatchdog) {
-          clearTimeout(FishermanGame._speakingWatchdog);
-          FishermanGame._speakingWatchdog = null;
+      speakText(phrase, {
+        onComplete: () => {
+          FishermanGame.isSpeaking = false;
         }
       });
     } else {
@@ -1554,17 +1553,9 @@
 
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
-        FishermanGame._speakingWatchdog = setTimeout(() => {
-          FishermanGame.isSpeaking = false;
-          FishermanGame._speakingWatchdog = null;
-        }, 2600);
-
-        speakText(`Casi. ... Esa es ${fish.syllable}. ... Busca ${targetSyl}.`, () => {
-          FishermanGame.isSpeaking = false;
-          if (FishermanGame._speakingWatchdog) {
-            clearTimeout(FishermanGame._speakingWatchdog);
-            FishermanGame._speakingWatchdog = null;
+        speakText(`Casi. ... Esa es ${fish.syllable}. ... Busca ${targetSyl}.`, {
+          onComplete: () => {
+            FishermanGame.isSpeaking = false;
           }
         });
       }
@@ -1591,17 +1582,9 @@
       const nextSyl = FishermanGame.currentSyllables[FishermanGame.currentSyllableTargetIndex];
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        if (FishermanGame._speakingWatchdog) clearTimeout(FishermanGame._speakingWatchdog);
-        FishermanGame._speakingWatchdog = setTimeout(() => {
-          FishermanGame.isSpeaking = false;
-          FishermanGame._speakingWatchdog = null;
-        }, 2800);
-
-        speakText(`¡Bien: ${fish.syllable}! ... Ahora pesca: ... ${nextSyl}.`, () => {
-          FishermanGame.isSpeaking = false;
-          if (FishermanGame._speakingWatchdog) {
-            clearTimeout(FishermanGame._speakingWatchdog);
-            FishermanGame._speakingWatchdog = null;
+        speakText(`¡Bien: ${fish.syllable}! ... Ahora pesca: ... ${nextSyl}.`, {
+          onComplete: () => {
+            FishermanGame.isSpeaking = false;
           }
         });
       }
@@ -1640,31 +1623,51 @@
 
       if (typeof speakText === 'function') {
         FishermanGame.isSpeaking = true;
-        speakText(`¡Excelente! ¡Pescaste ${wObj.pron || wObj.word}! ¡Tarea lograda!`, () => {
+        let victoryHandled = false;
+        const finishFinalVictory = () => {
+          if (victoryHandled) return;
+          victoryHandled = true;
+          FishermanGame.isSpeaking = false;
           onFinalVictory();
+        };
+        speakText(`¡Excelente! ¡Pescaste ${wObj.pron || wObj.word}! ¡Tarea lograda!`, {
+          onComplete: (ok, info) => {
+            if (ok === false && info && info.canceled) return;
+            finishFinalVictory();
+          }
         });
-        setTimeout(onFinalVictory, 2800);
       } else {
         setTimeout(onFinalVictory, 1200);
       }
     } else {
-      // COORDINACIÓN EN 3 MOMENTOS (Fluida y rápida):
+      // COORDINACIÓN EN 3 MOMENTOS:
       // Momento 1: Finalización de captura (efectos visuales y sonido ya ejecutados arriba).
-      // Momento 2: Elogio fonológico conciso de la palabra completada.
-      if (typeof speakText === 'function') {
-        FishermanGame.isSpeaking = true;
-        speakText(`¡Muy bien: ${wObj.pron || wObj.word}!`, () => {
-          FishermanGame.isSpeaking = false;
-        });
-      }
-
-      // Momento 3: Transición ágil a la siguiente palabra y nueva consigna sin demoras
-      setTimeout(() => {
+      // Momento 2 y 3: Elogio fonológico completo y avance a la siguiente palabra al terminar la locución
+      let nextWordTriggered = false;
+      const advanceToNextWord = () => {
+        if (nextWordTriggered) return;
+        nextWordTriggered = true;
         if (!FishermanGame.isRunning) return;
+        FishermanGame.isSpeaking = false;
         FishermanGame.isAdvancing = false;
         FishermanGame.currentWordIndex++;
         setupWord(FishermanGame.currentWordIndex);
-      }, 550);
+      };
+
+      if (typeof speakText === 'function') {
+        FishermanGame.isSpeaking = true;
+        speakText(`¡Muy bien: ${wObj.pron || wObj.word}!`, {
+          onComplete: (ok, info) => {
+            // Si la locución fue cancelada por otra, no avanzar: el watchdog de 15 s cubre el caso extremo
+            if (ok === false && info && info.canceled) return;
+            advanceToNextWord();
+          }
+        });
+        // Watchdog de seguridad generoso por si el navegador suspende audio
+        setTimeout(advanceToNextWord, 15000);
+      } else {
+        setTimeout(advanceToNextWord, 800);
+      }
     }
   }
 

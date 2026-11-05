@@ -1,4 +1,4 @@
-// =========================================================================
+﻿// =========================================================================
 // CRIN AVENTURAS DE LECTOESCRITURA - BASE DE DATOS LÉXICA CANÓNICA
 // Cada palabra cuenta con sus 5 cualidades esenciales:
 // 1. escritura: Ortografía canónica con acentuación gráfica correcta (LÁMPARA, MELÓN)
@@ -1487,10 +1487,76 @@ const CANONICAL_WORD_LEXICON = {
 };
 
 // =========================================================================
+// SIN TILDES EN PANTALLA / CON TILDE EN LA VOZ
+// Se quita solo el acento agudo (Á É Í Ó Ú). La Ñ y la diéresis (Ü) NO son acentos y se conservan.
+// 'escritura' y 'silabas' (lo que se ve) salen sin tilde; 'pronunciacion' (lo que se dice) conserva la tilde.
+// Los originales quedan en 'escrituraConTilde' y 'silabasConTilde'.
+// =========================================================================
+const _ACUTE_MAP = { 'Á':'A','É':'E','Í':'I','Ó':'O','Ú':'U','á':'a','é':'e','í':'i','ó':'o','ú':'u' };
+function stripAcutes(str) {
+  if (str === null || str === undefined) return str;
+  return String(str).replace(/[ÁÉÍÓÚáéíóú]/g, ch => _ACUTE_MAP[ch]);
+}
+function applyDisplayWithoutAccents(entry) {
+  if (!entry || typeof entry !== 'object') return entry;
+  if (typeof entry.escritura === 'string' && entry.escrituraConTilde === undefined) {
+    entry.escrituraConTilde = entry.escritura;
+    entry.escritura = stripAcutes(entry.escritura);
+  }
+  if (Array.isArray(entry.silabas) && entry.silabasConTilde === undefined) {
+    entry.silabasConTilde = entry.silabas.slice();
+    entry.silabas = entry.silabas.map(stripAcutes);
+  }
+  if (Array.isArray(entry.letras)) {
+    entry.letras = entry.letras.map(stripAcutes);
+  }
+  return entry;
+}
+Object.keys(CANONICAL_WORD_LEXICON).forEach(k => applyDisplayWithoutAccents(CANONICAL_WORD_LEXICON[k]));
+if (typeof window !== 'undefined') { window.stripAcutes = stripAcutes; }
+
+// Palabras que usan los juegos pero no están en el léxico principal. Se consultan solo desde getCanonicalWord
+// (no aparecen en listados del Gestor ni en juegos que recorren el léxico).
+const CRIN_EXTRA_WORDS = {
+  'ANTEOJOS': { escritura: 'ANTEOJOS', pronunciacion: 'Anteojos', letras: ['A','N','T','E','O','J','O','S'], silabas: ['AN','TE','O','JOS'], emoji: 'assets/anteojos.png' },
+  'BOLA': { escritura: 'BOLA', pronunciacion: 'Bola', letras: ['B','O','L','A'], silabas: ['BO','LA'] },
+  'BOTELLA': { escritura: 'BOTELLA', pronunciacion: 'Botella', letras: ['B','O','T','E','LL','A'], silabas: ['BO','TE','LLA'], emoji: 'assets/botella.png' },
+  'CAMISA': { escritura: 'CAMISA', pronunciacion: 'Camisa', letras: ['C','A','M','I','S','A'], silabas: ['CA','MI','SA'] },
+  'CAPIVARA': { escritura: 'CAPIVARA', pronunciacion: 'Capivara', letras: ['C','A','P','I','V','A','R','A'], silabas: ['CA','PI','VA','RA'], emoji: 'assets/capivara.png' },
+  'CHALECO': { escritura: 'CHALECO', pronunciacion: 'Chaleco', letras: ['CH','A','L','E','C','O'], silabas: ['CHA','LE','CO'], emoji: 'assets/chaleco.png' },
+  'COSECHA': { escritura: 'COSECHA', pronunciacion: 'Cosecha', letras: ['C','O','S','E','CH','A'], silabas: ['CO','SE','CHA'], emoji: 'assets/cosecha.png' },
+  'FRAMBUESA': { escritura: 'FRAMBUESA', pronunciacion: 'Frambuesa', letras: ['F','R','A','M','B','U','E','S','A'], silabas: ['FRAM','BUE','SA'], emoji: 'assets/frambuesa.png' },
+  'HAMBURGUESA': { escritura: 'HAMBURGUESA', pronunciacion: 'Hamburguesa', letras: ['H','A','M','B','U','R','G','U','E','S','A'], silabas: ['HAM','BUR','GUE','SA'], emoji: 'assets/hamburguesa.png' },
+  'LOBEZNO': { escritura: 'LOBEZNO', pronunciacion: 'Lobezno', letras: ['L','O','B','E','Z','N','O'], silabas: ['LO','BEZ','NO'] },
+  'MOÑO': { escritura: 'MOÑO', pronunciacion: 'Moño', letras: ['M','O','Ñ','O'], silabas: ['MO','ÑO'], emoji: 'assets/monio.png' },
+  'NEGRO': { escritura: 'NEGRO', pronunciacion: 'Negro', letras: ['N','E','G','R','O'], silabas: ['NE','GRO'], emoji: 'assets/negro.png' },
+  'PALETA': { escritura: 'PALETA', pronunciacion: 'Paleta', letras: ['P','A','L','E','T','A'], silabas: ['PA','LE','TA'] },
+  'ROPA': { escritura: 'ROPA', pronunciacion: 'Ropa', letras: ['R','O','P','A'], silabas: ['RO','PA'] },
+  'TOMATE': { escritura: 'TOMATE', pronunciacion: 'Tomate', letras: ['T','O','M','A','T','E'], silabas: ['TO','MA','TE'], emoji: 'assets/tomate.png' }
+};
+Object.keys(CRIN_EXTRA_WORDS).forEach(k => applyDisplayWithoutAccents(CRIN_EXTRA_WORDS[k]));
+
+// Búsqueda de la palabra base: léxico principal, extras, y claves del léxico guardadas con N en lugar de Ñ (ej. PINA -> PIÑA)
+function _lookupBaseWord(normId) {
+  const L = (typeof CANONICAL_WORD_LEXICON !== 'undefined') ? CANONICAL_WORD_LEXICON : null;
+  if (L && L[normId]) return L[normId];
+  if (CRIN_EXTRA_WORDS[normId]) return CRIN_EXTRA_WORDS[normId];
+  if (L && normId.indexOf('Ñ') >= 0) {
+    const cand = L[normId.replace(/Ñ/g, 'N')];
+    if (cand && stripAcutes(cand.escrituraConTilde || cand.escritura).toUpperCase() === normId) return cand;
+  }
+  return null;
+}
+
+// =========================================================================
 // FUNCIONES DE CONSULTA Y CUALIDADES CANÓNICAS
 // =========================================================================
 
 function getCanonicalWord(wordOrId) {
+  return applyDisplayWithoutAccents(_getCanonicalWordRaw(wordOrId));
+}
+
+function _getCanonicalWordRaw(wordOrId) {
   if (!wordOrId) return null;
   const cleanRaw = wordOrId.toString().trim();
   const normId = (typeof removeAccents === 'function') ? removeAccents(cleanRaw).toUpperCase() : cleanRaw.toUpperCase();
@@ -1502,7 +1568,7 @@ function getCanonicalWord(wordOrId) {
     if (saved) customOverrides = JSON.parse(saved);
   } catch(e) {}
 
-  const baseItem = (typeof CANONICAL_WORD_LEXICON !== 'undefined' && CANONICAL_WORD_LEXICON[normId]) ? CANONICAL_WORD_LEXICON[normId] : null;
+  const baseItem = _lookupBaseWord(normId);
   const overrideItem = customOverrides[normId] || null;
 
   if (baseItem || overrideItem) {
@@ -1582,7 +1648,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'BA': { pron: 'Ba', audio: 'assets/audio/silabas/ba.mp3' },
   'BAR': { pron: 'Bar', audio: 'assets/audio/silabas/bar.mp3' },
   'BAS': { pron: 'Bas', audio: 'assets/audio/silabas/bas.mp3' },
-  'BE': { pron: 'Be', audio: 'assets/audio/silabas/be.mp3' },
+  'BE': { pron: 'bhe', audio: 'assets/audio/silabas/be.mp3' },
   'BI': { pron: 'Bi', audio: 'assets/audio/silabas/bi.mp3' },
   'BLAN': { pron: 'Blan', audio: 'assets/audio/silabas/blan.mp3' },
   'BLU': { pron: 'Blu', audio: 'assets/audio/silabas/blu.mp3' },
@@ -1732,7 +1798,7 @@ const CANONICAL_SYLLABLE_LEXICON = {
   'TE': { pron: 'Te', audio: 'assets/audio/silabas/te.mp3' },
   'TER': { pron: 'Ter', audio: 'assets/audio/silabas/ter.mp3' },
   'TI': { pron: 'Ti', audio: 'assets/audio/silabas/ti.mp3' },
-  'TO': { pron: 't-o', audio: 'assets/audio/silabas/to.mp3' },
+  'TO': { pron: 'tho', audio: 'assets/audio/silabas/to.mp3' },
   'TOR': { pron: 'Tor', audio: 'assets/audio/silabas/tor.mp3' },
   'TRE': { pron: 'Tre', audio: 'assets/audio/silabas/tre.mp3' },
   'TREN': { pron: 'Tren', audio: 'assets/audio/silabas/tren.mp3' },
@@ -1792,6 +1858,18 @@ function getCanonicalSyllable(rawSyl) {
     if (CANONICAL_SYLLABLE_LEXICON[noAccentKey]) {
       return CANONICAL_SYLLABLE_LEXICON[noAccentKey];
     }
+  }
+  // Sílaba mostrada sin tilde (ej. LAM): usar la variante acentuada (LÁM) para que se pronuncie con su acento
+  if (typeof CANONICAL_SYLLABLE_LEXICON !== 'undefined') {
+    if (!getCanonicalSyllable._accentIndex) {
+      const idx = {};
+      Object.keys(CANONICAL_SYLLABLE_LEXICON).forEach(k => {
+        const plain = stripAcutes(k);
+        if (plain !== k && !idx[plain]) idx[plain] = CANONICAL_SYLLABLE_LEXICON[k];
+      });
+      getCanonicalSyllable._accentIndex = idx;
+    }
+    if (getCanonicalSyllable._accentIndex[key]) return getCanonicalSyllable._accentIndex[key];
   }
   const noAccent = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (noAccent.length === 1 || noAccent === 'CH' || noAccent === 'LL' || noAccent === 'RR') {

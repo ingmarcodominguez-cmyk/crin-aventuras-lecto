@@ -953,12 +953,6 @@
       const canon = (typeof getCanonicalWord === 'function') ? getCanonicalWord(ArcheryGame.targetWord) : null;
       const pronWord = canon ? (canon.pronunciacion || canon.escritura) : ArcheryGame.targetWord;
       ArcheryGame.isSpeaking = true;
-      if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
-      ArcheryGame._speakingWatchdog = setTimeout(() => {
-        ArcheryGame.isSpeaking = false;
-        ArcheryGame._speakingWatchdog = null;
-      }, 4000);
-
       let phrase = '';
       if (introPetName) {
         phrase = `¡Tu arquero es el ${introPetName}! ... Apunta a: ... ${pronWord}`;
@@ -966,11 +960,9 @@
         phrase = `Apunta a: ... ${pronWord}`;
       }
 
-      speakText(phrase, () => {
-        ArcheryGame.isSpeaking = false;
-        if (ArcheryGame._speakingWatchdog) {
-          clearTimeout(ArcheryGame._speakingWatchdog);
-          ArcheryGame._speakingWatchdog = null;
+      speakText(phrase, {
+        onComplete: () => {
+          ArcheryGame.isSpeaking = false;
         }
       });
     }
@@ -1341,16 +1333,9 @@
       if (!ArcheryGame.lastBounceVoice || (Date.now() - ArcheryGame.lastBounceVoice > 5000)) {
         ArcheryGame.lastBounceVoice = Date.now();
         ArcheryGame.isSpeaking = true;
-        if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
-        ArcheryGame._speakingWatchdog = setTimeout(() => {
-          ArcheryGame.isSpeaking = false;
-          ArcheryGame._speakingWatchdog = null;
-        }, 3000);
-        speakText('¡Rebotó! ... Espera que pase la otra palabra para disparar.', () => {
-          ArcheryGame.isSpeaking = false;
-          if (ArcheryGame._speakingWatchdog) {
-            clearTimeout(ArcheryGame._speakingWatchdog);
-            ArcheryGame._speakingWatchdog = null;
+        speakText('¡Rebotó! ... Espera que pase la otra palabra para disparar.', {
+          onComplete: () => {
+            ArcheryGame.isSpeaking = false;
           }
         });
       }
@@ -1525,16 +1510,9 @@
 
       if (typeof speakText === 'function') {
         ArcheryGame.isSpeaking = true;
-        if (ArcheryGame._speakingWatchdog) clearTimeout(ArcheryGame._speakingWatchdog);
-        ArcheryGame._speakingWatchdog = setTimeout(() => {
-          ArcheryGame.isSpeaking = false;
-          ArcheryGame._speakingWatchdog = null;
-        }, 3000);
-        speakText(`Casi. ... Esa es ${pronHit}. ... Busca ${pronTarget}.`, () => {
-          ArcheryGame.isSpeaking = false;
-          if (ArcheryGame._speakingWatchdog) {
-            clearTimeout(ArcheryGame._speakingWatchdog);
-            ArcheryGame._speakingWatchdog = null;
+        speakText(`Casi. ... Esa es ${pronHit}. ... Busca ${pronTarget}.`, {
+          onComplete: () => {
+            ArcheryGame.isSpeaking = false;
           }
         });
       }

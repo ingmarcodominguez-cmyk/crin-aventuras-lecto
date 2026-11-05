@@ -70,14 +70,14 @@
       potionColor: '#8B5CF6',
       potionSecondary: '#C084FC',
       words: [
-        { word: 'BOTÓN', image: 'assets/boton.png', pron: 'botón' },
-        { word: 'RATÓN', image: 'assets/raton.png', pron: 'ratón' },
-        { word: 'LEÓN', image: 'assets/leon.png', pron: 'león' },
-        { word: 'DRAGÓN', image: 'assets/dragon.png', pron: 'dragón' },
-        { word: 'LIMÓN', image: 'assets/limon.png', pron: 'limón' },
-        { word: 'CORAZÓN', image: 'assets/corazon.png', pron: 'corazón' },
-        { word: 'MELÓN', image: 'assets/melon.png', pron: 'melón' },
-        { word: 'PANTALÓN', image: 'assets/pantalon.png', pron: 'pantalón' }
+        { word: 'BOTON', image: 'assets/boton.png', pron: 'botón' },
+        { word: 'RATON', image: 'assets/raton.png', pron: 'ratón' },
+        { word: 'LEON', image: 'assets/leon.png', pron: 'león' },
+        { word: 'DRAGON', image: 'assets/dragon.png', pron: 'dragón' },
+        { word: 'LIMON', image: 'assets/limon.png', pron: 'limón' },
+        { word: 'CORAZON', image: 'assets/corazon.png', pron: 'corazón' },
+        { word: 'MELON', image: 'assets/melon.png', pron: 'melón' },
+        { word: 'PANTALON', image: 'assets/pantalon.png', pron: 'pantalón' }
       ]
     },
     {
@@ -548,10 +548,11 @@
         missionText = `Busca el otro ingrediente que también rime con: ${p.base.pron}. ¡La palabra a rimar es ${p.base.pron}!`;
       }
 
-      speakText(missionText, () => {
-        CauldronGame.isSpeaking = false;
+      speakText(missionText, {
+        onComplete: () => {
+          CauldronGame.isSpeaking = false;
+        }
       });
-      setTimeout(() => { CauldronGame.isSpeaking = false; }, 9500);
     }
   };
 
@@ -952,10 +953,11 @@
         CauldronGame.isAdvancing = false;
         if (typeof speakText === 'function') {
           CauldronGame.isSpeaking = true;
-          speakText(`¡Muy bien, ${targetPron} rima con ${basePron}!`, () => {
-            CauldronGame.isSpeaking = false;
+          speakText(`¡Muy bien, ${targetPron} rima con ${basePron}!`, {
+            onComplete: () => {
+              CauldronGame.isSpeaking = false;
+            }
           });
-          setTimeout(() => { CauldronGame.isSpeaking = false; }, 3000);
         }
       }
 
@@ -1019,14 +1021,16 @@
 
     if (typeof speakText === 'function') {
       CauldronGame.isSpeaking = true;
-      speakText('¡Súper, tarea lograda!', () => {
+      let victoryEndedCalled = false;
+      const finishVictory = () => {
+        if (victoryEndedCalled) return;
+        victoryEndedCalled = true;
         CauldronGame.isSpeaking = false;
         onVictoryEnded();
+      };
+      speakText('¡Súper, tarea lograda!', {
+        onComplete: finishVictory
       });
-      setTimeout(() => {
-        CauldronGame.isSpeaking = false;
-        onVictoryEnded();
-      }, 3500);
     } else {
       onVictoryEnded();
     }

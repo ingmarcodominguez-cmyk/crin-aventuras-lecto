@@ -322,14 +322,11 @@
 
     if (typeof speakText === 'function') {
       TransformerGame.isSpeaking = true;
-      if (TransformerGame.speechWatchdog) clearTimeout(TransformerGame.speechWatchdog);
-      speakText(c.promptText, () => {
-        if (TransformerGame.speechWatchdog) clearTimeout(TransformerGame.speechWatchdog);
-        TransformerGame.isSpeaking = false;
+      speakText(c.promptText, {
+        onComplete: () => {
+          TransformerGame.isSpeaking = false;
+        }
       });
-      TransformerGame.speechWatchdog = setTimeout(() => {
-        TransformerGame.isSpeaking = false;
-      }, 5000);
     }
   };
 
@@ -583,10 +580,12 @@
       // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
       if (typeof speakText === 'function') {
         TransformerGame.isSpeaking = true;
-        speakText(`¡Súper, tarea lograda! ¡${card.pron}!`, () => {
-          setTimeout(proceedToNextCase, 500);
+        speakText(`¡Súper, tarea lograda! ¡${card.pron}!`, {
+          onComplete: () => {
+            setTimeout(proceedToNextCase, 350);
+          }
         });
-        setTimeout(proceedToNextCase, 6500); // Watchdog de respaldo
+        setTimeout(proceedToNextCase, 15000); // Watchdog de respaldo generoso (sin cortar locución legítima)
       } else {
         setTimeout(proceedToNextCase, 1400);
       }

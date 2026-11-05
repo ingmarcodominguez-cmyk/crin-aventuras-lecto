@@ -472,14 +472,11 @@
 
     if (typeof speakText === 'function') {
       DetectiveGame.isSpeaking = true;
-      if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
-      speakText(text, () => {
-        if (DetectiveGame.speechWatchdog) clearTimeout(DetectiveGame.speechWatchdog);
-        DetectiveGame.isSpeaking = false;
+      speakText(text, {
+        onComplete: () => {
+          DetectiveGame.isSpeaking = false;
+        }
       });
-      DetectiveGame.speechWatchdog = setTimeout(() => {
-        DetectiveGame.isSpeaking = false;
-      }, 4000);
     } else {
       DetectiveGame.isSpeaking = false;
     }
@@ -797,6 +794,7 @@
 
     function onPointerDown(e) {
       if (!DetectiveGame.isRunning || DetectiveGame.isAdvancing) return;
+      if ((window.isNarratingNow && window.isNarratingNow() && Date.now() - (window.lastSpeechStartTime || 0) < 20000)) return; // no cortar la locución en curso
       const pos = getCoords(e);
       if (!pos) return;
 
@@ -858,14 +856,16 @@
 
       if (typeof speakText === 'function') {
         DetectiveGame.isSpeaking = true;
-        speakText('¡Súper, tarea lograda!', () => {
+        let caseSettled = false;
+        const finishCase = () => {
+          if (caseSettled) return;
+          caseSettled = true;
           DetectiveGame.isSpeaking = false;
           onCaseDone();
+        };
+        speakText('¡Súper, tarea lograda!', {
+          onComplete: finishCase
         });
-        setTimeout(() => {
-          DetectiveGame.isSpeaking = false;
-          onCaseDone();
-        }, 3500);
       } else {
         onCaseDone();
       }

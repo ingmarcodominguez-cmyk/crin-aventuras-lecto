@@ -100,13 +100,13 @@
         canon = CANONICAL_WORD_LEXICON[cleanW];
       }
 
-      let syllables = (canon && canon.silabas && canon.silabas.length >= 2 && canon.silabas.length <= 3) 
+      let syllables = (canon && canon.silabas && canon.silabas.length >= 2) 
         ? canon.silabas 
         : null;
 
       if (!syllables) {
         if (canon && canon.silabas && canon.silabas.length > 0) {
-          syllables = canon.silabas.slice(0, 3);
+          syllables = canon.silabas;
         } else {
           if (cleanW.length === 4) {
             syllables = [cleanW.slice(0, 2), cleanW.slice(2)];
@@ -190,7 +190,7 @@
       const item = CANONICAL_WORD_LEXICON[k];
       if (!item || !item.silabas || !item.emoji) return false;
       const silCount = item.silabas.length;
-      return (silCount >= 2 && silCount <= 3);
+      return (silCount >= 2);
     });
 
     if (allKeys.length < 3) {
@@ -701,8 +701,8 @@
     const pitches = [261.6, 329.6, 392.0, 523.2];
 
     // Duración fluida total y pausada: el cohete avanza de forma constante sin frenar
-    // Para 2 sílabas: ~4.2 segundos. Para 3 sílabas: ~5.8 segundos.
-    const totalDurationMs = (numStations <= 2) ? 4200 : 5800;
+    // Para 2 sílabas: ~4.2s, 3 sílabas: ~5.8s, 4 sílabas: ~7.4s, 5+ sílabas: ~8.8s
+    const totalDurationMs = (numStations <= 2) ? 4200 : (numStations === 3 ? 5800 : (numStations === 4 ? 7400 : 8800));
     const startTime = performance.now();
 
     const stationTriggered = new Array(numStations).fill(false);
@@ -810,8 +810,8 @@
         endX: w * 0.86,
         endY: h * 0.46
       };
-    } else {
-      // Rampa más extendida para 3 sílabas (PE - LO - TA)
+    } else if (count === 3) {
+      // Rampa balanceada para 3 sílabas (PE - LO - TA)
       return {
         startX: w * 0.10,
         startY: h * 0.13,
@@ -819,6 +819,16 @@
         ctrlY: h * 0.18 + 55,
         endX: w * 0.90,
         endY: h * 0.48
+      };
+    } else {
+      // Rampa extendida para 4 o más sílabas (MA - RI - PO - SA)
+      return {
+        startX: w * 0.08,
+        startY: h * 0.12,
+        ctrlX: w * 0.48,
+        ctrlY: h * 0.18 + 60,
+        endX: w * 0.92,
+        endY: h * 0.50
       };
     }
   }
@@ -829,9 +839,14 @@
       // Estación 0 al 22% (sostiene mientras viaja hasta el 62%)
       // Estación 1 al 62% (sostiene mientras viaja hasta el aterrizaje al 100%)
       return (stationIdx === 0) ? 0.22 : 0.62;
-    } else {
+    } else if (count === 3) {
       // Para 3 sílabas
       return [0.18, 0.48, 0.76][stationIdx] || ((stationIdx + 0.5) / count);
+    } else {
+      // Para 4 o más sílabas (distribución dinámica a lo largo de la trayectoria)
+      const startT = 0.12;
+      const endT = 0.84;
+      return startT + (stationIdx / (count - 1)) * (endT - startT);
     }
   }
 
@@ -848,6 +863,12 @@
     const geom = getRampGeometry(numSyllables);
     return { x: geom.endX, y: geom.endY };
   }
+
+  SlideGame.buildSlideCasesForTask = buildSlideCasesForTask;
+  SlideGame.buildCurrentSlideCases = buildCurrentSlideCases;
+  SlideGame.getRampGeometry = getRampGeometry;
+  SlideGame.getStationT = getStationT;
+  SlideGame.getStationCoords = getStationCoords;
 
   // --- DIBUJADO DE LA ESCENA ---
   function slideLoop() {
@@ -913,7 +934,7 @@
     ctx.restore();
 
     // 3. Estaciones de sílabas
-    const radius = numStations > 2 ? 26 : 30;
+    const radius = numStations >= 4 ? 22 : (numStations > 2 ? 26 : 30);
 
     syllables.forEach((syllable, i) => {
       const coords = getStationCoords(i, numStations);
@@ -943,7 +964,7 @@
       ctx.lineWidth = isCurrent ? 4 : 3;
       ctx.stroke();
 
-      ctx.font = `900 ${isCurrent ? 22 : 18}px "Comic Neue", "Nunito", sans-serif`;
+      ctx.font = `900 ${isCurrent ? (numStations >= 4 ? 18 : 22) : (numStations >= 4 ? 15 : 18)}px "Comic Neue", "Nunito", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = (isCurrent || isPassed) ? '#FFFFFF' : '#BAE6FD';

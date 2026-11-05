@@ -510,6 +510,7 @@
 
   function handleMirrorBoatClick(boat) {
     if (MirrorGame.isAdvancing) return;
+    if ((window.isNarratingNow && window.isNarratingNow() && Date.now() - (window.lastSpeechStartTime || 0) < 20000)) return; // no cortar la locución en curso
 
     if (boat.isTarget) {
       MirrorGame.isAdvancing = true;

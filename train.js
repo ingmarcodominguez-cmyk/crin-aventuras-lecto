@@ -486,17 +486,9 @@
 
         if (typeof speakText === 'function') {
           TrainGame.isSpeaking = true;
-          if (TrainGame.speechWatchdog) clearTimeout(TrainGame.speechWatchdog);
-          TrainGame.speechWatchdog = setTimeout(() => {
-            TrainGame.isSpeaking = false;
-            TrainGame.speechWatchdog = null;
-          }, 3500);
-
-          speakText(textToSpeak, () => {
-            TrainGame.isSpeaking = false;
-            if (TrainGame.speechWatchdog) {
-              clearTimeout(TrainGame.speechWatchdog);
-              TrainGame.speechWatchdog = null;
+          speakText(textToSpeak, {
+            onComplete: () => {
+              TrainGame.isSpeaking = false;
             }
           });
         } else {

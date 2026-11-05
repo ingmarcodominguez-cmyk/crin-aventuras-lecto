@@ -1,4 +1,26 @@
-# Ignorar archivos temporales de pruebas de audio
+﻿# Ignorar archivos temporales de pruebas de audio y auditoria
 scratch/
 .DS_Store
 Thumbs.db
+*.bak
+*.tmp
+*.log
+*.txt
+*.ps1
+*.patch
+*.zip
+.backup_original/
+assets_original_backup/
+backup_solucion_silabas_definitiva/
+paquete_auditoria_audio/
+test_*.html
+test_*.js
+run_*.html
+check_*.html
+check_*.js
+INFORME_*.md
+INFORME_*.html
+PROPUESTA_*.md
+AUDITORIA_*.md
+PROBADOR_SILABAS.html
+assets/audio/silabas/to.wav

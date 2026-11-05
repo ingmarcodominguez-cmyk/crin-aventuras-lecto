@@ -53,7 +53,7 @@
       items: [
         { word: 'PERRO', image: 'assets/perro.png', pron: 'perro', isIntruder: false },
         { word: 'GATO', image: 'assets/gato.png', pron: 'gato', isIntruder: false },
-        { word: 'LEÓN', image: 'assets/leon.png', pron: 'león', isIntruder: false },
+        { word: 'LEON', image: 'assets/leon.png', pron: 'león', isIntruder: false },
         { word: 'MESA', image: 'assets/mesa.png', pron: 'mesa', isIntruder: true }
       ]
     },
@@ -65,7 +65,7 @@
       items: [
         { word: 'BOTA', image: 'assets/bota.png', pron: 'bota', isIntruder: false },
         { word: 'GORRO', image: 'assets/gorro.png', pron: 'gorro', isIntruder: false },
-        { word: 'PANTALÓN', image: 'assets/pantalon.png', pron: 'pantalón', isIntruder: false },
+        { word: 'PANTALON', image: 'assets/pantalon.png', pron: 'pantalón', isIntruder: false },
         { word: 'MANZANA', image: 'assets/manzana.png', pron: 'manzana', isIntruder: true }
       ]
     },
@@ -264,13 +264,15 @@
     if (typeof speakText === 'function') {
       BasketGame.isSpeaking = true;
       if (BasketGame.speechWatchdog) clearTimeout(BasketGame.speechWatchdog);
-      speakText(c.promptText, () => {
-        if (BasketGame.speechWatchdog) clearTimeout(BasketGame.speechWatchdog);
-        BasketGame.isSpeaking = false;
+      speakText(c.promptText, {
+        onComplete: () => {
+          if (BasketGame.speechWatchdog) clearTimeout(BasketGame.speechWatchdog);
+          BasketGame.isSpeaking = false;
+        }
       });
       BasketGame.speechWatchdog = setTimeout(() => {
         BasketGame.isSpeaking = false;
-      }, 5000);
+      }, 20000); // Watchdog generoso de seguridad para no cortar consignas largas
     }
   }
 
@@ -450,6 +452,7 @@
 
   function handleBasketCardClick(card) {
     if (BasketGame.isAdvancing) return;
+    if ((window.isNarratingNow && window.isNarratingNow() && Date.now() - (window.lastSpeechStartTime || 0) < 20000)) return; // no cortar la locución en curso
 
     if (card.isIntruder) {
       // ✅ ACIERTO: Descubrió el intruso
@@ -492,10 +495,12 @@
       // 🔒 REGLA UNIVERSAL: Esperar a que la locución termine completamente antes de avanzar
       if (typeof speakText === 'function') {
         BasketGame.isSpeaking = true;
-        speakText(`¡Súper, tarea lograda! ¡${card.pron} es el intruso!`, () => {
-          setTimeout(proceedToNextCase, 500);
+        speakText(`¡Súper, tarea lograda! ¡${card.pron} es el intruso!`, {
+          onComplete: () => {
+            setTimeout(proceedToNextCase, 350);
+          }
         });
-        setTimeout(proceedToNextCase, 6500);
+        setTimeout(proceedToNextCase, 15000); // Watchdog generoso de respaldo
       } else {
         setTimeout(proceedToNextCase, 1400);
       }
