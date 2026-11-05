@@ -386,6 +386,7 @@ const CANONICAL_WORD_LEXICON = {
     pronunciacion: 'Pato',
     letras: ['P', 'A', 'T', 'O'],
     silabas: ['PA', 'TO'],
+    silabasPron: ['Pa', 'to.'],
     emoji: 'assets/pato.png'
   },
   'PAN': {

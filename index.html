@@ -10,17 +10,37 @@
   <script>
     const CURRENT_APP_VERSION = 'v312';
 
-    // Auto-sanitización: asegurar que la ortografía visual de ZAPATO sea ZA-PA-TO y no THO
+    // Auto-sanitización universal: limpiar cualquier truco fonético (THO, BHE) de las sílabas visuales de TODAS las palabras
     try {
       const _ovs = JSON.parse(localStorage.getItem('crin_lexicon_overrides') || '{}');
-      if (_ovs['ZAPATO']) {
-        if (_ovs['ZAPATO'].silabas && _ovs['ZAPATO'].silabas.some(s => s.toUpperCase() === 'THO')) {
-          _ovs['ZAPATO'].silabas = ['ZA', 'PA', 'TO'];
-          if (!_ovs['ZAPATO'].silabasPron) {
-            _ovs['ZAPATO'].silabasPron = ['Za', 'Pa', 'to.'];
+      let changed = false;
+      Object.keys(_ovs).forEach(k => {
+        const item = _ovs[k];
+        if (item && Array.isArray(item.silabas)) {
+          const cleaned = item.silabas.map(s => {
+            let u = String(s || '').toUpperCase().trim();
+            if (u === 'THO') return 'TO';
+            if (u === 'BHE') return 'BE';
+            if (u === 'PHO') return 'PO';
+            if (typeof stripAcutes === 'function') u = stripAcutes(u);
+            return u;
+          });
+          if (JSON.stringify(cleaned) !== JSON.stringify(item.silabas)) {
+            if (!item.silabasPron) {
+              item.silabasPron = item.silabas.map(s => {
+                const sl = String(s).toLowerCase();
+                if (sl === 'tho') return 'to.';
+                if (sl === 'bhe') return 'Be.';
+                return s;
+              });
+            }
+            item.silabas = cleaned;
+            changed = true;
           }
-          localStorage.setItem('crin_lexicon_overrides', JSON.stringify(_ovs));
         }
+      });
+      if (changed) {
+        localStorage.setItem('crin_lexicon_overrides', JSON.stringify(_ovs));
       }
     } catch(e) {}
 
@@ -6926,9 +6946,11 @@
     }
 
     function checkSyllables() {
-      const currentVal = removeAccents(currentSlots.join(''));
-      const targetVal = removeAccents(targetItem.syllables ? targetItem.syllables.join('') : '');
-      if (currentVal === targetVal) {
+      const norm = s => removeAccents(String(s || '')).toUpperCase().replace(/TH/g, 'T').replace(/BH/g, 'B').replace(/PH/g, 'P').trim();
+      const currentVal = norm(currentSlots.join(''));
+      const targetVal = norm(targetItem.syllables ? targetItem.syllables.join('') : '');
+      const wordTarget = norm(targetItem.word || '');
+      if (currentVal === targetVal || currentVal === wordTarget) {
         playWinSound();
         onWinAnimation();
       } else {
@@ -10386,7 +10408,13 @@
         if (typeof isWordDeleted === 'function' && isWordDeleted(cleanWord)) return;
         const rawSyllables = (canonical && canonical.silabas) ? canonical.silabas : splitSpanishSyllables(cleanWord);
         const stripFn = (typeof stripAcutes === 'function') ? stripAcutes : (s => (typeof removeAccents === 'function' ? removeAccents(s) : s));
-        const syllables = rawSyllables.map(s => stripFn(s).toUpperCase());
+        const syllables = rawSyllables.map(s => {
+          let u = stripFn(s).toUpperCase();
+          if (u === 'THO') return 'TO';
+          if (u === 'BHE') return 'BE';
+          if (u === 'PHO') return 'PO';
+          return u;
+        });
         const emoji = (canonical && canonical.emoji) ? canonical.emoji : getEmojiForWord(cleanWord);
         
         const customItem = customWordsList.find(c => c.word === cleanWord || (c.word && removeAccents(c.word) === removeAccents(cleanWord)));
