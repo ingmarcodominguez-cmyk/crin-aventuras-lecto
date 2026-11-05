@@ -223,22 +223,22 @@
     const h = MirrorGame.height;
     if (MirrorGame.boats.length < 2) return;
 
-    // Dimensiones calibradas de los barquitos
-    const bw = Math.min(220, Math.floor(w * 0.28));
+    // Dimensiones calibradas para navegar en el mar
+    const bw = Math.min(170, Math.floor(w * 0.22));
     const bh = Math.floor(bw * (935 / 1024));
-    const waterY = h * 0.58;
+    const waterY = h * 0.55 + 10;
 
-    // Barquito 0 (primer barquito, donde apunta faro_luz_barco1)
+    // Barquito 0 (primer barquito en mar abierto, libre de rocas)
     MirrorGame.boats[0].w = bw;
     MirrorGame.boats[0].h = bh;
-    MirrorGame.boats[0].x = w * 0.40 - bw / 2;
+    MirrorGame.boats[0].x = w * 0.45 - bw / 2;
     MirrorGame.boats[0].y = waterY;
 
-    // Barquito 1 (segundo barquito, donde apunta faro_luz_barco2)
+    // Barquito 1 (segundo barquito en mar abierto)
     MirrorGame.boats[1].w = bw;
     MirrorGame.boats[1].h = bh;
-    MirrorGame.boats[1].x = w * 0.72 - bw / 2;
-    MirrorGame.boats[1].y = waterY - 10;
+    MirrorGame.boats[1].x = w * 0.77 - bw / 2;
+    MirrorGame.boats[1].y = waterY - 5;
   }
 
   function updateMirrorHUD() {
@@ -314,7 +314,7 @@
       ctx.stroke();
     }
 
-    // 3. El Faro en la costa izquierda (según estado de iluminación)
+    // 3. El Faro en la costa izquierda (más atrás y a escala equilibrada)
     let faroSrc = 'assets/faro.png';
     if (MirrorGame.selectedBoat) {
       if (MirrorGame.selectedBoat === MirrorGame.boats[0]) {
@@ -325,10 +325,11 @@
     }
 
     const faroImg = getCachedImg(faroSrc);
-    const faroH = Math.min(h * 0.90, Math.max(320, w * 0.52));
+    // Escala moderada para que no invada el mar de los botes
+    const faroH = Math.min(h * 0.65, Math.max(220, w * 0.32));
     const faroW = faroH * (1024 / 935);
-    const faroX = -faroW * 0.08;
-    const faroY = h - faroH + 20;
+    const faroX = -faroW * 0.20; // Más atrás a la izquierda
+    const faroY = h - faroH + 18;
 
     if (faroImg && faroImg.complete && faroImg.naturalWidth > 0) {
       ctx.drawImage(faroImg, faroX, faroY, faroW, faroH);
@@ -371,7 +372,7 @@
 
     // 5. Barquitos navegando con su letra en la vela
     MirrorGame.boats.forEach(boat => {
-      const bobY = boat.y + Math.sin(MirrorGame.time * 2.5 + boat.waveOffset) * 6;
+      const bobY = boat.y + Math.sin(MirrorGame.time * 2.5 + boat.waveOffset) * 5;
       const isLit = (boat === MirrorGame.selectedBoat);
       const boatImgSrc = isLit ? 'assets/barco.png' : 'assets/barco_oscuro.png';
       const boatImg = getCachedImg(boatImgSrc);
@@ -389,6 +390,24 @@
       if (boatImg && boatImg.complete && boatImg.naturalWidth > 0) {
         ctx.drawImage(boatImg, -boat.w / 2, -boat.h / 2, boat.w, boat.h);
       }
+
+      // Ondas marinas sobre el casco para que el bote esté dentro del agua
+      const hullWaterY = boat.h * 0.38;
+      ctx.save();
+      ctx.fillStyle = 'rgba(3, 105, 161, 0.40)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.40)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const waveW = boat.w * 0.45;
+      ctx.moveTo(-waveW, hullWaterY);
+      ctx.quadraticCurveTo(-waveW * 0.5, hullWaterY + 5 + Math.sin(MirrorGame.time * 3 + boat.waveOffset) * 2, 0, hullWaterY + 2);
+      ctx.quadraticCurveTo(waveW * 0.5, hullWaterY + 7 + Math.cos(MirrorGame.time * 3 + boat.waveOffset) * 2, waveW, hullWaterY);
+      ctx.lineTo(waveW, hullWaterY + 12);
+      ctx.lineTo(-waveW, hullWaterY + 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
 
       // Letra clave sobre la vela (centro de la vela: X ~ 51%, Y ~ 41%)
       const sailX = -boat.w / 2 + boat.w * 0.51;
