@@ -223,22 +223,23 @@
     const h = MirrorGame.height;
     if (MirrorGame.boats.length < 2) return;
 
-    // Dimensiones calibradas para navegar en el mar
-    const bw = Math.min(170, Math.floor(w * 0.22));
+    const horizonY = h * 0.50;
+    // Dimensiones de los barquitos flotando en el agua
+    const bw = Math.min(180, Math.floor(w * 0.24));
     const bh = Math.floor(bw * (935 / 1024));
-    const waterY = h * 0.55 + 10;
+    const waterY = horizonY + 20;
 
-    // Barquito 0 (primer barquito en mar abierto, libre de rocas)
+    // Barquito 0 (primer barquito, centrado en el mar)
     MirrorGame.boats[0].w = bw;
     MirrorGame.boats[0].h = bh;
-    MirrorGame.boats[0].x = w * 0.45 - bw / 2;
+    MirrorGame.boats[0].x = w * 0.44 - bw / 2;
     MirrorGame.boats[0].y = waterY;
 
-    // Barquito 1 (segundo barquito en mar abierto)
+    // Barquito 1 (segundo barquito, centrado a la derecha)
     MirrorGame.boats[1].w = bw;
     MirrorGame.boats[1].h = bh;
-    MirrorGame.boats[1].x = w * 0.77 - bw / 2;
-    MirrorGame.boats[1].y = waterY - 5;
+    MirrorGame.boats[1].x = w * 0.76 - bw / 2;
+    MirrorGame.boats[1].y = waterY;
   }
 
   function updateMirrorHUD() {
@@ -286,25 +287,28 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    // 1. Cielo nocturno
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+    // 1. Horizonte que separa el cielo y el agua
+    const horizonY = h * 0.50;
+
+    // Cielo nocturno
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, horizonY);
     skyGrad.addColorStop(0, '#020617');
     skyGrad.addColorStop(1, '#0F172A');
     ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h * 0.55);
+    ctx.fillRect(0, 0, w, horizonY);
 
-    // 2. Mar oscuro y olas suaves
-    const waterGrad = ctx.createLinearGradient(0, h * 0.55, 0, h);
+    // 2. Mar oscuro en el horizonte
+    const waterGrad = ctx.createLinearGradient(0, horizonY, 0, h);
     waterGrad.addColorStop(0, '#0369A1');
     waterGrad.addColorStop(1, '#082F49');
     ctx.fillStyle = waterGrad;
-    ctx.fillRect(0, h * 0.55, w, h * 0.45);
+    ctx.fillRect(0, horizonY, w, h - horizonY);
 
     // Olas animadas
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
     ctx.lineWidth = 2;
     for (let row = 0; row < 3; row++) {
-      const oy = h * 0.58 + row * 40;
+      const oy = horizonY + 25 + row * 40;
       ctx.beginPath();
       for (let x = 0; x < w; x += 30) {
         const y = oy + Math.sin(x * 0.05 + MirrorGame.time * 2 + row) * 5;
@@ -314,7 +318,7 @@
       ctx.stroke();
     }
 
-    // 3. El Faro en la costa izquierda (más atrás y a escala equilibrada)
+    // 3. El Faro en el horizonte (donde se separa el agua y el cielo)
     let faroSrc = 'assets/faro.png';
     if (MirrorGame.selectedBoat) {
       if (MirrorGame.selectedBoat === MirrorGame.boats[0]) {
@@ -325,11 +329,12 @@
     }
 
     const faroImg = getCachedImg(faroSrc);
-    // Escala moderada para que no invada el mar de los botes
-    const faroH = Math.min(h * 0.65, Math.max(220, w * 0.32));
+    // Escala proporcionada al horizonte
+    const faroH = Math.min(h * 0.48, Math.max(180, w * 0.28));
     const faroW = faroH * (1024 / 935);
-    const faroX = -faroW * 0.20; // Más atrás a la izquierda
-    const faroY = h - faroH + 18;
+    const faroX = w * 0.05; // En la costa izquierda sobre la línea del horizonte
+    // La base de las rocas descansa exactamente sobre la línea divisoria del agua y el cielo
+    const faroY = horizonY - faroH + (faroH * 0.16);
 
     if (faroImg && faroImg.complete && faroImg.naturalWidth > 0) {
       ctx.drawImage(faroImg, faroX, faroY, faroW, faroH);
@@ -391,21 +396,15 @@
         ctx.drawImage(boatImg, -boat.w / 2, -boat.h / 2, boat.w, boat.h);
       }
 
-      // Ondas marinas sobre el casco para que el bote esté dentro del agua
+      // Suave línea de agua marina en el casco
       const hullWaterY = boat.h * 0.38;
       ctx.save();
-      ctx.fillStyle = 'rgba(3, 105, 161, 0.40)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.40)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      const waveW = boat.w * 0.45;
+      const waveW = boat.w * 0.44;
       ctx.moveTo(-waveW, hullWaterY);
-      ctx.quadraticCurveTo(-waveW * 0.5, hullWaterY + 5 + Math.sin(MirrorGame.time * 3 + boat.waveOffset) * 2, 0, hullWaterY + 2);
-      ctx.quadraticCurveTo(waveW * 0.5, hullWaterY + 7 + Math.cos(MirrorGame.time * 3 + boat.waveOffset) * 2, waveW, hullWaterY);
-      ctx.lineTo(waveW, hullWaterY + 12);
-      ctx.lineTo(-waveW, hullWaterY + 12);
-      ctx.closePath();
-      ctx.fill();
+      ctx.quadraticCurveTo(0, hullWaterY + 3 + Math.sin(MirrorGame.time * 3 + boat.waveOffset) * 2, waveW, hullWaterY);
       ctx.stroke();
       ctx.restore();
 
