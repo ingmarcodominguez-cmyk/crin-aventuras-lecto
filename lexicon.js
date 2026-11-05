@@ -1528,10 +1528,7 @@ function applyDisplayWithoutAccents(entry) {
     // Si contenía tildes y no tenía fonética explícita, guardar la pronunciación con acento prosódico
     const hasAccents = entry.silabas.some(s => /[ÁÉÍÓÚáéíóú]/.test(s));
     if (hasAccents && (!entry.silabasPron || !Array.isArray(entry.silabasPron))) {
-      entry.silabasPron = entry.silabas.map(s => {
-        const cs = (typeof getCanonicalSyllable === 'function') ? getCanonicalSyllable(s) : null;
-        return (cs && cs.pron) ? cs.pron : (s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
-      });
+      entry.silabasPron = entry.silabas.map(s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase());
     }
     // Para el niño: SIEMPRE se muestra 100% SIN tildes
     entry.silabas = entry.silabas.map(stripAcutes);
