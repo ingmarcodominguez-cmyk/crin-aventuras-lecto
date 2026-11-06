@@ -319,16 +319,7 @@
     }
 
     // 3. El Faro en el horizonte (donde se separa el agua y el cielo)
-    let faroSrc = 'assets/faro.png?v=313';
-    if (MirrorGame.selectedBoat) {
-      if (MirrorGame.selectedBoat === MirrorGame.boats[0]) {
-        faroSrc = 'assets/faro_luz_barco1.png?v=313';
-      } else if (MirrorGame.selectedBoat === MirrorGame.boats[1]) {
-        faroSrc = 'assets/faro_luz_barco2.png?v=313';
-      }
-    }
-
-    const faroImg = getCachedImg(faroSrc);
+    const faroImg = getCachedImg('assets/faro.png?v=313');
     // Escala proporcionada al horizonte
     const faroH = Math.min(h * 0.48, Math.max(180, w * 0.28));
     const faroW = faroH * (1024 / 935);
@@ -338,6 +329,69 @@
 
     if (faroImg && faroImg.complete && faroImg.naturalWidth > 0) {
       ctx.drawImage(faroImg, faroX, faroY, faroW, faroH);
+    }
+
+    // Coordenadas exactas de la linterna del faro
+    const lanternX = faroX + faroW * 0.505;
+    const lanternY = faroY + faroH * 0.235;
+
+    // Haz de luz largo, cinemático y translúcido que llega directamente al barco iluminado
+    if (MirrorGame.selectedBoat) {
+      const boat = MirrorGame.selectedBoat;
+      const targetX = boat.x + boat.w * 0.50;
+      const targetY = boat.y + boat.h * 0.45;
+
+      const dx = targetX - lanternX;
+      const dy = targetY - lanternY;
+      const angle = Math.atan2(dy, dx);
+
+      // Ancho de apertura del haz al llegar al barco
+      const beamHalfWidth = boat.w * 0.55;
+      const perpX = -Math.sin(angle);
+      const perpY = Math.cos(angle);
+
+      // El haz se extiende hasta envolver completamente el barco
+      const extX = targetX + Math.cos(angle) * (boat.w * 0.25);
+      const extY = targetY + Math.sin(angle) * (boat.w * 0.25);
+
+      ctx.save();
+
+      // Reflejo luminoso en el agua debajo del barco iluminado
+      const poolGrad = ctx.createRadialGradient(targetX, targetY + boat.h * 0.35, 10, targetX, targetY + boat.h * 0.35, boat.w * 0.70);
+      poolGrad.addColorStop(0.0, 'rgba(254, 240, 138, 0.40)');
+      poolGrad.addColorStop(0.6, 'rgba(254, 240, 138, 0.18)');
+      poolGrad.addColorStop(1.0, 'rgba(254, 240, 138, 0.0)');
+      ctx.fillStyle = poolGrad;
+      ctx.beginPath();
+      ctx.ellipse(targetX, targetY + boat.h * 0.35, boat.w * 0.70, boat.w * 0.25, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Haz cónico largo con transparencia gradual y suave
+      const beamGrad = ctx.createLinearGradient(lanternX, lanternY, extX, extY);
+      beamGrad.addColorStop(0.0, 'rgba(255, 250, 180, 0.55)'); // Origen brillante en la linterna
+      beamGrad.addColorStop(0.2, 'rgba(254, 240, 138, 0.32)'); // Cuerpo dorado translúcido
+      beamGrad.addColorStop(0.7, 'rgba(254, 235, 120, 0.22)'); // Luz envolviendo el barco
+      beamGrad.addColorStop(1.0, 'rgba(254, 230, 100, 0.0)');  // Desvanecimiento suave
+
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(lanternX, lanternY);
+      ctx.lineTo(extX + perpX * beamHalfWidth, extY + perpY * beamHalfWidth);
+      ctx.lineTo(extX - perpX * beamHalfWidth, extY - perpY * beamHalfWidth);
+      ctx.closePath();
+      ctx.fill();
+
+      // Destello radiante en la linterna del faro
+      const flareGrad = ctx.createRadialGradient(lanternX, lanternY, 2, lanternX, lanternY, 32);
+      flareGrad.addColorStop(0.0, 'rgba(255, 255, 255, 0.95)');
+      flareGrad.addColorStop(0.3, 'rgba(254, 240, 138, 0.70)');
+      flareGrad.addColorStop(1.0, 'rgba(254, 240, 138, 0.0)');
+      ctx.fillStyle = flareGrad;
+      ctx.beginPath();
+      ctx.arc(lanternX, lanternY, 32, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
 
     // 4. Palabra ancla ilustrada en la parte superior (ej. BOTA con su imagen)
