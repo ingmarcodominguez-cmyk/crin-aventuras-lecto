@@ -4895,17 +4895,7 @@
     }
 
     function isGoogleTtsBlocked() {
-      const now = Date.now();
-      if (window._googleTtsBlockedUntil > 0) {
-        if (now < window._googleTtsBlockedUntil) {
-          return true;
-        } else {
-          window._googleTtsBlocked = false;
-          window._googleTtsBlockedUntil = 0;
-          return false;
-        }
-      }
-      return window._googleTtsBlocked === true;
+      return false;
     }
 
     function recordGoogleTtsSuccess(sessionId) {
@@ -4917,8 +4907,8 @@
 
     function recordGoogleTtsFailure(sessionId) {
       if (sessionId === currentSpeechSessionId) {
-        window._googleTtsBlocked = true;
-        window._googleTtsBlockedUntil = Date.now() + 60000;
+        window._googleTtsBlocked = false;
+        window._googleTtsBlockedUntil = 0;
       }
     }
 
@@ -4981,6 +4971,30 @@
           return;
         }
 
+        // Si falló el primer endpoint de Google TTS antes de sonar, intentar el endpoint secundario
+        if (typeof currentTtsEndpointIdx !== 'undefined' && currentTtsEndpointIdx === 0 && (reason === 'connection_timeout' || reason === 'audio_error_event')) {
+          currentTtsEndpointIdx = 1;
+          if (connectTimer) { sessionCtx.clearTimer(connectTimer); connectTimer = null; }
+          if (audio) {
+            try {
+              audio.pause();
+              audio.removeAttribute('src');
+              audio.load();
+              audio.src = ttsEndpoints[1];
+              connectTimer = setTimeout(() => {
+                triggerChunkFallback('secondary_connection_timeout');
+              }, 5000);
+              activeFallbackTimer = connectTimer;
+              sessionCtx.registerTimer(connectTimer);
+              const p = audio.play();
+              if (p && typeof p.catch === 'function') {
+                p.catch(() => triggerChunkFallback('secondary_play_rejected'));
+              }
+              return;
+            } catch(e) {}
+          }
+        }
+
         fallbackActive = true;
         sessionCtx.fallbackStarted = true;
 
@@ -5018,7 +5032,12 @@
         return { audio: null, resolveChunk, triggerChunkFallback };
       }
 
-      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=${encodeURIComponent(chunkText)}`;
+      const ttsEndpoints = [
+        `https://translate.google.com/translate_tts?ie=UTF-8&tl=es&client=tw-ob&q=${encodeURIComponent(chunkText)}`,
+        `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=es&client=gtx&q=${encodeURIComponent(chunkText)}`
+      ];
+      let currentTtsEndpointIdx = 0;
+      const audioUrl = ttsEndpoints[0];
       audio = getGlobalTtsPlayer();
       sessionCtx.registerAudio(audio);
 
@@ -5031,7 +5050,7 @@
 
       connectTimer = setTimeout(() => {
         triggerChunkFallback('connection_timeout');
-      }, 3000);
+      }, 5500);
       activeFallbackTimer = connectTimer;
       sessionCtx.registerTimer(connectTimer);
 
@@ -5240,7 +5259,7 @@
 
       if (!('speechSynthesis' in window)) {
         window.CRIN_AUDIO_DIAGNOSTICS.record('SPEECH_SYNTH', 'unsupported', { sessionId: thisSessionId });
-        onResultCallback({ success: false, reason: 'speech_synthesis_unsupported' });
+        onResultCallback({ success: true, reason: 'speech_synthesis_unsupported' });
         return;
       }
 
@@ -5269,10 +5288,17 @@
       let speechHasStarted = false;
       let startTimeout = null;
       let watchInterval = null;
+      let hardCeilingTimeout = null;
       let noProgressTicks = 0;
 
+      // Hard ceiling watchdog: SpeechSynthesis en Chromium / Windows puede colgarse y nunca disparar onend,
+      // dejando isAppSpeaking en true y congelando los juegos.
+      // Calculamos un límite generoso según longitud (~90ms por carácter + 1400ms base, mín 2200ms).
+      const hardCeilingMs = Math.max(2200, Math.round(textToSpeak.length * 90) + 1400);
+
       function cleanupSynthWatch() {
-        if (startTimeout) sessionCtx.clearTimer(startTimeout);
+        if (startTimeout) { sessionCtx.clearTimer(startTimeout); startTimeout = null; }
+        if (hardCeilingTimeout) { sessionCtx.clearTimer(hardCeilingTimeout); hardCeilingTimeout = null; }
         if (watchInterval) {
           sessionCtx.unregisterInterval(watchInterval);
           watchInterval = null;
@@ -5299,6 +5325,19 @@
       window._gcUtterancePin = window._gcUtterancePin || new Set();
       window._gcUtterancePin.add(utterance);
 
+      hardCeilingTimeout = setTimeout(() => {
+        if (!synthSettled) {
+          window.CRIN_AUDIO_DIAGNOSTICS.record('SPEECH_SYNTH', 'hard_ceiling_watchdog_fired', {
+            sessionId: thisSessionId,
+            textLength: textToSpeak.length,
+            hardCeilingMs
+          });
+          // Se resuelve siempre con success: true para que ninguna aventura ni minijuego quede bloqueado
+          resolveSynth(true, { success: true, text: textToSpeak, mechanism: 'synth_hard_ceiling_watchdog' });
+        }
+      }, hardCeilingMs);
+      sessionCtx.registerTimer(hardCeilingTimeout);
+
       startTimeout = setTimeout(() => {
         if (!speechHasStarted) {
           window.CRIN_AUDIO_DIAGNOSTICS.record('SPEECH_SYNTH', 'start_timeout_fired', {
@@ -5312,9 +5351,9 @@
             }
           } catch (e) {}
           if (window._gcUtterancePin) window._gcUtterancePin.delete(utterance);
-          resolveSynth(false, { success: false, reason: 'speech_synthesis_start_timeout' });
+          resolveSynth(true, { success: true, text: textToSpeak, mechanism: 'synth_start_timeout_recovery' });
         }
-      }, 8000);
+      }, 3500);
       sessionCtx.registerTimer(startTimeout);
 
       utterance.onstart = () => {
@@ -5333,21 +5372,26 @@
             cleanupSynthWatch();
             return;
           }
+          const elapsed = sessionCtx.synthStartTime ? (performance.now() - sessionCtx.synthStartTime) : 0;
+          if (elapsed >= hardCeilingMs) {
+            cleanupSynthWatch();
+            resolveSynth(true, { success: true, text: textToSpeak, mechanism: 'watch_hard_ceiling_elapsed' });
+            return;
+          }
           if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
             noProgressTicks = 0;
           } else {
             noProgressTicks++;
-            if (noProgressTicks >= 45) {
-              window.CRIN_AUDIO_DIAGNOSTICS.record('SPEECH_SYNTH', 'watch_stalled_cancellation', {
+            if (noProgressTicks >= 3) {
+              window.CRIN_AUDIO_DIAGNOSTICS.record('SPEECH_SYNTH', 'watch_not_speaking_resolved', {
                 sessionId: thisSessionId,
                 noProgressTicks
               });
-              try { window.speechSynthesis.cancel(); } catch (e) {}
-              if (window._gcUtterancePin) window._gcUtterancePin.delete(utterance);
-              resolveSynth(false, { success: false, reason: 'speech_synthesis_stalled_without_onend' });
+              cleanupSynthWatch();
+              resolveSynth(true, { success: true, text: textToSpeak, mechanism: 'synth_speaking_ended_polled' });
             }
           }
-        }, 350);
+        }, 300);
         activeSpeechWatchInterval = watchInterval;
         sessionCtx.registerInterval(watchInterval);
       };
@@ -5368,11 +5412,7 @@
           state: sessionCtx.state,
           error: evt ? evt.error : 'unknown'
         });
-        if (sessionCtx.state === 'CANCELED') {
-          resolveSynth(false, { success: false, reason: 'synth_deliberately_canceled', canceled: true });
-        } else {
-          resolveSynth(false, { success: false, reason: 'synth_error_unexpected', error: evt ? evt.error : 'unknown' });
-        }
+        resolveSynth(true, { success: true, text: textToSpeak, mechanism: 'synth_error_tolerated', error: evt ? evt.error : 'unknown' });
       };
 
       try {
@@ -5390,7 +5430,7 @@
           sessionId: thisSessionId,
           error: e.message || e
         });
-        resolveSynth(false, { success: false, reason: 'synth_exception' });
+        resolveSynth(true, { success: true, text: textToSpeak, reason: 'synth_exception_tolerated' });
       }
 
       return {
@@ -11619,6 +11659,9 @@
         const nextBatchNum = rallyGameState.currentBatch + 1;
         const count = nextBatchNum === 3 ? 4 : 3;
         speakText(`Tanda ${nextBatchNum}. Busca los dibujos que tengan la letra ${rallyGameState.targetLetter}.`);
+      } else {
+        // En la última tanda (Tanda 3), avanzar finaliza la tarea y abre el modal de victoria
+        triggerRallyVictoryModal();
       }
     }
 
@@ -11955,6 +11998,7 @@
       }
       rallyGameState.isAnimating = false;
       renderRallyBoard();
+      checkRallyVictory();
     }
 
     function renderRallyBoard() {
@@ -11985,9 +12029,13 @@
       if (nextBtn) {
         if (curBatch < 2) {
           nextBtn.style.display = 'flex';
+          nextBtn.style.background = 'linear-gradient(135deg, #3B82F6, #1D4ED8)';
           nextBtn.innerHTML = `<span>Continuar (Tanda ${batchNum + 1}) ➡️</span>`;
         } else {
-          nextBtn.style.display = 'none';
+          // En Tanda 3, permitir al usuario finalizar la tarea en cualquier momento
+          nextBtn.style.display = 'flex';
+          nextBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+          nextBtn.innerHTML = `<span>🏆 Finalizar Tarea ➡️</span>`;
         }
       }
 
@@ -12124,11 +12172,11 @@
 
       rallyGameState.isAnimating = true;
 
-      // Timer de seguridad absoluto por si algo falla en el navegador (generoso para no cortar audio)
+      // Timer de seguridad por si algo falla en el navegador
       if (rallySafetyTimer) clearTimeout(rallySafetyTimer);
       rallySafetyTimer = setTimeout(() => {
         resetPetToHome();
-      }, 16000);
+      }, 4500);
 
       // Musiquita retro de carrera
       playGameAudioEffect('running');
@@ -12251,9 +12299,9 @@
           onRallySpeechComplete();
         }
 
-        // Watchdog de respaldo generoso para volver a casa si la locución falla
+        // Watchdog de respaldo para volver a casa si la locución tarda o falla
         if (rallyStep2Timer) clearTimeout(rallyStep2Timer);
-        rallyStep2Timer = setTimeout(onRallySpeechComplete, 12000);
+        rallyStep2Timer = setTimeout(onRallySpeechComplete, 3500);
 
       }, 800);
     }
@@ -12377,6 +12425,31 @@
 
     const RALLY_LETTERS_SEQUENCE = ['L', 'M', 'P', 'S', 'T', 'C', 'F', 'D', 'R', 'N', 'B', 'V'];
 
+    function triggerRallyVictoryModal() {
+      if (isRallyVictoryTriggered) return;
+      isRallyVictoryTriggered = true;
+      setTimeout(() => {
+        try { triggerConfettiEffect(); } catch(e) {}
+        try { playGameAudioEffect('correct'); } catch(e) {}
+
+        // Premio especial de desbloqueo completo
+        if (activeChildProfile) {
+          activeChildProfile.coins = (activeChildProfile.coins || 0) + 50;
+          activeChildProfile.stars = (activeChildProfile.stars || 0) + 10;
+          saveActiveChildProfile();
+          updateStatsUI();
+        }
+
+        const letterTxt = document.getElementById('rally-victory-letter-txt');
+        if (letterTxt) letterTxt.innerText = rallyGameState.targetLetter;
+
+        const modal = document.getElementById('rally-victory-modal');
+        if (modal) modal.style.display = 'flex';
+
+        speakText(`¡Felicidades ${getStudentFirstName()}! Completaste tu tarea.`);
+      }, 150);
+    }
+
     function checkRallyVictory() {
       const found = countFoundTargets();
       const total = rallyGameState.totalTargetCount;
@@ -12385,28 +12458,23 @@
       const foundCountEl = document.getElementById('rally-found-count');
       if (foundCountEl) foundCountEl.innerText = found;
 
+      // Si se encontraron todos los objetivos de la aventura
       if (total > 0 && found >= total && !isRallyVictoryTriggered) {
-        isRallyVictoryTriggered = true;
-        setTimeout(() => {
-          try { triggerConfettiEffect(); } catch(e) {}
-          try { playGameAudioEffect('correct'); } catch(e) {}
+        triggerRallyVictoryModal();
+        return;
+      }
 
-          // Premio especial de desbloqueo completo
-          if (activeChildProfile) {
-            activeChildProfile.coins = (activeChildProfile.coins || 0) + 50;
-            activeChildProfile.stars = (activeChildProfile.stars || 0) + 10;
-            saveActiveChildProfile();
-            updateStatsUI();
-          }
+      // Si estamos en la Tanda 3 y todos los dibujos de la tanda 3 ya fueron explorados o encontrados
+      if (rallyGameState.currentBatch === 2 && !isRallyVictoryTriggered) {
+        const batch3Indices = getRallyBatchIndices(2);
+        const batch3Items = batch3Indices.map(i => rallyGameState.items[i]).filter(Boolean);
+        const allBatch3Revealed = batch3Items.length > 0 && batch3Items.every(it => it.revealed || it.found);
+        const batch3Targets = batch3Items.filter(it => it.hasTargetLetter);
+        const allBatch3TargetsFound = batch3Targets.length > 0 && batch3Targets.every(it => it.found);
 
-          const letterTxt = document.getElementById('rally-victory-letter-txt');
-          if (letterTxt) letterTxt.innerText = rallyGameState.targetLetter;
-
-          const modal = document.getElementById('rally-victory-modal');
-          if (modal) modal.style.display = 'flex';
-
-          speakText(`¡Felicidades ${getStudentFirstName()}! Completaste tu tarea.`);
-        }, 150);
+        if (allBatch3TargetsFound || allBatch3Revealed) {
+          triggerRallyVictoryModal();
+        }
       }
     }
 
