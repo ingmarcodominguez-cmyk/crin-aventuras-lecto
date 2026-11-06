@@ -141,11 +141,11 @@
     // Pre-cargar inmediatamente todas las imágenes y locuciones de la sesión
     try {
       // Pre-cargar imágenes de alta resolución del faro y barquitos
-    getCachedImg('assets/faro.png');
-    getCachedImg('assets/faro_luz_barco1.png');
-    getCachedImg('assets/faro_luz_barco2.png');
-    getCachedImg('assets/barco.png');
-    getCachedImg('assets/barco_oscuro.png');
+    getCachedImg('assets/faro.png?v=313');
+    getCachedImg('assets/faro_luz_barco1.png?v=313');
+    getCachedImg('assets/faro_luz_barco2.png?v=313');
+    getCachedImg('assets/barco.png?v=313');
+    getCachedImg('assets/barco_oscuro.png?v=313');
 
     MirrorGame.cases.forEach(mc => {
         getCachedImg(mc.targetImage);
@@ -319,12 +319,12 @@
     }
 
     // 3. El Faro en el horizonte (donde se separa el agua y el cielo)
-    let faroSrc = 'assets/faro.png';
+    let faroSrc = 'assets/faro.png?v=313';
     if (MirrorGame.selectedBoat) {
       if (MirrorGame.selectedBoat === MirrorGame.boats[0]) {
-        faroSrc = 'assets/faro_luz_barco1.png';
+        faroSrc = 'assets/faro_luz_barco1.png?v=313';
       } else if (MirrorGame.selectedBoat === MirrorGame.boats[1]) {
-        faroSrc = 'assets/faro_luz_barco2.png';
+        faroSrc = 'assets/faro_luz_barco2.png?v=313';
       }
     }
 
@@ -379,7 +379,7 @@
     MirrorGame.boats.forEach(boat => {
       const bobY = boat.y + Math.sin(MirrorGame.time * 2.5 + boat.waveOffset) * 5;
       const isLit = (boat === MirrorGame.selectedBoat);
-      const boatImgSrc = isLit ? 'assets/barco.png' : 'assets/barco_oscuro.png';
+      const boatImgSrc = isLit ? 'assets/barco.png?v=313' : 'assets/barco_oscuro.png?v=313';
       const boatImg = getCachedImg(boatImgSrc);
 
       ctx.save();
