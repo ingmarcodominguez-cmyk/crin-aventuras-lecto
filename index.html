@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v312';
+    const CURRENT_APP_VERSION = 'v313';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -13311,9 +13311,9 @@
       }
 
       stage3D.birds3D = [
-        { x: 40, y: 35, speed: 1.1, flapOffset: 0, icon: '🕊️' },
-        { x: 180, y: 22, speed: 1.4, flapOffset: 1.5, icon: '🦅' },
-        { x: 310, y: 48, speed: 0.9, flapOffset: 3.0, icon: '🐦' }
+        { x: 40, y: 24, speed: 0.9, flapOffset: 0, scale: 1.0 },
+        { x: 190, y: 18, speed: 1.25, flapOffset: 1.5, scale: 0.85 },
+        { x: 340, y: 32, speed: 0.75, flapOffset: 3.0, scale: 1.15 }
       ];
     }
     init3DEnvironment();
@@ -13355,7 +13355,7 @@
 
       stage3D.birds3D.forEach(b => {
         b.x += b.speed;
-        if (b.x > stage3D.width + 50) b.x = -50;
+        if (b.x > stage3D.width + 60) b.x = -60;
       });
 
       if (stage3D.isWalking) {
@@ -13419,7 +13419,7 @@
       ctx.fill();
       ctx.restore();
 
-      // Nubes y Pájaros 3D
+      // Nubes 3D
       ctx.save();
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.font = '28px serif';
@@ -13427,11 +13427,25 @@
       const cloud2X = (vanishingX + 90 - stage3D.frame * 0.15) % (w + 100) - 50;
       ctx.fillText('☁️', cloud1X, 35);
       ctx.fillText('☁️', cloud2X, 55);
+      ctx.restore();
 
+      // Pájaros 3D animados (mismo estilo vectorial fluido que en Tiro con Arco)
+      ctx.save();
+      ctx.strokeStyle = '#334155';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       stage3D.birds3D.forEach(b => {
-        const flapY = Math.sin(stage3D.frame * 0.2 + b.flapOffset) * 6;
-        ctx.font = '22px serif';
-        ctx.fillText(b.icon, b.x, b.y + flapY);
+        const flapY = Math.sin(stage3D.frame * 0.08 + b.flapOffset) * 5;
+        const wingY = Math.sin(stage3D.frame * 0.22 + b.flapOffset) * 4.2;
+        const bx = b.x;
+        const by = b.y + flapY;
+        const s = b.scale || 1.0;
+        ctx.lineWidth = 2 * s;
+        ctx.beginPath();
+        ctx.moveTo(bx - 7 * s, by + wingY * s);
+        ctx.quadraticCurveTo(bx - 3 * s, by - 4 * s, bx, by);
+        ctx.quadraticCurveTo(bx + 3 * s, by - 4 * s, bx + 7 * s, by + wingY * s);
+        ctx.stroke();
       });
       ctx.restore();
 
