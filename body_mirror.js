@@ -2,6 +2,7 @@
 // CRIN AVENTURAS DE LECTOESCRITURA - EL ESPEJO MÁGICO DEL ESQUEMA CORPORAL
 // Módulo Psicopedagógico de Somatognosia, Esquema Corporal y Partes de la Cara/Cuerpo
 // Protocolo: Distinguir Niño/Niña, Ojos, Nariz, Boca, Orejas, Pelo, Cabeza, Brazos, Barriga, Piernas
+// Calibración Milimétrica de Hitboxes 1:1 sobre Imagen & Gramática Natural en Español
 // =========================================================================
 
 (function() {
@@ -32,95 +33,168 @@
 
   window.BodyMirrorGame = BodyMirrorGame;
 
-  // Metadata pedagógica de las partes de la cara
-  const FACE_TARGETS_DATA = {
+  // Gramática natural en español para refuerzo pedagógico sin error
+  const ANATOMY_GRAMMAR = {
     'ojos': {
-      label: 'Ojos',
-      icon: '👁️',
-      color: '#3B82F6',
+      thatIs: '¡Esos son los ojos!',
+      withArticle: 'los ojos',
+      icon: '👀',
       prompt: '¿Dónde están los ojos? ¡Toca los ojos para mirar las estrellas!',
-      praise: '¡Excelente! ¡Esos son los ojos para ver todo lo que nos rodea!',
-      box: { top: 22, left: 34, width: 32, height: 12 }, // coordenadas relativas en zoom facial (%)
-      altBoxes: [
-        { top: 22, left: 32, width: 17, height: 12 },
-        { top: 22, left: 51, width: 17, height: 12 }
-      ]
+      praise: '¡Excelente! ¡Esos son los ojos para ver todo lo que nos rodea!'
     },
     'nariz': {
-      label: 'Nariz',
+      thatIs: '¡Esa es la nariz!',
+      withArticle: 'la nariz',
       icon: '👃',
-      color: '#F59E0B',
       prompt: '¡Toca la nariz para oler las flores del bosque!',
-      praise: '¡Genial! ¡Esa es la nariz para oler y respirar aire fresco!',
-      box: { top: 33, left: 42, width: 16, height: 10 }
+      praise: '¡Genial! ¡Esa es la nariz para oler y respirar aire fresco!'
     },
     'boca': {
-      label: 'Boca',
+      thatIs: '¡Esa es la boca!',
+      withArticle: 'la boca',
       icon: '👄',
-      color: '#EF4444',
       prompt: '¡Toca la boca para cantar y sonreír!',
-      praise: '¡Muy bien! ¡Esa es la boca para hablar, comer y sonreír!',
-      box: { top: 43, left: 38, width: 24, height: 12 }
+      praise: '¡Muy bien! ¡Esa es la boca para hablar, comer y sonreír!'
     },
     'orejas': {
-      label: 'Orejas',
+      thatIs: '¡Esas son las orejas!',
+      withArticle: 'las orejas',
       icon: '👂',
-      color: '#8B5CF6',
       prompt: '¡Toca las orejas para escuchar los sonidos de la naturaleza!',
-      praise: '¡Súper! ¡Esas son las orejas para escuchar cuentos y música!',
-      box: { top: 25, left: 16, width: 68, height: 16 },
-      altBoxes: [
-        { top: 25, left: 18, width: 15, height: 16 },
-        { top: 25, left: 67, width: 15, height: 16 }
-      ]
+      praise: '¡Súper! ¡Esas son las orejas para escuchar cuentos y música!'
     },
     'pelo': {
-      label: 'Pelo',
+      thatIs: '¡Ese es el pelo!',
+      withArticle: 'el pelo',
       icon: '💇',
-      color: '#D97706',
-      prompt: '¡Toca el pelo del explorador arriba de la cara!',
-      praise: '¡Fantástico! ¡Ese es el pelo que peinamos y cuidamos!',
-      box: { top: 4, left: 24, width: 52, height: 18 }
+      prompt: '¡Toca el pelo arriba de la cabeza!',
+      praise: '¡Fantástico! ¡Ese es el pelo que peinamos y cuidamos!'
+    },
+    'cabeza': {
+      thatIs: '¡Esa es la cabeza!',
+      withArticle: 'la cabeza',
+      icon: '👦',
+      prompt: '¡Toca la cabeza, arriba de todo!',
+      praise: '¡Muy bien! ¡Esa es la cabeza, donde pensamos y soñamos!'
+    },
+    'brazos': {
+      thatIs: '¡Esos son los brazos!',
+      withArticle: 'los brazos',
+      icon: '💪',
+      prompt: '¡Toca los brazos para trepar y dar abrazos!',
+      praise: '¡Excelente! ¡Esos son los brazos para abrazar y jugar!'
+    },
+    'barriga': {
+      thatIs: '¡Esa es la barriga!',
+      withArticle: 'la barriga',
+      icon: '🎽',
+      prompt: '¡Toca la barriga en el medio del cuerpo!',
+      praise: '¡Genial! ¡Esa es la pancita donde va la comida rica!'
+    },
+    'piernas': {
+      thatIs: '¡Esas son las piernas!',
+      withArticle: 'las piernas',
+      icon: '👖',
+      prompt: '¡Toca las piernas para saltar y correr!',
+      praise: '¡Bravo! ¡Esas son las piernas para caminar, saltar y correr!'
     }
   };
 
-  // Metadata pedagógica de las partes del cuerpo
-  const BODY_TARGETS_DATA = {
-    'cabeza': {
-      label: 'Cabeza',
-      icon: '🧠',
-      color: '#0284C7',
-      prompt: '¡Toca la cabeza, arriba de todo!',
-      praise: '¡Muy bien! ¡Esa es la cabeza, donde pensamos y soñamos!',
-      box: { top: 8, left: 30, width: 40, height: 26 }
+  // Coordenadas milimétricas exactas sobre la imagen (896 x 1200) para la cara
+  const CHARACTER_FACE_DATA = {
+    boy: {
+      ojos: {
+        altBoxes: [
+          { top: 20.0, left: 35.0, width: 13.0, height: 7.0 },
+          { top: 20.0, left: 52.0, width: 13.0, height: 7.0 }
+        ]
+      },
+      nariz: {
+        box: { top: 25.5, left: 44.0, width: 12.0, height: 4.2 }
+      },
+      boca: {
+        box: { top: 29.8, left: 37.0, width: 26.0, height: 6.0 }
+      },
+      orejas: {
+        altBoxes: [
+          { top: 23.5, left: 28.5, width: 7.5, height: 8.5 },
+          { top: 23.5, left: 64.0, width: 7.5, height: 8.5 }
+        ]
+      },
+      pelo: {
+        box: { top: 7.0, left: 24.0, width: 52.0, height: 12.5 }
+      }
     },
-    'brazos': {
-      label: 'Brazos',
-      icon: '💪',
-      color: '#10B981',
-      prompt: '¡Toca los brazos para dar un gran abrazo!',
-      praise: '¡Eso es! ¡Los brazos fuertes para abrazar y alcanzar cosas!',
-      box: { top: 35, left: 14, width: 72, height: 22 },
-      altBoxes: [
-        { top: 35, left: 14, width: 22, height: 22 },
-        { top: 35, left: 64, width: 22, height: 22 }
-      ]
+    girl: {
+      ojos: {
+        altBoxes: [
+          { top: 18.5, left: 34.0, width: 13.0, height: 6.8 },
+          { top: 18.5, left: 53.0, width: 13.0, height: 6.8 }
+        ]
+      },
+      nariz: {
+        box: { top: 23.5, left: 44.0, width: 12.0, height: 3.5 }
+      },
+      boca: {
+        box: { top: 27.2, left: 38.0, width: 24.0, height: 5.5 }
+      },
+      orejas: {
+        altBoxes: [
+          { top: 22.0, left: 25.5, width: 7.5, height: 8.0 },
+          { top: 22.0, left: 67.0, width: 7.5, height: 8.0 }
+        ]
+      },
+      pelo: {
+        altBoxes: [
+          { top: 5.0, left: 24.0, width: 52.0, height: 13.0 },
+          { top: 11.5, left: 8.5, width: 15.0, height: 26.0 },
+          { top: 11.5, left: 76.5, width: 15.0, height: 26.0 }
+        ]
+      }
+    }
+  };
+
+  // Coordenadas milimétricas exactas sobre la imagen (896 x 1200) para el cuerpo completo
+  const CHARACTER_BODY_DATA = {
+    boy: {
+      cabeza: {
+        box: { top: 7.0, left: 26.0, width: 48.0, height: 29.0 }
+      },
+      brazos: {
+        altBoxes: [
+          { top: 36.0, left: 18.0, width: 17.0, height: 20.0 },
+          { top: 27.0, left: 66.0, width: 22.0, height: 25.0 }
+        ]
+      },
+      barriga: {
+        box: { top: 37.0, left: 37.0, width: 26.0, height: 18.0 }
+      },
+      piernas: {
+        altBoxes: [
+          { top: 56.0, left: 28.0, width: 21.0, height: 38.0 },
+          { top: 56.0, left: 51.0, width: 21.0, height: 38.0 }
+        ]
+      }
     },
-    'barriga': {
-      label: 'Barriga',
-      icon: '🤗',
-      color: '#F59E0B',
-      prompt: '¡Hazle cosquillas en la barriga!',
-      praise: '¡Jajaja, qué cosquillas! ¡Esa es la barriga!',
-      box: { top: 36, left: 35, width: 30, height: 20 }
-    },
-    'piernas': {
-      label: 'Piernas',
-      icon: '🦵',
-      color: '#6366F1',
-      prompt: '¡Toca las piernas para saltar y correr por el bosque!',
-      praise: '¡Excelente! ¡Esas son las piernas que nos llevan a todas partes!',
-      box: { top: 58, left: 28, width: 44, height: 35 }
+    girl: {
+      cabeza: {
+        box: { top: 5.0, left: 22.0, width: 56.0, height: 30.0 }
+      },
+      brazos: {
+        altBoxes: [
+          { top: 35.0, left: 14.0, width: 19.0, height: 22.0 },
+          { top: 35.0, left: 67.0, width: 19.0, height: 22.0 }
+        ]
+      },
+      barriga: {
+        box: { top: 36.0, left: 36.0, width: 28.0, height: 18.0 }
+      },
+      piernas: {
+        altBoxes: [
+          { top: 56.0, left: 28.0, width: 21.0, height: 38.0 },
+          { top: 56.0, left: 51.0, width: 21.0, height: 38.0 }
+        ]
+      }
     }
   };
 
@@ -129,18 +203,23 @@
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+      const temp = a[i];
+      a[i] = a[j];
+      a[j] = temp;
     }
     return a;
   }
 
-  // Locución con protección de habla
+  // Locución con protección de habla y watchdog
   function safeSpeak(text, onComplete) {
     if (typeof stopAllAudio === 'function') stopAllAudio('body_mirror_prompt');
     BodyMirrorGame.isSpeaking = true;
-    
+
     if (BodyMirrorGame.speechWatchdog) clearTimeout(BodyMirrorGame.speechWatchdog);
-    
+    BodyMirrorGame.speechWatchdog = setTimeout(() => {
+      BodyMirrorGame.isSpeaking = false;
+    }, 9000);
+
     const finish = () => {
       BodyMirrorGame.isSpeaking = false;
       if (BodyMirrorGame.speechWatchdog) clearTimeout(BodyMirrorGame.speechWatchdog);
@@ -149,11 +228,8 @@
 
     if (typeof speakText === 'function') {
       speakText(text, finish);
-      // Watchdog de respaldo generoso para que nada se congele
-      const duration = Math.max(2500, Math.round(text.length * 85) + 1200);
-      BodyMirrorGame.speechWatchdog = setTimeout(finish, duration);
     } else {
-      setTimeout(finish, 1200);
+      finish();
     }
   }
 
@@ -162,12 +238,11 @@
     if (typeof stopAllAudio === 'function') stopAllAudio('open_body_mirror');
     if (typeof switchScreen === 'function') switchScreen('body-mirror');
 
-    const screen = document.getElementById('screen-body-mirror');
-    if (screen) screen.classList.add('active');
-
     BodyMirrorGame.isRunning = true;
     BodyMirrorGame.currentPhase = 'intro';
-    BodyMirrorGame.isTransitioning = false;
+    BodyMirrorGame.currentItemIndex = 0;
+    BodyMirrorGame.starsEarned = 0;
+    BodyMirrorGame.coinsEarned = 0;
 
     renderIntroScreen();
   };
@@ -210,7 +285,7 @@
           <!-- TARJETA NIÑO -->
           <div id="card-select-boy" onclick="selectCharacter('boy')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%); border: 3.5px solid #38BDF8; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nino_explorador.png?v=315" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nino_explorador.png?v=316" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #0284C7; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👦</span>
@@ -221,7 +296,7 @@
           <!-- TARJETA NIÑA -->
           <div id="card-select-girl" onclick="selectCharacter('girl')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #831843 0%, #DB2777 100%); border: 3.5px solid #F472B6; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(219, 39, 119, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nina_exploradora.png?v=315" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nina_exploradora.png?v=316" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #DB2777; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👧</span>
@@ -275,7 +350,7 @@
     }
 
     const key = BodyMirrorGame.faceItems[BodyMirrorGame.currentItemIndex];
-    BodyMirrorGame.currentTarget = FACE_TARGETS_DATA[key];
+    BodyMirrorGame.currentTarget = ANATOMY_GRAMMAR[key];
     
     updatePromptUI(BodyMirrorGame.currentTarget.prompt, BodyMirrorGame.currentTarget.icon);
     clearAllHighlights();
@@ -309,7 +384,7 @@
     }
 
     const key = BodyMirrorGame.bodyItems[BodyMirrorGame.currentItemIndex];
-    BodyMirrorGame.currentTarget = BODY_TARGETS_DATA[key];
+    BodyMirrorGame.currentTarget = ANATOMY_GRAMMAR[key];
 
     updatePromptUI(BodyMirrorGame.currentTarget.prompt, BodyMirrorGame.currentTarget.icon);
     clearAllHighlights();
@@ -331,8 +406,8 @@
 
     const isFace = (BodyMirrorGame.currentPhase === 'face');
     const imgSrc = (BodyMirrorGame.selectedCharacter === 'boy') 
-      ? 'assets/nino_explorador.png?v=315' 
-      : 'assets/nina_exploradora.png?v=315';
+      ? 'assets/nino_explorador.png?v=316' 
+      : 'assets/nina_exploradora.png?v=316';
 
     const charTitle = (BodyMirrorGame.selectedCharacter === 'boy') ? 'El Niño Explorador' : 'La Niña Exploradora';
     const subTitle = isFace ? 'Explorando las Partes de la Cara' : 'Explorando las Partes del Cuerpo';
@@ -367,13 +442,16 @@
             <div style="position: absolute; top: -50px; left: -50px; width: 120px; height: 500px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%); transform: rotate(25deg); pointer-events: none; z-index: 5;"></div>
 
             <!-- CONTENEDOR DEL PERSONAJE CON ZOOM DINÁMICO -->
-            <div id="mirror-character-wrapper" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); ${isFace ? 'transform: scale(2.4) translateY(24%);' : 'transform: scale(1.0) translateY(4%);'}">
+            <div id="mirror-character-wrapper" style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); ${isFace ? 'transform: scale(2.6) translateY(26%);' : 'transform: scale(1.0) translateY(3%);'}">
               
-              <img id="mirror-character-img" src="${imgSrc}" alt="${charTitle}" style="width: auto; height: 92%; max-width: 90%; object-fit: contain; user-select: none; pointer-events: none;" />
+              <!-- CAJA CON ASPECT RATIO EXACTO DE LA IMAGEN (896 / 1200) -->
+              <div id="mirror-image-box" style="position: relative; height: 92%; aspect-ratio: 896 / 1200; display: inline-block;">
+                <img id="mirror-character-img" src="${imgSrc}" alt="${charTitle}" style="width: 100%; height: 100%; object-fit: fill; user-select: none; pointer-events: none; display: block;" />
 
-              <!-- CAPA DE HITBOXES INTERACTIVAS -->
-              <div id="mirror-hitbox-layer" style="position: absolute; inset: 0; width: 100%; height: 100%;">
-                ${renderHitboxes(isFace)}
+                <!-- CAPA DE HITBOXES INTERACTIVAS EXACTA 1:1 -->
+                <div id="mirror-hitbox-layer" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto;">
+                  ${renderHitboxes(isFace, BodyMirrorGame.selectedCharacter)}
+                </div>
               </div>
 
             </div>
@@ -396,35 +474,23 @@
     `;
   }
 
-  // Generación de hitboxes táctiles
-  function renderHitboxes(isFace) {
-    if (isFace) {
-      let html = '';
-      Object.keys(FACE_TARGETS_DATA).forEach(key => {
-        const item = FACE_TARGETS_DATA[key];
-        if (item.altBoxes) {
-          item.altBoxes.forEach((ab, idx) => {
-            html += `<div id="hitbox-${key}-${idx}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${ab.top}%; left: ${ab.left}%; width: ${ab.width}%; height: ${ab.height}%; cursor: pointer; border-radius: 50%; z-index: 20;"></div>`;
-          });
-        } else {
-          html += `<div id="hitbox-${key}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${item.box.top}%; left: ${item.box.left}%; width: ${item.box.width}%; height: ${item.box.height}%; cursor: pointer; border-radius: 50%; z-index: 20;"></div>`;
-        }
-      });
-      return html;
-    } else {
-      let html = '';
-      Object.keys(BODY_TARGETS_DATA).forEach(key => {
-        const item = BODY_TARGETS_DATA[key];
-        if (item.altBoxes) {
-          item.altBoxes.forEach((ab, idx) => {
-            html += `<div id="hitbox-${key}-${idx}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${ab.top}%; left: ${ab.left}%; width: ${ab.width}%; height: ${ab.height}%; cursor: pointer; border-radius: 30px; z-index: 20;"></div>`;
-          });
-        } else {
-          html += `<div id="hitbox-${key}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${item.box.top}%; left: ${item.box.left}%; width: ${item.box.width}%; height: ${item.box.height}%; cursor: pointer; border-radius: 30px; z-index: 20;"></div>`;
-        }
-      });
-      return html;
-    }
+  // Generación de hitboxes táctiles exactas para el personaje seleccionado
+  function renderHitboxes(isFace, gender) {
+    const charKey = (gender === 'girl') ? 'girl' : 'boy';
+    const source = isFace ? CHARACTER_FACE_DATA[charKey] : CHARACTER_BODY_DATA[charKey];
+    let html = '';
+
+    Object.keys(source).forEach(key => {
+      const item = source[key];
+      if (item.altBoxes) {
+        item.altBoxes.forEach((ab, idx) => {
+          html += `<div id="hitbox-${key}-${idx}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${ab.top}%; left: ${ab.left}%; width: ${ab.width}%; height: ${ab.height}%; cursor: pointer; border-radius: ${isFace ? '50%' : '24px'}; z-index: 20;"></div>`;
+        });
+      } else if (item.box) {
+        html += `<div id="hitbox-${key}" class="body-hitbox" onclick="handlePartClick('${key}')" style="position: absolute; top: ${item.box.top}%; left: ${item.box.left}%; width: ${item.box.width}%; height: ${item.box.height}%; cursor: pointer; border-radius: ${isFace ? '50%' : '24px'}; z-index: 20;"></div>`;
+      }
+    });
+    return html;
   }
 
   // Manejo de clic o toque en una parte anatómica
@@ -436,8 +502,8 @@
       ? BodyMirrorGame.faceItems[BodyMirrorGame.currentItemIndex]
       : BodyMirrorGame.bodyItems[BodyMirrorGame.currentItemIndex];
 
-    const targetData = isFace ? FACE_TARGETS_DATA[expectedKey] : BODY_TARGETS_DATA[expectedKey];
-    const clickedData = isFace ? FACE_TARGETS_DATA[clickedPartKey] : BODY_TARGETS_DATA[clickedPartKey];
+    const targetData = ANATOMY_GRAMMAR[expectedKey] || { praise: '¡Muy bien!' };
+    const clickedData = ANATOMY_GRAMMAR[clickedPartKey] || { thatIs: 'Esa es esa parte', withArticle: clickedPartKey };
 
     if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
 
@@ -466,14 +532,12 @@
       });
 
     } else {
-      // Duda o toque en otra parte: refuerzo amable sin castigo
+      // Duda o toque en otra parte: refuerzo amable sin castigo con concordancia gramatical perfecta
       if (typeof playGameAudioEffect === 'function') playGameAudioEffect('running');
       triggerGentleFeedback(clickedPartKey);
 
-      const clickedName = clickedData ? clickedData.label.toLowerCase() : clickedPartKey;
-      const expectedName = targetData ? targetData.label.toLowerCase() : expectedKey;
-      
-      safeSpeak(`Esa es la ${clickedName}... ¡Ahora busquemos la ${expectedName}!`, () => {
+      // Locución natural y adaptativa (ej: "¡Esos son los ojos!... ¡Ahora busquemos las orejas!")
+      safeSpeak(`${clickedData.thatIs} ¡Ahora busquemos ${clickedData.withArticle === targetData.withArticle ? 'bien' : targetData.withArticle}!`, () => {
         // Re-activar la pista visual tras la aclaración
         triggerGuidedHint(expectedKey);
       });
@@ -503,41 +567,35 @@
   function triggerSuccessVisual(partKey) {
     const hitboxes = document.querySelectorAll(`[id^="hitbox-${partKey}"]`);
     hitboxes.forEach(hb => {
-      hb.style.boxShadow = '0 0 25px 12px rgba(16, 185, 129, 0.9)';
+      hb.style.boxShadow = '0 0 28px 12px rgba(16, 185, 129, 0.9)';
       hb.style.border = '3px solid #34D399';
     });
-
-    // Pequeño efecto de rebote en el personaje
-    const char = document.getElementById('mirror-character-wrapper');
-    if (char) {
-      char.style.transition = 'transform 0.15s ease-out';
-      char.style.transform += ' scale(1.05)';
-      setTimeout(() => {
-        char.style.transition = 'transform 0.3s ease-in';
-      }, 180);
-    }
   }
 
   function triggerGentleFeedback(partKey) {
     const hitboxes = document.querySelectorAll(`[id^="hitbox-${partKey}"]`);
     hitboxes.forEach(hb => {
-      hb.style.boxShadow = '0 0 15px 4px rgba(245, 158, 11, 0.6)';
-      setTimeout(() => { hb.style.boxShadow = 'none'; }, 600);
+      hb.style.boxShadow = '0 0 16px 4px rgba(59, 130, 246, 0.7)';
+      hb.style.border = '2px solid #60A5FA';
+      setTimeout(() => {
+        hb.style.boxShadow = 'none';
+        hb.style.border = 'none';
+      }, 700);
     });
   }
 
   function updatePromptUI(text, icon) {
     const promptTextEl = document.getElementById('body-prompt-text');
     const promptIconEl = document.getElementById('body-prompt-icon');
-    if (promptTextEl) promptTextEl.innerText = text;
-    if (promptIconEl) promptIconEl.innerText = icon || '✨';
+    if (promptTextEl) promptTextEl.textContent = text;
+    if (promptIconEl) promptIconEl.textContent = icon || '✨';
   }
 
   function updateMirrorHeader(title, subtitle) {
     const tEl = document.getElementById('body-mirror-title');
-    const sEl = document.getElementById('body-mirror-subtitle');
-    if (tEl) tEl.innerText = title;
-    if (sEl) sEl.innerText = subtitle;
+    const bEl = document.getElementById('body-mirror-badge');
+    if (tEl && title) tEl.textContent = title;
+    if (bEl && subtitle) bEl.textContent = subtitle;
   }
 
   window.repeatCurrentPrompt = function() {
@@ -552,15 +610,15 @@
     if (typeof triggerConfettiEffect === 'function') triggerConfettiEffect();
     if (typeof playGameAudioEffect === 'function') playGameAudioEffect('correct');
 
+    const modal = document.getElementById('body-mirror-victory-modal');
+    if (modal) modal.style.display = 'flex';
+
     if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
       activeChildProfile.coins = (activeChildProfile.coins || 0) + 50;
       activeChildProfile.stars = (activeChildProfile.stars || 0) + 10;
       if (typeof saveActiveChildProfile === 'function') saveActiveChildProfile();
       if (typeof updateStatsUI === 'function') updateStatsUI();
     }
-
-    const modal = document.getElementById('body-mirror-victory-modal');
-    if (modal) modal.style.display = 'flex';
 
     const kidName = (typeof getStudentFirstName === 'function') ? getStudentFirstName() : 'Campeón';
     safeSpeak(`¡Felicidades ${kidName}! Completaste el Espejo Mágico. ¡Conoces a la perfección tu cuerpo y tu cara!`);
@@ -569,8 +627,13 @@
   window.replayBodyMirror = function() {
     const modal = document.getElementById('body-mirror-victory-modal');
     if (modal) modal.style.display = 'none';
-    BodyMirrorGame.currentPhase = 'intro';
-    renderIntroScreen();
+    window.openBodyMirrorScreen();
+  };
+
+  window.closeBodyMirrorVictoryModal = function() {
+    const modal = document.getElementById('body-mirror-victory-modal');
+    if (modal) modal.style.display = 'none';
+    if (typeof switchScreen === 'function') switchScreen('map');
   };
 
 })();
