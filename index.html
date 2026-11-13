@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v314';
+    const CURRENT_APP_VERSION = 'v315';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -145,6 +145,8 @@
   <script src="mirror_lighthouse.js?v=314"></script>
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
   <script src="basket.js?v=302"></script>
+  <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 10: EL ESPEJO MÁGICO (Somatognosia, Esquema Corporal y Distinción Niño/Niña) -->
+  <script src="body_mirror.js?v=315"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -1594,6 +1596,23 @@
               </button>
             </div>
 
+            <!-- 🪞 11. EL ESPEJO MÁGICO (SOMATOGNOSIA & DISTINCIÓN NIÑO/NIÑA) -->
+            <div onclick="openBodyMirrorScreen()" style="background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #EC4899 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #FBCFE8; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.22); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🪞</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px;">
+                    <span>El Espejo Mágico</span>
+                    <span style="font-size: 9px; background: #FEF08A; color: #854D0E; padding: 1px 6px; border-radius: 6px; font-weight: 900;">NUEVO</span>
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Esquema Corporal · Cara, Cuerpo y Distinción</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #6D28D9; border: none; padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                ▶️ JUGAR
+              </button>
+            </div>
+
           </div>
 
           <!-- BOTÓN DIRECTO GUÍA DEL TERAPEUTA EN EL MAPA -->
@@ -2931,6 +2950,62 @@
         </div>
       </div>
     </div>
+
+    
+
+      <!-- 🪞 SCREEN 17: EL ESPEJO MÁGICO (SOMATOGNOSIA Y ESQUEMA CORPORAL) -->
+      <div id="screen-body-mirror" class="screen" style="background: linear-gradient(180deg, #FDF4FF 0%, #EDE9FE 100%);">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #FDF4FF 0%, #EDE9FE 100%); padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+          <!-- BARRA SUPERIOR DE CONTROL -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-shrink: 0; background: white; padding: 6px 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1); gap: 6px; border: 2px solid #DDD6FE;">
+            <button onclick="closeBodyMirrorAndReturnToMap()" style="background: #F1F5F9; border: none; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              <span>◀️ Volver</span>
+            </button>
+            <div style="text-align: center; flex: 1; min-width: 0;">
+              <div style="font-size: 13px; font-weight: 900; color: #6D28D9; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                <span>🪞</span>
+                <span id="body-mirror-title">El Espejo Mágico</span>
+                <span id="body-mirror-badge" style="font-size: 10px; font-weight: 800; background: #8B5CF6; color: white; padding: 2px 7px; border-radius: 8px;">Esquema Corporal</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button onclick="repeatCurrentPrompt()" style="background: #FAF5FF; border: 1.5px solid #C084FC; color: #7E22CE; padding: 6px 10px; border-radius: 10px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Repetir consigna">
+                <span>🔊 Escuchar</span>
+              </button>
+              <button onclick="openTherapistGuideModal('body_mirror')" style="background: #F5F3FF; border: 1.5px solid #DDD6FE; color: #6D28D9; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+                <span>📋 Terapeuta</span>
+              </button>
+            </div>
+          </div>
+          <!-- ÁREA PRINCIPAL DEL ESCENARIO -->
+          <div id="body-mirror-stage" style="position: relative; flex: 1; width: 100%; min-height: 340px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12); border: 2.5px solid #C4B5FD; display: flex; flex-direction: column;">
+            <!-- Renderizado dinámico desde body_mirror.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL VICTORIA BODY MIRROR -->
+      <div id="body-mirror-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: white; border-radius: 24px; padding: 24px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 3px solid #7C3AED; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <div style="font-size: 54px; margin-bottom: 8px;">🪞⭐🎉</div>
+          <h2 style="font-size: 20px; font-weight: 900; color: #6D28D9; margin-bottom: 6px;">¡Misión del Espejo Cumplida!</h2>
+          <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+            ¡Reconociste con éxito todas las partes de la cara y del cuerpo!
+          </p>
+          <div style="background: #F5F3FF; border: 2px dashed #8B5CF6; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+            <div style="font-size: 13px; font-weight: 900; color: #6D28D9;">👑 Maestro del Esquema Corporal</div>
+            <div style="font-size: 16px; font-weight: 800; color: #7C3AED; margin-top: 2px;">+50 Monedas 🪙 | +10 Estrellas ⭐</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button onclick="replayBodyMirror()" style="background: linear-gradient(135deg, #7C3AED, #6D28D9); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+              🔄 Jugar de nuevo
+            </button>
+            <button onclick="closeBodyMirrorVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+              🗺️ Volver al Mapa
+            </button>
+          </div>
+        </div>
+      </div>
 
     <!-- 📖 MODAL INTERACTIVO: GUÍA Y FUNDAMENTOS PARA EL TERAPEUTA (SoR / DUA) -->
     <div id="therapist-guide-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 10001; align-items: center; justify-content: center; padding: 14px;">
@@ -5691,6 +5766,12 @@
         MirrorGame.isSpeaking = false;
         if (MirrorGame.voiceTimeout) clearTimeout(MirrorGame.voiceTimeout);
         if (MirrorGame.animFrameId) cancelAnimationFrame(MirrorGame.animFrameId);
+      }
+      if (screenName !== 'body-mirror' && window.BodyMirrorGame) {
+        BodyMirrorGame.isRunning = false;
+        BodyMirrorGame.isSpeaking = false;
+        if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
+        if (BodyMirrorGame.speechWatchdog) clearTimeout(BodyMirrorGame.speechWatchdog);
       }
       if (screenName !== 'basket' && window.BasketGame) {
         BasketGame.isRunning = false;

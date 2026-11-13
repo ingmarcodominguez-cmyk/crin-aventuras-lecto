@@ -227,6 +227,28 @@
         'Capacidad de clasificar conceptos abstractos por encima de meras coincidencias visuales superficiales.',
         'Mejora notable en pruebas de comprensión lectora y razonamiento verbal.'
       ]
+    },
+    'body_mirror': {
+      id: 'body_mirror',
+      icon: '🪞',
+      title: 'El Espejo Mágico (Esquema Corporal y Somatognosia)',
+      level: 'Somatognosia, Esquema Corporal y Distinción Niño / Niña',
+      neuroBasis: 'Fundamentado en las investigaciones de Wallon, Ajuriaguerra y la Teoría del Desarrollo Psicomotor de Piaget. El reconocimiento del esquema corporal y la somatognosia en el lóbulo parietal (área somatosensorial primaria y de asociación) constituye el ancla neurocognitiva básica para la orientación témporo-espacial, la lateralidad y la proyección de simetría en la lectura/escritura.',
+      framework: 'Protocolo de Screening Psicopedagógico / DUA / Somatognosia',
+      objectives: [
+        'Distinguir la propia identidad corporal e identificación entre niño y niña con representación positiva.',
+        'Localizar e identificar con precisión propioceptiva y táctil las partes faciales (ojos, nariz, boca, orejas, pelo).',
+        'Reconocer los segmentos corporales gruesos (cabeza, brazos, barriga, piernas) como base para la lateralidad y la motricidad fina/gruesa.'
+      ],
+      interventionTips: [
+        'Invite al niño a tocar su propia cara y cuerpo mientras interactúa con el explorador en la pantalla: "¡Toca tu nariz como el explorador!".',
+        'Ante titubeos, espere que el sistema active el aro brillante guiado (aprendizaje sin error) para evitar frustración.',
+        'Refuerce verbalmente la función de cada segmento: "Los ojos para explorar, las piernas para saltar y correr".'
+      ],
+      progressIndicators: [
+        'Localización inmediata y sin error de los 5 segmentos faciales y 4 segmentos corporales troncales.',
+        'Alineación del esquema corporal propioceptivo con la orientación visoespacial.'
+      ]
     }
   };
 
