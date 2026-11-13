@@ -117,8 +117,8 @@
       },
       orejas: {
         altBoxes: [
-          { top: 24.0, left: 31.5, width: 9.0, height: 9.5 },
-          { top: 24.0, left: 62.5, width: 9.0, height: 9.5 }
+          { top: 22.5, left: 32.0, width: 6.8, height: 7.5 },
+          { top: 22.5, left: 61.5, width: 6.8, height: 7.5 }
         ]
       },
       pelo: {
@@ -140,8 +140,8 @@
       },
       orejas: {
         altBoxes: [
-          { top: 18.5, left: 28.5, width: 9.0, height: 9.5 },
-          { top: 18.5, left: 62.5, width: 9.0, height: 9.5 }
+          { top: 20.5, left: 32.5, width: 6.8, height: 7.2 },
+          { top: 20.5, left: 62.0, width: 6.5, height: 7.2 }
         ]
       },
       pelo: {
@@ -285,7 +285,7 @@
           <!-- TARJETA NIÑO -->
           <div id="card-select-boy" onclick="selectCharacter('boy')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%); border: 3.5px solid #38BDF8; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nino_explorador.png?v=318" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nino_explorador.png?v=319" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #0284C7; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👦</span>
@@ -296,7 +296,7 @@
           <!-- TARJETA NIÑA -->
           <div id="card-select-girl" onclick="selectCharacter('girl')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #831843 0%, #DB2777 100%); border: 3.5px solid #F472B6; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(219, 39, 119, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nina_exploradora.png?v=318" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nina_exploradora.png?v=319" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #DB2777; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👧</span>
@@ -408,8 +408,8 @@
 
     const isFace = (BodyMirrorGame.currentPhase === 'face');
     const imgSrc = (BodyMirrorGame.selectedCharacter === 'boy') 
-      ? 'assets/nino_explorador.png?v=318' 
-      : 'assets/nina_exploradora.png?v=318';
+      ? 'assets/nino_explorador.png?v=319' 
+      : 'assets/nina_exploradora.png?v=319';
 
     const charTitle = (BodyMirrorGame.selectedCharacter === 'boy') ? 'El Niño Explorador' : 'La Niña Exploradora';
     const subTitle = isFace ? 'Explorando las Partes de la Cara' : 'Explorando las Partes del Cuerpo';
