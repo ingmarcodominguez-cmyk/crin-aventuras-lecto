@@ -285,7 +285,7 @@
           <!-- TARJETA NIÑO -->
           <div id="card-select-boy" onclick="selectCharacter('boy')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #1E3A8A 0%, #0284C7 100%); border: 3.5px solid #38BDF8; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nino_explorador.png?v=316" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nino_explorador.png?v=318" alt="Niño" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #0284C7; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👦</span>
@@ -296,7 +296,7 @@
           <!-- TARJETA NIÑA -->
           <div id="card-select-girl" onclick="selectCharacter('girl')" style="flex: 1; min-width: 180px; max-width: 250px; background: linear-gradient(135deg, #831843 0%, #DB2777 100%); border: 3.5px solid #F472B6; border-radius: 26px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer; box-shadow: 0 10px 25px rgba(219, 39, 119, 0.35); transition: transform 0.2s, box-shadow 0.2s; position: relative;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'">
             <div style="width: 150px; height: 190px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <img src="assets/nina_exploradora.png?v=316" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
+              <img src="assets/nina_exploradora.png?v=318" alt="Niña" style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));" />
             </div>
             <div style="background: #FFFFFF; color: #DB2777; font-size: 16px; font-weight: 900; padding: 6px 20px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
               <span>👧</span>
@@ -340,6 +340,16 @@
     loadNextFaceItem();
   }
 
+    // Temporizador de andamiaje paciente (da 10 segundos tras la locución antes de sugerir con luz)
+  function startHintTimer(key, delay = 10000) {
+    if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
+    BodyMirrorGame.hintTimer = setTimeout(() => {
+      if (!BodyMirrorGame.isTransitioning && BodyMirrorGame.isRunning) {
+        triggerGuidedHint(key);
+      }
+    }, delay);
+  }
+
   function loadNextFaceItem() {
     if (BodyMirrorGame.currentItemIndex >= BodyMirrorGame.faceItems.length) {
       // Fin de la cara: pasamos a las partes del cuerpo
@@ -356,13 +366,9 @@
     clearAllHighlights();
 
     // Locución guiada
-    safeSpeak(BodyMirrorGame.currentTarget.prompt);
-
-    // Andamiaje: tras 4.5 segundos de duda, activar pulso de luz guiada sin penalización
-    if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
-    BodyMirrorGame.hintTimer = setTimeout(() => {
-      triggerGuidedHint(key);
-    }, 4500);
+    safeSpeak(BodyMirrorGame.currentTarget.prompt, () => {
+      startHintTimer(key, 10000);
+    });
   }
 
   // --- FASE 3: LAS PARTES DEL CUERPO ---
@@ -390,13 +396,9 @@
     clearAllHighlights();
 
     // Locución guiada
-    safeSpeak(BodyMirrorGame.currentTarget.prompt);
-
-    // Andamiaje suave ante duda
-    if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
-    BodyMirrorGame.hintTimer = setTimeout(() => {
-      triggerGuidedHint(key);
-    }, 4500);
+    safeSpeak(BodyMirrorGame.currentTarget.prompt, () => {
+      startHintTimer(key, 10000);
+    });
   }
 
   // --- RENDERIZADO DEL ESCENARIO DEL ESPEJO INTERACTIVO ---
@@ -406,8 +408,8 @@
 
     const isFace = (BodyMirrorGame.currentPhase === 'face');
     const imgSrc = (BodyMirrorGame.selectedCharacter === 'boy') 
-      ? 'assets/nino_explorador.png?v=316' 
-      : 'assets/nina_exploradora.png?v=316';
+      ? 'assets/nino_explorador.png?v=318' 
+      : 'assets/nina_exploradora.png?v=318';
 
     const charTitle = (BodyMirrorGame.selectedCharacter === 'boy') ? 'El Niño Explorador' : 'La Niña Exploradora';
     const subTitle = isFace ? 'Explorando las Partes de la Cara' : 'Explorando las Partes del Cuerpo';
@@ -511,7 +513,7 @@
       // ¡ACIERTO!
       BodyMirrorGame.isTransitioning = true;
       if (typeof playGameAudioEffect === 'function') playGameAudioEffect('correct');
-      triggerSuccessVisual(clickedPartKey);
+      clearAllHighlights();
 
       // Recompensa progresiva
       if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
@@ -534,12 +536,11 @@
     } else {
       // Duda o toque en otra parte: refuerzo amable sin castigo con concordancia gramatical perfecta
       if (typeof playGameAudioEffect === 'function') playGameAudioEffect('running');
-      triggerGentleFeedback(clickedPartKey);
+      clearAllHighlights();
 
       // Locución natural y adaptativa (ej: "¡Esos son los ojos!... ¡Ahora busquemos las orejas!")
       safeSpeak(`${clickedData.thatIs} ¡Ahora busquemos ${clickedData.withArticle === targetData.withArticle ? 'bien' : targetData.withArticle}!`, () => {
-        // Re-activar la pista visual tras la aclaración
-        triggerGuidedHint(expectedKey);
+        startHintTimer(expectedKey, 10000);
       });
     }
   };
@@ -565,23 +566,13 @@
   }
 
   function triggerSuccessVisual(partKey) {
-    const hitboxes = document.querySelectorAll(`[id^="hitbox-${partKey}"]`);
-    hitboxes.forEach(hb => {
-      hb.style.boxShadow = '0 0 28px 12px rgba(16, 185, 129, 0.9)';
-      hb.style.border = '3px solid #34D399';
-    });
+    // Sin óvalos visibles en el personaje
+    clearAllHighlights();
   }
 
   function triggerGentleFeedback(partKey) {
-    const hitboxes = document.querySelectorAll(`[id^="hitbox-${partKey}"]`);
-    hitboxes.forEach(hb => {
-      hb.style.boxShadow = '0 0 16px 4px rgba(59, 130, 246, 0.7)';
-      hb.style.border = '2px solid #60A5FA';
-      setTimeout(() => {
-        hb.style.boxShadow = 'none';
-        hb.style.border = 'none';
-      }, 700);
-    });
+    // Sin óvalos visibles en el personaje
+    clearAllHighlights();
   }
 
   function updatePromptUI(text, icon) {
@@ -600,7 +591,15 @@
 
   window.repeatCurrentPrompt = function() {
     if (BodyMirrorGame.currentTarget && BodyMirrorGame.currentTarget.prompt) {
-      safeSpeak(BodyMirrorGame.currentTarget.prompt);
+      clearAllHighlights();
+      if (BodyMirrorGame.hintTimer) clearTimeout(BodyMirrorGame.hintTimer);
+      const isFace = (BodyMirrorGame.currentPhase === 'face');
+      const expectedKey = isFace 
+        ? BodyMirrorGame.faceItems[BodyMirrorGame.currentItemIndex]
+        : BodyMirrorGame.bodyItems[BodyMirrorGame.currentItemIndex];
+      safeSpeak(BodyMirrorGame.currentTarget.prompt, () => {
+        if (expectedKey) startHintTimer(expectedKey, 10000);
+      });
     }
   };
 
