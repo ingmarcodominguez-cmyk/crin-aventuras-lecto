@@ -117,8 +117,8 @@
       },
       orejas: {
         altBoxes: [
-          { top: 23.5, left: 28.5, width: 7.5, height: 8.5 },
-          { top: 23.5, left: 64.0, width: 7.5, height: 8.5 }
+          { top: 24.0, left: 31.5, width: 9.0, height: 9.5 },
+          { top: 24.0, left: 62.5, width: 9.0, height: 9.5 }
         ]
       },
       pelo: {
@@ -140,8 +140,8 @@
       },
       orejas: {
         altBoxes: [
-          { top: 22.0, left: 25.5, width: 7.5, height: 8.0 },
-          { top: 22.0, left: 67.0, width: 7.5, height: 8.0 }
+          { top: 18.5, left: 28.5, width: 9.0, height: 9.5 },
+          { top: 18.5, left: 62.5, width: 9.0, height: 9.5 }
         ]
       },
       pelo: {
