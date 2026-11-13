@@ -128,15 +128,47 @@
     if (typeof switchScreen === 'function') switchScreen('map');
   };
 
+  // Barajado Fisher-Yates genuino e insesgado
+  function shuffleArray(array) {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Generador de distribución equilibrada anti-racha para los barcos (0 = barco izquierdo, 1 = barco derecho)
+  function generateBalancedBoatPositions(count) {
+    let positions;
+    do {
+      const halfA = Math.floor(count / 2);
+      const halfB = count - halfA;
+      const base = Math.random() < 0.5 
+        ? Array(halfA).fill(0).concat(Array(halfB).fill(1))
+        : Array(halfB).fill(0).concat(Array(halfA).fill(1));
+      
+      for (let i = base.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [base[i], base[j]] = [base[j], base[i]];
+      }
+      positions = base;
+    } while (
+      count >= 3 && positions.some((val, idx) => idx <= count - 3 && val === positions[idx + 1] && val === positions[idx + 2])
+    );
+    return positions;
+  }
+
   // --- INICIALIZACIÓN ---
   function initMirrorGame() {
     MirrorGame.canvas = document.getElementById('mirror-canvas');
     if (!MirrorGame.canvas) return;
     MirrorGame.ctx = MirrorGame.canvas.getContext('2d');
 
-    const shuffled = MIRROR_CASES.slice().sort(() => Math.random() - 0.5);
-    MirrorGame.cases = shuffled.slice(0, 5);
+    MirrorGame.cases = shuffleArray(MIRROR_CASES).slice(0, 5);
     MirrorGame.currentCaseIndex = 0;
+    MirrorGame.targetBoatSequence = generateBalancedBoatPositions(MirrorGame.cases.length);
+    MirrorGame.lastTargetIndex = -1;
 
     // Pre-cargar inmediatamente todas las imágenes y locuciones de la sesión
     try {
@@ -190,11 +222,19 @@
     MirrorGame.selectedBoat = null;
     MirrorGame.floatingTexts = [];
 
-    // Dos barquitos en el mar: uno con la letra target y otro con la letra espejo
-    const options = [
-      { letter: c.targetLetter, isTarget: true },
-      { letter: c.contrastLetter, isTarget: false }
-    ].sort(() => Math.random() - 0.5);
+    // Alternancia equilibrada garantizada entre el barco izquierdo (0) y el derecho (1)
+    let targetBoatIndex;
+    if (MirrorGame.targetBoatSequence && MirrorGame.targetBoatSequence.length > index) {
+      targetBoatIndex = MirrorGame.targetBoatSequence[index];
+    } else {
+      const last = (MirrorGame.lastTargetIndex !== undefined) ? MirrorGame.lastTargetIndex : -1;
+      targetBoatIndex = (last === 0) ? 1 : ((last === 1) ? 0 : (Math.random() < 0.5 ? 0 : 1));
+    }
+    MirrorGame.lastTargetIndex = targetBoatIndex;
+
+    const options = [null, null];
+    options[targetBoatIndex] = { letter: c.targetLetter, isTarget: true };
+    options[1 - targetBoatIndex] = { letter: c.contrastLetter, isTarget: false };
 
     MirrorGame.boats = options.map((opt, i) => ({
       id: i,
