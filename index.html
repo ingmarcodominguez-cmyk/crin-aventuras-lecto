@@ -150,7 +150,7 @@
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
   <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
-  <script src="spatial_safari.js?v=334"></script>
+  <script src="spatial_safari.js?v=335"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -1411,7 +1411,7 @@
               <option value="task15">🛏️ Tarea 15 (C - CAMA, COCHE, COLA, CARA, COCO): CAMA, COCHE, COLA, CARA, COCO</option>
               <option value="task16">💧 Tarea 16 (Naturaleza y Casa): AGUA, MESA, LIMA, SOL, ESTRELLA</option>
               <option value="task17">🐱 Tarea 17 (Mundo de Animales): GATO, PERRO, OSO, RATÓN, MONO</option>
-              <option value="task18">🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANO, LECHE, PAN, SOPA</option>
+              <option value="task18">🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANA, PERA, LECHE, PAN, SOPA</option>
               <option value="task19">🚂 Tarea 19 (Transportes y Escuela): AUTO, BICI, TREN, LIBRO, LÁPIZ</option>
               <option value="task20">🐍 Tarea 20 (S - Aventura Mágica): SERPIENTE, SIRENA, SOMBRERO, SOMBRILLA, FANTASMA</option>
               <option value="task21">🔥 Tarea 21 (F - Fuego, Fideitos y Foca): FUEGO, FIDEOS, FOCA, PUENTE, PLUMA</option>
@@ -2288,7 +2288,7 @@
             <div style="display: flex; gap: 6px; align-items: center;">
               <select id="rally-change-letter-select" onchange="changeRallyTargetLetter(this.value)" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: bold; font-size: 12px; background: #F8FAFC; cursor: pointer;">
                 <option value="A">Letra A</option>
-                <option value="B">Letra B</option>
+                <option value="B">Letra B (Be larga)</option>
                 <option value="C">Letra C</option>
                 <option value="CH">Letra CH</option>
                 <option value="D">Letra D</option>
@@ -2312,7 +2312,7 @@
                 <option value="S">Letra S</option>
                 <option value="T">Letra T</option>
                 <option value="U">Letra U</option>
-                <option value="V">Letra V</option>
+                <option value="V">Letra V (Ve corta)</option>
                 <option value="W">Letra W</option>
                 <option value="X">Letra X</option>
                 <option value="Y">Letra Y</option>
@@ -4278,11 +4278,12 @@
       text = text.replace(/\bOS\b/g, 'hos');
       text = text.replace(/\bOs\b/g, 'hos');
       text = text.replace(/\bPUEN\b/gi, 'puen');
-      // Evita que la letra 'B' / 'Be' se lea en inglés como el verbo 'be' (/biː/ -> "bi")
+      // Argentina: Fonética oficial para B ("be larga") y V ("ve corta")
       text = text.replace(/\bBe\b/g, 'beh');
       text = text.replace(/\bbe\b/g, 'beh');
-      text = text.replace(/\bla letra B\b/gi, 'la letra beh');
-      text = text.replace(/\bletra B\b/gi, 'letra beh');
+      text = text.replace(/\b(la\s+)?letra\s+B\b/gi, 'la letra be larga');
+      text = text.replace(/\b(la\s+)?letra\s+V\b/gi, 'la letra ve corta');
+      text = text.replace(/\b(la\s+)?letra\s+UVE\b/gi, 'la letra ve corta');
       text = text.replace(/\bSABANA\b/gi, 'Sábana');
       text = text.replace(/\bLAMPARA\b/gi, 'Lámpara');
       text = text.replace(/\bMELON\b/gi, 'Melón');
@@ -9344,6 +9345,8 @@
       'TREN': 'El ___ viaja rápido por los rieles.',
       'MANZANA': 'Disfruto de una ___ muy dulce.',
       'BANANO': 'El mono come un rico ___.',
+      'BANANA': 'El mono come una rica ___.',
+      'PERA': 'Saboreo una rica ___ fresca.',
       'PLATANO': 'Comemos un dulce ___ maduro.',
       'ARBOL': 'El pájaro canta sobre el ___ verde.',
       'ÁRBOL': 'El pájaro canta sobre el ___ verde.',
@@ -12081,14 +12084,15 @@
 
       if (petBannerIcon) petBannerIcon.innerText = currentPetEmoji;
 
+      const letterDisplay = (targetL === 'B') ? 'B (Be larga)' : ((targetL === 'V') ? 'V (Ve corta)' : targetL);
       const letterTxt = document.getElementById('rally-active-letter-txt');
-      if (letterTxt) letterTxt.innerText = targetL;
+      if (letterTxt) letterTxt.innerText = letterDisplay;
 
       const letterSelect = document.getElementById('rally-change-letter-select');
       if (letterSelect) letterSelect.value = targetL;
 
       const consignaTxt = document.getElementById('rally-consigna-txt');
-      if (consignaTxt) consignaTxt.innerText = `¡Lleva a tu mascota ${currentPetEmoji} a los dibujos que tengan la letra ${targetL}!`;
+      if (consignaTxt) consignaTxt.innerText = `¡Lleva a tu mascota ${currentPetEmoji} a los dibujos que tengan la letra ${letterDisplay}!`;
 
       // Obtener todos los candidatos de la app
       const allCandidates = getAllRallyDrawingCandidates();
