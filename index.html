@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v323';
+    const CURRENT_APP_VERSION = 'v324';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -150,7 +150,7 @@
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
   <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
-  <script src="spatial_safari.js?v=323"></script>
+  <script src="spatial_safari.js?v=324"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -1618,7 +1618,7 @@
             </div>
 
             <!-- 🎨 12. EL VALLE DE LAS FORMAS Y COLORES (COLORES, FORMAS & IGUAL/DIFERENTE) -->
-            <div onclick="openShapesColorsScreen()" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #3B82F6 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #A7F3D0; transition: transform 0.18s; margin-top: 10px;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div onclick="openShapesColorsScreen()" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #3B82F6 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #A7F3D0; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="background: rgba(255,255,255,0.22); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🎨</div>
                 <div>
@@ -1628,9 +1628,14 @@
                   </div>
                   <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Colores, Figuras Geométricas e Igual / Diferente</div>
                 </div>
+              </div>
+              <button style="background: #FFFFFF; color: #059669; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                ▶ JUGAR
+              </button>
+            </div>
 
             <!-- 🧭 13. EL SAFARI DE LA ORIENTACIÓN ESPACIAL (PASO 3: DENTRO/FUERA, ENCIMA/DEBAJO...) -->
-            <div onclick="openSpatialSafariScreen()" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #818CF8; transition: transform 0.18s; margin-top: 10px;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div onclick="openSpatialSafariScreen()" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #818CF8; transition: transform 0.18s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
               <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="background: rgba(255,255,255,0.22); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🧭</div>
                 <div>
@@ -1638,15 +1643,10 @@
                     <span>El Safari Espacial</span>
                     <span style="font-size: 9px; background: #FEF08A; color: #854D0E; padding: 1px 6px; border-radius: 6px; font-weight: 900;">NUEVO</span>
                   </div>
-                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Orientación Espacial · Dentro/Fuera, Encima/Debajo, Delante/Detrás...</div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Orientación Espacial · Dentro/Fuera, Encima/Debajo...</div>
                 </div>
               </div>
               <button style="background: #FFFFFF; color: #312E81; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                ▶ JUGAR
-              </button>
-            </div>
-              </div>
-              <button style="background: #FFFFFF; color: #059669; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
                 ▶ JUGAR
               </button>
             </div>
