@@ -17,6 +17,7 @@
 
     // Estado de la poción activa
     currentPotionIndex: 0,
+    totalPotionsSession: 6,
     currentPotion: null,
     potionDeck: [],
     collectedIngredients: [],
@@ -243,25 +244,60 @@
     }
   ];
 
-// GENERADOR ULTRA-DINÁMICO DE POCIONES DE RIMAS (TOTALMENTE ALEATORIO Y SIN REPETICIONES)
-  function generateDynamicRhymePotions() {
-    const shuffledFamilies = [...RHYME_FAMILIES].sort(() => Math.random() - 0.5);
+// SISTEMA DE MEMORIA INTELIGENTE ANTI-REPETICIÓN ENTRE PARTIDAS
+  const CauldronMemory = {
+    usedFamilyIds: [],
+    usedWords: []
+  };
 
-    return shuffledFamilies.map(fam => {
-      // Barajar palabras dentro de la familia para alternar base y targets
-      const famWords = [...fam.words].sort(() => Math.random() - 0.5);
-      const baseWord = famWords[0];
-      const targetWords = famWords.slice(1, 3); // 2 ingredientes que riman con la base
+  function cauldronShuffle(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // GENERADOR ULTRA-DINÁMICO DE POCIONES DE RIMAS CON MEMORIA Y 6 RONDAS
+  function generateDynamicRhymePotions(sessionCount = 6) {
+    let candidateFamilies = RHYME_FAMILIES.filter(fam => !CauldronMemory.usedFamilyIds.includes(fam.id));
+
+    // Si no quedan al menos 6 familias libres, reciclamos el historial descartando las de la partida inmediatamente anterior
+    if (candidateFamilies.length < sessionCount) {
+      const lastSessionFamilies = CauldronMemory.usedFamilyIds.slice(-sessionCount);
+      candidateFamilies = RHYME_FAMILIES.filter(fam => !lastSessionFamilies.includes(fam.id));
+      CauldronMemory.usedFamilyIds = [...lastSessionFamilies];
+      if (candidateFamilies.length < sessionCount) {
+        candidateFamilies = [...RHYME_FAMILIES];
+        CauldronMemory.usedFamilyIds = [];
+      }
+    }
+
+    const pickedFamilies = cauldronShuffle(candidateFamilies).slice(0, sessionCount);
+    pickedFamilies.forEach(fam => CauldronMemory.usedFamilyIds.push(fam.id));
+
+    return pickedFamilies.map(fam => {
+      // Filtrar palabras que no se hayan usado recientemente en esta familia
+      let availableWords = fam.words.filter(w => !CauldronMemory.usedWords.includes(w.word));
+      if (availableWords.length < 3) {
+        availableWords = [...fam.words];
+        CauldronMemory.usedWords = CauldronMemory.usedWords.filter(wStr => !fam.words.some(fw => fw.word === wStr));
+      }
+
+      const shuffledWords = cauldronShuffle(availableWords);
+      const baseWord = shuffledWords[0];
+      const targetWords = shuffledWords.slice(1, 3); // 2 ingredientes que riman
+      CauldronMemory.usedWords.push(baseWord.word, targetWords[0].word, targetWords[1].word);
 
       // Elegir 2 distractores de otras familias con rima diferente
       const otherWords = [];
-      shuffledFamilies.forEach(otherFam => {
+      RHYME_FAMILIES.forEach(otherFam => {
         if (otherFam.id !== fam.id) {
           otherFam.words.forEach(w => otherWords.push(w));
         }
       });
-      otherWords.sort(() => Math.random() - 0.5);
-      const distractors = otherWords.slice(0, 2);
+      const distractors = cauldronShuffle(otherWords).slice(0, 2);
 
       return {
         id: fam.id,
@@ -321,7 +357,8 @@
 
     CauldronGame.isRunning = true;
     CauldronGame.hasStarted = false;
-    CauldronGame.potionDeck = generateDynamicRhymePotions();
+    CauldronGame.totalPotionsSession = 6;
+    CauldronGame.potionDeck = generateDynamicRhymePotions(CauldronGame.totalPotionsSession);
     CauldronGame.currentPotionIndex = 0;
     initCauldronGame();
 
@@ -1380,5 +1417,49 @@
       });
     } catch(e) {}
   }
+
+
+  // --- GRAN VICTORIA DEL ALQUIMISTA (SESIÓN DE 6 POCIONES COMPLETADA) ---
+  function triggerCauldronSessionVictory() {
+    CauldronGame.isAdvancing = true;
+    if (typeof triggerConfettiEffect === 'function') triggerConfettiEffect();
+    playCauldronVictoryChime();
+
+    if (typeof activeChildProfile !== 'undefined' && activeChildProfile) {
+      activeChildProfile.coins = (activeChildProfile.coins || 0) + 25;
+      activeChildProfile.stars = (activeChildProfile.stars || 0) + 15;
+      if (typeof saveChildProfiles === 'function') saveChildProfiles();
+      if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
+    }
+
+    const modal = document.getElementById('cauldron-victory-modal');
+    if (modal) modal.style.display = 'flex';
+
+    if (typeof speakText === 'function') {
+      speakText('¡Fantástico alquimista! ¡Completaste las 6 pociones mágicas de rimas!');
+    }
+  }
+
+  // Reiniciar con nuevo mazo de 6 pociones frescas (sin repetir palabras)
+  window.restartCauldronQuest = function() {
+    const modal = document.getElementById('cauldron-victory-modal');
+    if (modal) modal.style.display = 'none';
+
+    if (typeof stopAllAudio === 'function') stopAllAudio();
+
+    CauldronGame.isRunning = true;
+    CauldronGame.hasStarted = false;
+    CauldronGame.totalPotionsSession = 6;
+    CauldronGame.potionDeck = generateDynamicRhymePotions(CauldronGame.totalPotionsSession);
+    CauldronGame.currentPotionIndex = 0;
+    setupPotion(0);
+    speakCauldronMission();
+  };
+
+  window.closeCauldronVictoryModal = function() {
+    const modal = document.getElementById('cauldron-victory-modal');
+    if (modal) modal.style.display = 'none';
+    closeCauldronAndReturnToMap();
+  };
 
 })();

@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v321';
+    const CURRENT_APP_VERSION = 'v322';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -125,7 +125,7 @@
   <!-- 🏹 NUEVA AVENTURA: EL ARQUERO DE CRIN -->
   <script src="archery.js?v=308"></script>
   <!-- 🧪 MÓDULO PSICOPEDAGÓGICO 1: EL CALDERO MÁGICO DE LAS RIMAS -->
-  <script src="cauldron.js?v=304"></script>
+  <script src="cauldron.js?v=322"></script>
   <!-- 🐟 MÓDULO PSICOPEDAGÓGICO 2: EL PESCADOR DE SÍLABAS -->
   <script src="fisherman.js?v=307"></script>
   <!-- 🚂 MÓDULO PSICOPEDAGÓGICO 3: EL TREN DE LOS SONIDOS (ELKONIN) -->
@@ -2441,6 +2441,7 @@
               <span>🧪</span>
               <span id="cauldron-potion-title">El Caldero de las Rimas</span>
               <span id="cauldron-rhyme-badge" style="font-size: 10px; font-weight: 800; background: #8B5CF6; color: white; padding: 2px 7px; border-radius: 8px;">Termina en -ÓN</span>
+              <span id="cauldron-progress-badge" style="font-size: 10px; font-weight: 800; background: #F59E0B; color: #1E1B4B; padding: 2px 7px; border-radius: 8px;">Poción 1 de 6</span>
             </div>
           </div>
           <button onclick="speakCauldronMission()" style="background: rgba(168, 85, 247, 0.2); border: 1px solid #A855F7; color: #E9D5FF; padding: 6px 9px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
@@ -2470,6 +2471,32 @@
         </div>
       </div>
     </div>
+
+    <!-- 🧪 MODAL DE VICTORIA DEL CALDERO DE LAS RIMAS -->
+    <div id="cauldron-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+      <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.35); border: 3px solid #8B5CF6; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        <div style="font-size: 52px; margin-bottom: 8px;">🧪✨🧙‍♂️</div>
+        <h2 style="font-size: 20px; font-weight: 900; color: #6D28D9; margin-bottom: 6px;">¡Gran Alquimista de Rimas!</h2>
+        <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+          ¡Completaste con éxito las 6 pociones mágicas encontrando todas las rimas!
+        </p>
+        
+        <div style="background: #F3E8FF; border: 2px dashed #8B5CF6; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 900; color: #6B21A8;">🏆 Recompensa de Alquimista Supremo</div>
+          <div style="font-size: 16px; font-weight: 800; color: #7C3AED; margin-top: 2px;">+25 Monedas 🪙 | +15 Estrellas ⭐</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button onclick="restartCauldronQuest()" style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(139,92,246,0.35);">
+            🔄 Jugar de nuevo
+          </button>
+          <button onclick="closeCauldronVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+            🗺️ Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- 🐟 SCREEN 9: EL PESCADOR DE SÍLABAS -->
     <div id="screen-fisherman" class="screen" style="background: #0284C7;">
