@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v329';
+    const CURRENT_APP_VERSION = 'v330';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -150,7 +150,7 @@
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
   <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
-  <script src="spatial_safari.js?v=329"></script>
+  <script src="spatial_safari.js?v=330"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -3124,8 +3124,11 @@
               <button onclick="repeatSpatialPrompt()" style="background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Repetir Consigna">
                 <span>🔊 Escuchar</span>
               </button>
+              <button onclick="openSpatialTherapistSelector()" style="background: #FEF3C7; border: 1.5px solid #FDE68A; color: #92400E; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Selector de Variantes Clínicas">
+                <span>⚙️ Variantes</span>
+              </button>
               <button onclick="openTherapistGuideModal('spatial_safari')" style="background: #FDF4FF; border: 1.5px solid #F5D0FE; color: #86198F; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
-                <span>ℹ️ Terapeuta</span>
+                <span>ℹ️ Guía</span>
               </button>
             </div>
           </div>
