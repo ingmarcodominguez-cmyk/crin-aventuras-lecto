@@ -40,12 +40,12 @@
       family: 'dentro_fuera',
       title: 'La Casita del Perrito',
       target: 'dentro',
-      prompt: '¿Quién está DENTRO de la casita?',
-      praise: '¡Exacto! ¡El perrito está dentro protegido en su casita!',
-      help: 'Observa con atención: este perrito está fuera jugando en el pasto. ¡Busquemos al que está dentro!',
+      prompt: '¿Quién está ADENTRO de la casita?',
+      praise: '¡Exacto! ¡El perrito está adentro protegido en su casita!',
+      help: 'Observa con atención: este perrito está afuera jugando en el pasto. ¡Busquemos al que está adentro!',
       items: [
-        { id: 'dentro', name: 'Dentro de la casa', img: 'assets/espacial_dentro.png?v=323', isCorrect: true },
-        { id: 'fuera', name: 'Fuera en el jardín', img: 'assets/espacial_fuera.png?v=323', isCorrect: false }
+        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=328', isCorrect: true },
+        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=328', isCorrect: false }
       ]
     },
     {
@@ -54,12 +54,12 @@
       family: 'dentro_fuera',
       title: 'La Casita del Perrito',
       target: 'fuera',
-      prompt: 'Toca al perrito que está FUERA jugando al sol.',
-      praise: '¡Exacto! ¡Ese perrito está fuera corriendo libremente!',
-      help: 'Observa bien: este perrito está dentro de su casita. ¡Busquemos al que está fuera!',
+      prompt: 'Toca al perrito que está AFUERA jugando al sol.',
+      praise: '¡Exacto! ¡Ese perrito está afuera corriendo libremente!',
+      help: 'Observa bien: este perrito está adentro de su casita. ¡Busquemos al que está afuera!',
       items: [
-        { id: 'dentro', name: 'Dentro de la casa', img: 'assets/espacial_dentro.png?v=323', isCorrect: false },
-        { id: 'fuera', name: 'Fuera en el jardín', img: 'assets/espacial_fuera.png?v=323', isCorrect: true }
+        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=328', isCorrect: false },
+        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=328', isCorrect: true }
       ]
     },
     {
