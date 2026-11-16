@@ -94,8 +94,8 @@
       praise: '¡Exacto! ¡El osito está delante saludándote muy feliz!',
       help: 'Observa con atención: ese osito se esconde detrás. ¡Busquemos al que está delante!',
       items: [
-        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=326', isCorrect: true },
-        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=326', isCorrect: false }
+        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=329', isCorrect: true },
+        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=329', isCorrect: false }
       ]
     },
     {
@@ -108,8 +108,8 @@
       praise: '¡Exacto! ¡Lo encontraste jugando a las escondidas detrás del tronco!',
       help: 'Observa bien: ese osito está delante. ¡Busquemos al que se esconde detrás!',
       items: [
-        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=326', isCorrect: false },
-        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=326', isCorrect: true }
+        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=329', isCorrect: false },
+        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=329', isCorrect: true }
       ]
     },
     {
