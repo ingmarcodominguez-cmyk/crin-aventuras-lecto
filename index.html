@@ -150,7 +150,7 @@
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
   <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
-  <script src="spatial_safari.js?v=336"></script>
+  <script src="spatial_safari.js?v=337"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -9349,7 +9349,9 @@
       'BICI': 'Paseo en mi ___ por el parque.',
       'TREN': 'El ___ viaja rápido por los rieles.',
       'MANZANA': 'Disfruto de una ___ muy dulce.',
-      'BANANO': 'El mono come un rico ___.',
+      'BANANA': 'El mono come una rica ___.',
+      'BANANO': 'El mono come una rica ___.',
+      'PERA': 'Saboreo una rica ___ fresca.',
       'BANANA': 'El mono come una rica ___.',
       'PERA': 'Saboreo una rica ___ fresca.',
       'PLATANO': 'Comemos un dulce ___ maduro.',
@@ -9923,9 +9925,17 @@
         chapterTitle: '📜 Cap.: La Manzana Roja',
         narration: 'Recogimos una jugosa manzana roja del árbol saboreando su dulzura.'
       },
+      'BANANA': {
+        chapterTitle: '📜 Cap.: La Banana Dorada',
+        narration: 'Pelamos una banana amarilla y dulce para compartir una rica merienda.'
+      },
       'BANANO': {
-        chapterTitle: '📜 Cap.: El Banano Dorado',
-        narration: 'Pelamos un banano amarillo y dulce para compartir una rica merienda.'
+        chapterTitle: '📜 Cap.: La Banana Dorada',
+        narration: 'Pelamos una banana amarilla y dulce para compartir una rica merienda.'
+      },
+      'PERA': {
+        chapterTitle: '📜 Cap.: La Pera Jugosa',
+        narration: 'Elegimos una pera verde y fresca de la canasta para saborear juntos.'
       },
       'LECHE': {
         chapterTitle: '📜 Cap.: La Leche Fresca',
@@ -10463,8 +10473,8 @@
       },
       task18: {
         id: 'task18',
-        name: '🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANO, LECHE, PAN, SOPA',
-        words: ['MANZANA', 'BANANO', 'LECHE', 'PAN', 'SOPA']
+        name: '🍎 Tarea 18 (Alimentos y Frutas): MANZANA, BANANA, PERA, LECHE, PAN, SOPA',
+        words: ['MANZANA', 'BANANA', 'PERA', 'LECHE', 'PAN', 'SOPA']
       },
       task19: {
         id: 'task19',
@@ -10518,7 +10528,7 @@
           'PIPA', 'PITO', 'CUENTO', 'SAPO', 'SEÑORA', 'SEÑOR', 'SILLA', 'SALA',
           'FARO', 'FELINO', 'FICHA', 'FUENTE', 'GAFA', 'CAFÉ', 'CONFITE', 'SOFÁ', 'RIFA',
           'TECHO', 'TIJERA', 'TOPO', 'TUNEL', 'AGUA', 'MESA', 'LIMA', 'SOL', 'ESTRELLA',
-          'GATO', 'PERRO', 'OSO', 'RATÓN', 'MONO', 'MANZANA', 'BANANO', 'LECHE', 'PAN', 'SOPA',
+          'GATO', 'PERRO', 'OSO', 'RATÓN', 'MONO', 'MANZANA', 'BANANA', 'PERA', 'LECHE', 'PAN', 'SOPA',
           'AUTO', 'BICI', 'TREN', 'LIBRO', 'LÁPIZ', 'SERPIENTE', 'SIRENA', 'SOMBRERO', 'SOMBRILLA',
           'FUEGO', 'FIDEOS', 'FOCA', 'FANTASMA', 'PUENTE', 'PLUMA', 'PINO', 'PILA', 'CARA', 'COCO',
           'NIÑO', 'NIÑA', 'ABUELO', 'ABUELA', 'TÍO', 'TÍA', 'MADRE', 'PADRE', 'PAPÁ',
@@ -12987,6 +12997,12 @@
                 delete customStories[clean].emoji;
               }
             });
+            // Sincronizar automáticamente BANANA y BANANO si uno fue editado por el usuario
+            if (customStories['BANANA'] && !customStories['BANANO']) {
+              customStories['BANANO'] = { ...customStories['BANANA'] };
+            } else if (customStories['BANANO'] && !customStories['BANANA']) {
+              customStories['BANANA'] = { ...customStories['BANANO'] };
+            }
           }
         } else {
           customStories = {};
