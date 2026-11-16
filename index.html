@@ -150,7 +150,7 @@
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
   <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
-  <script src="spatial_safari.js?v=335"></script>
+  <script src="spatial_safari.js?v=336"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -4279,11 +4279,16 @@
       text = text.replace(/\bOs\b/g, 'hos');
       text = text.replace(/\bPUEN\b/gi, 'puen');
       // Argentina: Fonética oficial para B ("be larga") y V ("ve corta")
+      // NOTA: Se usa 'beh' para que Google TTS jamás lo lea en inglés como el verbo 'be' (/biː/ -> "bi")
+      text = text.replace(/\b(la\s+)?letra\s+B\b/gi, 'la letra beh larga');
+      text = text.replace(/\bletra\s+B\b/gi, 'letra beh larga');
+      text = text.replace(/\bbe\s+larga\b/gi, 'beh larga');
+      text = text.replace(/\bBe\s+larga\b/gi, 'beh larga');
+      text = text.replace(/\b(la\s+)?letra\s+V\b/gi, 'la letra ve corta');
+      text = text.replace(/\bletra\s+V\b/gi, 'letra ve corta');
+      text = text.replace(/\b(la\s+)?letra\s+UVE\b/gi, 'la letra ve corta');
       text = text.replace(/\bBe\b/g, 'beh');
       text = text.replace(/\bbe\b/g, 'beh');
-      text = text.replace(/\b(la\s+)?letra\s+B\b/gi, 'la letra be larga');
-      text = text.replace(/\b(la\s+)?letra\s+V\b/gi, 'la letra ve corta');
-      text = text.replace(/\b(la\s+)?letra\s+UVE\b/gi, 'la letra ve corta');
       text = text.replace(/\bSABANA\b/gi, 'Sábana');
       text = text.replace(/\bLAMPARA\b/gi, 'Lámpara');
       text = text.replace(/\bMELON\b/gi, 'Melón');
