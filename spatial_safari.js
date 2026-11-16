@@ -44,12 +44,12 @@
       variantId: 'perrito',
       title: 'La Casita del Perrito',
       target: 'dentro',
-      prompt: '¿Quién está ADENTRO de la casita?',
+      prompt: 'Toca lo que está adentro.',
       praise: '¡Exacto! ¡El perrito está adentro protegido en su casita!',
       help: 'Observa con atención: este perrito está afuera jugando en el pasto. ¡Busquemos al que está adentro!',
       items: [
-        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=331', isCorrect: true },
-        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=331', isCorrect: false }
+        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=332', isCorrect: true },
+        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -59,12 +59,12 @@
       variantId: 'perrito',
       title: 'La Casita del Perrito',
       target: 'fuera',
-      prompt: 'Toca al perrito que está AFUERA jugando al sol.',
+      prompt: 'Toca lo que está afuera.',
       praise: '¡Exacto! ¡Ese perrito está afuera corriendo libremente!',
       help: 'Observa bien: este perrito está adentro de su casita. ¡Busquemos al que está afuera!',
       items: [
-        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=331', isCorrect: false },
-        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=331', isCorrect: true }
+        { id: 'dentro', name: 'Adentro de la casita', img: 'assets/espacial_dentro.png?v=332', isCorrect: false },
+        { id: 'fuera', name: 'Afuera en el pasto', img: 'assets/espacial_fuera.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 2 (ADENTRO / AFUERA): LA CUEVA DEL OSITO
@@ -75,12 +75,12 @@
       variantId: 'cueva',
       title: 'La Cueva del Osito',
       target: 'dentro',
-      prompt: '¿Quién está ADENTRO de la cueva descansando?',
+      prompt: 'Toca lo que está adentro.',
       praise: '¡Exacto! ¡El osito está adentro acostado en su cueva!',
       help: 'Observa bien: este osito está afuera en el pasto. ¡Busquemos al que está adentro!',
       items: [
-        { id: 'dentro', name: 'Adentro de la cueva', img: 'assets/espacial_adentro_cueva.png?v=331', isCorrect: true },
-        { id: 'fuera', name: 'Afuera en la pradera', img: 'assets/espacial_afuera_cueva.png?v=331', isCorrect: false }
+        { id: 'dentro', name: 'Adentro de la cueva', img: 'assets/espacial_adentro_cueva.png?v=332', isCorrect: true },
+        { id: 'fuera', name: 'Afuera en la pradera', img: 'assets/espacial_afuera_cueva.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -90,12 +90,12 @@
       variantId: 'cueva',
       title: 'La Cueva del Osito',
       target: 'fuera',
-      prompt: 'Toca al osito que está AFUERA de la cueva de paseo.',
+      prompt: 'Toca lo que está afuera.',
       praise: '¡Exacto! ¡El osito está afuera caminando feliz!',
       help: 'Observa con atención: este osito está adentro durmiendo. ¡Busquemos al que está afuera!',
       items: [
-        { id: 'dentro', name: 'Adentro de la cueva', img: 'assets/espacial_adentro_cueva.png?v=331', isCorrect: false },
-        { id: 'fuera', name: 'Afuera en la pradera', img: 'assets/espacial_afuera_cueva.png?v=331', isCorrect: true }
+        { id: 'dentro', name: 'Adentro de la cueva', img: 'assets/espacial_adentro_cueva.png?v=332', isCorrect: false },
+        { id: 'fuera', name: 'Afuera en la pradera', img: 'assets/espacial_afuera_cueva.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (ADENTRO / AFUERA): EL AVESTRUZ Y EL POZO
@@ -106,12 +106,12 @@
       variantId: 'avestruz',
       title: 'El Avestruz y el Pozo',
       target: 'dentro',
-      prompt: '¿Quién tiene su cabeza ADENTRO del pozo?',
+      prompt: 'Toca lo que está adentro.',
       praise: '¡Exacto! ¡El avestruz tiene la cabeza adentro del pozo de agua!',
       help: 'Observa bien: este avestruz tiene su cabeza afuera sonriendo. ¡Busquemos al que la tiene adentro!',
       items: [
-        { id: 'dentro', name: 'Cabeza adentro del pozo', img: 'assets/espacial_adentro_avestruz.png?v=331', isCorrect: true },
-        { id: 'fuera', name: 'Cabeza afuera mirando', img: 'assets/espacial_afuera_avestruz.png?v=331', isCorrect: false }
+        { id: 'dentro', name: 'Cabeza adentro del pozo', img: 'assets/espacial_adentro_avestruz.png?v=332', isCorrect: true },
+        { id: 'fuera', name: 'Cabeza afuera mirando', img: 'assets/espacial_afuera_avestruz.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -121,12 +121,12 @@
       variantId: 'avestruz',
       title: 'El Avestruz y el Pozo',
       target: 'fuera',
-      prompt: 'Toca al avestruz que tiene la cabeza AFUERA mirando alegre.',
+      prompt: 'Toca lo que está afuera.',
       praise: '¡Exacto! ¡Ese avestruz tiene su cabeza afuera bien despierto!',
       help: 'Observa con atención: este avestruz metió su cabeza adentro. ¡Busquemos al que la tiene afuera!',
       items: [
-        { id: 'dentro', name: 'Cabeza adentro del pozo', img: 'assets/espacial_adentro_avestruz.png?v=331', isCorrect: false },
-        { id: 'fuera', name: 'Cabeza afuera mirando', img: 'assets/espacial_afuera_avestruz.png?v=331', isCorrect: true }
+        { id: 'dentro', name: 'Cabeza adentro del pozo', img: 'assets/espacial_adentro_avestruz.png?v=332', isCorrect: false },
+        { id: 'fuera', name: 'Cabeza afuera mirando', img: 'assets/espacial_afuera_avestruz.png?v=332', isCorrect: true }
       ]
     },
     // ==========================================
@@ -141,10 +141,10 @@
       title: 'La Mesa de Juguetes',
       icon: '🪑',
       target: 'encima',
-      prompt: 'Toca la pelota que está ENCIMA de la mesa.',
+      prompt: 'Toca lo que está encima.',
       praise: '¡Exacto! ¡Esa pelota está encima de la mesa!',
       help: 'Observa bien: esa pelota está debajo en el suelo. ¡Toquemos la que está encima!',
-      bgImg: 'assets/espacial_mesa_pelotas.png?v=331',
+      bgImg: 'assets/espacial_mesa_pelotas.png?v=332',
       topLabel: 'ENCIMA',
       bottomLabel: 'DEBAJO',
       topStyle: 'top: 12px; left: 50%; transform: translateX(-50%); width: 130px; height: 95px;',
@@ -159,10 +159,10 @@
       title: 'La Mesa de Juguetes',
       icon: '🪑',
       target: 'debajo',
-      prompt: 'Toca la pelota que está DEBAJO de la mesa.',
+      prompt: 'Toca lo que está debajo.',
       praise: '¡Exacto! ¡Esa pelota está debajo de la mesa en el suelo!',
       help: 'Observa bien: esa pelota está encima de la mesa. ¡Toquemos la que está debajo!',
-      bgImg: 'assets/espacial_mesa_pelotas.png?v=331',
+      bgImg: 'assets/espacial_mesa_pelotas.png?v=332',
       topLabel: 'ENCIMA',
       bottomLabel: 'DEBAJO',
       topStyle: 'top: 12px; left: 50%; transform: translateX(-50%); width: 130px; height: 95px;',
@@ -177,12 +177,12 @@
       variantId: 'florero',
       title: 'El Florero y la Mesa',
       target: 'encima',
-      prompt: '¿Dónde está el florero ENCIMA de la mesa? 💐',
+      prompt: 'Toca lo que está encima.',
       praise: '¡Exacto! ¡El florero colorido está apoyado encima de la mesa!',
       help: 'Observa con atención: en esta imagen el florero está debajo. ¡Busquemos el que está encima!',
       items: [
-        { id: 'encima', name: 'Florero encima', img: 'assets/espacial_florero_encima.png?v=331', isCorrect: true },
-        { id: 'debajo', name: 'Florero debajo', img: 'assets/espacial_florero_debajo.png?v=331', isCorrect: false }
+        { id: 'encima', name: 'Florero encima', img: 'assets/espacial_florero_encima.png?v=332', isCorrect: true },
+        { id: 'debajo', name: 'Florero debajo', img: 'assets/espacial_florero_debajo.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -192,12 +192,12 @@
       variantId: 'florero',
       title: 'El Florero y la Mesa',
       target: 'debajo',
-      prompt: 'Toca la imagen donde el florero está DEBAJO de la mesa.',
+      prompt: 'Toca lo que está debajo.',
       praise: '¡Muy bien! ¡El florero está guardado debajo de la mesa!',
       help: 'Observa bien: aquí el florero está encima. ¡Busquemos donde está debajo!',
       items: [
-        { id: 'encima', name: 'Florero encima', img: 'assets/espacial_florero_encima.png?v=331', isCorrect: false },
-        { id: 'debajo', name: 'Florero debajo', img: 'assets/espacial_florero_debajo.png?v=331', isCorrect: true }
+        { id: 'encima', name: 'Florero encima', img: 'assets/espacial_florero_encima.png?v=332', isCorrect: false },
+        { id: 'debajo', name: 'Florero debajo', img: 'assets/espacial_florero_debajo.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (ENCIMA / DEBAJO): EL GATITO Y LA SILLA
@@ -208,12 +208,12 @@
       variantId: 'gato',
       title: 'El Gatito y la Silla',
       target: 'encima',
-      prompt: '¿Dónde está el gatito durmiendo ENCIMA de la silla? 🐱',
+      prompt: 'Toca lo que está encima.',
       praise: '¡Exacto! ¡El gatito duerme cómodo sobre el asiento azul de la silla!',
       help: 'Observa bien: en esta imagen el gatito duerme debajo. ¡Busquemos donde está encima!',
       items: [
-        { id: 'encima', name: 'Gatito encima', img: 'assets/espacial_gato_encima.png?v=331', isCorrect: true },
-        { id: 'debajo', name: 'Gatito debajo', img: 'assets/espacial_gato_debajo.png?v=331', isCorrect: false }
+        { id: 'encima', name: 'Gatito encima', img: 'assets/espacial_gato_encima.png?v=332', isCorrect: true },
+        { id: 'debajo', name: 'Gatito debajo', img: 'assets/espacial_gato_debajo.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -223,12 +223,12 @@
       variantId: 'gato',
       title: 'El Gatito y la Silla',
       target: 'debajo',
-      prompt: 'Toca la imagen donde el gatito duerme DEBAJO de la silla. 🐱',
+      prompt: 'Toca lo que está debajo.',
       praise: '¡Muy bien! ¡El gatito encontró un lugarcito calentito debajo de las patas de la silla!',
       help: 'Observa con atención: aquí el gatito está encima de la silla. ¡Busquemos donde está debajo!',
       items: [
-        { id: 'encima', name: 'Gatito encima', img: 'assets/espacial_gato_encima.png?v=331', isCorrect: false },
-        { id: 'debajo', name: 'Gatito debajo', img: 'assets/espacial_gato_debajo.png?v=331', isCorrect: true }
+        { id: 'encima', name: 'Gatito encima', img: 'assets/espacial_gato_encima.png?v=332', isCorrect: false },
+        { id: 'debajo', name: 'Gatito debajo', img: 'assets/espacial_gato_debajo.png?v=332', isCorrect: true }
       ]
     },
 
@@ -244,10 +244,10 @@
       title: 'La Habitación',
       icon: '🖼️',
       target: 'arriba',
-      prompt: '¿Qué cosa está ARRIBA? Toca lo que está arriba. 🖼️',
+      prompt: 'Toca lo que está arriba.',
       praise: '¡Exacto! ¡El cuadro con el sol y el árbol está colgado arriba!',
       help: 'Observa bien: la silla está abajo en el suelo. ¡Toquemos el cuadro que está arriba!',
-      bgImg: 'assets/espacial_arriba_cuadro_silla.png?v=331',
+      bgImg: 'assets/espacial_arriba_cuadro_silla.png?v=332',
       topLabel: 'ARRIBA 🖼️',
       bottomLabel: 'ABAJO 🪑',
       topStyle: 'top: 10px; left: 50%; transform: translateX(-50%); width: 200px; height: 115px;',
@@ -262,10 +262,10 @@
       title: 'La Habitación',
       icon: '🪑',
       target: 'abajo',
-      prompt: '¿Qué cosa está ABAJO? Toca lo que está abajo. 🪑',
+      prompt: 'Toca lo que está abajo.',
       praise: '¡Muy bien! ¡La silla de madera está abajo en el piso!',
       help: 'Observa con atención: el cuadro está arriba. ¡Toquemos la silla que está abajo!',
-      bgImg: 'assets/espacial_arriba_cuadro_silla.png?v=331',
+      bgImg: 'assets/espacial_arriba_cuadro_silla.png?v=332',
       topLabel: 'ARRIBA 🖼️',
       bottomLabel: 'ABAJO 🪑',
       topStyle: 'top: 10px; left: 50%; transform: translateX(-50%); width: 200px; height: 115px;',
@@ -281,10 +281,10 @@
       title: 'El Árbol del Parque',
       icon: '🐦',
       target: 'arriba',
-      prompt: '¿Quién está ARRIBA? Toca al que está arriba. 🐦',
+      prompt: 'Toca lo que está arriba.',
       praise: '¡Exacto! ¡El pajarito azul está arriba en la rama cantando feliz!',
       help: 'Observa bien: el perrito está abajo en el pasto. ¡Busquemos al pajarito que está arriba!',
-      bgImg: 'assets/espacial_arriba_pajaro_perro.png?v=331',
+      bgImg: 'assets/espacial_arriba_pajaro_perro.png?v=332',
       topLabel: 'ARRIBA 🐦',
       bottomLabel: 'ABAJO 🐶',
       topStyle: 'top: 25px; right: 25px; width: 135px; height: 110px;',
@@ -299,10 +299,10 @@
       title: 'El Árbol del Parque',
       icon: '🐶',
       target: 'abajo',
-      prompt: '¿Quién está ABAJO? Toca al que está abajo. 🐶',
+      prompt: 'Toca lo que está abajo.',
       praise: '¡Muy bien! ¡El perrito alegre está abajo esperando jugar!',
       help: 'Observa con atención: el pajarito está arriba en la rama. ¡Busquemos al que está abajo!',
-      bgImg: 'assets/espacial_arriba_pajaro_perro.png?v=331',
+      bgImg: 'assets/espacial_arriba_pajaro_perro.png?v=332',
       topLabel: 'ARRIBA 🐦',
       bottomLabel: 'ABAJO 🐶',
       topStyle: 'top: 25px; right: 25px; width: 135px; height: 110px;',
@@ -318,10 +318,10 @@
       title: 'El Día Soleado',
       icon: '☀️',
       target: 'arriba',
-      prompt: '¿Qué está ARRIBA en el cielo? Toca lo que está arriba. ☀️',
+      prompt: 'Toca lo que está arriba.',
       praise: '¡Exacto! ¡El sol sonriente está arriba en el cielo!',
       help: 'Observa bien: el árbol está abajo en la tierra. ¡Busquemos al sol que está arriba!',
-      bgImg: 'assets/espacial_arriba_sol_arbol.png?v=331',
+      bgImg: 'assets/espacial_arriba_sol_arbol.png?v=332',
       topLabel: 'ARRIBA ☀️',
       bottomLabel: 'ABAJO 🌳',
       topStyle: 'top: 10px; left: 50%; transform: translateX(-50%); width: 140px; height: 110px;',
@@ -336,10 +336,10 @@
       title: 'El Día Soleado',
       icon: '🌳',
       target: 'abajo',
-      prompt: '¿Qué está ABAJO en la tierra? Toca lo que está abajo. 🌳',
+      prompt: 'Toca lo que está abajo.',
       praise: '¡Muy bien! ¡El árbol verde está abajo en el pasto!',
       help: 'Observa con atención: el sol está arriba. ¡Busquemos al árbol que está abajo!',
-      bgImg: 'assets/espacial_arriba_sol_arbol.png?v=331',
+      bgImg: 'assets/espacial_arriba_sol_arbol.png?v=332',
       topLabel: 'ARRIBA ☀️',
       bottomLabel: 'ABAJO 🌳',
       topStyle: 'top: 10px; left: 50%; transform: translateX(-50%); width: 140px; height: 110px;',
@@ -354,12 +354,12 @@
       variantId: 'arbol',
       title: 'El Árbol del Bosque',
       target: 'delante',
-      prompt: '¿Quién está DELANTE del árbol saludando?',
+      prompt: 'Toca lo que está adelante.',
       praise: '¡Exacto! ¡El osito está delante saludándote muy feliz!',
       help: 'Observa con atención: ese osito se esconde detrás. ¡Busquemos al que está delante!',
       items: [
-        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=331', isCorrect: true },
-        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=331', isCorrect: false }
+        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=332', isCorrect: true },
+        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -369,12 +369,12 @@
       variantId: 'arbol',
       title: 'El Árbol del Bosque',
       target: 'detras',
-      prompt: 'Toca al osito que se esconde DETRÁS del árbol.',
+      prompt: 'Toca lo que está detrás.',
       praise: '¡Exacto! ¡Lo encontraste jugando a las escondidas detrás del tronco!',
       help: 'Observa bien: ese osito está delante. ¡Busquemos al que se esconde detrás!',
       items: [
-        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=331', isCorrect: false },
-        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=331', isCorrect: true }
+        { id: 'delante', name: 'Delante del árbol', img: 'assets/espacial_delante.png?v=332', isCorrect: false },
+        { id: 'detras', name: 'Detrás del árbol', img: 'assets/espacial_detras.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 2 (DELANTE / DETRÁS): EL NIÑO Y LA BICICLETA
@@ -385,12 +385,12 @@
       variantId: 'bicicleta',
       title: 'El Niño y la Bicicleta',
       target: 'delante',
-      prompt: '¿Dónde está el niño DELANTE de la bicicleta?',
+      prompt: 'Toca lo que está adelante.',
       praise: '¡Exacto! ¡El niño está adelante, listo para pasear en su bicicleta!',
       help: 'Observa con atención: en esta imagen el niño está detrás. ¡Busquemos al que está delante!',
       items: [
-        { id: 'delante', name: 'Delante de la bici', img: 'assets/espacial_delante_bici.png?v=331', isCorrect: true },
-        { id: 'detras', name: 'Detrás de la bici', img: 'assets/espacial_detras_bici.png?v=331', isCorrect: false }
+        { id: 'delante', name: 'Delante de la bici', img: 'assets/espacial_delante_bici.png?v=332', isCorrect: true },
+        { id: 'detras', name: 'Detrás de la bici', img: 'assets/espacial_detras_bici.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -400,12 +400,12 @@
       variantId: 'bicicleta',
       title: 'El Niño y la Bicicleta',
       target: 'detras',
-      prompt: 'Toca la imagen donde el niño está DETRÁS de la bicicleta.',
+      prompt: 'Toca lo que está detrás.',
       praise: '¡Muy bien! ¡El niño está parado detrás de su bicicleta!',
       help: 'Observa bien: aquí el niño está delante. ¡Busquemos donde está detrás!',
       items: [
-        { id: 'delante', name: 'Delante de la bici', img: 'assets/espacial_delante_bici.png?v=331', isCorrect: false },
-        { id: 'detras', name: 'Detrás de la bici', img: 'assets/espacial_detras_bici.png?v=331', isCorrect: true }
+        { id: 'delante', name: 'Delante de la bici', img: 'assets/espacial_delante_bici.png?v=332', isCorrect: false },
+        { id: 'detras', name: 'Detrás de la bici', img: 'assets/espacial_detras_bici.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (DELANTE / DETRÁS): EL NIÑO Y LA PELOTA
@@ -416,12 +416,12 @@
       variantId: 'pelota',
       title: 'El Niño y la Pelota',
       target: 'delante',
-      prompt: '¿Dónde está la pelota DELANTE del niño?',
+      prompt: 'Toca lo que está adelante.',
       praise: '¡Exacto! ¡La pelota está adelante en el pasto, lista para patear!',
       help: 'Observa bien: en esta imagen la pelota quedó detrás del niño. ¡Busquemos donde está delante!',
       items: [
-        { id: 'delante', name: 'Pelota delante', img: 'assets/espacial_delante_pelota.png?v=331', isCorrect: true },
-        { id: 'detras', name: 'Pelota detrás', img: 'assets/espacial_detras_pelota.png?v=331', isCorrect: false }
+        { id: 'delante', name: 'Pelota delante', img: 'assets/espacial_delante_pelota.png?v=332', isCorrect: true },
+        { id: 'detras', name: 'Pelota detrás', img: 'assets/espacial_detras_pelota.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -431,12 +431,12 @@
       variantId: 'pelota',
       title: 'El Niño y la Pelota',
       target: 'detras',
-      prompt: 'Toca la imagen donde la pelota está DETRÁS del niño.',
+      prompt: 'Toca lo que está detrás.',
       praise: '¡Muy bien! ¡La pelota está guardada detrás de su espalda!',
       help: 'Observa con atención: aquí la pelota está delante. ¡Busquemos donde está detrás!',
       items: [
-        { id: 'delante', name: 'Pelota delante', img: 'assets/espacial_delante_pelota.png?v=331', isCorrect: false },
-        { id: 'detras', name: 'Pelota detrás', img: 'assets/espacial_detras_pelota.png?v=331', isCorrect: true }
+        { id: 'delante', name: 'Pelota delante', img: 'assets/espacial_delante_pelota.png?v=332', isCorrect: false },
+        { id: 'detras', name: 'Pelota detrás', img: 'assets/espacial_detras_pelota.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 1 (ABIERTO / CERRADO): LOS COFRES MÁGICOS
@@ -447,12 +447,12 @@
       variantId: 'cofres',
       title: 'Los Cofres Mágicos',
       target: 'abierto',
-      prompt: 'Toca el cofre que está ABIERTO con destellos brillantes.',
+      prompt: 'Toca lo que está abierto.',
       praise: '¡Exacto! ¡Ese cofre está abierto y lleno de magia!',
       help: 'Observa con atención: ese cofre está cerrado con su cinta dorada. ¡Busquemos el que está abierto!',
       items: [
-        { id: 'abierto', name: 'Cofre abierto', img: 'assets/espacial_abierto.png?v=331', isCorrect: true },
-        { id: 'cerrado', name: 'Cofre cerrado', img: 'assets/espacial_cerrado.png?v=331', isCorrect: false }
+        { id: 'abierto', name: 'Cofre abierto', img: 'assets/espacial_abierto.png?v=332', isCorrect: true },
+        { id: 'cerrado', name: 'Cofre cerrado', img: 'assets/espacial_cerrado.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -462,12 +462,12 @@
       variantId: 'cofres',
       title: 'Los Cofres Mágicos',
       target: 'cerrado',
-      prompt: 'Toca el cofre que está CERRADO con su lazo dorado.',
+      prompt: 'Toca lo que está cerrado.',
       praise: '¡Exacto! ¡Ese cofre está cerrado guardando un secreto!',
       help: 'Observa bien: ese cofre está abierto. ¡Busquemos el que está cerrado!',
       items: [
-        { id: 'abierto', name: 'Cofre abierto', img: 'assets/espacial_abierto.png?v=331', isCorrect: false },
-        { id: 'cerrado', name: 'Cofre cerrado', img: 'assets/espacial_cerrado.png?v=331', isCorrect: true }
+        { id: 'abierto', name: 'Cofre abierto', img: 'assets/espacial_abierto.png?v=332', isCorrect: false },
+        { id: 'cerrado', name: 'Cofre cerrado', img: 'assets/espacial_cerrado.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 2 (ABIERTO / CERRADO): LAS MANITOS
@@ -478,12 +478,12 @@
       variantId: 'manos',
       title: 'Las Manitos',
       target: 'abierto',
-      prompt: '¿Cuál es la mano que está ABIERTA mostrando todos sus dedos? 🖐️',
+      prompt: 'Toca lo que está abierto.',
       praise: '¡Exacto! ¡Esa mano está bien abierta saludándote!',
       help: 'Observa con atención: esta mano está cerrada en un puño. ¡Busquemos la que está abierta!',
       items: [
-        { id: 'abierto', name: 'Mano abierta', img: 'assets/espacial_manos_abierta.png?v=331', isCorrect: true },
-        { id: 'cerrado', name: 'Mano cerrada', img: 'assets/espacial_manos_cerrada.png?v=331', isCorrect: false }
+        { id: 'abierto', name: 'Mano abierta', img: 'assets/espacial_manos_abierta.png?v=332', isCorrect: true },
+        { id: 'cerrado', name: 'Mano cerrada', img: 'assets/espacial_manos_cerrada.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -493,12 +493,12 @@
       variantId: 'manos',
       title: 'Las Manitos',
       target: 'cerrado',
-      prompt: 'Toca la manito que está CERRADA en un puño fuerte. ✊',
+      prompt: 'Toca lo que está cerrado.',
       praise: '¡Muy bien! ¡Esa manito está cerrada con energía!',
       help: 'Observa bien: esta mano tiene los dedos abiertos. ¡Busquemos la que está cerrada!',
       items: [
-        { id: 'abierto', name: 'Mano abierta', img: 'assets/espacial_manos_abierta.png?v=331', isCorrect: false },
-        { id: 'cerrado', name: 'Mano cerrada', img: 'assets/espacial_manos_cerrada.png?v=331', isCorrect: true }
+        { id: 'abierto', name: 'Mano abierta', img: 'assets/espacial_manos_abierta.png?v=332', isCorrect: false },
+        { id: 'cerrado', name: 'Mano cerrada', img: 'assets/espacial_manos_cerrada.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (ABIERTO / CERRADO): LA PUERTA DE LA CASITA
@@ -509,12 +509,12 @@
       variantId: 'puerta',
       title: 'La Puerta de la Casita',
       target: 'abierto',
-      prompt: '¿Dónde está la puerta ABIERTA para entrar a la casa? 🚪',
+      prompt: 'Toca lo que está abierto.',
       praise: '¡Exacto! ¡La puerta está abierta de par en par, podemos pasar!',
       help: 'Observa con atención: aquí la puerta está cerrada. ¡Busquemos la casita con la puerta abierta!',
       items: [
-        { id: 'abierto', name: 'Puerta abierta', img: 'assets/espacial_puerta_abierta.png?v=331', isCorrect: true },
-        { id: 'cerrado', name: 'Puerta cerrada', img: 'assets/espacial_puerta_cerrada.png?v=331', isCorrect: false }
+        { id: 'abierto', name: 'Puerta abierta', img: 'assets/espacial_puerta_abierta.png?v=332', isCorrect: true },
+        { id: 'cerrado', name: 'Puerta cerrada', img: 'assets/espacial_puerta_cerrada.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -524,12 +524,12 @@
       variantId: 'puerta',
       title: 'La Puerta de la Casita',
       target: 'cerrado',
-      prompt: 'Toca la imagen donde la puerta está CERRADA.',
+      prompt: 'Toca lo que está cerrado.',
       praise: '¡Muy bien! ¡La puerta de madera está bien cerrada!',
       help: 'Observa bien: en esta casita la puerta está abierta. ¡Busquemos donde está cerrada!',
       items: [
-        { id: 'abierto', name: 'Puerta abierta', img: 'assets/espacial_puerta_abierta.png?v=331', isCorrect: false },
-        { id: 'cerrado', name: 'Puerta cerrada', img: 'assets/espacial_puerta_cerrada.png?v=331', isCorrect: true }
+        { id: 'abierto', name: 'Puerta abierta', img: 'assets/espacial_puerta_abierta.png?v=332', isCorrect: false },
+        { id: 'cerrado', name: 'Puerta cerrada', img: 'assets/espacial_puerta_cerrada.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 1 (ANCHO / ESTRECHO): EL CRUCE DEL RÍO (PUENTES)
@@ -540,12 +540,12 @@
       variantId: 'puente',
       title: 'El Cruce del Río',
       target: 'ancho',
-      prompt: '¿Cuál puente es más ANCHO para que pase el elefante?',
+      prompt: 'Toca lo que está ancho.',
       praise: '¡Exacto! ¡Ese puente es muy ancho y fuerte!',
       help: 'Observa bien: ese caminito es estrecho y delgadito. ¡Busquemos el puente más ancho!',
       items: [
-        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=331', isCorrect: true },
-        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=331', isCorrect: false }
+        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=332', isCorrect: true },
+        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -555,12 +555,12 @@
       variantId: 'puente',
       title: 'El Cruce del Río',
       target: 'estrecho',
-      prompt: 'Toca el puente más ESTRECHO y delgadito.',
+      prompt: 'Toca lo que está estrecho.',
       praise: '¡Exacto! ¡Ese es el puente estrecho por donde pasa el patito!',
       help: 'Observa con atención: ese puente es muy ancho. ¡Busquemos el puente más estrecho!',
       items: [
-        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=331', isCorrect: false },
-        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=331', isCorrect: true }
+        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=332', isCorrect: false },
+        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 2 (ANCHO / ESTRECHO): LAS CAMAS
@@ -571,12 +571,12 @@
       variantId: 'camas',
       title: 'La Habitación',
       target: 'ancho',
-      prompt: '¿Cuál es la cama más ANCHA y grande? 🛏️',
+      prompt: 'Toca lo que está ancho.',
       praise: '¡Exacto! ¡Esa cama es muy ancha y tiene mucho espacio!',
       help: 'Observa bien: esa cama es angosta para una sola persona. ¡Busquemos la cama más ancha!',
       items: [
-        { id: 'ancho', name: 'Cama ancha', img: 'assets/espacial_cama_ancha.png?v=331', isCorrect: true },
-        { id: 'estrecho', name: 'Cama estrecha', img: 'assets/espacial_cama_estrecha.png?v=331', isCorrect: false }
+        { id: 'ancho', name: 'Cama ancha', img: 'assets/espacial_cama_ancha.png?v=332', isCorrect: true },
+        { id: 'estrecho', name: 'Cama estrecha', img: 'assets/espacial_cama_estrecha.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -586,12 +586,12 @@
       variantId: 'camas',
       title: 'La Habitación',
       target: 'estrecho',
-      prompt: 'Toca la cama más ESTRECHA y angosta. 🛏️',
+      prompt: 'Toca lo que está estrecho.',
       praise: '¡Muy bien! ¡Esa es la camita angosta con estrellas!',
       help: 'Observa con atención: esa cama es muy ancha. ¡Busquemos la camita más estrecha!',
       items: [
-        { id: 'ancho', name: 'Cama ancha', img: 'assets/espacial_cama_ancha.png?v=331', isCorrect: false },
-        { id: 'estrecho', name: 'Cama estrecha', img: 'assets/espacial_cama_estrecha.png?v=331', isCorrect: true }
+        { id: 'ancho', name: 'Cama ancha', img: 'assets/espacial_cama_ancha.png?v=332', isCorrect: false },
+        { id: 'estrecho', name: 'Cama estrecha', img: 'assets/espacial_cama_estrecha.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (ANCHO / ESTRECHO): LOS CAMINOS
@@ -602,12 +602,12 @@
       variantId: 'caminos',
       title: 'Los Caminos',
       target: 'ancho',
-      prompt: '¿Cuál es el camino más ANCHO donde pasa el camión? 🚛',
+      prompt: 'Toca lo que está ancho.',
       praise: '¡Exacto! ¡Esa carretera es ancha y espaciosa para vehículos grandes!',
       help: 'Observa bien: ese sendero es estrecho para bicicletas. ¡Busquemos el camino más ancho!',
       items: [
-        { id: 'ancho', name: 'Camino ancho', img: 'assets/espacial_camino_ancho.png?v=331', isCorrect: true },
-        { id: 'estrecho', name: 'Camino estrecho', img: 'assets/espacial_camino_estrecho.png?v=331', isCorrect: false }
+        { id: 'ancho', name: 'Camino ancho', img: 'assets/espacial_camino_ancho.png?v=332', isCorrect: true },
+        { id: 'estrecho', name: 'Camino estrecho', img: 'assets/espacial_camino_estrecho.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -617,12 +617,12 @@
       variantId: 'caminos',
       title: 'Los Caminos',
       target: 'estrecho',
-      prompt: 'Toca el sendero más ESTRECHO por donde va la bicicleta. 🚲',
+      prompt: 'Toca lo que está estrecho.',
       praise: '¡Muy bien! ¡Ese sendero de tierra es estrecho y angosto!',
       help: 'Observa con atención: esa carretera es ancha. ¡Busquemos el sendero más estrecho!',
       items: [
-        { id: 'ancho', name: 'Camino ancho', img: 'assets/espacial_camino_ancho.png?v=331', isCorrect: false },
-        { id: 'estrecho', name: 'Camino estrecho', img: 'assets/espacial_camino_estrecho.png?v=331', isCorrect: true }
+        { id: 'ancho', name: 'Camino ancho', img: 'assets/espacial_camino_ancho.png?v=332', isCorrect: false },
+        { id: 'estrecho', name: 'Camino estrecho', img: 'assets/espacial_camino_estrecho.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 1 (CERCA / LEJOS): EL VALLE DE LOS CONEJITOS
@@ -634,10 +634,10 @@
       title: 'El Valle de los Conejitos',
       icon: '🐇',
       target: 'cerca',
-      prompt: 'Toca al conejito que está bien CERCA de nosotros.',
+      prompt: 'Toca lo que está cerca.',
       praise: '¡Exacto! ¡Ese conejito está muy cerquita en primer plano!',
       help: 'Observa con atención: ese conejito está lejos en la montaña. ¡Busquemos al que está cerca!',
-      bgImg: 'assets/espacial_cerca_lejos.png?v=331',
+      bgImg: 'assets/espacial_cerca_lejos.png?v=332',
       instruction: 'Toca el conejito que está cerca o el que está lejos en la montaña'
     },
     {
@@ -648,10 +648,10 @@
       title: 'El Valle de los Conejitos',
       icon: '🐇',
       target: 'lejos',
-      prompt: 'Toca al conejito que está LEJOS en la colina.',
+      prompt: 'Toca lo que está lejos.',
       praise: '¡Exacto! ¡Lo viste a lo lejos en la cima de la montaña!',
       help: 'Observa bien: ese conejito está aquí muy cerca. ¡Busquemos al que está lejos!',
-      bgImg: 'assets/espacial_cerca_lejos.png?v=331',
+      bgImg: 'assets/espacial_cerca_lejos.png?v=332',
       instruction: 'Toca el conejito que está cerca o el que está lejos en la montaña'
     },
     // VARIANTE 2 (CERCA / LEJOS): EL CABALLO Y LA VACA
@@ -663,10 +663,10 @@
       title: 'El Prado de la Granja',
       icon: '🐴',
       target: 'cerca',
-      prompt: '¿Cuál animalito está bien CERCA? Toca al que está cerca. 🐴',
+      prompt: 'Toca lo que está cerca.',
       praise: '¡Exacto! ¡El caballo está aquí muy cerquita en primer plano!',
       help: 'Observa bien: la vaca está allá lejos al fondo. ¡Busquemos al caballo que está cerca!',
-      bgImg: 'assets/espacial_cerca_caballo_vaca.png?v=331',
+      bgImg: 'assets/espacial_cerca_caballo_vaca.png?v=332',
       instruction: 'Toca quién está CERCA o quién está LEJOS'
     },
     {
@@ -677,10 +677,10 @@
       title: 'El Prado de la Granja',
       icon: '🐮',
       target: 'lejos',
-      prompt: '¿Cuál animalito está LEJOS? Toca al que está lejos. 🐮',
+      prompt: 'Toca lo que está lejos.',
       praise: '¡Muy bien! ¡La vaca está lejos pastando en el fondo del prado!',
       help: 'Observa con atención: el caballo está aquí bien cerca. ¡Busquemos a la vaca que está lejos!',
-      bgImg: 'assets/espacial_cerca_caballo_vaca.png?v=331',
+      bgImg: 'assets/espacial_cerca_caballo_vaca.png?v=332',
       instruction: 'Toca quién está CERCA o quién está LEJOS'
     },
     // VARIANTE 3 (CERCA / LEJOS): EL HUERTO Y LA CARRETILLA
@@ -692,10 +692,10 @@
       title: 'El Huerto de la Granja',
       icon: '👨‍🌾',
       target: 'cerca',
-      prompt: '¿Quién está bien CERCA en el huerto? Toca al que está cerca. 👨‍🌾',
+      prompt: 'Toca lo que está cerca.',
       praise: '¡Exacto! ¡El granjero con su pala está aquí muy cerquita!',
       help: 'Observa bien: la carretilla roja está allá lejos. ¡Busquemos al granjero que está cerca!',
-      bgImg: 'assets/espacial_cerca_pala_carretilla.png?v=331',
+      bgImg: 'assets/espacial_cerca_pala_carretilla.png?v=332',
       instruction: 'Toca lo que está CERCA o lo que está LEJOS'
     },
     {
@@ -706,10 +706,10 @@
       title: 'El Huerto de la Granja',
       icon: '🚜',
       target: 'lejos',
-      prompt: '¿Qué está LEJOS al fondo? Toca lo que está lejos. 🚜',
+      prompt: 'Toca lo que está lejos.',
       praise: '¡Muy bien! ¡La carretilla roja está lejos junto a la cerca de madera!',
       help: 'Observa con atención: el granjero está aquí cerca. ¡Busquemos la carretilla que está lejos!',
-      bgImg: 'assets/espacial_cerca_pala_carretilla.png?v=331',
+      bgImg: 'assets/espacial_cerca_pala_carretilla.png?v=332',
       instruction: 'Toca lo que está CERCA o lo que está LEJOS'
     },
     // VARIANTE 1 (SERIALIZACIÓN 1º/2º/3º): CARRERA DE ANIMALES
@@ -720,10 +720,10 @@
       variantId: 'animales',
       title: 'La Carrera de los Animales',
       target: 'primero',
-      prompt: '¿Quién va en PRIMER lugar en la carrera?',
+      prompt: 'Toca el primero.',
       praise: '¡Exacto! ¡La jirafita va en primer lugar, liderando con su medalla de oro!',
       help: 'Observa las medallas: la jirafita va al frente con la medalla de 1º. ¡Toquemos a quien va primero!',
-      bgImg: 'assets/espacial_carrera_animales.png?v=331'
+      bgImg: 'assets/espacial_carrera_animales.png?v=332'
     },
     {
       key: 'fila_animales_segundo',
@@ -732,10 +732,10 @@
       variantId: 'animales',
       title: 'La Carrera de los Animales',
       target: 'segundo',
-      prompt: 'Toca al animalito que va en SEGUNDO lugar.',
+      prompt: 'Toca el segundo.',
       praise: '¡Exacto! ¡El monito con su banana va en segundo lugar con su medalla de plata!',
       help: 'Observa bien: el monito va en el medio con la medalla de 2º. ¡Toquemos al que va segundo!',
-      bgImg: 'assets/espacial_carrera_animales.png?v=331'
+      bgImg: 'assets/espacial_carrera_animales.png?v=332'
     },
     {
       key: 'fila_animales_tercero',
@@ -744,10 +744,10 @@
       variantId: 'animales',
       title: 'La Carrera de los Animales',
       target: 'tercero',
-      prompt: '¿Quién va en TERCER lugar en la carrera?',
+      prompt: 'Toca el tercero.',
       praise: '¡Exacto! ¡El valiente leoncito va en tercer lugar con su medalla de bronce!',
       help: 'Observa la fila: el leoncito va detrás con la medalla de 3º. ¡Toquemos al que va tercero!',
-      bgImg: 'assets/espacial_carrera_animales.png?v=331'
+      bgImg: 'assets/espacial_carrera_animales.png?v=332'
     },
     // VARIANTE 2 (SERIALIZACIÓN 1º/2º/3º): CARRERA DE AUTOS
     {
@@ -757,10 +757,10 @@
       variantId: 'autos',
       title: 'La Carrera de Autos',
       target: 'primero',
-      prompt: '¿Qué auto va en PRIMER lugar en la carrera?',
+      prompt: 'Toca el primero.',
       praise: '¡Exacto! ¡El auto rojo va en primer lugar con su medalla de oro!',
       help: 'Observa las medallas: el auto rojo lidera la pista con el número 1. ¡Toquemos al que va primero!',
-      bgImg: 'assets/espacial_carrera_autos.png?v=331'
+      bgImg: 'assets/espacial_carrera_autos.png?v=332'
     },
     {
       key: 'fila_autos_segundo',
@@ -769,10 +769,10 @@
       variantId: 'autos',
       title: 'La Carrera de Autos',
       target: 'segundo',
-      prompt: 'Toca el auto que va en SEGUNDO lugar.',
+      prompt: 'Toca el segundo.',
       praise: '¡Exacto! ¡El veloz auto azul va en segundo lugar con su medalla de plata!',
       help: 'Observa bien: el auto azul corre en el medio con el número 2. ¡Toquemos al que va segundo!',
-      bgImg: 'assets/espacial_carrera_autos.png?v=331'
+      bgImg: 'assets/espacial_carrera_autos.png?v=332'
     },
     {
       key: 'fila_autos_tercero',
@@ -781,10 +781,10 @@
       variantId: 'autos',
       title: 'La Carrera de Autos',
       target: 'tercero',
-      prompt: '¿Qué auto va en TERCER lugar en la carrera?',
+      prompt: 'Toca el tercero.',
       praise: '¡Exacto! ¡El auto amarillo va en tercer lugar con su medalla de bronce!',
       help: 'Observa la pista: el auto amarillo va detrás con el número 3. ¡Toquemos al que va tercero!',
-      bgImg: 'assets/espacial_carrera_autos.png?v=331'
+      bgImg: 'assets/espacial_carrera_autos.png?v=332'
     },
     // VARIANTE 3 (SERIALIZACIÓN 1º/2º/3º): CARRERA EN LA GRANJA
     {
@@ -794,10 +794,10 @@
       variantId: 'gallinas',
       title: 'La Carrera de la Granja',
       target: 'primero',
-      prompt: '¿Quién va en PRIMER lugar en la carrera de la granja?',
+      prompt: 'Toca el primero.',
       praise: '¡Exacto! ¡El alegre gallito va en primer lugar con su medalla de oro!',
       help: 'Observa las medallas: el gallito corre al frente con la medalla de 1º. ¡Toquemos al que va primero!',
-      bgImg: 'assets/espacial_carrera_gallinas.png?v=331'
+      bgImg: 'assets/espacial_carrera_gallinas.png?v=332'
     },
     {
       key: 'fila_gallinas_segundo',
@@ -806,10 +806,10 @@
       variantId: 'gallinas',
       title: 'La Carrera de la Granja',
       target: 'segundo',
-      prompt: 'Toca a quien va en SEGUNDO lugar en el sendero.',
+      prompt: 'Toca el segundo.',
       praise: '¡Exacto! ¡La gallinita colorada va en segundo lugar con su medalla de plata!',
       help: 'Observa bien: la gallinita del medio lleva la medalla de 2º. ¡Toquemos a la que va segunda!',
-      bgImg: 'assets/espacial_carrera_gallinas.png?v=331'
+      bgImg: 'assets/espacial_carrera_gallinas.png?v=332'
     },
     {
       key: 'fila_gallinas_tercero',
@@ -818,10 +818,10 @@
       variantId: 'gallinas',
       title: 'La Carrera de la Granja',
       target: 'tercero',
-      prompt: '¿Quién va en TERCER lugar en el sendero?',
+      prompt: 'Toca el tercero.',
       praise: '¡Exacto! ¡La gallinita copetuda va en tercer lugar con su medalla de bronce!',
       help: 'Observa el camino: la gallinita blanca va detrás con la medalla de 3º. ¡Toquemos a la que va tercera!',
-      bgImg: 'assets/espacial_carrera_gallinas.png?v=331'
+      bgImg: 'assets/espacial_carrera_gallinas.png?v=332'
     },
     // VARIANTE 1 (LATERALIDAD IZQUIERDA / DERECHA): LAS FLECHAS
     {
@@ -831,12 +831,12 @@
       variantId: 'flechas',
       title: 'Las Direcciones',
       target: 'izquierda',
-      prompt: 'Toca la manito que apunta a la IZQUIERDA 👈',
+      prompt: 'Toca la izquierda.',
       praise: '¡Exacto! ¡Hacia la izquierda, muy bien ubicado!',
       help: 'Observa la flecha azul: esa apunta a la derecha. ¡Busquemos la que apunta a la izquierda!',
       items: [
-        { id: 'izquierda', name: 'Izquierda 👈', img: 'assets/espacial_izquierda.png?v=331', isCorrect: true },
-        { id: 'derecha', name: 'Derecha 👉', img: 'assets/espacial_derecha.png?v=331', isCorrect: false }
+        { id: 'izquierda', name: 'Izquierda 👈', img: 'assets/espacial_izquierda.png?v=332', isCorrect: true },
+        { id: 'derecha', name: 'Derecha 👉', img: 'assets/espacial_derecha.png?v=332', isCorrect: false }
       ]
     },
     {
@@ -846,12 +846,12 @@
       variantId: 'flechas',
       title: 'Las Direcciones',
       target: 'derecha',
-      prompt: 'Toca la manito que apunta a la DERECHA 👉',
+      prompt: 'Toca la derecha.',
       praise: '¡Exacto! ¡Hacia la derecha, excelente dirección!',
       help: 'Observa la flecha: esa apunta a la izquierda. ¡Busquemos la que apunta a la derecha!',
       items: [
-        { id: 'izquierda', name: 'Izquierda 👈', img: 'assets/espacial_izquierda.png?v=331', isCorrect: false },
-        { id: 'derecha', name: 'Derecha 👉', img: 'assets/espacial_derecha.png?v=331', isCorrect: true }
+        { id: 'izquierda', name: 'Izquierda 👈', img: 'assets/espacial_izquierda.png?v=332', isCorrect: false },
+        { id: 'derecha', name: 'Derecha 👉', img: 'assets/espacial_derecha.png?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 2 (LATERALIDAD IZQUIERDA / DERECHA): EL NIÑO Y SUS MANOS
@@ -862,12 +862,12 @@
       variantId: 'nino',
       title: 'El Niño y sus Manos',
       target: 'izquierda',
-      prompt: '¿Qué niño levanta su mano IZQUIERDA? 🙋‍♂️',
+      prompt: 'Toca la izquierda.',
       praise: '¡Exacto! ¡El niño levanta su mano izquierda hacia ese lado!',
       help: 'Observa bien: este niño levanta su mano derecha. ¡Busquemos al que levanta la izquierda!',
       items: [
-        { id: 'izquierda', name: 'Mano izquierda', img: 'assets/espacial_nino_mano_izquierda.gif?v=331', isCorrect: true },
-        { id: 'derecha', name: 'Mano derecha', img: 'assets/espacial_nino_mano_derecha.gif?v=331', isCorrect: false }
+        { id: 'izquierda', name: 'Mano izquierda', img: 'assets/espacial_nino_mano_izquierda.gif?v=332', isCorrect: true },
+        { id: 'derecha', name: 'Mano derecha', img: 'assets/espacial_nino_mano_derecha.gif?v=332', isCorrect: false }
       ]
     },
     {
@@ -877,12 +877,12 @@
       variantId: 'nino',
       title: 'El Niño y sus Manos',
       target: 'derecha',
-      prompt: 'Toca al niño que levanta su mano DERECHA. 🙋‍♂️',
+      prompt: 'Toca la derecha.',
       praise: '¡Muy bien! ¡El niño levanta su mano derecha en alto!',
       help: 'Observa con atención: este niño levanta la mano izquierda. ¡Busquemos al que levanta la derecha!',
       items: [
-        { id: 'izquierda', name: 'Mano izquierda', img: 'assets/espacial_nino_mano_izquierda.gif?v=331', isCorrect: false },
-        { id: 'derecha', name: 'Mano derecha', img: 'assets/espacial_nino_mano_derecha.gif?v=331', isCorrect: true }
+        { id: 'izquierda', name: 'Mano izquierda', img: 'assets/espacial_nino_mano_izquierda.gif?v=332', isCorrect: false },
+        { id: 'derecha', name: 'Mano derecha', img: 'assets/espacial_nino_mano_derecha.gif?v=332', isCorrect: true }
       ]
     },
     // VARIANTE 3 (LATERALIDAD IZQUIERDA / DERECHA): EL PERRITO JUGUETÓN
@@ -893,12 +893,12 @@
       variantId: 'perrito',
       title: 'El Perrito Juguetón',
       target: 'izquierda',
-      prompt: '¿Cuál perrito levanta su patita hacia la IZQUIERDA? 🐶',
+      prompt: 'Toca la izquierda.',
       praise: '¡Exacto! ¡El perrito levanta su patita hacia el lado izquierdo!',
       help: 'Observa bien: este perrito la levanta a la derecha. ¡Busquemos al que va a la izquierda!',
       items: [
-        { id: 'izquierda', name: 'Patita a la izquierda', img: 'assets/espacial_perrito_izquierda.gif?v=331', isCorrect: true },
-        { id: 'derecha', name: 'Patita a la derecha', img: 'assets/espacial_perrito_derecha.gif?v=331', isCorrect: false }
+        { id: 'izquierda', name: 'Patita a la izquierda', img: 'assets/espacial_perrito_izquierda.gif?v=332', isCorrect: true },
+        { id: 'derecha', name: 'Patita a la derecha', img: 'assets/espacial_perrito_derecha.gif?v=332', isCorrect: false }
       ]
     },
     {
@@ -908,12 +908,12 @@
       variantId: 'perrito',
       title: 'El Perrito Juguetón',
       target: 'derecha',
-      prompt: 'Toca al perrito que levanta su patita hacia la DERECHA. 🐶',
+      prompt: 'Toca la derecha.',
       praise: '¡Muy bien! ¡El perrito levanta su patita hacia la derecha!',
       help: 'Observa con atención: este perrito la levanta hacia la izquierda. ¡Busquemos al de la derecha!',
       items: [
-        { id: 'izquierda', name: 'Patita a la izquierda', img: 'assets/espacial_perrito_izquierda.gif?v=331', isCorrect: false },
-        { id: 'derecha', name: 'Patita a la derecha', img: 'assets/espacial_perrito_derecha.gif?v=331', isCorrect: true }
+        { id: 'izquierda', name: 'Patita a la izquierda', img: 'assets/espacial_perrito_izquierda.gif?v=332', isCorrect: false },
+        { id: 'derecha', name: 'Patita a la derecha', img: 'assets/espacial_perrito_derecha.gif?v=332', isCorrect: true }
       ]
     }
   ];
@@ -979,6 +979,12 @@
 
   // --- AUDIO Y SÍNTESIS CON GOOGLE TTS (MOTOR OFICIAL CRIN) ---
   function safeSpeak(text, onComplete) {
+    if (!text) {
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
+    // Sanitizar texto: quitar emojis para que Google TTS nunca lea sus nombres de diccionario
+    const cleanText = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '').replace(/\s+/g, ' ').trim();
     if (SpatialSafariGame.speechWatchdog) clearTimeout(SpatialSafariGame.speechWatchdog);
     SpatialSafariGame.isSpeaking = true;
 
@@ -993,10 +999,10 @@
     };
 
     if (typeof speakText === 'function') {
-      speakText(text, finish);
+      speakText(cleanText, finish);
     } else if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+      const u = new SpeechSynthesisUtterance(cleanText);
       u.lang = 'es-ES';
       u.rate = 0.92;
       u.pitch = 1.05;
@@ -1129,7 +1135,7 @@
       // Temporizador de paciencia de 10s para guía suave sin frustración
       SpatialSafariGame.hintTimer = setTimeout(() => {
         highlightCorrectOption(round);
-      }, 10000);
+      }, 6000);
     });
   }
 
@@ -1168,16 +1174,12 @@
               <div style="width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-radius: 16px; background: radial-gradient(circle at 50% 50%, rgba(241,245,249,0.8) 0%, rgba(226,232,240,0.3) 100%);">
                 <img src="${item.img}" alt="${item.name}" style="max-width: 90%; max-height: 90%; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18)); pointer-events: none;" />
               </div>
-              <div style="margin-top: 10px; font-size: 15px; font-weight: 900; color: #1E293B; text-align: center;">
-                ${item.name}
-              </div>
+              
             </div>
           `).join('')}
         </div>
 
-        <div style="font-size: 12px; color: #64748B; font-weight: 700; text-align: center; padding-bottom: 2px;">
-          Toca la imagen que responde a la pregunta
-        </div>
+        
       </div>
     `;
   }
@@ -1220,25 +1222,23 @@
 
             <!-- ZONA SUPERIOR (ARRIBA / ENCIMA) -->
             <div id="spatial-opt-${topId}" onclick="handleSpatialChoice('${topId}', ${round.target === topId})"
-                 style="position: absolute; ${topStyle} border-radius: 20px; border: 3px dashed rgba(99,102,241,0.5); background: rgba(99,102,241,0.08); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+                 style="position: absolute; ${topStyle} border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
                  onmouseover="this.style.background='rgba(99,102,241,0.2)'; this.style.borderColor='#4F46E5';"
                  onmouseout="this.style.background='rgba(99,102,241,0.08)'; this.style.borderColor='rgba(99,102,241,0.5)';">
-              <span style="font-size: 11px; font-weight: 900; background: rgba(255,255,255,0.92); color: #4338CA; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">${topLabel}</span>
+              
             </div>
 
             <!-- ZONA INFERIOR (ABAJO / DEBAJO) -->
             <div id="spatial-opt-${bottomId}" onclick="handleSpatialChoice('${bottomId}', ${round.target === bottomId})"
-                 style="position: absolute; ${bottomStyle} border-radius: 20px; border: 3px dashed rgba(245,158,11,0.5); background: rgba(245,158,11,0.08); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
+                 style="position: absolute; ${bottomStyle} border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;"
                  onmouseover="this.style.background='rgba(245,158,11,0.2)'; this.style.borderColor='#D97706';"
                  onmouseout="this.style.background='rgba(245,158,11,0.08)'; this.style.borderColor='rgba(245,158,11,0.5)';">
-              <span style="font-size: 11px; font-weight: 900; background: rgba(255,255,255,0.92); color: #B45309; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">${bottomLabel}</span>
+              
             </div>
           </div>
         </div>
 
-        <div style="font-size: 12px; color: #64748B; font-weight: 700; text-align: center; padding-bottom: 2px;">
-          ${instruction}
-        </div>
+        
       </div>
     `;
   }
@@ -1274,25 +1274,23 @@
 
             <!-- ZONA CERCA (Left foreground) -->
             <div id="spatial-opt-cerca" onclick="handleSpatialChoice('cerca', ${round.target === 'cerca'})"
-                 style="position: absolute; bottom: 12px; left: 12px; width: 180px; height: 200px; border-radius: 20px; border: 3.5px dashed rgba(16,185,129,0.7); background: rgba(16,185,129,0.1); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px;"
+                 style="position: absolute; bottom: 12px; left: 12px; width: 180px; height: 200px; border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px;"
                  onmouseover="this.style.background='rgba(16,185,129,0.25)';"
                  onmouseout="this.style.background='rgba(16,185,129,0.1)';">
-              <span style="font-size: 12px; font-weight: 900; background: white; color: #047857; padding: 3px 10px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">CERCA 🔍</span>
+              
             </div>
 
             <!-- ZONA LEJOS (Right background) -->
             <div id="spatial-opt-lejos" onclick="handleSpatialChoice('lejos', ${round.target === 'lejos'})"
-                 style="position: absolute; top: 15px; right: 15px; width: 160px; height: 150px; border-radius: 20px; border: 3.5px dashed rgba(99,102,241,0.7); background: rgba(99,102,241,0.1); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; justify-content: center; padding-top: 10px;"
+                 style="position: absolute; top: 15px; right: 15px; width: 160px; height: 150px; border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; justify-content: center; padding-top: 10px;"
                  onmouseover="this.style.background='rgba(99,102,241,0.25)';"
                  onmouseout="this.style.background='rgba(99,102,241,0.1)';">
-              <span style="font-size: 12px; font-weight: 900; background: white; color: #4338CA; padding: 3px 10px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">LEJOS 🏔️</span>
+              
             </div>
           </div>
         </div>
 
-        <div style="font-size: 12px; color: #64748B; font-weight: 700; text-align: center; padding-bottom: 2px;">
-          ${instruction}
-        </div>
+        
       </div>
     `;
   }
@@ -1325,33 +1323,31 @@
 
             <!-- ZONA 3º TERCERO (Leoncito, left) -->
             <div id="spatial-opt-tercero" onclick="handleSpatialChoice('tercero', ${round.target === 'tercero'})"
-                 style="position: absolute; top: 12%; left: 3%; width: 29%; height: 82%; border-radius: 20px; border: 3.5px dashed rgba(217,119,6,0.6); background: rgba(217,119,6,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 style="position: absolute; top: 12%; left: 3%; width: 29%; height: 82%; border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
                  onmouseover="this.style.background='rgba(217,119,6,0.22)';"
                  onmouseout="this.style.background='rgba(217,119,6,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #B45309; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">3º TERCERO 🥉</span>
+              
             </div>
 
             <!-- ZONA 2º SEGUNDO (Monito, center) -->
             <div id="spatial-opt-segundo" onclick="handleSpatialChoice('segundo', ${round.target === 'segundo'})"
-                 style="position: absolute; top: 12%; left: 33%; width: 25%; height: 82%; border-radius: 20px; border: 3.5px dashed rgba(59,130,246,0.6); background: rgba(59,130,246,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 style="position: absolute; top: 12%; left: 33%; width: 25%; height: 82%; border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
                  onmouseover="this.style.background='rgba(59,130,246,0.22)';"
                  onmouseout="this.style.background='rgba(59,130,246,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #1D4ED8; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">2º SEGUNDO 🥈</span>
+              
             </div>
 
             <!-- ZONA 1º PRIMERO (Jirafita, right) -->
             <div id="spatial-opt-primero" onclick="handleSpatialChoice('primero', ${round.target === 'primero'})"
-                 style="position: absolute; top: 4%; left: 59%; width: 38%; height: 92%; border-radius: 20px; border: 3.5px dashed rgba(234,179,8,0.7); background: rgba(234,179,8,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 style="position: absolute; top: 4%; left: 59%; width: 38%; height: 92%; border-radius: 20px; border: 3px solid transparent; background: transparent; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
                  onmouseover="this.style.background='rgba(234,179,8,0.22)';"
                  onmouseout="this.style.background='rgba(234,179,8,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #A16207; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">1º PRIMERO 🥇</span>
+              
             </div>
           </div>
         </div>
 
-        <div style="font-size: 12px; color: #64748B; font-weight: 700; text-align: center; padding-bottom: 2px;">
-          Toca el animalito que va en primer lugar, segundo lugar o tercer lugar
-        </div>
+        
       </div>
     `;
   }
