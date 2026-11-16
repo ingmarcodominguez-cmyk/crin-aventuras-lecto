@@ -249,6 +249,28 @@
         'Localización inmediata y sin error de los 5 segmentos faciales y 4 segmentos corporales troncales.',
         'Alineación del esquema corporal propioceptivo con la orientación visoespacial.'
       ]
+    },
+    'shapes_colors': {
+      id: 'shapes_colors',
+      icon: '🎨',
+      title: 'El Valle de las Formas y Colores (Percepción y Categorización)',
+      level: 'Colores (Rojo, Azul, Verde, Amarillo), Formas (Círculo, Cuadrado, Triángulo) e Igual / Diferente',
+      neuroBasis: 'Fundamentado en la teoría de la percepción visual y categorización cognitiva (Gibson, Treisman y Enfoque Neuropsicológico de Luria). La discriminación fina de rasgos geométricos elementales (líneas curvas vs. polígonos cerrados de 3 y 4 lados) y la segregación figura-fondo mediada por color constituyen el prerrequisito visuoperceptivo indispensable para la decodificación de grafemas (letras) y símbolos numéricos.',
+      framework: 'Protocolo de Screening de Prerrequisitos Básicos / DUA / Discriminación Visoespacial',
+      objectives: [
+        'Identificar y clasificar los 4 colores primarios/secundarios clave del protocolo: rojo, verde, amarillo y azul.',
+        'Discriminar y emparejar las formas geométricas fundantes: círculo, cuadrado y triángulo.',
+        'Comprender y aplicar el principio lógico-conceptual de identidad visual: identificar si dos estímulos son IGUALES o DIFERENTES.'
+      ],
+      interventionTips: [
+        'Anime al niño a verbalizar los atributos: "¡Es rojo y brillante!", "Tiene tres puntitas, ¡es un triángulo!".',
+        'En la fase de Igual / Diferente, fomente la comparación guiada: "Mira la forma... ¿los dos son círculos? ¿tienen el mismo color?".',
+        'Aproveche el andamiaje paciente (10s de espera y brillo suave) para reforzar la autonomía sin apresurar los tiempos de procesamiento neurocognitivo.'
+      ],
+      progressIndicators: [
+        'Reconocimiento directo de los 4 colores y las 3 figuras sin error de selección.',
+        'Asimilación del principio de identidad (Igual vs. Diferente) en comparaciones visuales simultáneas.'
+      ]
     }
   };
 

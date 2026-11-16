@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v319';
+    const CURRENT_APP_VERSION = 'v320';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -146,7 +146,9 @@
   <!-- 🧺 MÓDULO PSICOPEDAGÓGICO 9: LA CANASTA DE LOS SECRETOS (Categorización Semántica e Intrusos) -->
   <script src="basket.js?v=302"></script>
   <!-- 🪞 MÓDULO PSICOPEDAGÓGICO 10: EL ESPEJO MÁGICO (Somatognosia, Esquema Corporal y Distinción Niño/Niña) -->
-  <script src="body_mirror.js?v=318"></script>
+  <script src="body_mirror.js?v=320"></script>
+  <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
+  <script src="shapes_colors.js?v=320"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -1613,6 +1615,23 @@
               </button>
             </div>
 
+            <!-- 🎨 12. EL VALLE DE LAS FORMAS Y COLORES (COLORES, FORMAS & IGUAL/DIFERENTE) -->
+            <div onclick="openShapesColorsScreen()" style="background: linear-gradient(135deg, #059669 0%, #10B981 50%, #3B82F6 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #A7F3D0; transition: transform 0.18s; margin-top: 10px;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.22); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🎨</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px;">
+                    <span>Valle de Formas y Colores</span>
+                    <span style="font-size: 9px; background: #FEF08A; color: #854D0E; padding: 1px 6px; border-radius: 6px; font-weight: 900;">NUEVO</span>
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Colores, Figuras Geométricas e Igual / Diferente</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #059669; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                ▶ JUGAR
+              </button>
+            </div>
+
           </div>
 
           <!-- BOTÓN DIRECTO GUÍA DEL TERAPEUTA EN EL MAPA -->
@@ -3003,6 +3022,38 @@
             <button onclick="closeBodyMirrorVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
               🗺️ Volver al Mapa
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎨 SCREEN 18: EL VALLE DE LAS FORMAS Y COLORES -->
+      <div id="screen-shapes-colors" class="screen" style="background: linear-gradient(180deg, #ECFDF5 0%, #EFF6FF 50%, #F5F3FF 100%);">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #ECFDF5 0%, #EFF6FF 50%, #F5F3FF 100%); padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+          <!-- BARRA SUPERIOR DE CONTROL -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0;">
+            <button onclick="closeShapesColorsAndReturnToMap()" class="btn-back" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #1E293B; font-weight: bold; border-radius: 12px; padding: 6px 12px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.06);">
+              <span>⬅️</span>
+              <span>Salir</span>
+            </button>
+            <div style="text-align: center;">
+              <div style="font-size: 13px; font-weight: 900; color: #047857; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                <span>🎨</span>
+                <span id="shapes-colors-title">Valle de Formas y Colores</span>
+                <span id="shapes-colors-badge" style="font-size: 10px; font-weight: 800; background: #10B981; color: white; padding: 2px 7px; border-radius: 8px;">Colores y Formas</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button onclick="repeatShapesPrompt()" style="background: #F0FDF4; border: 1.5px solid #BBF7D0; color: #15803D; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Repetir Consigna">
+                <span>🔊 Escuchar</span>
+              </button>
+              <button onclick="openTherapistGuideModal('shapes_colors')" style="background: #EFF6FF; border: 1.5px solid #BFDBFE; color: #1D4ED8; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+                <span>ℹ️ Terapeuta</span>
+              </button>
+            </div>
+          </div>
+          <!-- ÁREA PRINCIPAL DEL ESCENARIO -->
+          <div id="shapes-colors-stage" style="position: relative; flex: 1; width: 100%; min-height: 340px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12); border: 2.5px solid #A7F3D0; display: flex; flex-direction: column;">
+            <!-- Renderizado dinámico desde shapes_colors.js -->
           </div>
         </div>
       </div>
@@ -5766,6 +5817,12 @@
         MirrorGame.isSpeaking = false;
         if (MirrorGame.voiceTimeout) clearTimeout(MirrorGame.voiceTimeout);
         if (MirrorGame.animFrameId) cancelAnimationFrame(MirrorGame.animFrameId);
+      }
+      if (screenName !== 'shapes-colors' && window.ShapesColorsGame) {
+        ShapesColorsGame.isRunning = false;
+        ShapesColorsGame.isSpeaking = false;
+        if (ShapesColorsGame.hintTimer) clearTimeout(ShapesColorsGame.hintTimer);
+        if (ShapesColorsGame.speechWatchdog) clearTimeout(ShapesColorsGame.speechWatchdog);
       }
       if (screenName !== 'body-mirror' && window.BodyMirrorGame) {
         BodyMirrorGame.isRunning = false;
