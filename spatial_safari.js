@@ -194,34 +194,34 @@
       key: 'fila_primero',
       type: 'fila_interactive',
       family: 'serializacion',
-      title: 'La Fila del Safari',
+      title: 'La Carrera en el Sendero',
       target: 'primero',
-      prompt: '¿Quién está PRIMERO en la fila del safari?',
-      praise: '¡Exacto! ¡El simpático leoncito va primero guiando la fila!',
-      help: 'Observa la fila de izquierda a derecha: ¡toquemos al que está en el primer lugar!',
-      bgImg: 'assets/espacial_fila_animales.png?v=323'
+      prompt: '¿Quién va en PRIMER lugar en la carrera?',
+      praise: '¡Exacto! ¡La jirafita va en primer lugar, liderando con su medalla de oro!',
+      help: 'Observa las medallas: la jirafita va al frente con la medalla de 1º. ¡Toquemos a quien va primero!',
+      bgImg: 'assets/espacial_carrera_animales.png?v=327'
     },
     {
-      key: 'fila_medio',
+      key: 'fila_segundo',
       type: 'fila_interactive',
       family: 'serializacion',
-      title: 'La Fila del Safari',
-      target: 'en_medio',
-      prompt: 'Toca al animalito que está EN MEDIO de sus amigos.',
-      praise: '¡Exacto! ¡El monito travieso está justo en el medio!',
-      help: 'Observa con atención: el león está primero y la jirafa de última. ¡Toquemos al que está en medio!',
-      bgImg: 'assets/espacial_fila_animales.png?v=323'
+      title: 'La Carrera en el Sendero',
+      target: 'segundo',
+      prompt: 'Toca al animalito que va en SEGUNDO lugar.',
+      praise: '¡Exacto! ¡El monito con su banana va en segundo lugar con su medalla de plata!',
+      help: 'Observa bien: el monito va en el medio con la medalla de 2º. ¡Toquemos al que va segundo!',
+      bgImg: 'assets/espacial_carrera_animales.png?v=327'
     },
     {
-      key: 'fila_ultimo',
+      key: 'fila_tercero',
       type: 'fila_interactive',
       family: 'serializacion',
-      title: 'La Fila del Safari',
-      target: 'ultimo',
-      prompt: '¿Quién quedó ÚLTIMO al final de la fila?',
-      praise: '¡Exacto! ¡La dulce jirafita está de última al final de la fila!',
-      help: 'Observa el final de la fila: ¡toquemos al animalito que está en el último lugar!',
-      bgImg: 'assets/espacial_fila_animales.png?v=323'
+      title: 'La Carrera en el Sendero',
+      target: 'tercero',
+      prompt: '¿Quién va en TERCER lugar en la carrera?',
+      praise: '¡Exacto! ¡El valiente leoncito va en tercer lugar con su medalla de bronce!',
+      help: 'Observa la fila: el leoncito va detrás con la medalla de 3º. ¡Toquemos al que va tercero!',
+      bgImg: 'assets/espacial_carrera_animales.png?v=327'
     },
     {
       key: 'izquierda_derecha_izquierda',
@@ -604,7 +604,7 @@
     `;
   }
 
-  // 4. Ronda Fila del Safari (Primero, En medio, Último)
+  // 4. Ronda Carrera de Animales (Primero, Segundo, Tercero)
   function renderFilaRound(stage, round) {
     stage.innerHTML = `
       <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px; box-sizing: border-box; width: 100%;">
@@ -612,9 +612,9 @@
         <!-- BANNER DE CONSIGNA -->
         <div style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); color: white; padding: 10px 16px; border-radius: 18px; width: 100%; max-width: 720px; box-shadow: 0 4px 14px rgba(49,46,129,0.25); display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 2px solid #6366F1;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="font-size: 26px;">🦁</div>
+            <div style="font-size: 26px;">🏆</div>
             <div>
-              <div style="font-size: 11px; font-weight: 700; color: #A5B4FC; text-transform: uppercase;">La Fila de Amigos</div>
+              <div style="font-size: 11px; font-weight: 700; color: #A5B4FC; text-transform: uppercase;">La Carrera de los Animales</div>
               <div id="spatial-prompt-text" style="font-size: 16px; font-weight: 900; color: #FEF08A; text-shadow: 0 1px 3px rgba(0,0,0,0.4);">
                 ${round.prompt}
               </div>
@@ -625,39 +625,39 @@
           </button>
         </div>
 
-        <!-- ESCENARIO INTERACTIVO: FILA DE 3 ANIMALITOS -->
-        <div style="flex: 1; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; padding: 10px; position: relative;">
-          <div style="position: relative; width: 440px; height: 260px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 3px solid #E2E8F0; overflow: hidden; display: flex;">
-            <img src="${round.bgImg}" alt="Fila de animales" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none;" />
+        <!-- ESCENARIO INTERACTIVO: CARRERA DE 3 ANIMALES (1º, 2º, 3º) -->
+        <div style="flex: 1; width: 100%; max-width: 650px; display: flex; align-items: center; justify-content: center; padding: 8px; position: relative;">
+          <div style="position: relative; width: 100%; max-width: 580px; aspect-ratio: 16/9; max-height: 330px; background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 3px solid #E2E8F0; overflow: hidden;">
+            <img src="${round.bgImg}" alt="Carrera de animales" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none;" />
 
-            <!-- ZONA PRIMERO (Leoncito, left) -->
+            <!-- ZONA 3º TERCERO (Leoncito, left) -->
+            <div id="spatial-opt-tercero" onclick="handleSpatialChoice('tercero', ${round.target === 'tercero'})"
+                 style="position: absolute; top: 12%; left: 3%; width: 29%; height: 82%; border-radius: 20px; border: 3.5px dashed rgba(217,119,6,0.6); background: rgba(217,119,6,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 onmouseover="this.style.background='rgba(217,119,6,0.22)';"
+                 onmouseout="this.style.background='rgba(217,119,6,0.06)';">
+              <span style="font-size: 11px; font-weight: 900; background: white; color: #B45309; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">3º TERCERO 🥉</span>
+            </div>
+
+            <!-- ZONA 2º SEGUNDO (Monito, center) -->
+            <div id="spatial-opt-segundo" onclick="handleSpatialChoice('segundo', ${round.target === 'segundo'})"
+                 style="position: absolute; top: 12%; left: 33%; width: 25%; height: 82%; border-radius: 20px; border: 3.5px dashed rgba(59,130,246,0.6); background: rgba(59,130,246,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 onmouseover="this.style.background='rgba(59,130,246,0.22)';"
+                 onmouseout="this.style.background='rgba(59,130,246,0.06)';">
+              <span style="font-size: 11px; font-weight: 900; background: white; color: #1D4ED8; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">2º SEGUNDO 🥈</span>
+            </div>
+
+            <!-- ZONA 1º PRIMERO (Jirafita, right) -->
             <div id="spatial-opt-primero" onclick="handleSpatialChoice('primero', ${round.target === 'primero'})"
-                 style="position: absolute; top: 20px; left: 10px; width: 130px; height: 215px; border-radius: 18px; border: 3px dashed rgba(245,158,11,0.5); background: rgba(245,158,11,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
-                 onmouseover="this.style.background='rgba(245,158,11,0.2)';"
-                 onmouseout="this.style.background='rgba(245,158,11,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #B45309; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">1º PRIMERO</span>
-            </div>
-
-            <!-- ZONA EN MEDIO (Monito, center) -->
-            <div id="spatial-opt-en_medio" onclick="handleSpatialChoice('en_medio', ${round.target === 'en_medio'})"
-                 style="position: absolute; top: 20px; left: 155px; width: 130px; height: 215px; border-radius: 18px; border: 3px dashed rgba(16,185,129,0.5); background: rgba(16,185,129,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
-                 onmouseover="this.style.background='rgba(16,185,129,0.2)';"
-                 onmouseout="this.style.background='rgba(16,185,129,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #047857; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">EN MEDIO</span>
-            </div>
-
-            <!-- ZONA ÚLTIMO (Jirafita, right) -->
-            <div id="spatial-opt-ultimo" onclick="handleSpatialChoice('ultimo', ${round.target === 'ultimo'})"
-                 style="position: absolute; top: 20px; right: 10px; width: 130px; height: 215px; border-radius: 18px; border: 3px dashed rgba(99,102,241,0.5); background: rgba(99,102,241,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
-                 onmouseover="this.style.background='rgba(99,102,241,0.2)';"
-                 onmouseout="this.style.background='rgba(99,102,241,0.06)';">
-              <span style="font-size: 11px; font-weight: 900; background: white; color: #4338CA; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">ÚLTIMO</span>
+                 style="position: absolute; top: 4%; left: 59%; width: 38%; height: 92%; border-radius: 20px; border: 3.5px dashed rgba(234,179,8,0.7); background: rgba(234,179,8,0.06); cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;"
+                 onmouseover="this.style.background='rgba(234,179,8,0.22)';"
+                 onmouseout="this.style.background='rgba(234,179,8,0.06)';">
+              <span style="font-size: 11px; font-weight: 900; background: white; color: #A16207; padding: 2px 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">1º PRIMERO 🥇</span>
             </div>
           </div>
         </div>
 
         <div style="font-size: 12px; color: #64748B; font-weight: 700; text-align: center; padding-bottom: 2px;">
-          Toca el animalito correspondiente en la fila (Primero, En medio o Último)
+          Toca el animalito que va en primer lugar, segundo lugar o tercer lugar
         </div>
       </div>
     `;
