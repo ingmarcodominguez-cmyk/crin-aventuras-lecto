@@ -271,7 +271,30 @@
         'Reconocimiento directo de los 4 colores y las 3 figuras sin error de selección.',
         'Asimilación del principio de identidad (Igual vs. Diferente) en comparaciones visuales simultáneas.'
       ]
-    }
+    },
+    'spatial_safari': {
+      id: 'spatial_safari',
+      icon: '🧭',
+      title: 'El Safari de la Orientación Espacial (Paso 3)',
+      level: 'Relaciones y Nociones Espaciales, Serialización y Lateralidad',
+      neuroBasis: 'Fundamentado en el desarrollo de la orientación espacial y funciones visuoespaciales del lóbulo parietal derecho e integración parieto-occipital. La adquisición de relaciones espaciales topológicas (dentro/fuera, encima/debajo, delante/detrás, cerca/lejos, abierto/cerrado, ancho/estrecho) y proyectivas (primero/medio/último, izquierda/derecha) es el cimiento indispensable para la direccionalidad lectora de izquierda a derecha y previene confusiones entre grafías especulares (b/d, p/q).',
+      framework: 'Protocolo de Screening de Prerrequisitos / DUA / Neurodesarrollo Espacial',
+      objectives: [
+        'Comprender y discriminar las relaciones topológicas fundamentales: dentro/fuera, encima/debajo, delante/detrás y abierto/cerrado.',
+        'Evaluar magnitudes y distancias relativas: ancho/estrecho y cerca/lejos.',
+        'Dominar la serialización posicional en orden de izquierda a derecha: identificar quién está primero, en el medio y último.',
+        'Iniciar la diferenciación de lateralidad direccional: izquierda vs. derecha.'
+      ],
+      interventionTips: [
+        'Acompañe las preguntas con gestos corporales vivenciales: señale arriba, abajo o hacia los lados.',
+        'En la fila de animales, ayude al niño a seguir con el dedito la dirección del safari de izquierda a derecha.',
+        'Aproveche la retroalimentación positiva (\"¡Exacto!\") para que el niño verbalice la posición: \"Sí, el perrito está adentro\".'
+      ],
+      progressIndicators: [
+        'Discriminación acertada de los 8 pares de conceptos espaciales sin titubeo.',
+        'Correcta traslación de las relaciones espaciales a la hoja de trabajo y a la orientación de lectura.'
+      ]
+    },
   };
 
   // Exponer a nivel global

@@ -8,7 +8,7 @@
   <title>CRIN Aventuras de Lectoescritura</title>
   
   <script>
-    const CURRENT_APP_VERSION = 'v322';
+    const CURRENT_APP_VERSION = 'v323';
     // DECISIÓN PEDAGÓGICA TEMPORAL: Desactivar pronunciación de sílabas y letras en el juego
     // El narrador solo presenta el juego y celebra (¡Súper, logrado!, etc.), sin seguimiento de letras/sílabas
     window.CRIN_MUTE_IN_GAME_SYLLABLES_LETTERS = true;
@@ -149,6 +149,8 @@
   <script src="body_mirror.js?v=320"></script>
   <!-- 🎨 MÓDULO PSICOPEDAGÓGICO 11: EL VALLE DE LAS FORMAS Y COLORES -->
   <script src="shapes_colors.js?v=321"></script>
+  <!-- 🧭 MÓDULO PSICOPEDAGÓGICO 12: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (Paso 3) -->
+  <script src="spatial_safari.js?v=323"></script>
   <!-- MOTOR DE VOZ EN ESPAÑOL GARANTIZADO (ResponsiveVoice) -->
   <script src="https://code.responsivevoice.org/responsivevoice.js" defer></script>
 
@@ -1626,6 +1628,23 @@
                   </div>
                   <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Colores, Figuras Geométricas e Igual / Diferente</div>
                 </div>
+
+            <!-- 🧭 13. EL SAFARI DE LA ORIENTACIÓN ESPACIAL (PASO 3: DENTRO/FUERA, ENCIMA/DEBAJO...) -->
+            <div onclick="openSpatialSafariScreen()" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%); color: white; padding: 10px 14px; border-radius: 16px; box-shadow: 0 4px 12px rgba(49, 46, 129, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: space-between; border: 2.5px solid #818CF8; transition: transform 0.18s; margin-top: 10px;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(255,255,255,0.22); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); font-size: 22px;">🧭</div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 6px;">
+                    <span>El Safari Espacial</span>
+                    <span style="font-size: 9px; background: #FEF08A; color: #854D0E; padding: 1px 6px; border-radius: 6px; font-weight: 900;">NUEVO</span>
+                  </div>
+                  <div style="font-size: 10px; opacity: 0.95; font-weight: 600;">Orientación Espacial · Dentro/Fuera, Encima/Debajo, Delante/Detrás...</div>
+                </div>
+              </div>
+              <button style="background: #FFFFFF; color: #312E81; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                ▶ JUGAR
+              </button>
+            </div>
               </div>
               <button style="background: #FFFFFF; color: #059669; border: none; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
                 ▶ JUGAR
@@ -3081,6 +3100,63 @@
           <!-- ÁREA PRINCIPAL DEL ESCENARIO -->
           <div id="shapes-colors-stage" style="position: relative; flex: 1; width: 100%; min-height: 340px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12); border: 2.5px solid #A7F3D0; display: flex; flex-direction: column;">
             <!-- Renderizado dinámico desde shapes_colors.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 🧭 SCREEN 19: EL SAFARI DE LA ORIENTACIÓN ESPACIAL (PASO 3) -->
+      <div id="screen-spatial-safari" class="screen" style="background: linear-gradient(180deg, #EEF2FF 0%, #E0E7FF 50%, #F5F3FF 100%);">
+        <div class="game-screen-container" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #EEF2FF 0%, #E0E7FF 50%, #F5F3FF 100%); padding: 10px; border-radius: 24px; box-sizing: border-box; display: flex; flex-direction: column; height: 100%;">
+          <!-- BARRA SUPERIOR DE CONTROL -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0;">
+            <button onclick="closeSpatialSafariAndReturnToMap()" class="btn-back" style="background: #FFFFFF; border: 1.5px solid #CBD5E1; color: #1E293B; font-weight: bold; border-radius: 12px; padding: 6px 12px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.06);">
+              <span>⬅️</span>
+              <span>Salir</span>
+            </button>
+            <div style="text-align: center;">
+              <div style="font-size: 13px; font-weight: 900; color: #312E81; display: flex; align-items: center; gap: 5px; justify-content: center; flex-wrap: wrap;">
+                <span>🧭</span>
+                <span id="spatial-safari-title">El Safari Espacial</span>
+                <span id="spatial-safari-badge" style="font-size: 10px; font-weight: 800; background: #6366F1; color: white; padding: 2px 7px; border-radius: 8px;">Reto 1 de 6</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button onclick="repeatSpatialPrompt()" style="background: #EEF2FF; border: 1.5px solid #C7D2FE; color: #4338CA; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Repetir Consigna">
+                <span>🔊 Escuchar</span>
+              </button>
+              <button onclick="openTherapistGuideModal('spatial_safari')" style="background: #FDF4FF; border: 1.5px solid #F5D0FE; color: #86198F; padding: 6px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 3px;" title="Guía Clínica">
+                <span>ℹ️ Terapeuta</span>
+              </button>
+            </div>
+          </div>
+          <!-- ÁREA PRINCIPAL DEL ESCENARIO -->
+          <div id="spatial-safari-stage" style="position: relative; flex: 1; width: 100%; min-height: 340px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.12); border: 2.5px solid #C7D2FE; display: flex; flex-direction: column;">
+            <!-- Renderizado dinámico desde spatial_safari.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 🧭 MODAL DE VICTORIA DEL SAFARI ESPACIAL -->
+      <div id="spatial-victory-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; padding: 16px;">
+        <div style="background: white; border-radius: 24px; padding: 24px; max-width: 360px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.35); border: 3px solid #6366F1; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <div style="font-size: 52px; margin-bottom: 8px;">🧭⭐🦁</div>
+          <h2 style="font-size: 20px; font-weight: 900; color: #312E81; margin-bottom: 6px;">¡Maestro de la Orientación!</h2>
+          <p style="font-size: 13px; color: #64748B; margin-bottom: 14px;">
+            ¡Completaste todos los desafíos del Safari Espacial reconociendo cada posición con éxito!
+          </p>
+          
+          <div style="background: #EEF2FF; border: 2px dashed #6366F1; border-radius: 16px; padding: 12px; margin-bottom: 16px;">
+            <div style="font-size: 13px; font-weight: 900; color: #4338CA;">🏆 Recompensa del Gran Safari</div>
+            <div style="font-size: 16px; font-weight: 800; color: #4F46E5; margin-top: 2px;">+25 Monedas 🪙 | +15 Estrellas ⭐</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button onclick="restartSpatialSafariQuest()" style="background: linear-gradient(135deg, #4F46E5, #312E81); color: white; border: none; font-size: 14px; padding: 12px; font-weight: bold; border-radius: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(79,70,229,0.35);">
+              🔄 Jugar de nuevo
+            </button>
+            <button onclick="closeSpatialVictoryModal()" style="background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; font-size: 13px; padding: 10px; font-weight: bold; border-radius: 14px; cursor: pointer;">
+              🗺️ Volver al Mapa
+            </button>
           </div>
         </div>
       </div>
