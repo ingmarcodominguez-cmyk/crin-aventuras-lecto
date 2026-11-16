@@ -150,8 +150,8 @@
       praise: '¡Exacto! ¡Ese puente es muy ancho y fuerte!',
       help: 'Observa bien: ese caminito es estrecho y delgadito. ¡Busquemos el puente más ancho!',
       items: [
-        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=323', isCorrect: true },
-        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=323', isCorrect: false }
+        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=325', isCorrect: true },
+        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=325', isCorrect: false }
       ]
     },
     {
@@ -164,8 +164,8 @@
       praise: '¡Exacto! ¡Ese es el puente estrecho por donde pasa el patito!',
       help: 'Observa con atención: ese puente es muy ancho. ¡Busquemos el puente más estrecho!',
       items: [
-        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=323', isCorrect: false },
-        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=323', isCorrect: true }
+        { id: 'ancho', name: 'Puente ancho', img: 'assets/espacial_puente_ancho.png?v=325', isCorrect: false },
+        { id: 'estrecho', name: 'Puente estrecho', img: 'assets/espacial_puente_estrecho.png?v=325', isCorrect: true }
       ]
     },
     {
@@ -297,40 +297,34 @@
     return picked;
   }
 
-  // --- AUDIO Y SÍNTESIS DE VOZ NATURAL ---
-  function safeSpeak(text, onEnd) {
+  // --- AUDIO Y SÍNTESIS CON GOOGLE TTS (MOTOR OFICIAL CRIN) ---
+  function safeSpeak(text, onComplete) {
+    if (SpatialSafariGame.speechWatchdog) clearTimeout(SpatialSafariGame.speechWatchdog);
     SpatialSafariGame.isSpeaking = true;
-    if (typeof stopAllAudio === 'function') stopAllAudio();
 
-    if ('speechSynthesis' in window) {
+    SpatialSafariGame.speechWatchdog = setTimeout(() => {
+      SpatialSafariGame.isSpeaking = false;
+    }, 9000);
+
+    const finish = () => {
+      SpatialSafariGame.isSpeaking = false;
+      if (SpatialSafariGame.speechWatchdog) clearTimeout(SpatialSafariGame.speechWatchdog);
+      if (typeof onComplete === 'function') onComplete();
+    };
+
+    if (typeof speakText === 'function') {
+      speakText(text, finish);
+    } else if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
       u.lang = 'es-ES';
       u.rate = 0.92;
       u.pitch = 1.05;
-
-      const voices = window.speechSynthesis.getVoices();
-      const esVoice = voices.find(v => v.lang.startsWith('es') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Helena') || v.name.includes('Laura') || v.name.includes('Sabina')));
-      if (esVoice) u.voice = esVoice;
-
-      let called = false;
-      const finish = () => {
-        if (called) return;
-        called = true;
-        SpatialSafariGame.isSpeaking = false;
-        if (SpatialSafariGame.speechWatchdog) clearTimeout(SpatialSafariGame.speechWatchdog);
-        if (typeof onEnd === 'function') onEnd();
-      };
-
       u.onend = finish;
       u.onerror = finish;
-      SpatialSafariGame.speechWatchdog = setTimeout(finish, Math.max(3000, text.length * 90));
       window.speechSynthesis.speak(u);
     } else {
-      setTimeout(() => {
-        SpatialSafariGame.isSpeaking = false;
-        if (typeof onEnd === 'function') onEnd();
-      }, 1500);
+      finish();
     }
   }
 
@@ -374,15 +368,16 @@
 
   // --- APERTURA Y NAVEGACIÓN ---
   window.openSpatialSafariScreen = function() {
-    const screens = document.querySelectorAll('.screen');
-    screens.forEach(s => s.classList.remove('active'));
+    if (typeof stopAllAudio === 'function') stopAllAudio('open_spatial_safari');
 
-    const screen = document.getElementById('screen-spatial-safari');
-    if (!screen) {
-      console.error('No se encontró #screen-spatial-safari');
-      return;
+    if (typeof switchScreen === 'function') {
+      switchScreen('spatial-safari');
+    } else {
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(s => s.classList.remove('active'));
+      const screen = document.getElementById('screen-spatial-safari');
+      if (screen) screen.classList.add('active');
     }
-    screen.classList.add('active');
 
     SpatialSafariGame.isRunning = true;
     SpatialSafariGame.currentRoundIndex = 0;
@@ -398,13 +393,16 @@
     SpatialSafariGame.isRunning = false;
     clearTimeout(SpatialSafariGame.hintTimer);
     clearTimeout(SpatialSafariGame.speechWatchdog);
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (typeof stopAllAudio === 'function') stopAllAudio('close_spatial_safari');
 
-    const screen = document.getElementById('screen-spatial-safari');
-    if (screen) screen.classList.remove('active');
-
-    const mapScreen = document.getElementById('screen-map') || document.getElementById('screen-welcome');
-    if (mapScreen) mapScreen.classList.add('active');
+    if (typeof switchScreen === 'function') {
+      switchScreen('map');
+    } else {
+      const screen = document.getElementById('screen-spatial-safari');
+      if (screen) screen.classList.remove('active');
+      const mapScreen = document.getElementById('screen-map') || document.getElementById('screen-welcome');
+      if (mapScreen) mapScreen.classList.add('active');
+    }
   };
 
   window.repeatSpatialPrompt = function() {
