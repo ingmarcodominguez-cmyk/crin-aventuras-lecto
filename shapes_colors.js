@@ -40,7 +40,7 @@
       name: 'Rojo',
       article: 'el cofre rojo',
       icon: '🔴',
-      img: 'assets/cofre_rojo.png?v=320',
+      img: 'assets/cofre_rojo.png?v=321',
       prompt: '¡Busquemos el cofre de color ROJO!',
       praise: '¡Excelente! ¡Ese es el cofre rojo lleno de brillantes rubíes!'
     },
@@ -49,7 +49,7 @@
       name: 'Azul',
       article: 'el cofre azul',
       icon: '🔵',
-      img: 'assets/cofre_azul.png?v=320',
+      img: 'assets/cofre_azul.png?v=321',
       prompt: '¡Toca el cofre de color AZUL!',
       praise: '¡Genial! ¡Ese es el cofre azul brillante como el cielo!'
     },
@@ -58,7 +58,7 @@
       name: 'Verde',
       article: 'el cofre verde',
       icon: '🟢',
-      img: 'assets/cofre_verde.png?v=320',
+      img: 'assets/cofre_verde.png?v=321',
       prompt: '¡Encuentra el cofre de color VERDE!',
       praise: '¡Súper! ¡Ese es el cofre verde de esmeraldas de la naturaleza!'
     },
@@ -67,7 +67,7 @@
       name: 'Amarillo',
       article: 'el cofre amarillo',
       icon: '🟡',
-      img: 'assets/cofre_amarillo.png?v=320',
+      img: 'assets/cofre_amarillo.png?v=321',
       prompt: '¡Busquemos el cofre de color AMARILLO!',
       praise: '¡Bravo! ¡Ese es el cofre amarillo luminoso como el sol!'
     }
@@ -79,7 +79,7 @@
       key: 'circulo',
       name: 'Círculo',
       icon: '🔴',
-      img: 'assets/forma_circulo.png?v=320',
+      img: 'assets/forma_circulo.png?v=321',
       prompt: '¡Busquemos la figura redonda! ¡Toca el CÍRCULO!',
       praise: '¡Fantástico! ¡Ese es el círculo, redondo como una pelota o el sol!'
     },
@@ -87,7 +87,7 @@
       key: 'cuadrado',
       name: 'Cuadrado',
       icon: '🟦',
-      img: 'assets/forma_cuadrado.png?v=320',
+      img: 'assets/forma_cuadrado.png?v=321',
       prompt: '¡Busquemos la figura con cuatro lados rectos! ¡Toca el CUADRADO!',
       praise: '¡Muy bien! ¡Ese es el cuadrado, con sus cuatro esquinitas iguales!'
     },
@@ -95,7 +95,7 @@
       key: 'triangulo',
       name: 'Triángulo',
       icon: '🔺',
-      img: 'assets/forma_triangulo.png?v=320',
+      img: 'assets/forma_triangulo.png?v=321',
       prompt: '¡Busquemos la figura con tres puntitas! ¡Toca el TRIÁNGULO!',
       praise: '¡Excelente! ¡Ese es el triángulo, con sus tres lados y tres puntas!'
     }
@@ -105,43 +105,43 @@
   const COMPARE_ROUNDS = [
     {
       id: 1,
-      itemA: { img: 'assets/forma_circulo.png?v=320', label: 'Círculo Rojo' },
-      itemB: { img: 'assets/forma_circulo.png?v=320', label: 'Círculo Rojo' },
+      itemA: { img: 'assets/forma_circulo.png?v=321', label: 'Círculo Rojo' },
+      itemB: { img: 'assets/forma_circulo.png?v=321', label: 'Círculo Rojo' },
       isSame: true,
-      explainSame: '¡Exacto! ¡Son IGUALES! Tienen la misma forma redonda y el mismo color rojo.',
-      explainDiff: 'Míralos bien: ambos son círculos rojos, ¡son iguales!'
+      praiseText: '¡Exacto! ¡Son iguales! Tienen la misma forma redonda y el mismo color rojo.',
+      helpText: 'Observa bien: ambas figuras son círculos rojos, ¡son iguales! Toca el botón de Iguales.'
     },
     {
       id: 2,
-      itemA: { img: 'assets/forma_cuadrado.png?v=320', label: 'Cuadrado Azul' },
-      itemB: { img: 'assets/forma_triangulo.png?v=320', label: 'Triángulo Amarillo' },
+      itemA: { img: 'assets/forma_cuadrado.png?v=321', label: 'Cuadrado Azul' },
+      itemB: { img: 'assets/forma_triangulo.png?v=321', label: 'Triángulo Amarillo' },
       isSame: false,
-      explainSame: 'Míralos bien: uno es un cuadrado azul y otro es un triángulo amarillo, ¡son diferentes!',
-      explainDiff: '¡Muy bien! ¡Son DIFERENTES! Uno es un cuadrado azul y el otro un triángulo amarillo.'
+      praiseText: '¡Exacto! ¡Son diferentes! Uno es un cuadrado azul y el otro un triángulo amarillo.',
+      helpText: 'Observa bien: tienen formas y colores distintos, ¡son diferentes! Toca el botón de Diferentes.'
     },
     {
       id: 3,
-      itemA: { img: 'assets/cofre_verde.png?v=320', label: 'Cofre Verde' },
-      itemB: { img: 'assets/cofre_verde.png?v=320', label: 'Cofre Verde' },
+      itemA: { img: 'assets/cofre_verde.png?v=321', label: 'Cofre Verde' },
+      itemB: { img: 'assets/cofre_verde.png?v=321', label: 'Cofre Verde' },
       isSame: true,
-      explainSame: '¡Genial! ¡Son IGUALES! Son dos cofres verdes gemelos.',
-      explainDiff: 'Fíjate bien: los dos cofres son de color verde brillante, ¡son iguales!'
+      praiseText: '¡Exacto! ¡Son iguales! Los dos son cofres verdes brillantes.',
+      helpText: 'Observa bien: los dos cofres son de color verde, ¡son iguales! Toca el botón de Iguales.'
     },
     {
       id: 4,
-      itemA: { img: 'assets/cofre_rojo.png?v=320', label: 'Cofre Rojo' },
-      itemB: { img: 'assets/cofre_azul.png?v=320', label: 'Cofre Azul' },
+      itemA: { img: 'assets/cofre_rojo.png?v=321', label: 'Cofre Rojo' },
+      itemB: { img: 'assets/cofre_azul.png?v=321', label: 'Cofre Azul' },
       isSame: false,
-      explainSame: 'Míralos bien: uno es rojo y el otro es azul, ¡tienen distinto color, son diferentes!',
-      explainDiff: '¡Excelente! ¡Son DIFERENTES! Uno es rojo y el otro es azul.'
+      praiseText: '¡Exacto! ¡Son diferentes! Un cofre es rojo y el otro es azul, tienen distinto color.',
+      helpText: 'Observa bien: un cofre es rojo y el otro es azul, ¡son diferentes! Toca el botón de Diferentes.'
     },
     {
       id: 5,
-      itemA: { img: 'assets/forma_cuadrado.png?v=320', label: 'Cuadrado Azul' },
-      itemB: { img: 'assets/forma_cuadrado.png?v=320', label: 'Cuadrado Azul' },
+      itemA: { img: 'assets/forma_cuadrado.png?v=321', label: 'Cuadrado Azul' },
+      itemB: { img: 'assets/forma_cuadrado.png?v=321', label: 'Cuadrado Azul' },
       isSame: true,
-      explainSame: '¡Maravilloso! ¡Son IGUALES! Tienen la misma forma de cubo y el mismo color azul.',
-      explainDiff: 'Míralos bien: ambos son cuadrados azules idénticos, ¡son iguales!'
+      praiseText: '¡Exacto! ¡Son iguales! Los dos son cuadrados de color azul.',
+      helpText: 'Observa bien: ambos son cuadrados azules idénticos, ¡son iguales! Toca el botón de Iguales.'
     }
   ];
 
@@ -667,7 +667,7 @@
         if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
       }
 
-      safeSpeak(round.explainSame, () => {
+      safeSpeak(round.praiseText, () => {
         setTimeout(() => {
           if (pedestal) {
             pedestal.style.borderColor = '#CBD5E1';
@@ -691,7 +691,7 @@
         setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
       }
 
-      safeSpeak(round.explainDiff, () => {
+      safeSpeak(round.helpText, () => {
         startHintTimer(() => {
           const correctBtnId = round.isSame ? 'sc-btn-same' : 'sc-btn-diff';
           highlightHint(correctBtnId);
